@@ -1,13 +1,18 @@
 #include "Headers.h"
 
+void RenderSystem::init(RoomData *data)
+{
+    this->data = data;
+}
+
 void RenderSystem::tick(double dt)
 {
-    //processing velocity animations
     for(auto eid : ecs.join<cp::Render, cp::Velocity>())
     {
         auto &cpRender = ecs::get<cp::Render>(eid);
         auto &cpVel = ecs::get<cp::Velocity>(eid);
-        
+ 
+        //processing velocity animations
         if (cpRender.profile != nullptr)
         {
             unsigned orientation = Dir::kNone;
@@ -17,6 +22,19 @@ void RenderSystem::tick(double dt)
                                                               !cpVel.direction.isZero());
             if ((animData != nullptr) && (animData->key != cpRender.curAnimKey))
                 cpRender.setAnimation(animData->key, -1);
+        }
+        
+        //update zorders
+        if (!cpVel.velocity.isZero() && ecs::has<cp::Position, cp::Collision>(eid))
+        {
+            auto cpPos = ecs::get<cp::Position>(eid);
+            if (cpPos.last != cpPos.pos)
+            {
+                auto p1 = ecs::get<cp::Collision>(eid).rect.origin;
+                auto p2 = data->getModel()->getGridPos({cpPos.pos.x + p1.x, cpPos.pos.y + p1.y});
+                auto zOrder = data->getModel()->getZOrder(p2);
+                cpRender.sprite->setLocalZOrder(zOrder + 1);
+            }
         }
     }
 }

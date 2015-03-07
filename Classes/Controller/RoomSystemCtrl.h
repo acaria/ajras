@@ -32,7 +32,7 @@ private:
     
     //data
     MapData* data;
-    std::map<unsigned, cocos2d::Layer*> roomViews;
+    std::map<unsigned, RoomLayer*> roomViews;
     
     //camera
     void setCamera(cocos2d::Vec2 pos);

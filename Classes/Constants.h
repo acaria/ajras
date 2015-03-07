@@ -10,8 +10,9 @@ const float kSecondsPerTick = 1.0f / kTicksPerSecond;
 
 enum CollisionCategory
 {
+    impassable,
     walkable,
-    flyable
+    flyable,
 };
 
 enum Dir

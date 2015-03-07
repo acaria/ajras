@@ -204,9 +204,21 @@ cocos2d::Rect RoomModel::getRectCoord(lib::v2u pos)
              (float)tileSize.x, (float)tileSize.y };
 }
 
-cocos2d::Vec2 RoomModel::getPos(lib::v2u pos)
+cocos2d::Vec2 RoomModel::getPosCoord(lib::v2u pos)
 {
     return { (float)pos.x * tileSize.x, (float)pos.y * tileSize.y };
+}
+
+lib::v2u RoomModel::getGridPos(cocos2d::Vec2 coord)
+{
+    return {(unsigned)coord.x / tileSize.x,
+            (unsigned)coord.y / tileSize.y
+    };
+}
+
+int RoomModel::getZOrder(lib::v2u pos)
+{
+    return (grid.width - 1 - pos.x + ((grid.height - 1 - pos.y) * grid.height)) * 3;
 }
 
 void RoomModel::genShape(RoomModel& mapData)

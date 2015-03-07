@@ -28,15 +28,16 @@ void RoomSystemCtrl::changeRoom(unsigned roomIndex,
         cp::entity::move(eid, prevRoomIndex, roomIndex);
         if (ecs::has<cp::Render>(eid))
         {
-            this->roomViews[prevRoomIndex]->removeChild(ecs::get<cp::Render>(eid).sprite, false);
-            this->roomViews[roomIndex]->addChild(ecs::get<cp::Render>(eid).sprite);
+            this->roomViews[prevRoomIndex]->main->removeChild(ecs::get<cp::Render>(eid).sprite, false);
+            this->roomViews[roomIndex]->main->addChild(ecs::get<cp::Render>(eid).sprite);
         }
     }
     this->data->setCurIdxRoom(roomIndex);
     
     collisionSystem.init(data->getCurRoom());
+    renderSystem.init(data->getCurRoom());
     ecsGroup.setID(roomIndex);
-
+    
     //camera
     auto bounds = this->data->getCurRoom()->getBounds();
     this->moveCamera({bounds.getMidX(), bounds.getMidY()}, 1);
@@ -48,6 +49,7 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
     roomViews.clear();
     inputSystem.init(view);
     collisionSystem.init(data->getCurRoom());
+    renderSystem.init(data->getCurRoom());
     ecsGroup.setID(data->getCurRoom()->index);
     
     //88888888888888888
@@ -86,26 +88,33 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
         auto roomIndex = pair.first;
         auto roomData = pair.second;
         
-        auto roomLayer = Layer::create();
+        auto roomLayer = RoomLayer::create();
         
         auto grid = roomData->getModel()->grid;
         
         //todo: try not generating entities for bg maps
         
         //map
-        for(unsigned i = 0; i < grid.width; i++)
         for(unsigned j = 0; j < grid.height; j++)
+        for(unsigned i = 0; i < grid.width; i++)
         {
-                
-            auto eid = cp::entity::genID();
             auto properties = grid.get(i, j).fields;
             if (properties.find(BlockInfo::bgTileName) != properties.end())
             {
-                ecs::add<cp::Render>(eid, roomIndex).setFrame(properties[BlockInfo::bgTileName],
-                                                              roomLayer, (grid.width - i) * 3 + (grid.height - j) * 3);
-                    
-                auto sprite = ecs::get<cp::Render>(eid).sprite;
-                sprite->setPosition({roomData->getModel()->getPos({i,j})});
+                //HACK: put most of tiles in bg layer
+                auto rl = roomLayer->bg;
+                if (properties.find(BlockInfo::collision) != properties.end() &&
+                    properties[BlockInfo::collision] == "flyable")
+                {
+                    rl = roomLayer->main;
+                }
+                
+                auto coord = roomData->getModel()->getPosCoord({i,j});
+                auto sprite = Sprite::createWithSpriteFrameName(properties[BlockInfo::bgTileName]);
+                sprite->getTexture()->setAliasTexParameters();
+                sprite->setAnchorPoint({0, 0});
+                sprite->setPosition(coord);
+                rl->addChild(sprite, roomData->getModel()->getZOrder({i,j}));
             }
         }
         
@@ -113,7 +122,10 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
         for(auto obj : roomData->getModel()->objs)
         {
             auto eid = cp::entity::genID();
-            ecs::add<cp::Render>(eid, roomIndex).setProfile(obj.profileName, roomLayer, 1000);
+            auto gridPos = roomData->getModel()->getGridPos(obj.pos);
+            ecs::add<cp::Render>(eid, roomIndex).setProfile(obj.profileName,
+                                                            roomLayer->main,
+                                                            roomData->getModel()->getZOrder(gridPos) + 1);
             ecs::add<cp::Collision>(eid, roomIndex).setProfile(obj.profileName);
             ecs::add<cp::Position>(eid, roomIndex).set(obj.pos);
             
@@ -122,7 +134,6 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
                 cp::playerID = eid;
                 ecs::add<cp::Orientation>(eid, roomIndex);
                 ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
-                ecs::add<cp::Position>(eid, roomIndex).set({100, 100});
                 ecs::add<cp::Input>(eid, roomIndex) = true;
             }
             
@@ -137,7 +148,7 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
                 light->setPosition(obj.pos + Vec2(8, 8));
                 light->runAction(RepeatForever::create(Flicker::create(80.0f, 0.1f,
                                                                        {150, 200}, {0.98, 1.2}, {0.9,1.1}, Color3B(252, 168, 50), Color3B(252, 168, 50))));
-                roomLayer->addChild(light, 1000);
+                roomLayer->fg->addChild(light, 1);
             }
         }
         
@@ -149,7 +160,9 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
             
             auto eid = cp::entity::genID();
             ecs::add<cp::Gate>(eid, roomIndex).set(
-                                                   destRoomIndex, destGateIndex, roomData->getModel()->gates[srcGateIndex]);
+                                                   destRoomIndex,
+                                                   destGateIndex,
+                                                   roomData->getModel()->gates[srcGateIndex]);
         }
         
         roomLayer->setPosition(roomData->position);

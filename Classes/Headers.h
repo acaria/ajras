@@ -53,6 +53,7 @@
 #include "BaseScene.h"
 #include "MainMenuScene.h"
 #include "GameScene.h"
+#include "RoomLayer.h"
 
 //Controller
 #include "TickCtrl.h"

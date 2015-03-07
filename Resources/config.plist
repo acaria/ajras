@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Gameplay</key>
+	<dict>
+		<key>Rules</key>
+		<dict>
+			<key>SpecialInterval</key>
+			<string>15</string>
+			<key>MovesInterval</key>
+			<integer>1</integer>
+		</dict>
+		<key>Touch</key>
+		<dict>
+			<key>SwipeSpeed</key>
+			<real>0.2</real>
+			<key>SwipeLength</key>
+			<integer>30</integer>
+		</dict>
+	</dict>
+	<key>GridDim</key>
+	<dict>
+		<key>width</key>
+		<integer>11</integer>
+		<key>height</key>
+		<integer>9</integer>
+	</dict>
+	<key>GridLayout</key>
+	<dict>
+		<key>PanelPosition</key>
+		<dict>
+			<key>x</key>
+			<integer>210</integer>
+			<key>y</key>
+			<integer>20</integer>
+		</dict>
+		<key>BlockSize</key>
+		<dict>
+			<key>height</key>
+			<integer>60</integer>
+			<key>width</key>
+			<integer>60</integer>
+		</dict>
+		<key>GridPosition</key>
+		<dict>
+			<key>x</key>
+			<integer>13</integer>
+			<key>y</key>
+			<integer>13</integer>
+		</dict>
+	</dict>
+</dict>
+</plist>

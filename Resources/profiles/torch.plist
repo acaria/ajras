@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>collision</key>
+	<dict>
+		<key>rect</key>
+		<string>0,0,16,16</string>
+		<key>cat</key>
+		<string>fixed</string>
+	</dict>
+	<key>animations</key>
+	<dict>
+		<key>activated</key>
+		<dict>
+			<key>delay</key>
+			<string>0.1</string>
+			<key>format</key>
+			<string>torch_on%d.png</string>
+			<key>frameCount</key>
+			<integer>4</integer>
+		</dict>
+		<key>idle</key>
+		<dict>
+			<key>format</key>
+			<string>torch_off.png</string>
+			<key>frameCount</key>
+			<integer>1</integer>
+		</dict>
+	</dict>
+</dict>
+</plist>

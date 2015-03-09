@@ -33,6 +33,7 @@
 #include "MapData.h"
 
 //System
+#include "InputComponent.h"
 #include "RenderComponent.h"
 #include "GateComponent.h"
 #include "CollisionComponent.h"
@@ -44,6 +45,7 @@
 #include "MoveSystem.h"
 #include "CollisionSystem.h"
 #include "RenderSystem.h"
+#include "ControlSystem.h"
 #include "InputSystem.h"
 #include "GateSystem.h"
 

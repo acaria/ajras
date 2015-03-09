@@ -10,9 +10,10 @@ namespace cp
     using Orientation = ecs::component<OrientationComponent, 3>;
     using Velocity = ecs::component<VelocityComponent, 4>;
     using Profile = ecs::component<ProfileData*, 5>;
-    using Input = ecs::component<bool, 6>;
+    using Input = ecs::component<InputComponent, 6>;
     using Collision = ecs::component<CollisionComponent, 7>;
     using Gate = ecs::component<GateComponent, 8>;
+    using Control = ecs::component<bool, 9>;
     
     struct entity
     {
@@ -33,6 +34,7 @@ namespace cp
             ecs::move<Input>(id, g1, g2);
             ecs::move<Collision>(id, g1, g2);
             ecs::move<Gate>(id, g1, g2);
+            ecs::move<Control>(id, g1, g2);
         }
         
         static void remove(unsigned id, unsigned group)
@@ -45,6 +47,7 @@ namespace cp
             ecs::del<Input>(id, 1);
             ecs::del<Collision>(id, group);
             ecs::del<Gate>(id, group);
+            ecs::del<Control>(id, group);
         }
         
         static void clear(unsigned group)
@@ -57,6 +60,7 @@ namespace cp
             ecs::clearGroup<Input>(group);
             ecs::clearGroup<Collision>(group);
             ecs::clearGroup<Gate>(group);
+            ecs::clearGroup<Control>(group);
             
             genID(true);
         }

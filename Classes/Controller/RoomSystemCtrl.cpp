@@ -2,6 +2,7 @@
 
 void RoomSystemCtrl::tick(double dt)
 {
+    controlSystem.tick(dt);
     inputSystem.tick(dt);
     moveSystem.tick(dt);
     collisionSystem.tick(dt);
@@ -11,6 +12,7 @@ void RoomSystemCtrl::tick(double dt)
 
 void RoomSystemCtrl::animate(double dt, double tickPercent)
 {
+    controlSystem.animate(dt, tickPercent);
     inputSystem.animate(dt, tickPercent);
     moveSystem.animate(dt, tickPercent);
     collisionSystem.animate(dt, tickPercent);
@@ -47,7 +49,7 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
 {
     this->data = data;
     roomViews.clear();
-    inputSystem.init(view);
+    controlSystem.init(view);
     collisionSystem.init(data->getCurRoom());
     renderSystem.init(data->getCurRoom());
     ecsGroup.setID(data->getCurRoom()->index);
@@ -134,7 +136,8 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
                 cp::playerID = eid;
                 ecs::add<cp::Orientation>(eid, roomIndex);
                 ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
-                ecs::add<cp::Input>(eid, roomIndex) = true;
+                ecs::add<cp::Input>(eid, roomIndex);
+                ecs::add<cp::Control>(eid, roomIndex) = true;
             }
             
             if (obj.profileName == "torch")

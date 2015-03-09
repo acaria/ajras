@@ -10,7 +10,7 @@ public:
     void init(RoomData* data);
     
     virtual void tick(double dt) final;
-    virtual void animate(double dt, double tp) final;
+    virtual void animate(double dt, double tp) final {}
     
 private:
     struct gridCollisionInfo
@@ -19,11 +19,17 @@ private:
         lib::v2u        gridPos;
         cocos2d::Rect   gridRect;
     };
+    
+    void reset();
+    
+    lib::Box bounce(const PositionComponent &cpPos,
+                    const CollisionComponent &cpCol,
+                    const cocos2d::Rect& target);
 
     std::list<cocos2d::Rect> getRectGridCollisions(const cocos2d::Rect& rect,
-                                               CollisionCategory cat);
+                                                   CollisionCategory cat);
     bool checkRoomCollision(const cocos2d::Rect& rect,
-                        CollisionCategory cat);
+                            CollisionCategory cat);
     lib::v2u getGridPosIntersect(float x, float y);
     lib::v2u getGridPosIntersect(const cocos2d::Vec2& v);
     

@@ -2,6 +2,11 @@
 
 CollisionSystem::~CollisionSystem()
 {
+    this->reset();
+}
+
+void CollisionSystem::reset()
+{
     for(auto pair : this->grids)
     {
         if (pair.second != nullptr)
@@ -70,14 +75,9 @@ std::list<cocos2d::Rect> CollisionSystem::getRectGridCollisions(const cocos2d::R
 
 void CollisionSystem::init(RoomData* room)
 {
+    this->reset();
+
     auto grid = room->getModel()->grid;
-    
-    for(auto pair : this->grids)
-    {
-        if (pair.second != nullptr)
-            delete pair.second;
-    }
-    this->grids.clear();
     
     this->blockSize = room->getModel()->tileSize;
     this->grids[CollisionCategory::walkable] = new lib::DataGrid<bool>(grid.width, grid.height);
@@ -175,10 +175,70 @@ void CollisionSystem::tick(double dt)
                     break;
             }
         }
+        
+        //check room objects
+        for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position>())
+        {
+            if (oid != eid)
+            {
+                auto cpPosition2 = ecs::get<cp::Position>(oid);
+                auto cpCollision2 = ecs::get<cp::Collision>(oid);
+                
+                cocos2d::Rect bounds2 = {
+                    cpPosition2.pos.x + cpCollision2.rect.origin.x,
+                    cpPosition2.pos.y + cpCollision2.rect.origin.y,
+                    cpCollision2.rect.size.width,
+                    cpCollision2.rect.size.height
+                };
+                
+                if (bounds2.intersectsRect(bounds))
+                {
+#if kDrawDebug
+                    ecs::get<cp::Render>(eid).collision->setColor(Color3B::RED);
+#endif
+                    //bounce
+                    auto box = bounce(cpPosition, cpCollision, bounds2);
+                    cpPosition.pos = {box.x, box.y};
+                    cpVelocity.velocity = {box.vx, box.vy};
+                    
+                    if (ecs::has<cp::Input>(eid))
+                    {
+                        cpVelocity.direction = Vec2::ZERO;
+                        ecs::get<cp::Input>(eid).predicates.push_back([](unsigned id) {
+                            if (!ecs::has<cp::Velocity>(id))
+                                return true;
+                            return ecs::get<cp::Velocity>(id).velocity.isZero();
+                        });
+                    }
+                }
+            }
+        }
     }
 }
 
-void CollisionSystem::animate(double dt, double tp)
+lib::Box CollisionSystem::bounce(const PositionComponent &cpPos,
+                                 const CollisionComponent &cpCol,
+                                 const cocos2d::Rect& target)
 {
+    cocos2d::Vec2 pRes = cpPos.last;
+    auto b1 = lib::Box(cpPos.last.x + cpCol.rect.getMinX(),
+                       cpPos.last.y + cpCol.rect.getMinY(),
+                       cpCol.rect.size.width, cpCol.rect.size.height,
+                       cpPos.pos.x - cpPos.last.x,
+                       cpPos.pos.y - cpPos.last.y);
+    auto b2 = lib::Box(target, {0, 0});
     
+    float nX, nY;
+    auto ct = lib::SweptAABB(b1, b2, nX, nY);
+    if (ct < 1.0f)
+    {
+        pRes += {b1.vx * ct, b1.vy * ct};
+        auto rt = 1.f - ct;
+        b1.vx *= rt;
+        b1.vy *= rt;
+        if (abs(nX) > 0.0001f) b1.vx = -b1.vx;
+        if (abs(nY) > 0.0001f) b1.vy = -b1.vy;
+        pRes += {b1.vx * rt, b1.vy * rt};
+    }
+    return lib::Box(pRes.x, pRes.y, b1.w, b1.h, b1.vx, b1.vy);
 }

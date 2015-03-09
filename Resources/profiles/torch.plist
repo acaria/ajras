@@ -7,7 +7,7 @@
 		<key>rect</key>
 		<string>0,0,16,16</string>
 		<key>cat</key>
-		<string>fixed</string>
+		<string>walkable</string>
 	</dict>
 	<key>animations</key>
 	<dict>

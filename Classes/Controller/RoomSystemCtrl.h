@@ -8,7 +8,8 @@ public:
                       collisionSystem(ecsGroup),
                       moveSystem(ecsGroup),
                       gateSystem(ecsGroup),
-                      inputSystem(ecsGroup)
+                      inputSystem(ecsGroup),
+                      controlSystem(ecsGroup)
     {
     }
 
@@ -26,6 +27,7 @@ private:
     MoveSystem      moveSystem;
     GateSystem      gateSystem;
     InputSystem     inputSystem;
+    ControlSystem   controlSystem;
     
     //local ecs
     lib::EcsGroup   ecsGroup;

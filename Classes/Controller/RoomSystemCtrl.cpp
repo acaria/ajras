@@ -131,7 +131,7 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
             ecs::add<cp::Collision>(eid, roomIndex).setProfile(obj.profileName);
             ecs::add<cp::Position>(eid, roomIndex).set(obj.pos);
             
-            if (obj.profileName == "char1") //player
+            if (obj.profileName == "boy") //player
             {
                 cp::playerID = eid;
                 ecs::add<cp::Orientation>(eid, roomIndex);

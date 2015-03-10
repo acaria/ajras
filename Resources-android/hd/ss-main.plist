@@ -7,20 +7,20 @@
             <key>btn_blue_down.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{3,3},{27,27}}</string>
+                <string>{{3,34},{27,23}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{0,-2}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{27,27}}</string>
+                <string>{{0,4},{27,23}}</string>
                 <key>sourceSize</key>
                 <string>{27,27}</string>
             </dict>
             <key>btn_blue_up.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{3,34},{27,27}}</string>
+                <string>{{3,3},{27,27}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -38,9 +38,9 @@
             <key>realTextureFileName</key>
             <string>ss-main.png</string>
             <key>size</key>
-            <string>{33,64}</string>
+            <string>{33,60}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:a2700b12b9125d87b0039458c8cb8c3c:81b9dbf93789e35b69ff6985c4bce71f:676184a6fc07999f13e6dff740128c33$</string>
+            <string>$TexturePacker:SmartUpdate:e6b3a480e2d61ee11686601edd9dacca:81b9dbf93789e35b69ff6985c4bce71f:676184a6fc07999f13e6dff740128c33$</string>
             <key>textureFileName</key>
             <string>ss-main.png</string>
         </dict>

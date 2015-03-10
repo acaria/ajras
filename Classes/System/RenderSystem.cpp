@@ -56,6 +56,8 @@ void RenderSystem::animate(double dt, double tickPercent)
         auto animData = cpRender.getCurAnim();
         if (animData != nullptr)
         {
+            cpRender.sprite->setFlippedX(animData->flipX);
+            cpRender.sprite->setFlippedY(animData->flipY);
             double elapsed = cpRender.elapsedTime + dt;
             auto duration = animData->duration();
             if (elapsed > duration)

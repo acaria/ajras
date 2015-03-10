@@ -5,7 +5,7 @@
 const bool  kShowFPS = true;
 const float kUpdatesPerSecond = 60.0f;
 const float kIdealInterval = 1.0f / kUpdatesPerSecond;
-const float kTicksPerSecond = 20;
+const float kTicksPerSecond = 25;
 const float kSecondsPerTick = 1.0f / kTicksPerSecond;
 
 enum CollisionCategory

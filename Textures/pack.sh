@@ -23,7 +23,7 @@ else
     do
         ${TP} --smart-update \
               --max-size 1024 \
-		      --trim-mode None \
+		      --trim-mode Trim \
 		      --extrude 1 \
 		      --format cocos2d \
 		      --texture-format png \
@@ -38,7 +38,7 @@ else
 
         ${TP} --smart-update \
               --max-size 1024 \
-		      --trim-mode None \
+		      --trim-mode Trim \
 		      --extrude 1 \
 		      --format cocos2d \
 		      --texture-format png \

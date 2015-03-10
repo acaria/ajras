@@ -6,8 +6,17 @@ struct AnimationData
     AnimationData(const std::string& key, const cocos2d::ValueMap &data)
         :key(key)
     {
+        this->flipX = false;
+        this->flipY = false;
+        
         if (data.find("delay") != data.end())
             this->delay = data.at("delay").asFloat();
+        
+        if (data.find("flipX") != data.end())
+            this->flipX = data.at("flipX").asBool();
+        
+        if (data.find("flipY") != data.end())
+            this->flipY = data.at("flipY").asBool();
         
         unsigned frameCount;
         if (data.find("frameCount") != data.end())
@@ -46,6 +55,8 @@ struct AnimationData
     float                       delay;
     std::vector<std::string>    frameNames;
     std::string                 key;
+    bool                        flipX;
+    bool                        flipY;
     
     unsigned frameCount()
     {

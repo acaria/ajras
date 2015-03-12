@@ -146,6 +146,12 @@ namespace ecs
         return subsystem<T,JOIN>( join<U,V,W>(group) );
     }
     
+    template<class T, class U, class V, class W, class X>
+    std::set< unsigned > join(unsigned group)
+    {
+        return subsystem<T,JOIN>( join<U,V,W,X>(group) );
+    }
+    
     template<class T>
     std::set< unsigned > exclude(const std::set<unsigned> &B, unsigned group)
     {

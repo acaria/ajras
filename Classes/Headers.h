@@ -38,6 +38,7 @@
 #include "GateComponent.h"
 #include "CollisionComponent.h"
 #include "PositionComponent.h"
+#include "MeleeComponent.h"
 #include "OrientationComponent.h"
 #include "VelocityComponent.h"
 #include "Components.h"
@@ -48,6 +49,7 @@
 #include "ControlSystem.h"
 #include "InputSystem.h"
 #include "GateSystem.h"
+#include "MeleeSystem.h"
 
 //View
 #include "TickScheduler.h"

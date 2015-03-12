@@ -14,6 +14,7 @@ namespace cp
     using Collision = ecs::component<CollisionComponent, 7>;
     using Gate = ecs::component<GateComponent, 8>;
     using Control = ecs::component<bool, 9>;
+    using Melee = ecs::component<MeleeComponent, 10>;
     
     struct entity
     {
@@ -35,6 +36,7 @@ namespace cp
             ecs::move<Collision>(id, g1, g2);
             ecs::move<Gate>(id, g1, g2);
             ecs::move<Control>(id, g1, g2);
+            ecs::move<Melee>(id, g1, g2);
         }
         
         static void remove(unsigned id, unsigned group)
@@ -48,6 +50,7 @@ namespace cp
             ecs::del<Collision>(id, group);
             ecs::del<Gate>(id, group);
             ecs::del<Control>(id, group);
+            ecs::del<Melee>(id, group);
         }
         
         static void clear(unsigned group)
@@ -61,6 +64,7 @@ namespace cp
             ecs::clearGroup<Collision>(group);
             ecs::clearGroup<Gate>(group);
             ecs::clearGroup<Control>(group);
+            ecs::clearGroup<Melee>(group);
             
             genID(true);
         }

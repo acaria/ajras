@@ -20,9 +20,7 @@ void InputSystem::tick(double dt)
         auto& cpInput = ecs::get<cp::Input>(eid);
         
         if (!checkPredicates(eid, cpInput)) //inhibitor
-        {
             continue;
-        }
         
         if (ecs::has<cp::Orientation>(eid))
         {

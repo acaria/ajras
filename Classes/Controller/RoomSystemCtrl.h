@@ -9,7 +9,8 @@ public:
                       moveSystem(ecsGroup),
                       gateSystem(ecsGroup),
                       inputSystem(ecsGroup),
-                      controlSystem(ecsGroup)
+                      controlSystem(ecsGroup),
+                      meleeSystem(ecsGroup)
     {
     }
 
@@ -28,6 +29,7 @@ private:
     GateSystem      gateSystem;
     InputSystem     inputSystem;
     ControlSystem   controlSystem;
+    MeleeSystem     meleeSystem;
     
     //local ecs
     lib::EcsGroup   ecsGroup;

@@ -56,7 +56,19 @@ public:
     template<class T, class U, class V, class W>
     std::set< unsigned > join()
     {
-        return subsystem<T,ecs::JOIN>( join<U,V,W>(this->gid) );
+        return ecs::subsystem<T,ecs::JOIN>( join<U,V,W>(), this->gid);
+    }
+    
+    template<class T, class U, class V, class W, class X>
+    std::set< unsigned > join()
+    {
+        return ecs::subsystem<T,ecs::JOIN>( join<U,V,W,X>(this->gid) );
+    }
+
+    template<class T, class U, class V, class W, class X, class Y>
+    std::set< unsigned > join()
+    {
+        return ecs::subsystem<T,ecs::JOIN>( join<U,V,W,X,Y>(this->gid) );
     }
     
     template<class T>

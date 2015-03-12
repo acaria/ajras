@@ -14,7 +14,8 @@ public:
     std::string     collisionCat;
     cocos2d::Rect   collisionRect;
     
+    static std::string getTagName(unsigned int orientation);
+    
 private:
     std::map<std::string, AnimationData*> animationData;
-    std::string getTagName(unsigned int orientation);
 };

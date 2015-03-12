@@ -6,6 +6,7 @@ void RoomSystemCtrl::tick(double dt)
     inputSystem.tick(dt);
     moveSystem.tick(dt);
     collisionSystem.tick(dt);
+    meleeSystem.tick(dt);
     gateSystem.tick(dt);
     renderSystem.tick(dt);
 }
@@ -16,6 +17,7 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
     inputSystem.animate(dt, tickPercent);
     moveSystem.animate(dt, tickPercent);
     collisionSystem.animate(dt, tickPercent);
+    meleeSystem.animate(dt, tickPercent);
     gateSystem.animate(dt, tickPercent);
     renderSystem.animate(dt, tickPercent);
 }
@@ -129,7 +131,7 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
                                                             roomLayer->main,
                                                             roomData->getModel()->getZOrder(gridPos) + 1);
             ecs::add<cp::Collision>(eid, roomIndex).setProfile(obj.profileName);
-            ecs::add<cp::Position>(eid, roomIndex).set(obj.pos);
+            ecs::add<cp::Position>(eid, roomIndex).set(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
             
             if (obj.profileName == "boy") //player
             {
@@ -138,6 +140,7 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
                 ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
                 ecs::add<cp::Input>(eid, roomIndex);
                 ecs::add<cp::Control>(eid, roomIndex) = true;
+                ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 16);
             }
             
             if (obj.profileName == "torch")

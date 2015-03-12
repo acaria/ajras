@@ -77,13 +77,16 @@ namespace lib
     
     struct IntTime
     {
+        typedef long IntType;
+        typedef double FloatType;
+        
         static const int kMultiplier = 1000;
         static constexpr float kDivisor = 1.0f / (float)kMultiplier;
         
-        int t;
+        IntType t;
         
         IntTime() : t(0) {}
-        IntTime(int t) : t(t) {}
+        IntTime(IntType t) : t(t) {}
         IntTime(const IntTime& rhs):t(rhs.t) {}
         IntTime& operator=(const IntTime& rhs) {t = rhs.t; return *this; }
         
@@ -99,14 +102,14 @@ namespace lib
         IntTime operator/(const IntTime& rhs) { return IntTime(t / rhs.t); }
         IntTime& operator/=(const IntTime& rhs) { t /= rhs.t; return *this; }
         
-        IntTime(double t) : t(t * kMultiplier) {}
+        IntTime(FloatType t) : t(t * kMultiplier) {}
         IntTime& operator=(const double rhs) {t= rhs * kMultiplier; return *this; }
         double toDouble() { return (double)t * kDivisor; }
         
-        bool operator==(double rhs) { return t == (int)(rhs * kMultiplier); }
-        bool operator!=(double rhs) { return t != (int)(rhs * kMultiplier); }
-        bool operator<(double rhs) { return t < (int)(rhs * kMultiplier); }
-        bool operator>(double rhs) { return t > (int)(rhs * kMultiplier); }
+        bool operator==(double rhs) { return t == (IntType)(rhs * kMultiplier); }
+        bool operator!=(double rhs) { return t != (IntType)(rhs * kMultiplier); }
+        bool operator<(double rhs) { return t < (IntType)(rhs * kMultiplier); }
+        bool operator>(double rhs) { return t > (IntType)(rhs * kMultiplier); }
         
         bool operator==(const IntTime& rhs) { return t == rhs.t; }
         bool operator!=(const IntTime& rhs) { return t != rhs.t; }

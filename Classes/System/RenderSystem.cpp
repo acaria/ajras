@@ -13,15 +13,12 @@ void RenderSystem::tick(double dt)
         auto &cpVel = ecs::get<cp::Velocity>(eid);
  
         //processing velocity animations
-        if (cpRender.profile != nullptr)
+        if (!cpRender.busy && cpRender.profile != nullptr)
         {
             unsigned orientation = Dir::kNone;
             if (ecs::has<cp::Orientation>(eid))
                 orientation = ecs::get<cp::Orientation>(eid).curDir;
-            auto animData = cpRender.profile->getDirAnimation(orientation,
-                                                              !cpVel.direction.isZero());
-            if ((animData != nullptr) && (animData->key != cpRender.curAnimKey))
-                cpRender.setAnimation(animData->key, -1);
+            cpRender.setMoveAnimation(orientation, !cpVel.direction.isZero());
         }
         
         //update zorders
@@ -66,7 +63,8 @@ void RenderSystem::animate(double dt, double tickPercent)
                     cpRender.repeat--;
                 if (cpRender.repeat == 0)
                 {
-                    //dorepeat
+                    cpRender.busy = false;
+                    continue;
                 }
                 elapsed -= duration;
             }

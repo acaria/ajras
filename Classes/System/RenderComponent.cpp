@@ -19,6 +19,7 @@ void RenderComponent::setProfile(const std::string &profileName,
     this->sprite = this->initSprite(getCurAnim()->frameNames.at(0));
     
     parent->addChild(this->sprite, zOrder);
+    this->busy = false;
 }
 
 cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
@@ -30,9 +31,17 @@ cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
 #if kDrawDebug
     this->collision = Sprite::createWithSpriteFrameName("pixel.png");
     this->collision->setOpacity(100);
+    this->collision->setColor(Color3B::GREEN);
     this->collision->setAnchorPoint({0,0});
     this->collision->setVisible(false);
     res->addChild(this->collision);
+
+    this->melee = Sprite::createWithSpriteFrameName("pixel.png");
+    this->melee->setOpacity(100);
+    this->melee->setColor(Color3B::YELLOW);
+    this->melee->setAnchorPoint({0,0});
+    this->melee->setVisible(false);
+    res->addChild(this->melee);
 #endif
     
     return res;
@@ -40,9 +49,23 @@ cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
 
 void RenderComponent::setAnimation(const std::string &key, int repeat)
 {
+    this->busy = true;
     this->elapsedTime = 0.0f;
     this->repeat = repeat;
     this->curAnimKey = key;
+}
+
+void RenderComponent::setMoveAnimation(const unsigned &orientation, bool moving)
+{
+    if (this->profile == nullptr)
+        return;
+    auto anim = this->profile->getDirAnimation(orientation, moving);
+    if (anim != nullptr && anim->key != this->curAnimKey)
+    {
+        this->elapsedTime = 0.0f;
+        this->repeat = -1;
+        this->curAnimKey = anim->key;
+    }
 }
 
 AnimationData* RenderComponent::getCurAnim()

@@ -48,13 +48,13 @@ namespace lib
     {
         unsigned res = Dir::kNone;
         
-        if (abs(v.x) > abs(v.y) || !cardinal)
+        if ((abs(v.x) > abs(v.y)) || !cardinal)
         {
             if (v.x < 0) res |= Dir::kLeft;
             if (v.x > 0) res |= Dir::kRight;
         }
         
-        if (abs(v.y) > abs(v.x) || !cardinal)
+        if ((abs(v.y) > abs(v.x)) || !cardinal)
         {
             if (v.y < 0) res |= Dir::kDown;
             if (v.y > 0) res |= Dir::kUp;

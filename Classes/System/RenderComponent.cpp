@@ -47,12 +47,21 @@ cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
     return res;
 }
 
-void RenderComponent::setAnimation(const std::string &key, int repeat)
+void RenderComponent::cancelAnimation()
+{
+    if (this->onComplete != nullptr)
+        onComplete(true);
+    this->setAnimation("idle", -1);
+    this->busy = false;
+}
+
+void RenderComponent::setAnimation(const std::string &key, int repeat, std::function<void(bool)> onComplete)
 {
     this->busy = true;
     this->elapsedTime = 0.0f;
     this->repeat = repeat;
     this->curAnimKey = key;
+    this->onComplete = onComplete;
 }
 
 void RenderComponent::setMoveAnimation(const unsigned &orientation, bool moving)
@@ -66,6 +75,7 @@ void RenderComponent::setMoveAnimation(const unsigned &orientation, bool moving)
         this->repeat = -1;
         this->curAnimKey = anim->key;
     }
+    this->onComplete = nullptr;
 }
 
 AnimationData* RenderComponent::getCurAnim()

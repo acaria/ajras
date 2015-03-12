@@ -18,6 +18,12 @@ struct VelocityComponent
         direction = {0,0};
     }
     
+    void applyVelocity(const cocos2d::Vec2& v)
+    {
+        velocity = v;
+        decelFactor = 1.0;
+    }
+    
     //input
     double speed;
     double accelDuration = 1.0;

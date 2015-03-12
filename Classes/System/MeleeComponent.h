@@ -11,10 +11,18 @@ struct MeleeComponent
         this->type = meleeType;
         this->name = name;
         this->coolDownDuration = 2.f;
+        this->processed = false;
+        this->launched = false;
+        this->curDir = 0;
     }
 
     double      lastTime = 0;
     unsigned    damage;
+    
+    bool        processed;
+    bool        launched;
+    
+    unsigned    curDir;
     
     //input
     std::string name;
@@ -24,7 +32,14 @@ struct MeleeComponent
     
     bool isCoolDown()
     {
-        Log("cool=%f", lib::now() - lastTime);
         return (lastTime == 0) || (lib::now() - lastTime > coolDownDuration);
+    }
+    
+    void launch(unsigned dir)
+    {
+        curDir = dir;
+        lastTime = lib::now();
+        launched = true;
+        processed = false;
     }
 };

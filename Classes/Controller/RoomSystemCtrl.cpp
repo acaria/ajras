@@ -140,7 +140,13 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
                 ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
                 ecs::add<cp::Input>(eid, roomIndex);
                 ecs::add<cp::Control>(eid, roomIndex) = true;
-                ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 16);
+                ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 12);
+            }
+            
+            if (obj.profileName == "char1")
+            {
+                ecs::add<cp::Orientation>(eid, roomIndex);
+                ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
             }
             
             if (obj.profileName == "torch")
@@ -166,9 +172,7 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
             
             auto eid = cp::entity::genID();
             ecs::add<cp::Gate>(eid, roomIndex).set(
-                                                   destRoomIndex,
-                                                   destGateIndex,
-                                                   roomData->getModel()->gates[srcGateIndex]);
+                destRoomIndex, destGateIndex, roomData->getModel()->gates[srcGateIndex]);
         }
         
         roomLayer->setPosition(roomData->position);

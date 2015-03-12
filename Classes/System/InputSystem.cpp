@@ -20,8 +20,16 @@ void InputSystem::tick(double dt)
         auto& cpInput = ecs::get<cp::Input>(eid);
         
         if (!checkPredicates(eid, cpInput)) //inhibitor
+        {
+            //reset velocity dir
+            if (ecs::has<cp::Velocity>(eid))
+                ecs::get<cp::Velocity>(eid).direction = Vec2::ZERO;
+            cpInput.disabled = true;
             continue;
+        }
+        cpInput.disabled = false;
         
+        //set orientation
         if (ecs::has<cp::Orientation>(eid))
         {
             auto& cpOrientation = ecs::get<cp::Orientation>(eid);
@@ -38,6 +46,7 @@ void InputSystem::tick(double dt)
             }
         }
         
+        //set velocity dir
         if (ecs::has<cp::Velocity>(eid))
         {
             auto& cpVelocity = ecs::get<cp::Velocity>(eid);

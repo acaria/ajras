@@ -149,7 +149,7 @@ void CollisionSystem::tick(double dt)
         
         //check room blocks
         lib::v2i gridPos;
-        if (ecs::has<cp::Input>(eid))
+        if (true)
         {
             for(auto rc : this->getRectGridCollisions(bounds, cpCollision.category))
             {
@@ -199,11 +199,11 @@ void CollisionSystem::tick(double dt)
                     //bounce
                     auto box = bounce(cpPosition, cpCollision, bounds2);
                     cpPosition.pos = {box.x, box.y};
-                    cpVelocity.velocity = {box.vx, box.vy};
+                    cpVelocity.applyVelocity({box.vx, box.vy});
                     
                     if (ecs::has<cp::Input>(eid))
                     {
-                        cpVelocity.direction = Vec2::ZERO;
+                        ecs::get<cp::Render>(eid).cancelAnimation();
                         ecs::get<cp::Input>(eid).predicates.push_back([](unsigned id) {
                             if (!ecs::has<cp::Velocity>(id))
                                 return true;

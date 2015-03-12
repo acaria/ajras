@@ -9,7 +9,9 @@ struct RenderComponent
     
     void setFrame(const std::string &frameName, cocos2d::Node *parent, int zOrder = 0);
     void setProfile(const std::string &frameName, cocos2d::Node *parent, int zOrder = 0);
-    void setAnimation(const std::string &key, int repeat);
+    void setAnimation(const std::string &key, int repeat,
+                      std::function<void(bool)> onComplete = nullptr);
+    void cancelAnimation();
     void setMoveAnimation(const unsigned &orientation, bool moving);
     
     AnimationData*      getCurAnim();
@@ -21,12 +23,14 @@ struct RenderComponent
     cocos2d::Sprite*    melee;
 #endif
     
-    ProfileData*        profile;
+    //input
+    ProfileData*                profile;
+    int                         repeat;
+    std::function<void(bool)>   onComplete = nullptr;
     
-    std::string         curAnimKey;
-    double              elapsedTime;
-    int                 repeat;
-    bool                busy = false;
+    std::string             curAnimKey;
+    double                  elapsedTime;
+    bool                    busy = false;
 
 private:
     cocos2d::Sprite* initSprite(const std::string &frameName);

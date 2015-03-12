@@ -64,6 +64,8 @@ void RenderSystem::animate(double dt, double tickPercent)
                 if (cpRender.repeat == 0)
                 {
                     cpRender.busy = false;
+                    if (cpRender.onComplete != nullptr)
+                        cpRender.onComplete(false);
                     continue;
                 }
                 elapsed -= duration;

@@ -12,7 +12,7 @@ public:
     void loadSession(GameScene* view);
     
     RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned> &eids);
-    
+
     ScreenLog       log;
     TickCtrl        tick;
     ProfileModel    profileModel;

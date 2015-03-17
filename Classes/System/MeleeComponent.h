@@ -17,7 +17,7 @@ struct MeleeComponent
     }
 
     double      lastTime = 0;
-    unsigned    damage;
+    unsigned    damage = 1;
     
     bool        processed;
     bool        launched;

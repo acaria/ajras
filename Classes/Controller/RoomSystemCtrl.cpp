@@ -4,6 +4,7 @@ void RoomSystemCtrl::tick(double dt)
 {
     controlSystem.tick(dt);
     inputSystem.tick(dt);
+    targetSystem.tick(dt);
     moveSystem.tick(dt);
     collisionSystem.tick(dt);
     meleeSystem.tick(dt);
@@ -15,6 +16,7 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
 {
     controlSystem.animate(dt, tickPercent);
     inputSystem.animate(dt, tickPercent);
+    targetSystem.animate(dt, tickPercent);
     moveSystem.animate(dt, tickPercent);
     collisionSystem.animate(dt, tickPercent);
     meleeSystem.animate(dt, tickPercent);
@@ -26,14 +28,20 @@ void RoomSystemCtrl::changeRoom(unsigned roomIndex,
                                 unsigned gateIndex,
                                 const std::vector<unsigned>& eids)
 {
+    for(auto eid : ecsGroup.system<cp::Control>())
+    {
+        ecsGroup.del<cp::Target>(eid);
+    }
+    
+    this->gView->interface->clearTarget();
     unsigned prevRoomIndex = this->data->getCurRoom()->index;
     for(auto eid : eids)
     {
         cp::entity::move(eid, prevRoomIndex, roomIndex);
         if (ecs::has<cp::Render>(eid))
         {
-            this->roomViews[prevRoomIndex]->main->removeChild(ecs::get<cp::Render>(eid).sprite, false);
-            this->roomViews[roomIndex]->main->addChild(ecs::get<cp::Render>(eid).sprite);
+            this->roomViews[prevRoomIndex]->main->removeChild(ecs::get<cp::Render>(eid).container, false);
+            this->roomViews[roomIndex]->main->addChild(ecs::get<cp::Render>(eid).container);
         }
     }
     this->data->setCurIdxRoom(roomIndex);
@@ -44,14 +52,15 @@ void RoomSystemCtrl::changeRoom(unsigned roomIndex,
     
     //camera
     auto bounds = this->data->getCurRoom()->getBounds();
-    this->moveCamera({bounds.getMidX(), bounds.getMidY()}, 1);
+    this->gView->moveCamera({bounds.getMidX(), bounds.getMidY()}, 1);
 }
 
-void RoomSystemCtrl::load(GameScene *view, MapData *data)
+void RoomSystemCtrl::load(GameScene *gview, MapData *data)
 {
+    this->gView = gview;
     this->data = data;
     roomViews.clear();
-    controlSystem.init(view);
+    controlSystem.init(gview, data);
     collisionSystem.init(data->getCurRoom());
     renderSystem.init(data->getCurRoom());
     ecsGroup.setID(data->getCurRoom()->index);
@@ -84,8 +93,6 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
      }
      view->addChild(sLayer);*/
     //88888888888888888
-    
-    this->camera = Layer::create();
     
     for(auto pair : data->rooms)
     {
@@ -135,18 +142,20 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
             
             if (obj.profileName == "boy") //player
             {
-                cp::playerID = eid;
                 ecs::add<cp::Orientation>(eid, roomIndex);
                 ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
                 ecs::add<cp::Input>(eid, roomIndex);
-                ecs::add<cp::Control>(eid, roomIndex) = true;
+                ecs::add<cp::Control>(eid, roomIndex) = ControlSystem::INDEX_P1;
                 ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 12);
+                ecs::add<cp::Health>(eid, roomIndex).set(20);
+                ecs::add<cp::Target>(eid, roomIndex) = 0;
             }
             
             if (obj.profileName == "char1")
             {
                 ecs::add<cp::Orientation>(eid, roomIndex);
                 ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
+                ecs::add<cp::Health>(eid, roomIndex).set(10);
             }
             
             if (obj.profileName == "torch")
@@ -177,24 +186,9 @@ void RoomSystemCtrl::load(GameScene *view, MapData *data)
         
         roomLayer->setPosition(roomData->position);
         roomViews[roomData->index] = roomLayer;
-        this->camera->addChild(roomLayer);
+        gview->frame->addChild(roomLayer);
     }
     
     auto camRect = data->getCurRoom()->getBounds();
-    this->setCamera({camRect.getMidX(), camRect.getMidY()});
-    view->addChild(this->camera);
-}
-
-void RoomSystemCtrl::setCamera(cocos2d::Vec2 pos)
-{
-    auto wsize = Director::getInstance()->getWinSize();
-    this->camera->setPosition(wsize.width / 2 - pos.x, wsize.height / 2 - pos.y);
-}
-
-void RoomSystemCtrl::moveCamera(cocos2d::Vec2 pos, float duration)
-{
-    auto wsize = Director::getInstance()->getWinSize();
-    cocos2d::Vec2 p = {wsize.width / 2 - pos.x, wsize.height / 2 - pos.y};
-    
-    this->camera->runAction(EaseInOut::create(MoveTo::create(duration, p), 5));
+    gview->setCamera({camRect.getMidX(), camRect.getMidY()});
 }

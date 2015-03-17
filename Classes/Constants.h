@@ -1,6 +1,7 @@
 #pragma once
 
-#define kDrawDebug 1
+#define kDrawDebug 0
+#define kDrawInfo 1
 
 const bool  kShowFPS = true;
 const float kUpdatesPerSecond = 60.0f;

@@ -6,8 +6,9 @@ void RenderComponent::setFrame(const std::string &frameName,
 {
     this->profile = nullptr;
     this->sprite = this->initSprite(frameName);
+    this->container->addChild(this->sprite);
     
-    parent->addChild(this->sprite, zOrder);
+    parent->addChild(this->container, zOrder);
 }
 
 void RenderComponent::setProfile(const std::string &profileName,
@@ -16,16 +17,17 @@ void RenderComponent::setProfile(const std::string &profileName,
 {
     this->profile = GameCtrl::instance()->profileModel.get(profileName);
     this->setAnimation("idle", -1);
-    this->sprite = this->initSprite(getCurAnim()->frameNames.at(0));
     
-    parent->addChild(this->sprite, zOrder);
+    this->sprite = this->initSprite(getCurAnim()->frameNames.at(0));
+    this->container->addChild(this->sprite);
+    
+    parent->addChild(this->container, zOrder);
     this->busy = false;
 }
 
 cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
 {
     auto res = cocos2d::Sprite::createWithSpriteFrameName(frameName);
-    res->getTexture()->setAliasTexParameters();
     res->setAnchorPoint({0, 0});
     
 #if kDrawDebug
@@ -43,7 +45,12 @@ cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
     this->melee->setVisible(false);
     res->addChild(this->melee);
 #endif
-    
+
+#if kDrawInfo
+    this->lInfo = Label::createWithTTF("", "fonts/04b03.ttf", 8);
+    this->lInfo->setPosition(res->getContentSize().width / 2, res->getContentSize().height);
+    res->addChild(this->lInfo);
+#endif
     return res;
 }
 
@@ -76,6 +83,36 @@ void RenderComponent::setMoveAnimation(const unsigned &orientation, bool moving)
         this->curAnimKey = anim->key;
     }
     this->onComplete = nullptr;
+}
+
+void RenderComponent::setLocalZOrder(int z)
+{
+    this->container->setLocalZOrder(z);
+}
+
+void RenderComponent::setPosition(const cocos2d::Vec2 &position)
+{
+    this->container->setPosition(position);
+}
+
+void RenderComponent::setFlippedX(bool value)
+{
+    this->sprite->setFlippedX(value);
+}
+
+void RenderComponent::setFlippedY(bool value)
+{
+    this->sprite->setFlippedY(value);
+}
+
+void RenderComponent::setSpriteFrame(const std::string &spriteFrameName)
+{
+    this->sprite->setSpriteFrame(spriteFrameName);
+}
+
+cocos2d::Action* RenderComponent::runAction(cocos2d::Action *action)
+{
+    return this->sprite->runAction(action);
 }
 
 AnimationData* RenderComponent::getCurAnim()

@@ -10,7 +10,8 @@ public:
                       gateSystem(ecsGroup),
                       inputSystem(ecsGroup),
                       controlSystem(ecsGroup),
-                      meleeSystem(ecsGroup)
+                      meleeSystem(ecsGroup),
+                      targetSystem(ecsGroup)
     {
     }
 
@@ -30,16 +31,15 @@ private:
     InputSystem     inputSystem;
     ControlSystem   controlSystem;
     MeleeSystem     meleeSystem;
+    TargetSystem    targetSystem;
     
     //local ecs
     lib::EcsGroup   ecsGroup;
     
     //data
-    MapData* data;
+    MapData*    data;
     std::map<unsigned, RoomLayer*> roomViews;
     
-    //camera
-    void setCamera(cocos2d::Vec2 pos);
-    void moveCamera(cocos2d::Vec2 pos, float duration);
-    cocos2d::Layer*                      camera;
+    //view
+    GameScene* gView = nullptr;
 };

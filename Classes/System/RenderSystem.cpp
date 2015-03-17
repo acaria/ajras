@@ -30,7 +30,7 @@ void RenderSystem::tick(double dt)
                 auto p1 = ecs::get<cp::Collision>(eid).rect.origin;
                 auto p2 = data->getModel()->getGridPos({cpPos.pos.x + p1.x, cpPos.pos.y + p1.y});
                 auto zOrder = data->getModel()->getZOrder(p2);
-                cpRender.sprite->setLocalZOrder(zOrder + 1);
+                cpRender.setLocalZOrder(zOrder + 1);
             }
         }
     }
@@ -47,14 +47,14 @@ void RenderSystem::animate(double dt, double tickPercent)
         cocos2d::Vec2 pos(
             cpPos.pos.x * tickPercent + cpPos.last.x * (1 - tickPercent),
             cpPos.pos.y * tickPercent + cpPos.last.y * (1 - tickPercent));
-        cpRender.sprite->setPosition(pos);
+        cpRender.setPosition(pos);
         
         //animation
         auto animData = cpRender.getCurAnim();
         if (animData != nullptr)
         {
-            cpRender.sprite->setFlippedX(animData->flipX);
-            cpRender.sprite->setFlippedY(animData->flipY);
+            cpRender.setFlippedX(animData->flipX);
+            cpRender.setFlippedY(animData->flipY);
             double elapsed = cpRender.elapsedTime + dt;
             auto duration = animData->duration();
             if (elapsed > duration)
@@ -74,7 +74,7 @@ void RenderSystem::animate(double dt, double tickPercent)
             auto frames = animData->frameNames;
             int n = elapsed / animData->delay;
             auto curFrame = frames.at(lib::clamp(n, 0, (int)frames.size() - 1));
-            cpRender.sprite->setSpriteFrame(curFrame);
+            cpRender.setSpriteFrame(curFrame);
         }
     }
 }

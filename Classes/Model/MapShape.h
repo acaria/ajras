@@ -6,7 +6,7 @@ class MapShape
 public:
     MapShape(unsigned width, unsigned height):
         size{width,height},
-        grid(size.x, size.y)
+        grid(width, height)
     {
         for(unsigned j = 0; j < size.y; j++)
         for(unsigned i = 0; i < size.x; i++)

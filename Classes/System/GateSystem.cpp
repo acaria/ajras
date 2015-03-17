@@ -97,17 +97,17 @@ void GateSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint, c
     using namespace std::placeholders;
     float duration = 0.5f;
     
-    auto sprite = ecs::get<cp::Render>(eid).sprite;
+    auto& render = ecs::get<cp::Render>(eid);
     ecs.del<cp::Position>(eid);
     ecs::get<cp::Velocity>(eid).reset();
-    sprite->runAction(Sequence::create(
+    render.container->runAction(Sequence::create(
         MoveTo::create(duration, targetPoint),
         CallFunc::create(std::bind(&GateSystem::gateringLeave, this,
             eid, srcGate.destRoomIdx, srcGate.destGateIdx)),
         NULL
     ));
-    sprite->runAction(FadeTo::create(duration / 2, 0));
-    sprite->runAction(TintTo::create(duration / 2, Color3B::BLACK));
+    render.runAction(FadeTo::create(duration / 2, 0));
+    render.runAction(TintTo::create(duration / 2, Color3B::BLACK));
 }
 
 void GateSystem::gateringLeave(unsigned eid, unsigned roomIdx, unsigned gateIdx)
@@ -117,7 +117,7 @@ void GateSystem::gateringLeave(unsigned eid, unsigned roomIdx, unsigned gateIdx)
     auto newRoom = GameCtrl::instance()->changeRoom(roomIdx, gateIdx, {eid});
     auto gateInfo = newRoom->getModel()->gates[gateIdx];
     
-    auto sprite = ecs::get<cp::Render>(eid).sprite;
+    auto& render = ecs::get<cp::Render>(eid);
     auto colRect = ecs::get<cp::Collision>(eid).rect;
     cocos2d::Vec2 movePos, srcPos;
     switch(gateInfo.type)
@@ -147,18 +147,18 @@ void GateSystem::gateringLeave(unsigned eid, unsigned roomIdx, unsigned gateIdx)
             break;
     }
     auto destPos = srcPos + movePos;
-    sprite->setPosition(srcPos);
-    sprite->runAction(Sequence::create(
+    render.setPosition(srcPos);
+    render.container->runAction(Sequence::create(
         MoveBy::create(duration, movePos),
         CallFunc::create([eid, destPos, this](){
             ecs.add<cp::Position>(eid).set(destPos);
         }),
         NULL
     ));
-    sprite->runAction(Sequence::create(DelayTime::create(duration / 2),
+    render.runAction(Sequence::create(DelayTime::create(duration / 2),
                                        TintTo::create(duration / 2, Color3B::WHITE),
                                        NULL));
-    sprite->runAction(Sequence::create(DelayTime::create(duration / 2),
+    render.runAction(Sequence::create(DelayTime::create(duration / 2),
                                        FadeTo::create(duration / 2, 255),
                                        NULL));
 }

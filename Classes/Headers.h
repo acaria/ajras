@@ -36,6 +36,7 @@
 #include "InputComponent.h"
 #include "RenderComponent.h"
 #include "GateComponent.h"
+#include "HealthComponent.h"
 #include "CollisionComponent.h"
 #include "PositionComponent.h"
 #include "MeleeComponent.h"
@@ -47,12 +48,14 @@
 #include "CollisionSystem.h"
 #include "RenderSystem.h"
 #include "ControlSystem.h"
+#include "TargetSystem.h"
 #include "InputSystem.h"
 #include "GateSystem.h"
 #include "MeleeSystem.h"
 
 //View
 #include "TickScheduler.h"
+#include "InterfaceLayer.h"
 #include "EventScene.h"
 #include "BaseScene.h"
 #include "MainMenuScene.h"

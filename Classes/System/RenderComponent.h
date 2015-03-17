@@ -5,6 +5,8 @@ struct RenderComponent
 {
     RenderComponent() : sprite(nullptr)
     {
+        this->container = cocos2d::Sprite::create();
+        this->container->setAnchorPoint({0,0});
     }
     
     void setFrame(const std::string &frameName, cocos2d::Node *parent, int zOrder = 0);
@@ -16,11 +18,16 @@ struct RenderComponent
     
     AnimationData*      getCurAnim();
     
-    cocos2d::Sprite*    sprite;
+    cocos2d::Sprite*    container;
+    
 
 #if kDrawDebug
     cocos2d::Sprite*    collision;
     cocos2d::Sprite*    melee;
+#endif
+
+#if kDrawInfo
+    cocos2d::Label*     lInfo;
 #endif
     
     //input
@@ -32,6 +39,14 @@ struct RenderComponent
     double                  elapsedTime;
     bool                    busy = false;
 
+    //sprite commands
+    void setLocalZOrder(int z);
+    void setPosition(const cocos2d::Vec2& position);
+    void setFlippedX(bool);
+    void setFlippedY(bool);
+    void setSpriteFrame(const std::string &spriteFrameName);
+    cocos2d::Action* runAction(cocos2d::Action* action);
 private:
+    cocos2d::Sprite*    sprite;
     cocos2d::Sprite* initSprite(const std::string &frameName);
 };

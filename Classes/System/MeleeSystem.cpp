@@ -57,13 +57,14 @@ void MeleeSystem::tick(double dt)
 #endif
         
         //check room objects
-        for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position>())
+        for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position, cp::Health>())
         {
             if (oid != eid)
             {
-                auto cpPosition2 = ecs::get<cp::Position>(oid);
-                auto cpCollision2 = ecs::get<cp::Collision>(oid);
-                auto cpRender2 = ecs::get<cp::Render>(oid);
+                auto &cpPosition2 = ecs::get<cp::Position>(oid);
+                auto &cpCollision2 = ecs::get<cp::Collision>(oid);
+                auto &cpRender2 = ecs::get<cp::Render>(oid);
+                auto &cpHealth2 = ecs::get<cp::Health>(oid);
                 
                 cocos2d::Rect bounds = {
                     cpPosition2.pos.x + cpCollision2.rect.origin.x,
@@ -92,7 +93,7 @@ void MeleeSystem::tick(double dt)
                                 
                                 if (ecs::has<cp::Input>(oid))
                                     ecs::get<cp::Input>(oid).disable(duration);
-                                cpRender2.sprite->runAction(Repeat::create(
+                                cpRender2.runAction(Repeat::create(
                                     Sequence::create(TintTo::create(duration / freq / 2, 255, 50, 50),
                                                      TintTo::create(duration / freq / 2, 255, 255, 255),
                                                      NULL), freq));
@@ -104,6 +105,11 @@ void MeleeSystem::tick(double dt)
                                     Log("x:%f,y:%f", ecs::get<cp::Velocity>(oid).velocity.x,
                                         ecs::get<cp::Velocity>(oid).velocity.y);
                                 }
+                                
+                                cpHealth2.hp -= cpMelee.damage;
+#ifdef kDrawInfo
+                                cpRender2.lInfo->setString(std::to_string(cpHealth2.hp));
+#endif
                             }
                         }
                     }

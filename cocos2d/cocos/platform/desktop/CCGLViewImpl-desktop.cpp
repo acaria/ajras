@@ -346,6 +346,10 @@ bool GLViewImpl::initWithRect(const std::string& viewName, Rect rect, float fram
     _frameZoomFactor = frameZoomFactor;
 
     glfwWindowHint(GLFW_RESIZABLE,GL_FALSE);
+    
+    //cool hack for aliasing
+    glfwWindowHint(GLFW_SAMPLES, 0);
+    
     glfwWindowHint(GLFW_RED_BITS,_glContextAttrs.redBits);
     glfwWindowHint(GLFW_GREEN_BITS,_glContextAttrs.greenBits);
     glfwWindowHint(GLFW_BLUE_BITS,_glContextAttrs.blueBits);

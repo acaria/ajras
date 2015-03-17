@@ -33,7 +33,7 @@
             <key>bat3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{3,287},{7,11}}</string>
+                <string>{{3,298},{7,11}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -511,6 +511,32 @@
                 <key>sourceSize</key>
                 <string>{7,12}</string>
             </dict>
+            <key>target_e.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{18,298},{10,7}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{10,7}}</string>
+                <key>sourceSize</key>
+                <string>{10,7}</string>
+            </dict>
+            <key>target_f.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{3,287},{10,7}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{10,7}}</string>
+                <key>sourceSize</key>
+                <string>{10,7}</string>
+            </dict>
         </dict>
         <key>metadata</key>
         <dict>
@@ -519,9 +545,9 @@
             <key>realTextureFileName</key>
             <string>ss-char.png</string>
             <key>size</key>
-            <string>{32,297}</string>
+            <string>{32,308}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:82c34545bd66edf08625cb5091dc21a6:273e8eda9b9ed0517730a69abe509456:6f57d7171c6bbd144780ef543672a5bb$</string>
+            <string>$TexturePacker:SmartUpdate:7e76b02bfbe61ede45cad1d1c5e3bdc0:0923ef1076bb69e948b95c66bb1c8388:6f57d7171c6bbd144780ef543672a5bb$</string>
             <key>textureFileName</key>
             <string>ss-char.png</string>
         </dict>

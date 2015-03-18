@@ -8,12 +8,13 @@ ProfileData::~ProfileData()
     }
 }
 
-AnimationData* ProfileData::getDirAnimation(unsigned int orientation, bool moving)
+AnimationData* ProfileData::getDirAnimation(unsigned int orientation,
+                                            const std::string& pre)
 {
     if (orientation == Dir::kNone)
         Log("getDirAnimation: bad orientation=none");
     
-    auto key = (moving ? "move" : "idle") + getTagName(orientation);
+    auto key = pre + getTagName(orientation);
     if (lib::hasKey(this->animationData, key))
         return this->animationData[key];
     Log("getDirAnimation: bad key=%s", key.c_str());
@@ -27,17 +28,48 @@ AnimationData* ProfileData::getKeyAnimation(const std::string &key)
     return nullptr;
 }
 
+bool ProfileData::animCategoryExists(const std::string &category)
+{
+    for (auto cat : this->animationCategory)
+    {
+        if (cat == category)
+            return true;
+    }
+    return false;
+}
+
 std::string ProfileData::getTagName(unsigned int orientation)
 {
     if ((orientation & Dir::kLeft) == Dir::kLeft)
-        return "L";
+        return "_left";
     if ((orientation & Dir::kRight) == Dir::kRight)
-        return "R";
+        return "_right";
     if ((orientation & Dir::kUp) == Dir::kUp)
-        return "U";
+        return "_up";
     if ((orientation & Dir::kDown) == Dir::kDown)
-        return "D";
+        return "_down";
     return "";
+}
+
+void ProfileData::extractAnims(const std::string& rootKey,
+                               const cocos2d::ValueMap &data)
+{
+    for(auto anim : data)
+    {
+        if (anim.first[0] == '_')
+        {
+            auto category = anim.first.substr(1);
+            if (rootKey.empty())
+                this->animationCategory.push_back(category);
+            this->extractAnims(rootKey + category + "_", anim.second.asValueMap());
+        }
+        else
+        {
+            this->animationData[rootKey + anim.first] = new AnimationData(
+                rootKey + anim.first,
+                anim.second.asValueMap());
+        }
+    }
 }
 
 ProfileData::ProfileData(const std::string &path)
@@ -46,11 +78,7 @@ ProfileData::ProfileData(const std::string &path)
 
     if (rawData.find("animations") != rawData.end())
     {
-        auto aData = rawData.at("animations").asValueMap();
-        for(auto anim : aData)
-        {
-            this->animationData[anim.first] = new AnimationData(anim.first, anim.second.asValueMap());
-        }
+        this->extractAnims("", rawData.at("animations").asValueMap());
     }
     
     collisionCat = "walkable";

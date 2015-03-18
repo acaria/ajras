@@ -127,12 +127,7 @@ void CollisionSystem::tick(double dt)
         if (cpVelocity.velocity.isZero())
             continue;
         
-        cocos2d::Rect bounds = {
-            cpPosition.pos.x + cpCollision.rect.origin.x,
-            cpPosition.pos.y + cpCollision.rect.origin.y,
-            cpCollision.rect.size.width,
-            cpCollision.rect.size.height
-        };
+        cocos2d::Rect bounds = SysHelper::getBounds(cpPosition, cpCollision);
         
         //check room limits
         if (bounds.origin.x < 0)
@@ -184,12 +179,7 @@ void CollisionSystem::tick(double dt)
                 auto cpPosition2 = ecs::get<cp::Position>(oid);
                 auto cpCollision2 = ecs::get<cp::Collision>(oid);
                 
-                cocos2d::Rect bounds2 = {
-                    cpPosition2.pos.x + cpCollision2.rect.origin.x,
-                    cpPosition2.pos.y + cpCollision2.rect.origin.y,
-                    cpCollision2.rect.size.width,
-                    cpCollision2.rect.size.height
-                };
+                cocos2d::Rect bounds2 = SysHelper::getBounds(cpPosition2, cpCollision2);
                 
                 if (bounds2.intersectsRect(bounds))
                 {

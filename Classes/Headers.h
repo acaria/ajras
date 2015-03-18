@@ -44,6 +44,7 @@
 #include "VelocityComponent.h"
 #include "Components.h"
 #include "BaseTickSystem.h"
+#include "SysHelper.h"
 #include "MoveSystem.h"
 #include "CollisionSystem.h"
 #include "RenderSystem.h"

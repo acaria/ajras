@@ -2,16 +2,17 @@
 
 void TargetSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Target, cp::Orientation, cp::Position>())
+    for(auto eid : ecs.join<cp::Target, cp::Orientation, cp::Position, cp::Collision>())
     {
         unsigned eid2 = ecs::get<cp::Target>(eid);
-        if (eid2 == 0 || !ecs::has<cp::Position>(eid2))
+        if (eid2 == 0 || !ecs::has<cp::Position, cp::Collision>(eid2))
             continue;
         
-        Point pos1 = ecs::get<cp::Position>(eid).pos;
-        Point pos2 = ecs::get<cp::Position>(eid2).pos;
+        Rect r1 = SysHelper::getBounds(eid);
+        Rect r2 = SysHelper::getBounds(eid2);
         
-        Point pdir = pos2 - pos1;
+        Point pdir = Point(r2.getMidX(), r2.getMidY()) -
+                     Point(r1.getMidX(), r1.getMidY());
         
         Dir odir = Dir::kNone;
         

@@ -11,7 +11,7 @@ void ControlSystem::tick(double dt)
             (this->curDirReleased[index] & ~this->preDirPressed[index]);
         
         
-        for(auto eid : ecs.join<cp::Input, cp::Control>())
+        for(auto eid : ecs.join<cp::Input, cp::Control, cp::Render>())
         {
             //direction
             if (ecs::get<cp::Control>(eid) != index)
@@ -27,6 +27,7 @@ void ControlSystem::tick(double dt)
                 unsigned tid = this->entitySelection[index];
                 this->view->interface->setTargetID(tid, ecs::has<cp::Control>(tid));
                 ecs.add<cp::Target>(eid) = tid;
+                ecs::get<cp::Render>(eid).setMoveCategory("target");
             }
         }
         

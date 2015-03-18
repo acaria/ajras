@@ -15,8 +15,10 @@ struct RenderComponent
                       std::function<void(bool)> onComplete = nullptr);
     void cancelAnimation();
     void setMoveAnimation(const unsigned &orientation, bool moving);
+    void setMoveCategory(const std::string& cat);
     
     AnimationData*      getCurAnim();
+    std::string         moveAnimationKey = "";
     
     cocos2d::Sprite*    container;
     

@@ -4,11 +4,29 @@ void RenderComponent::setFrame(const std::string &frameName,
                                cocos2d::Node *parent,
                                int zOrder)
 {
+    this->moveAnimationKey = "";
     this->profile = nullptr;
     this->sprite = this->initSprite(frameName);
     this->container->addChild(this->sprite);
     
     parent->addChild(this->container, zOrder);
+}
+
+void RenderComponent::setMoveCategory(const std::string &cat)
+{
+    if (this->profile == nullptr)
+        return;
+    if (this->profile->animCategoryExists(cat))
+    {
+        this->moveAnimationKey = cat + "_";
+        return;
+    }
+    if (this->profile->animCategoryExists("walk"))
+    {
+        this->moveAnimationKey = "walk_";
+        return;
+    }
+    this->moveAnimationKey = "";
 }
 
 void RenderComponent::setProfile(const std::string &profileName,
@@ -17,7 +35,8 @@ void RenderComponent::setProfile(const std::string &profileName,
 {
     this->profile = GameCtrl::instance()->profileModel.get(profileName);
     this->setAnimation("idle", -1);
-    
+    //set default walk animation
+    this->setMoveCategory("walk");
     this->sprite = this->initSprite(getCurAnim()->frameNames.at(0));
     this->container->addChild(this->sprite);
     
@@ -75,7 +94,8 @@ void RenderComponent::setMoveAnimation(const unsigned &orientation, bool moving)
 {
     if (this->profile == nullptr)
         return;
-    auto anim = this->profile->getDirAnimation(orientation, moving);
+    auto key = this->moveAnimationKey + (moving?"move":"idle");
+    auto anim = this->profile->getDirAnimation(orientation, key);
     if (anim != nullptr && anim->key != this->curAnimKey)
     {
         this->elapsedTime = 0.0f;

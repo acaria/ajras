@@ -28,9 +28,10 @@ void RoomSystemCtrl::changeRoom(unsigned roomIndex,
                                 unsigned gateIndex,
                                 const std::vector<unsigned>& eids)
 {
-    for(auto eid : ecsGroup.system<cp::Control>())
+    for(auto eid : ecsGroup.join<cp::Control, cp::Render>())
     {
         ecsGroup.del<cp::Target>(eid);
+        ecs::get<cp::Render>(eid).setMoveCategory("walk");
     }
     
     this->gView->interface->clearTarget();

@@ -27,10 +27,8 @@ void RenderSystem::tick(double dt)
             auto cpPos = ecs::get<cp::Position>(eid);
             if (cpPos.last != cpPos.pos)
             {
-                auto p1 = ecs::get<cp::Collision>(eid).rect.origin;
-                auto p2 = data->getModel()->getGridPos({cpPos.pos.x + p1.x, cpPos.pos.y + p1.y});
-                auto zOrder = data->getModel()->getZOrder(p2);
-                cpRender.setLocalZOrder(zOrder + 1);
+                auto pos = SysHelper::getBounds(eid);
+                cpRender.setLocalZOrder(data->getModel()->getZOrder(pos.origin));
             }
         }
     }

@@ -126,7 +126,7 @@ void RoomSystemCtrl::load(GameScene *gview, MapData *data)
                 sprite->getTexture()->setAliasTexParameters();
                 sprite->setAnchorPoint({0, 0});
                 sprite->setPosition(coord);
-                rl->addChild(sprite, roomData->getModel()->getZOrder({i,j}));
+                rl->addChild(sprite, roomData->getModel()->getZOrder(coord));
             }
         }
         
@@ -134,10 +134,8 @@ void RoomSystemCtrl::load(GameScene *gview, MapData *data)
         for(auto obj : roomData->getModel()->objs)
         {
             auto eid = cp::entity::genID();
-            auto gridPos = roomData->getModel()->getGridPos(obj.pos);
             ecs::add<cp::Render>(eid, roomIndex).setProfile(obj.profileName,
-                                                            roomLayer->main,
-                                                            roomData->getModel()->getZOrder(gridPos) + 1);
+                roomLayer->main, roomData->getModel()->getZOrder(obj.pos));
             ecs::add<cp::Collision>(eid, roomIndex).setProfile(obj.profileName);
             ecs::add<cp::Position>(eid, roomIndex).set(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
             
@@ -152,7 +150,7 @@ void RoomSystemCtrl::load(GameScene *gview, MapData *data)
                 ecs::add<cp::Target>(eid, roomIndex) = 0;
             }
             
-            if (obj.profileName == "char1")
+            if (obj.profileName == "zomb")
             {
                 ecs::add<cp::Orientation>(eid, roomIndex);
                 ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);

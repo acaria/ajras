@@ -216,9 +216,9 @@ lib::v2u RoomModel::getGridPos(cocos2d::Vec2 coord)
     };
 }
 
-int RoomModel::getZOrder(lib::v2u pos)
+int RoomModel::getZOrder(const cocos2d::Vec2& pos)
 {
-    return (grid.width - 1 - pos.x + ((grid.height - 1 - pos.y) * grid.height)) * 3;
+    return (totalSize.x - pos.x + ((totalSize.y - pos.y) * totalSize.y));
 }
 
 void RoomModel::genShape(RoomModel& mapData)

@@ -27,7 +27,7 @@ public:
     cocos2d::Rect   getRectCoord(lib::v2u pos);
     cocos2d::Vec2   getPosCoord(lib::v2u pos);
     lib::v2u        getGridPos(cocos2d::Vec2 coord);
-    int             getZOrder(lib::v2u pos);
+    int             getZOrder(const cocos2d::Vec2& pos);
     
 private:
     static GateInfo::GateType gessGateType(lib::v2u pos, const RoomModel& mapData);

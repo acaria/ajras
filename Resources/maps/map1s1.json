@@ -28,22 +28,6 @@
          "name":"objects",
          "objects":[
                 {
-                 "gid":110,
-                 "height":0,
-                 "id":24,
-                 "name":"",
-                 "properties":
-                    {
-
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":81.59825728044,
-                 "y":124.403347855996
-                }, 
-                {
                  "gid":109,
                  "height":0,
                  "id":37,
@@ -60,7 +44,7 @@
                  "y":144
                 }, 
                 {
-                 "gid":112,
+                 "gid":111,
                  "height":0,
                  "id":40,
                  "name":"",
@@ -74,6 +58,22 @@
                  "width":0,
                  "x":90,
                  "y":60
+                }, 
+                {
+                 "gid":112,
+                 "height":0,
+                 "id":41,
+                 "name":"",
+                 "properties":
+                    {
+
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":81,
+                 "y":128
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -82,7 +82,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":41,
+ "nextobjectid":42,
  "orientation":"orthogonal",
  "properties":
     {
@@ -558,35 +558,35 @@
              "ss":"char"
             },
          "spacing":0,
-         "tileheight":24,
+         "tileheight":23,
          "tileproperties":
             {
              "0":
                 {
-                 "profile":"char1"
+                 "profile":"bat"
                 },
              "1":
                 {
-                 "profile":"bat"
+                 "profile":"boy"
                 },
              "2":
                 {
-                 "profile":"boy"
+                 "profile":"zomb"
                 }
             },
          "tiles":
             {
              "0":
                 {
-                 "image":"..\/..\/Textures\/assets\/char\/char1d1.png"
+                 "image":"..\/..\/Textures\/assets\/char\/bat1.png"
                 },
              "1":
                 {
-                 "image":"..\/..\/Textures\/assets\/char\/bat1.png"
+                 "image":"..\/..\/Textures\/src\/special\/boy_icon.png"
                 },
              "2":
                 {
-                 "image":"..\/..\/Textures\/src\/special\/boy_icon.png"
+                 "image":"..\/..\/Textures\/src\/special\/zomb_icon.png"
                 }
             },
          "tilewidth":30

@@ -5,9 +5,14 @@
 
 #include <map>
 #include <set>
+#include <unordered_set>
+#include <unordered_map>
 
 namespace ecs
 {
+    template<typename V>             using set = std::set<V>;
+    template<typename K, typename V> using map = std::map<K,V>;
+    
     enum {JOIN,MERGE,EXCLUDE};
     
     template<typename T,int>
@@ -17,11 +22,11 @@ namespace ecs
     };
     
     template<typename T>
-    std::set<unsigned> &system(unsigned group)
+    set<unsigned> &system(unsigned group)
     {
-        static std::map<unsigned, std::set<unsigned>> entities;
+        static map<unsigned, set<unsigned>> entities;
         if (entities.find(group) == entities.end())
-            entities[group] = std::set<unsigned>();
+            entities[group] = set<unsigned>();
         return entities[group];
     }
     
@@ -39,10 +44,10 @@ namespace ecs
 
     
     template<typename T,int MODE>
-    std::set<unsigned> subsystem(const std::set<unsigned> &B, unsigned group)
+    set<unsigned> subsystem(const set<unsigned> &B, unsigned group)
     {
-        std::set<unsigned> newset;
-        const std::set<unsigned> &A = system<T>(group);
+        set<unsigned> newset;
+        const set<unsigned> &A = system<T>(group);
         if (MODE==MERGE)
         {
             newset=B;
@@ -71,9 +76,9 @@ namespace ecs
     }
     
     template<typename T>
-    std::map<unsigned,T> &components()
+    map<unsigned,T> &components()
     {
-        static std::map<unsigned,T>objects;
+        static map<unsigned,T>objects;
         return objects;
     }
     
@@ -129,31 +134,31 @@ namespace ecs
     }
     
     template<class T, class U>
-    std::set< unsigned > join(unsigned group)
+    set< unsigned > join(unsigned group)
     {
         return subsystem<T,JOIN>( system<U>(group), group);
     }
     
     template<class T, class U, class V>
-    std::set< unsigned > join(unsigned group)
+    set< unsigned > join(unsigned group)
     {
         return subsystem<T,JOIN>( join<U,V>(group), group);
     }
     
     template<class T, class U, class V, class W>
-    std::set< unsigned > join(unsigned group)
+    set< unsigned > join(unsigned group)
     {
         return subsystem<T,JOIN>( join<U,V,W>(group) );
     }
     
     template<class T, class U, class V, class W, class X>
-    std::set< unsigned > join(unsigned group)
+    set< unsigned > join(unsigned group)
     {
         return subsystem<T,JOIN>( join<U,V,W,X>(group) );
     }
     
     template<class T>
-    std::set< unsigned > exclude(const std::set<unsigned> &B, unsigned group)
+    set< unsigned > exclude(const set<unsigned> &B, unsigned group)
     {
         return subsystem<T,EXCLUDE>(B, group);
     }

@@ -40,17 +40,17 @@ void ControlSystem::tick(double dt)
 
 void ControlSystem::initControl(unsigned int index)
 {
-    curDirPressed[index] = Dir::kNone;
-    curDirReleased[index] = Dir::kNone;
-    preDirPressed[index] = Dir::kNone;
-    savedOrientation[index] = Dir::kNone;
+    curDirPressed[index] = Dir::None;
+    curDirReleased[index] = Dir::None;
+    preDirPressed[index] = Dir::None;
+    savedOrientation[index] = Dir::None;
     entitySelection[index] = 0;
 }
 
 void ControlSystem::clearReleased(unsigned index)
 {
     this->preDirPressed[index] = this->curDirPressed[index];
-    this->curDirReleased[index] = Dir::kNone;
+    this->curDirReleased[index] = Dir::None;
     this->entitySelection[index] = 0;
 }
 
@@ -88,24 +88,24 @@ void ControlSystem::init(GameScene *gview, MapData* data)
 void ControlSystem::onKeyPressed(KeyCode code, cocos2d::Event *event)
 {
     unsigned index = INDEX_P1;
-    int toAdd = Dir::kNone;
+    int toAdd = Dir::None;
     switch(code)
     {
         case KeyCode::KEY_LEFT_ARROW:
         case KeyCode::KEY_A:
-            toAdd = Dir::kLeft;
+            toAdd = Dir::Left;
             break;
         case KeyCode::KEY_RIGHT_ARROW:
         case KeyCode::KEY_D:
-            toAdd = Dir::kRight;
+            toAdd = Dir::Right;
             break;
         case KeyCode::KEY_UP_ARROW:
         case KeyCode::KEY_W:
-            toAdd = Dir::kUp;
+            toAdd = Dir::Up;
             break;
         case KeyCode::KEY_DOWN_ARROW:
         case KeyCode::KEY_S:
-            toAdd = Dir::kDown;
+            toAdd = Dir::Down;
             break;
         default:
             break;
@@ -118,24 +118,24 @@ void ControlSystem::onKeyPressed(KeyCode code, cocos2d::Event *event)
 void ControlSystem::onKeyReleased(KeyCode code, cocos2d::Event *event)
 {
     unsigned index = INDEX_P1;
-    int toDel = Dir::kNone;
+    int toDel = Dir::None;
     switch(code)
     {
         case KeyCode::KEY_LEFT_ARROW:
         case KeyCode::KEY_A:
-            toDel = Dir::kLeft;
+            toDel = Dir::Left;
             break;
         case KeyCode::KEY_RIGHT_ARROW:
         case KeyCode::KEY_D:
-            toDel = Dir::kRight;
+            toDel = Dir::Right;
             break;
         case KeyCode::KEY_UP_ARROW:
         case KeyCode::KEY_W:
-            toDel = Dir::kUp;
+            toDel = Dir::Up;
             break;
         case KeyCode::KEY_DOWN_ARROW:
         case KeyCode::KEY_S:
-            toDel = Dir::kDown;
+            toDel = Dir::Down;
             break;
         default:
             break;

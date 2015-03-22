@@ -5,8 +5,8 @@ struct InputComponent
 {
     //output
     bool disabled = false;
-    unsigned orientation;
-    unsigned lastOrientation;
+    Dir orientation;
+    Dir lastOrientation;
     
     std::list<std::function<bool(unsigned)>> predicates;
     

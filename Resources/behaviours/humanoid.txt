@@ -1,0 +1,10 @@
+selector
+    sequence attack
+        check insight family hostile
+        action target family hostile
+        until time 2.0
+            action movenear target
+    sequence wander
+        action target none
+        until time 2.0
+            action movedir rand

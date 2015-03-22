@@ -185,6 +185,6 @@ namespace lib
     
     double now();
     std::string format(const std::string fmt_str, ...);
-    cocos2d::Vec2 getVectorDirection(unsigned d);
+    cocos2d::Vec2 getVectorDirection(Dir d);
     unsigned getDirectionVector(cocos2d::Vec2 v, bool cardinal = false);
 }

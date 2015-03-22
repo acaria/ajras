@@ -3,6 +3,7 @@
 void RoomSystemCtrl::tick(double dt)
 {
     controlSystem.tick(dt);
+    aiSystem.tick(dt);
     inputSystem.tick(dt);
     targetSystem.tick(dt);
     moveSystem.tick(dt);
@@ -15,6 +16,7 @@ void RoomSystemCtrl::tick(double dt)
 void RoomSystemCtrl::animate(double dt, double tickPercent)
 {
     controlSystem.animate(dt, tickPercent);
+    aiSystem.animate(dt, tickPercent);
     inputSystem.animate(dt, tickPercent);
     targetSystem.animate(dt, tickPercent);
     moveSystem.animate(dt, tickPercent);
@@ -154,7 +156,9 @@ void RoomSystemCtrl::load(GameScene *gview, MapData *data)
             {
                 ecs::add<cp::Orientation>(eid, roomIndex);
                 ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
+                ecs::add<cp::Input>(eid, roomIndex);
                 ecs::add<cp::Health>(eid, roomIndex).set(10);
+                ecs::add<cp::AI>(eid, roomIndex).setProfile(obj.profileName);
             }
             
             if (obj.profileName == "torch")
@@ -167,7 +171,7 @@ void RoomSystemCtrl::load(GameScene *gview, MapData *data)
                 light->setBlendFunc(BlendFunc::ADDITIVE);
                 light->setPosition(obj.pos + Vec2(8, 8));
                 light->runAction(RepeatForever::create(Flicker::create(80.0f, 0.1f,
-                                                                       {150, 200}, {0.98, 1.2}, {0.9,1.1}, Color3B(252, 168, 50), Color3B(252, 168, 50))));
+                    {150, 200}, {0.98, 1.2}, {0.9,1.1}, Color3B(252, 168, 50), Color3B(252, 168, 50))));
                 roomLayer->fg->addChild(light, 1);
             }
         }

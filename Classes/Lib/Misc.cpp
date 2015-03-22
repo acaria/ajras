@@ -8,11 +8,11 @@ namespace lib
         return std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::system_clock::now().time_since_epoch()).count();
     }
 
-    cocos2d::Vec2 getVectorDirection(unsigned d)
+    cc::Vec2 getVectorDirection(Dir d)
     {
         cocos2d::Vec2 res(
-            ((d & Dir::kLeft) == Dir::kLeft ? -1.0f : 0.0f) + ((d & Dir::kRight) == Dir::kRight ? 1.0f : 0.0f),
-            ((d & Dir::kUp) == Dir::kUp ? 1.0f : 0.0f) + ((d & Dir::kDown) == Dir::kDown ? -1.0f : 0.0f));
+            (d.contains(Dir::Left) ? -1.0f : 0.0f) + (d.contains(Dir::Right) ? 1.0f : 0.0f),
+            (d.contains(Dir::Up) ? 1.0f : 0.0f) + (d.contains(Dir::Down) ? -1.0f : 0.0f));
         return res.getNormalized();
     }
     
@@ -29,7 +29,7 @@ namespace lib
         return false;
     }
     
-    cocos2d::Rect getIntersection(const cocos2d::Rect &r1, const cocos2d::Rect &r2)
+    cc::Rect getIntersection(const cc::Rect &r1, const cc::Rect &r2)
     {
         cocos2d::Vec2 origin = {
             MAX(r1.getMinX(), r2.getMinX()),
@@ -44,20 +44,20 @@ namespace lib
         };
     }
     
-    unsigned getDirectionVector(cocos2d::Vec2 v, bool cardinal)
+    unsigned getDirectionVector(cc::Vec2 v, bool cardinal)
     {
-        unsigned res = Dir::kNone;
+        unsigned res = Dir::None;
         
         if ((abs(v.x) > abs(v.y)) || !cardinal)
         {
-            if (v.x < 0) res |= Dir::kLeft;
-            if (v.x > 0) res |= Dir::kRight;
+            if (v.x < 0) res |= Dir::Left;
+            if (v.x > 0) res |= Dir::Right;
         }
         
         if ((abs(v.y) > abs(v.x)) || !cardinal)
         {
-            if (v.y < 0) res |= Dir::kDown;
-            if (v.y > 0) res |= Dir::kUp;
+            if (v.y < 0) res |= Dir::Down;
+            if (v.y > 0) res |= Dir::Up;
         }
 
         return res;

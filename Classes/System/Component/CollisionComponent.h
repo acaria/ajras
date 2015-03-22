@@ -3,12 +3,7 @@
 
 struct CollisionComponent
 {
-    void set(cocos2d::Rect rect)
-    {
-        this->rect = rect;
-        this->category = CollisionCategory::walkable;
-    }
-    
+    void set(cocos2d::Rect rect);
     void setProfile(const std::string& profileName);
     
     cocos2d::Rect       rect;

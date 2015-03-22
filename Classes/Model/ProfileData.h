@@ -8,14 +8,22 @@ public:
     ProfileData(const std::string &path);
     ~ProfileData();
     
-    AnimationData*  getDirAnimation(unsigned orientation,
+    AnimationData*  getDirAnimation(const Dir& orientation,
                                     const std::string& key);
     AnimationData*  getKeyAnimation(const std::string& key);
     
+    //collision
     std::string     collisionCat;
     cocos2d::Rect   collisionRect;
     
-    static std::string getTagName(unsigned int orientation);
+    //behaviour
+    std::string     behaviourKey;
+    std::string     behaviourMood;
+    
+    //sight
+    double          sightRange;
+    
+    static std::string getTagName(const Dir& orientation);
     bool animCategoryExists(const std::string& category);
     
 private:

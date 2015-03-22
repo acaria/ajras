@@ -8,10 +8,10 @@ ProfileData::~ProfileData()
     }
 }
 
-AnimationData* ProfileData::getDirAnimation(unsigned int orientation,
+AnimationData* ProfileData::getDirAnimation(const Dir &orientation,
                                             const std::string& pre)
 {
-    if (orientation == Dir::kNone)
+    if (orientation == Dir::None)
         Log("getDirAnimation: bad orientation=none");
     
     auto key = pre + getTagName(orientation);
@@ -38,15 +38,15 @@ bool ProfileData::animCategoryExists(const std::string &category)
     return false;
 }
 
-std::string ProfileData::getTagName(unsigned int orientation)
+std::string ProfileData::getTagName(const Dir &orientation)
 {
-    if ((orientation & Dir::kLeft) == Dir::kLeft)
+    if (orientation.contains(Dir::Left))
         return "_left";
-    if ((orientation & Dir::kRight) == Dir::kRight)
+    if (orientation.contains(Dir::Right))
         return "_right";
-    if ((orientation & Dir::kUp) == Dir::kUp)
+    if (orientation.contains(Dir::Up))
         return "_up";
-    if ((orientation & Dir::kDown) == Dir::kDown)
+    if (orientation.contains(Dir::Down))
         return "_down";
     return "";
 }
@@ -72,7 +72,7 @@ void ProfileData::extractAnims(const std::string& rootKey,
     }
 }
 
-ProfileData::ProfileData(const std::string &path)
+ProfileData::ProfileData(const std::string &path) : behaviourMood("neutral")
 {
     auto rawData = cocos2d::FileUtils::getInstance()->getValueMapFromFile(path);
 
@@ -86,7 +86,7 @@ ProfileData::ProfileData(const std::string &path)
     
     if (rawData.find("collision") != rawData.end())
     {
-        auto cData = rawData.at("collision").asValueMap();
+        auto &cData = rawData.at("collision").asValueMap();
         if (cData.find("rect") != cData.end())
         {
             std::vector<std::string> split;
@@ -101,5 +101,21 @@ ProfileData::ProfileData(const std::string &path)
         {
             this->collisionCat = cData.at("cat").asString();
         }
+    }
+    
+    if (rawData.find("behaviour") != rawData.end())
+    {
+        auto &bData = rawData.at("behaviour").asValueMap();
+        if (bData.find("key") != rawData.end())
+            this->behaviourKey = bData.at("key").asString();
+        if (bData.find("mood") != rawData.end())
+            this->behaviourMood = bData.at("mood").asString();
+    }
+    
+    if (rawData.find("sight") != rawData.end())
+    {
+        auto &sData = rawData.at("sight").asValueMap();
+        if (sData.find("range") != sData.end())
+            this->sightRange = sData["range"].asDouble();
     }
 }

@@ -15,7 +15,7 @@ void RenderSystem::tick(double dt)
         //processing velocity animations
         if (!cpRender.busy && cpRender.profile != nullptr)
         {
-            unsigned orientation = Dir::kNone;
+            Dir orientation = Dir::None;
             if (ecs::has<cp::Orientation>(eid))
                 orientation = ecs::get<cp::Orientation>(eid).curDir;
             cpRender.setMoveAnimation(orientation, !cpVel.direction.isZero());

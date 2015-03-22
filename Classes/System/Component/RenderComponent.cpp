@@ -90,7 +90,7 @@ void RenderComponent::setAnimation(const std::string &key, int repeat, std::func
     this->onComplete = onComplete;
 }
 
-void RenderComponent::setMoveAnimation(const unsigned &orientation, bool moving)
+void RenderComponent::setMoveAnimation(const Dir &orientation, bool moving)
 {
     if (this->profile == nullptr)
         return;

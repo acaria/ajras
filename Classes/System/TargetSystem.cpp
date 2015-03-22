@@ -14,12 +14,12 @@ void TargetSystem::tick(double dt)
         Point pdir = Point(r2.getMidX(), r2.getMidY()) -
                      Point(r1.getMidX(), r1.getMidY());
         
-        Dir odir = Dir::kNone;
+        Dir odir = Dir::None;
         
         if (abs(pdir.x) > abs(pdir.y))
-            odir = pdir.x < 0 ? Dir::kLeft : Dir::kRight;
+            odir = pdir.x < 0 ? Dir::Left : Dir::Right;
         else
-            odir = pdir.y < 0 ? Dir::kDown : Dir::kUp;
+            odir = pdir.y < 0 ? Dir::Down : Dir::Up;
         
         ecs::get<cp::Orientation>(eid).curDir = odir;
     }

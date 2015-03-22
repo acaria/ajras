@@ -3,6 +3,10 @@
 #define kDrawDebug 0
 #define kDrawInfo 1
 
+#define kTraceBehaviours 1
+
+namespace cc = cocos2d;
+
 const bool  kShowFPS = true;
 const float kUpdatesPerSecond = 60.0f;
 const float kIdealInterval = 1.0f / kUpdatesPerSecond;
@@ -14,13 +18,4 @@ enum CollisionCategory
     impassable,
     walkable,
     flyable,
-};
-
-enum Dir
-{
-    kNone = 0,
-    kLeft = 1,
-    kRight = 2,
-    kUp = 4,
-    kDown = 8
 };

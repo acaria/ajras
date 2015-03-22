@@ -2,6 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>behaviour</key>
+	<dict>
+		<key>mood</key>
+		<string>friendly</string>
+	</dict>
 	<key>collision</key>
 	<dict>
 		<key>rect</key>

@@ -14,7 +14,7 @@ struct RenderComponent
     void setAnimation(const std::string &key, int repeat,
                       std::function<void(bool)> onComplete = nullptr);
     void cancelAnimation();
-    void setMoveAnimation(const unsigned &orientation, bool moving);
+    void setMoveAnimation(const Dir &orientation, bool moving);
     void setMoveCategory(const std::string& cat);
     
     AnimationData*      getCurAnim();

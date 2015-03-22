@@ -13,3 +13,9 @@ void CollisionComponent::setProfile(const std::string& profileName)
     else
         Log("unrecognised category:%s", profile->collisionCat.c_str());
 }
+
+void CollisionComponent::set(cocos2d::Rect rect)
+{
+    this->rect = rect;
+    this->category = CollisionCategory::walkable;
+}

@@ -18,7 +18,7 @@ public:
     }
     
     template<typename T>
-    std::set<unsigned> &system()
+    ecs::set<unsigned> &system()
     {
         return ecs::system<T>(this->gid);
     }
@@ -36,43 +36,43 @@ public:
     }
     
     template<typename T,int MODE>
-    std::set<unsigned> subsystem(const std::set<unsigned> &B)
+    ecs::set<unsigned> subsystem(const ecs::set<unsigned> &B)
     {
         return subsystem<T, MODE>(B, this->gid);
     }
     
     template<class T, class U>
-    std::set< unsigned > join()
+    ecs::set< unsigned > join()
     {
         return ecs::subsystem<T,ecs::JOIN>( system<U>(), this->gid);
     }
     
     template<class T, class U, class V>
-    std::set< unsigned > join()
+    ecs::set< unsigned > join()
     {
         return ecs::subsystem<T,ecs::JOIN>( join<U,V>(), this->gid);
     }
     
     template<class T, class U, class V, class W>
-    std::set< unsigned > join()
+    ecs::set< unsigned > join()
     {
         return ecs::subsystem<T,ecs::JOIN>( join<U,V,W>(), this->gid);
     }
     
     template<class T, class U, class V, class W, class X>
-    std::set< unsigned > join()
+    ecs::set< unsigned > join()
     {
         return ecs::subsystem<T,ecs::JOIN>( join<U,V,W,X>(this->gid) );
     }
 
     template<class T, class U, class V, class W, class X, class Y>
-    std::set< unsigned > join()
+    ecs::set< unsigned > join()
     {
         return ecs::subsystem<T,ecs::JOIN>( join<U,V,W,X,Y>(this->gid) );
     }
     
     template<class T>
-    std::set< unsigned > exclude(const std::set<unsigned> &B)
+    ecs::set< unsigned > exclude(const ecs::set<unsigned> &B)
     {
         return subsystem<T,ecs::EXCLUDE>(B, this->gid);
     }

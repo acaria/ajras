@@ -18,10 +18,11 @@ void ProfileModel::clear()
     {
         delete i.second;
     }
+    this->profiles.clear();
 }
 
 ProfileModel::~ProfileModel()
 {
     
-    this->profiles.clear();
+    this->clear();
 }

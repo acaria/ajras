@@ -11,7 +11,8 @@ public:
                       inputSystem(ecsGroup),
                       controlSystem(ecsGroup),
                       meleeSystem(ecsGroup),
-                      targetSystem(ecsGroup)
+                      targetSystem(ecsGroup),
+                      aiSystem(ecsGroup)
     {
     }
 
@@ -32,6 +33,7 @@ private:
     ControlSystem   controlSystem;
     MeleeSystem     meleeSystem;
     TargetSystem    targetSystem;
+    AISystem        aiSystem;
     
     //local ecs
     lib::EcsGroup   ecsGroup;

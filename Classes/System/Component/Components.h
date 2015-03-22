@@ -15,6 +15,8 @@ namespace cp
     using Melee = ecs::component<MeleeComponent, 10>;
     using Health = ecs::component<HealthComponent, 11>;
     using Target = ecs::component<unsigned, 12>;
+    using AI = ecs::component<AIComponent, 13>;
+    using Cat = ecs::component<CategoryComponent, 14>;
     
     struct entity
     {
@@ -39,6 +41,8 @@ namespace cp
             ecs::move<Melee>(id, g1, g2);
             ecs::move<Health>(id, g1, g2);
             ecs::move<Target>(id, g1, g2);
+            ecs::move<AI>(id, g1, g2);
+            ecs::move<Cat>(id, g1, g2);
         }
         
         static void remove(unsigned id, unsigned group)
@@ -55,6 +59,8 @@ namespace cp
             ecs::del<Melee>(id, group);
             ecs::del<Health>(id, group);
             ecs::del<Target>(id, group);
+            ecs::del<AI>(id, group);
+            ecs::del<Cat>(id, group);
         }
         
         static void clear(unsigned group)
@@ -71,6 +77,8 @@ namespace cp
             ecs::clearGroup<Melee>(group);
             ecs::clearGroup<Health>(group);
             ecs::clearGroup<Target>(group);
+            ecs::clearGroup<AI>(group);
+            ecs::clearGroup<Cat>(group);
             
             genID(true);
         }

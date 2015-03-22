@@ -14,5 +14,5 @@ public:
 private:
     cocos2d::Rect getAtkRectFromDir(const cocos2d::Rect& bounds,
                                     unsigned range,
-                                    unsigned dir);
+                                    const Dir& dir);
 };

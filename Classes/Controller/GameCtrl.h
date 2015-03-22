@@ -14,8 +14,12 @@ public:
     RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned> &eids);
 
     ScreenLog       log;
+
     TickCtrl        tick;
+    
+    //models
     ProfileModel    profileModel;
+    BehaviourModel  behaviourModel;
 
     void tickUpdate(float dt);
     void scheduleUpdate(cocos2d::Node* parent);

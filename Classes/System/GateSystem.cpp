@@ -47,7 +47,7 @@ void GateSystem::tick(double dt)
                         xPos += facto * (cpGate.info.rect.size.width - cpCol.rect.size.width) / 2;
                         cpPos.pos.x = MAX(cpPos.pos.x, xPos - cpCol.rect.getMinX());
                     }
-                    targetDir = (cpGate.info.type == GateInfo::Up) ? Dir::kUp : Dir::kDown;
+                    targetDir = (cpGate.info.type == GateInfo::Up) ? Dir::Up : Dir::Down;
                     targetPoint = {cpPos.pos.x, (cpGate.info.type == GateInfo::Up) ?
                         cpGate.info.rect.getMaxY() - cplRect.size.height :
                         cpGate.info.rect.getMinY() };
@@ -69,7 +69,7 @@ void GateSystem::tick(double dt)
                         yPos += facto * (cpGate.info.rect.size.height - cpCol.rect.size.height) / 2;
                         cpPos.pos.y = MAX(cpPos.pos.y, yPos - cpCol.rect.getMinY());
                     }
-                    targetDir = (cpGate.info.type == GateInfo::Left) ? Dir::kLeft : Dir::kRight;
+                    targetDir = (cpGate.info.type == GateInfo::Left) ? Dir::Left : Dir::Right;
                     targetPoint = {(cpGate.info.type == GateInfo::Left) ? cpGate.info.rect.getMinX() :
                         (cpGate.info.rect.getMaxX() - cplRect.size.width), cpPos.pos.y };
                     break;

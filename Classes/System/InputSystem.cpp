@@ -34,12 +34,11 @@ void InputSystem::tick(double dt)
         {
             auto& cpOrientation = ecs::get<cp::Orientation>(eid);
         
-            if (cpInput.orientation != Dir::kNone)
+            if (cpInput.orientation != Dir::None)
             {
                 cpOrientation.lastDir = cpOrientation.curDir;
             
-                if (cpOrientation.lastDir != Dir::kNone &&
-                  ((cpOrientation.lastDir & cpInput.orientation) == cpOrientation.lastDir))
+                if (cpOrientation.lastDir != Dir::None && cpInput.orientation.contains(cpOrientation.lastDir))
                     cpOrientation.curDir = cpOrientation.lastDir;
                 else
                     cpOrientation.curDir = cpInput.orientation;
@@ -50,7 +49,7 @@ void InputSystem::tick(double dt)
         if (ecs::has<cp::Velocity>(eid))
         {
             auto& cpVelocity = ecs::get<cp::Velocity>(eid);
-            if ((cpInput.orientation & cpInput.lastOrientation) == 0)
+            if (cpInput.orientation.uncross(cpInput.lastOrientation))
                 cpVelocity.accelFactor = 0.0f;
             cpVelocity.direction = lib::getVectorDirection(cpInput.orientation);
         }

@@ -2,12 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>collision</key>
+	<key>behaviour</key>
 	<dict>
-		<key>rect</key>
-		<string>15,8,11,11</string>
-		<key>cat</key>
-		<string>walkable</string>
+		<key>key</key>
+		<string>humanoid</string>
+		<key>mood</key>
+		<string>hostile</string>
 	</dict>
 	<key>animations</key>
 	<dict>
@@ -237,6 +237,18 @@
 				</dict>
 			</dict>
 		</dict>
+	</dict>
+	<key>collision</key>
+	<dict>
+		<key>rect</key>
+		<string>15,8,11,11</string>
+		<key>cat</key>
+		<string>walkable</string>
+	</dict>
+	<key>sight</key>
+	<dict>
+		<key>range</key>
+		<string>50</string>
 	</dict>
 </dict>
 </plist>

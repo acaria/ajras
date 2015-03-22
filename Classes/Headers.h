@@ -5,6 +5,7 @@
 #include "Constants.h"
 
 //Lib
+#include "Dir.h"
 #include "CsActionInterval.h"
 #include "SweptAABB.h"
 #include "V2.h"
@@ -23,6 +24,9 @@
 #include "AnimationData.h"
 #include "ProfileData.h"
 #include "ProfileModel.h"
+#include "BehaviourNodes.h"
+#include "BehaviourData.h"
+#include "BehaviourModel.h"
 #include "BlockInfo.h"
 #include "ObjectInfo.h"
 #include "GateInfo.h"
@@ -34,6 +38,8 @@
 
 //System
 #include "InputComponent.h"
+#include "AIComponent.h"
+#include "CategoryComponent.h"
 #include "RenderComponent.h"
 #include "GateComponent.h"
 #include "HealthComponent.h"
@@ -52,6 +58,7 @@
 #include "TargetSystem.h"
 #include "InputSystem.h"
 #include "GateSystem.h"
+#include "AISystem.h"
 #include "MeleeSystem.h"
 
 //View

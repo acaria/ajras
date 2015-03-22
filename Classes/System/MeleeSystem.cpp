@@ -18,18 +18,18 @@ void MeleeSystem::tick(double dt)
             cpCollision.rect.size.height
         };
         
-        unsigned atkDir = Dir::kNone;
+        Dir atkDir = Dir::None;
         
         if (cpMelee.launched)
             atkDir = cpMelee.curDir;
         else
         {
-            atkDir = ecs::has<cp::Orientation>(eid) ? ecs::get<cp::Orientation>(eid).curDir : Dir::kNone;
+            atkDir = ecs::has<cp::Orientation>(eid) ? ecs::get<cp::Orientation>(eid).curDir : Dir::None;
         
             switch(cpMelee.type)
             {
                 case MeleeComponent::SELF: {
-                    atkDir = kNone;
+                    atkDir = Dir::None;
                     break;
                 }
                 case MeleeComponent::DIR: {
@@ -131,19 +131,19 @@ void MeleeSystem::tick(double dt)
     }
 }
 
-cocos2d::Rect MeleeSystem::getAtkRectFromDir(const cocos2d::Rect& bounds, unsigned range, unsigned dir)
+cocos2d::Rect MeleeSystem::getAtkRectFromDir(const cocos2d::Rect& bounds, unsigned range, const Dir& dir)
 {
-    switch(dir)
+    switch(dir.getRaw())
     {
-        case Dir::kLeft:
+        case Dir::Left:
             return cocos2d::Rect(bounds.getMinX() - range, bounds.getMidY() - range / 2, range, range);
-        case Dir::kRight:
+        case Dir::Right:
             return cocos2d::Rect(bounds.getMaxX(), bounds.getMidY() - range / 2, range, range);
-        case Dir::kDown:
+        case Dir::Down:
             return cocos2d::Rect(bounds.getMidX() - range / 2, bounds.getMinY() - range, range, range);
-        case Dir::kUp:
+        case Dir::Up:
             return cocos2d::Rect(bounds.getMidX() - range / 2, bounds.getMaxY(), range, range);
-        case Dir::kNone:
+        case Dir::None:
             return cocos2d::Rect(bounds.getMinX() - range,
                                  bounds.getMinY() - range,
                                  bounds.size.width + (range << 1),

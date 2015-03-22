@@ -22,20 +22,21 @@ struct MeleeComponent
     bool        processed;
     bool        launched;
     
-    unsigned    curDir;
+    Dir curDir;
     
     //input
     std::string name;
     unsigned    range;
     type        type;
     float       coolDownDuration;
+    //-----
     
     bool isCoolDown()
     {
         return (lastTime == 0) || (lib::now() - lastTime > coolDownDuration);
     }
     
-    void launch(unsigned dir)
+    void launch(Dir dir)
     {
         curDir = dir;
         lastTime = lib::now();

@@ -11,15 +11,20 @@ namespace behaviour
     {
         BoardNode()
         {
-            runningNode = nullptr;
             this->onCheck = nullptr;
             this->onExecute = nullptr;
         }
         
         void reset()
         {
-            runningNode = nullptr;
             states.clear();
+            fields.clear();
+        }
+        
+        void clear(unsigned id)
+        {
+            states.erase(id);
+            fields[id].clear();
         }
         
         std::map<std::string, cc::Value>& getFields(unsigned id)
@@ -30,8 +35,6 @@ namespace behaviour
         }
         
         std::map<unsigned, nState> states;
-        
-        BaseNode* runningNode;
         
         std::function<nState(unsigned id)> onCheck;
         std::function<nState(unsigned id)> onExecute;
@@ -62,6 +65,26 @@ namespace behaviour
         std::string name = "";
         std::vector<std::string> values;
         std::vector<BaseNode*> children;
+        
+    protected:
+        virtual std::string toStr()
+        {
+            std::stringstream ss;
+            ss << this->name;
+            if (this->values.size() > 0)
+            {
+                ss << "(";
+                int i = 0;
+                for(auto v : this->values)
+                {
+                    ss << v;
+                    if (i++ < this->values.size() - 1)
+                        ss << ", ";
+                }
+                ss << ")";
+            }
+            return ss.str();
+        }
     };
     
     struct RepeatNode : public BaseNode
@@ -74,24 +97,22 @@ namespace behaviour
             {
                 if (board.states[id] == SUCCESS)
                 {
-                    board.runningNode = this;
                     this->recursiveClearStates(this, board);
                 }
                 else //(board.states[id] == FAILURE)
                 {
-                    board.states[id] = FAILURE;
-                    return FAILURE;
+                    board.states[id] = SUCCESS;
+                    return SUCCESS;
                 }
             }
-            board.states[id] = RUNNING;
-            
-            return this->children[0]->visit(board);
+            board.states[id] = this->children[0]->visit(board);
+            return RUNNING;
         }
         
     private:
         void recursiveClearStates(BaseNode* node, BoardNode& board)
         {
-            board.states.erase(node->id);
+            board.clear(node->id);
             for(auto child : node->children)
                 recursiveClearStates(child, board);
         }
@@ -104,7 +125,7 @@ namespace behaviour
         nState visit(BoardNode& board)
         {
 #ifdef kTraceBehaviours
-            Log("SequenceNode: %s", this->name.c_str());
+            Log("SequenceNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
                 return board.states[id];
@@ -135,7 +156,7 @@ namespace behaviour
         nState visit(BoardNode& board)
         {
 #ifdef kTraceBehaviours
-            Log("SelectorNode: %s", this->name.c_str());
+            Log("SelectorNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
                 return board.states[id];
@@ -166,7 +187,7 @@ namespace behaviour
         nState visit(BoardNode& board)
         {
 #ifdef kTraceBehaviours
-            Log("UntilNode: %s", this->name.c_str());
+            Log("UntilNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
                 return board.states[id];
@@ -181,7 +202,6 @@ namespace behaviour
                     board.states[this->id] = actionState;
                     return actionState;
                 }
-                board.runningNode = this;
                 return RUNNING;
             }
             else //FAILURE
@@ -194,40 +214,48 @@ namespace behaviour
 
     struct CheckNode : public BaseNode
     {
-        CheckNode(unsigned id) : BaseNode(id) {}
+        CheckNode(unsigned id, bool redo = false) : BaseNode(id),
+                                                    redo(redo) {}
     
         nState visit(BoardNode& board)
         {
 #ifdef kTraceBehaviours
-            Log("CheckNode: %s", this->name.c_str());
+            Log("CheckNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
                 return board.states[id];
         
-            board.states[this->id] = board.onCheck(this->id);
-            return board.states[this->id];
+            auto state = board.onCheck(this->id);
+            if (!redo)
+                board.states[this->id] = state;
+            return state;
         }
+        
+    private:
+        bool redo;
     };
 
     struct ActionNode : public BaseNode
     {
-        ActionNode(unsigned id) : BaseNode(id) {}
+        ActionNode(unsigned id, bool redo = false) : BaseNode(id),
+                                                     redo(redo) {}
     
         nState visit(BoardNode& board)
         {
 #ifdef kTraceBehaviours
-            Log("ActionNode: %s", this->name.c_str());
+            Log("ActionNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
                 return board.states[id];
         
             auto state = board.onExecute(this->id);
-            
-            if (state == RUNNING)
-                board.runningNode = this;
-            board.states[this->id] = state;
+            if (!redo)
+                board.states[this->id] = state;
             return state;
         }
+        
+    private:
+        bool redo;
     };
     
     static std::map<std::string, std::function<BaseNode*(unsigned id)>> factory {
@@ -236,6 +264,8 @@ namespace behaviour
         {"repeat", [](unsigned id) { return new RepeatNode(id); }},
         {"until", [](unsigned id) { return new UntilNode(id); }},
         {"check", [](unsigned id) { return new CheckNode(id); }},
-        {"action", [](unsigned id) { return new ActionNode(id); }}
+        {"check+", [](unsigned id) { return new CheckNode(id, true); }},
+        {"action", [](unsigned id) { return new ActionNode(id); }},
+        {"action+", [](unsigned id) { return new ActionNode(id); }},
     };
 }

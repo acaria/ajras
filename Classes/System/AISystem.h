@@ -20,18 +20,28 @@ private:
     };
     
     enum class CheckBType {
-        IN_SIGHT,
         TIME
     };
     
+    enum class ActionBType {
+        RAND,
+        STOP,
+        TARGET
+    };
+    
     std::map<std::string, CheckBType> checkMap = {
-        {"insight", CheckBType::IN_SIGHT},
         {"time", CheckBType::TIME},
     };
     
     std::map<std::string, ExecBType> execMap = {
         {"target", ExecBType::TARGET},
         {"movenear", ExecBType::MOVE_NEAR},
-        {"movenear", ExecBType::MOVE_DIR},
+        {"movedir", ExecBType::MOVE_DIR},
+    };
+    
+    std::map<std::string, ActionBType> actionMap = {
+        {"rand", ActionBType::RAND},
+        {"target", ActionBType::TARGET},
+        {"stop", ActionBType::STOP}
     };
 };

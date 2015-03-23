@@ -31,6 +31,12 @@ void RenderSystem::tick(double dt)
                 cpRender.setLocalZOrder(data->getModel()->getZOrder(pos.origin));
             }
         }
+        
+        //update target mode
+        if (ecs::has<cp::Target>(eid))
+            cpRender.setMoveCategory("target");
+        else
+            cpRender.setMoveCategory("walk");
     }
 }
 

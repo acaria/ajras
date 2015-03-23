@@ -14,8 +14,6 @@ struct AIComponent
         board.reset();
     }
     
-    behaviour::BaseNode* getNode2Run();
-    
     //input
     BehaviourData* bref;
     float sightRange;

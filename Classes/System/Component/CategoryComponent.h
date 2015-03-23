@@ -3,6 +3,12 @@
 
 struct CategoryComponent
 {
+    enum class eType
+    {
+        NONE,
+        MOOD
+    };
+    
     enum class eMood
     {
         NEUTRAL, HOSTILE, FRIENDLY
@@ -13,10 +19,6 @@ struct CategoryComponent
     
     eMood mood = eMood::NEUTRAL;
     
-private:
-    std::map<std::string, eMood> mapMood = {
-        {"neutral", eMood::NEUTRAL},
-        {"hostile", eMood::HOSTILE},
-        {"friendly",eMood::FRIENDLY}
-    };
+    static std::map<std::string, eType> mapType;
+    static std::map<std::string, eMood> mapMood;
 };

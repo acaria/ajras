@@ -13,7 +13,6 @@ cocos2d::Rect SysHelper::getBounds(const PositionComponent &position,
 
 cocos2d::Rect SysHelper::getBounds(unsigned eid)
 {
-    bool valid = ecs::has<cp::Position, cp::Collision>(eid);
-    CCASSERT(valid, "invalid entity for bounds processing");
+    CCASSERT((ecs::has<cp::Position, cp::Collision>(eid)), "invalid entity for bounds processing");
     return SysHelper::getBounds(ecs::get<cp::Position>(eid), ecs::get<cp::Collision>(eid));
 }

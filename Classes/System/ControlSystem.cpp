@@ -27,7 +27,6 @@ void ControlSystem::tick(double dt)
                 unsigned tid = this->entitySelection[index];
                 this->view->interface->setTargetID(tid, ecs::has<cp::Control>(tid));
                 ecs.add<cp::Target>(eid) = tid;
-                ecs::get<cp::Render>(eid).setMoveCategory("target");
             }
         }
         

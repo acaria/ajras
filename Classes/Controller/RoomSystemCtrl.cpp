@@ -139,6 +139,7 @@ void RoomSystemCtrl::load(GameScene *gview, MapData *data)
             ecs::add<cp::Render>(eid, roomIndex).setProfile(obj.profileName,
                 roomLayer->main, roomData->getModel()->getZOrder(obj.pos));
             ecs::add<cp::Collision>(eid, roomIndex).setProfile(obj.profileName);
+            ecs::add<cp::Cat>(eid, roomIndex).setProfile(obj.profileName);
             ecs::add<cp::Position>(eid, roomIndex).set(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
             
             if (obj.profileName == "boy") //player

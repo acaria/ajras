@@ -19,25 +19,10 @@ void AISystem::tick(double dt)
             return this->onExecute(eid, nid);
         };
         
-        auto status = cpAI.getNode2Run()->visit(cpAI.board);
-        CCASSERT(status == behaviour::nState::RUNNING, "corrupted behaviours loop");
-        
-        /*auto& cpInput = ecs::get<cp::Input>(eid);
-        auto& cpAI = ecs::get<cp::AI>(eid);
-        
-        cpInput.lastOrientation = cpInput.orientation;
-        if (cpAI.timer == 0)
-        {
-            cpAI.timer = 1.0;
-            if (cpInput.orientation == Dir::None)
-                cpInput.orientation = Dir::rand();
-            else
-                cpInput.orientation.turnLeft();
-        }
-        else
-        {
-            cpAI.timer = MAX(cpAI.timer - dt, 0);
-        }*/
+        auto status = cpAI.bref->getRootNode()->visit(cpAI.board);
+        if (status != behaviour::nState::RUNNING)
+            cpAI.reset();
+        //CCASSERT(status == behaviour::nState::RUNNING, "corrupted behaviours loop");
     }
 }
 
@@ -51,7 +36,7 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
     {
         case CheckBType::TIME: {
             assert(node->values.size() == 1); //params=[timer]
-            auto properties = cpAI.board.getFields(nid);
+            auto &properties = cpAI.board.getFields(nid);
             if (!lib::hasKey(properties, "timer"))
                 properties["timer"] = lib::now();
             if (lib::now() - properties["timer"].asDouble() > std::stod(node->values[0]))
@@ -61,11 +46,6 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
                 return state::FAILURE;
             }
             return state::SUCCESS;
-        }
-        break;
-        case CheckBType::IN_SIGHT: {
-            assert(node->values.size() == 2); //params=[category,value]
-            
         }
         break;
         default:
@@ -78,27 +58,102 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
 
 behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
 {
+    using state = behaviour::nState;
     auto& cpAI = ecs::get<cp::AI>(eid);
     behaviour::BaseNode* node = cpAI.bref->getNode(nid);
 
     switch(this->execMap[node->name])
     {
         case ExecBType::TARGET: {
-            
+            assert(node->values.size() > 0);
+            switch(CategoryComponent::mapType[node->values[0]])
+            {
+                case CategoryComponent::eType::MOOD: {
+                    assert(node->values.size() == 2); //params=[category,value]
+                    auto maxDist = cpAI.sightRange * cpAI.sightRange;
+                    auto targetMood = CategoryComponent::mapMood[node->values[1]];
+                    auto bounds = SysHelper::getBounds(eid);
+                    
+                    float nearest = maxDist;
+                    unsigned targetID = 0;
+                    for(auto tid : ecs.join<cp::Cat, cp::Position, cp::Collision>())
+                    {
+                        if (tid == eid)
+                            continue;
+                        if (targetMood != ecs::get<cp::Cat>(tid).mood)
+                            continue;
+                        auto bounds2 = SysHelper::getBounds(tid);
+                        float dist = Vec2(
+                            bounds.getMidX() - bounds2.getMidX(),
+                            bounds.getMidY() - bounds2.getMidY()).lengthSquared();
+                        if (dist < maxDist && dist < nearest)
+                        {
+                            nearest = dist;
+                            targetID = tid;
+                        }
+                    }
+                    
+                    if (targetID != 0)
+                    {
+                        ecs.add<cp::Target>(eid) = targetID;
+                        return state::SUCCESS;
+                    }
+                    return state::FAILURE;
+                }
+                case CategoryComponent::eType::NONE: {
+                    assert(node->values.size() == 1); //params=[category]
+                    ecs.del<cp::Target>(eid);
+                    return state::SUCCESS;
+                }
+                default: {
+                    Log("unrecognised category type : %s", node->values[0].c_str());
+                    break;
+                }
+            }
         }
         break;
         case ExecBType::MOVE_DIR: {
-            
+            assert(node->values.size() == 1); //params=[type]
+            switch(actionMap[node->values[0]])
+            {
+                case ActionBType::RAND: {
+                    auto& cpInput = ecs::get<cp::Input>(eid);
+                    
+                    cpInput.lastOrientation = cpInput.orientation;
+                    if (cpInput.orientation == Dir::None)
+                        cpInput.orientation = Dir::rand();
+                    //else
+                    //    cpInput.orientation.turnLeft();
+                    return state::RUNNING;
+                }
+                case ActionBType::STOP: {
+                    auto& cpInput = ecs::get<cp::Input>(eid);
+                    
+                    cpInput.lastOrientation = cpInput.orientation;
+                    cpInput.orientation = Dir::None;
+                    return state::SUCCESS;
+                }
+                default:
+                    Log("invalid sub parameter: %s", node->values[0].c_str());
+                    break;
+            }
         }
-        break;
         case ExecBType::MOVE_NEAR: {
-            
+            assert(node->values.size() == 1); //params=[type]
+            switch(actionMap[node->values[0]])
+            {
+                case ActionBType::TARGET: {
+                    return state::FAILURE;
+                }
+                default:
+                    Log("invalid sub parameter: %s", node->values[0].c_str());
+                    break;
+            }
         }
-        break;
         default:
             Log("unsupported action: %s", node->name.c_str());
             break;
     }
 
-    return behaviour::nState::FAILURE;
+    return state::FAILURE;
 }

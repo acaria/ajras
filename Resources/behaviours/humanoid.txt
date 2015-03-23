@@ -1,10 +1,11 @@
 selector
     sequence attack
-        check insight family hostile
-        action target family hostile
+        action target mood hostile
         until time 2.0
             action movenear target
     sequence wander
         action target none
-        until time 2.0
-            action movedir rand
+        selector
+            until time 2.0
+                action movedir rand
+            action movedir stop

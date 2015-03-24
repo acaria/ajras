@@ -24,6 +24,14 @@ Dir& Dir::operator=(const unsigned& rhs)
     return *this;
 }
 
+cc::Vec2 Dir::toVec()
+{
+    cocos2d::Vec2 res(
+        (contains(Dir::Left) ? -1.0f : 0.0f) + (contains(Dir::Right) ? 1.0f : 0.0f),
+        (contains(Dir::Up) ? 1.0f : 0.0f) + (contains(Dir::Down) ? -1.0f : 0.0f));
+    return res.getNormalized();
+}
+
 Dir& Dir::opposite()
 {
     unsigned newValue = None;
@@ -112,6 +120,30 @@ Dir Dir::rand()
         case 4: return Dir::None;
     }
     return Dir::None;
+}
+
+Dir Dir::fromVec(cc::Vec2 r, bool cardinal)
+{
+    cc::Vec2 v = {
+        roundf(r.x * 10) / 10,
+        roundf(r.y * 10) / 10
+    };
+    log("vdir=%f,%f", v.x, v.y);
+    unsigned res = Dir::None;
+    
+    if ((abs(v.x) > abs(v.y)) || !cardinal)
+    {
+        if (v.x < 0) res |= Dir::Left;
+        if (v.x > 0) res |= Dir::Right;
+    }
+    
+    if ((abs(v.y) > abs(v.x)) || !cardinal)
+    {
+        if (v.y < 0) res |= Dir::Down;
+        if (v.y > 0) res |= Dir::Up;
+    }
+    
+    return res;
 }
 
 void Dir::reset()

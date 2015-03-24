@@ -21,17 +21,17 @@ struct RenderComponent
     std::string         moveAnimationKey = "";
     
     cocos2d::Sprite*    container;
-    
 
 #if kDrawDebug
-    cocos2d::Sprite*    collision;
-    cocos2d::Sprite*    melee;
+    cc::Sprite*    collision;
+    cc::Sprite*    melee;
+    cc::Sprite*    sight;
 #endif
 
 #if kDrawInfo
     cocos2d::Label*     lInfo;
 #endif
-    
+ 
     //input
     ProfileData*                profile;
     int                         repeat;
@@ -49,6 +49,7 @@ struct RenderComponent
     void setSpriteFrame(const std::string &spriteFrameName);
     cocos2d::Action* runAction(cocos2d::Action* action);
 private:
+    cc::Rect            bounds;
     cocos2d::Sprite*    sprite;
     cocos2d::Sprite* initSprite(const std::string &frameName);
 };

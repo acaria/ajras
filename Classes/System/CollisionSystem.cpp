@@ -30,11 +30,11 @@ bool CollisionSystem::checkRoomCollision(const cocos2d::Rect &rect, CollisionCat
     auto moveAble = this->grids[cat];
     if (!moveAble->get(this->getGridPosIntersect({rect.getMinX(), rect.getMinY()})))
         return true;
-    if (!moveAble->get(this->getGridPosIntersect({rect.getMinX(), rect.getMaxY() - 1})))
+    if (!moveAble->get(this->getGridPosIntersect({rect.getMinX(), rect.getMaxY()})))
         return true;
-    if (!moveAble->get(this->getGridPosIntersect({rect.getMaxX() - 1, rect.getMinY()})))
+    if (!moveAble->get(this->getGridPosIntersect({rect.getMaxX(), rect.getMinY()})))
         return true;
-    if (!moveAble->get(this->getGridPosIntersect({rect.getMaxX() - 1, rect.getMaxY() - 1})))
+    if (!moveAble->get(this->getGridPosIntersect({rect.getMaxX(), rect.getMaxY()})))
         return true;
     return false;
 }
@@ -44,8 +44,8 @@ std::list<cocos2d::Rect> CollisionSystem::getRectGridCollisions(const cocos2d::R
     auto moveAble = this->grids[cat];
     auto res = std::list<cocos2d::Rect>();
     
-    auto upLeft = this->getGridPosIntersect(rect.getMinX(), rect.getMaxY());
-    auto downRight = this->getGridPosIntersect(rect.getMaxX(), rect.getMinY());
+    auto upLeft = this->getGridPosIntersect(rect.getMinX() - 1, rect.getMaxY() +  1);
+    auto downRight = this->getGridPosIntersect(rect.getMaxX() + 1, rect.getMinY() - 1);
     
     for(unsigned x = upLeft.x; x <= downRight.x; x++)
     for(unsigned y = downRight.y; y <= upLeft.y; y++)
@@ -109,6 +109,8 @@ void CollisionSystem::tick(double dt)
     {
         auto& cpPosition = ecs::get<cp::Position>(eid);
         auto& cpCollision = ecs::get<cp::Collision>(eid);
+     
+        cpCollision.collide = false;
         
 #if kDrawDebug
         auto& cpRender = ecs::get<cp::Render>(eid);
@@ -122,10 +124,10 @@ void CollisionSystem::tick(double dt)
         
         if (!ecs::has<cp::Velocity>(eid))
             continue;
-        auto& cpVelocity = ecs::get<cp::Velocity>(eid);
         
-        if (cpVelocity.velocity.isZero())
-            continue;
+        auto &cpVel = ecs::get<cp::Velocity>(eid);
+        //if (cpVelocity.velocity.isZero())
+        //    continue;
         
         cocos2d::Rect bounds = SysHelper::getBounds(cpPosition, cpCollision);
         
@@ -148,20 +150,21 @@ void CollisionSystem::tick(double dt)
         {
             for(auto rc : this->getRectGridCollisions(bounds, cpCollision.category))
             {
+                cpCollision.collide = true;
                 cocos2d::Vec2 cv;
                 if (rc.size.width > rc.size.height) // ySlide
                 {
                     if (rc.getMinY() > bounds.getMinY())
-                        cv.y = -rc.size.height;
+                        cv.y = -rc.size.height - 1;
                     else
-                        cv.y = rc.size.height;
+                        cv.y = rc.size.height + 1;
                 }
                 else //xSlide
                 {
                     if (rc.getMinX() > bounds.getMinX())
-                        cv.x = -rc.size.width;
+                        cv.x = -rc.size.width - 1;
                     else
-                        cv.x = rc.size.width;
+                        cv.x = rc.size.width + 1;
                 }
             
                 cpPosition.pos += cv;
@@ -171,6 +174,12 @@ void CollisionSystem::tick(double dt)
             }
         }
         
+        if (eid == 2)
+        {
+            Log("after: p=%f, c=%d", cpPosition.pos.x, cpCollision.collide?1:0);
+        }
+        
+        /*
         //check room objects
         for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position>())
         {
@@ -183,17 +192,20 @@ void CollisionSystem::tick(double dt)
                 
                 if (bounds2.intersectsRect(bounds))
                 {
+                    cpCollision.collide = true;
 #if kDrawDebug
                     ecs::get<cp::Render>(eid).collision->setColor(Color3B::RED);
 #endif
+
+                    
                     //bounce
-                    auto box = bounce(cpPosition, cpCollision, bounds2);
+                    auto box = slide(cpPosition, cpCollision, bounds2);
                     cpPosition.pos = {box.x, box.y};
                     cpVelocity.applyVelocity({box.vx, box.vy});
                     
                     if (ecs::has<cp::Input>(eid))
                     {
-                        ecs::get<cp::Render>(eid).cancelAnimation();
+                        //ecs::get<cp::Render>(eid).cancelAnimation();
                         ecs::get<cp::Input>(eid).predicates.push_back([](unsigned id) {
                             if (!ecs::has<cp::Velocity>(id))
                                 return true;
@@ -202,7 +214,7 @@ void CollisionSystem::tick(double dt)
                     }
                 }
             }
-        }
+        }*/
     }
 }
 
@@ -220,15 +232,47 @@ lib::Box CollisionSystem::bounce(const PositionComponent &cpPos,
     
     float nX, nY;
     auto ct = lib::SweptAABB(b1, b2, nX, nY);
+    auto translation = Vec2(0,0);
     if (ct < 1.0f)
     {
-        pRes += {b1.vx * ct, b1.vy * ct};
+        translation = {b1.vx * ct, b1.vy * ct};
         auto rt = 1.f - ct;
         b1.vx *= rt;
         b1.vy *= rt;
         if (abs(nX) > 0.0001f) b1.vx = -b1.vx;
         if (abs(nY) > 0.0001f) b1.vy = -b1.vy;
-        pRes += {b1.vx * rt, b1.vy * rt};
+        translation += {b1.vx * rt, b1.vy * rt};
     }
+    Log("T=%f,%f", translation.x, translation.y);
+    pRes += translation;
+    return lib::Box(pRes.x, pRes.y, b1.w, b1.h, b1.vx, b1.vy);
+}
+
+lib::Box CollisionSystem::slide(PositionComponent &cpPos,
+                                 const CollisionComponent &cpCol,
+                                 const cocos2d::Rect& target)
+{
+    cocos2d::Vec2 pRes = cpPos.last;
+    auto b1 = lib::Box(cpPos.last.x + cpCol.rect.getMinX() - 1,
+                       cpPos.last.y + cpCol.rect.getMinY() - 1,
+                       cpCol.rect.size.width, cpCol.rect.size.height,
+                       cpPos.pos.x - cpPos.last.x,
+                       cpPos.pos.y - cpPos.last.y);
+    auto b2 = lib::Box(target, {0, 0});
+    
+    float nX, nY;
+    auto ct = MAX(0, lib::SweptAABB(b1, b2, nX, nY) - 0.0001f);
+    auto translation = Vec2(0,0);
+    if (ct < 1.0f)
+    {
+        translation = {b1.vx * ct, b1.vy * ct};
+        auto rt = 1.f - ct;
+        auto dotProd = (b1.vx * nY + b1.vy * nX) * rt;
+        b1.vx = dotProd * nY * rt;
+        b1.vy = dotProd * nX * rt;
+        translation += {b1.vx * rt, b1.vy * rt};
+    }
+    Log("T=%f,%f", translation.x, translation.y);
+    pRes += translation;
     return lib::Box(pRes.x, pRes.y, b1.w, b1.h, b1.vx, b1.vy);
 }

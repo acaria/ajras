@@ -1,9 +1,9 @@
 #pragma once
 
-#define kDrawDebug 0
-#define kDrawInfo 1
+#define kDrawDebug 1
+#define kDrawInfo 0
 
-#define kTraceBehaviours 1
+#define kTraceBehaviours 0
 
 namespace cc = cocos2d;
 

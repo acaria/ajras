@@ -30,10 +30,12 @@ public:
     bool contains(const Dir& rhs) const;
     bool uncross(const Dir& rhs) const;
     
+    cc::Vec2 toVec();
     unsigned getRaw() const;
     void reset();
     
     static Dir rand();
+    static Dir fromVec(cc::Vec2 v, bool cardinal = false);
     
 private:
     unsigned value;

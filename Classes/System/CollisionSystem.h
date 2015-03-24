@@ -25,6 +25,10 @@ private:
     lib::Box bounce(const PositionComponent &cpPos,
                     const CollisionComponent &cpCol,
                     const cocos2d::Rect& target);
+    
+    lib::Box slide(PositionComponent &cpPos,
+                    const CollisionComponent &cpCol,
+                    const cocos2d::Rect& target);
 
     std::list<cocos2d::Rect> getRectGridCollisions(const cocos2d::Rect& rect,
                                                    CollisionCategory cat);

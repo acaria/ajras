@@ -8,14 +8,6 @@ namespace lib
         return std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::system_clock::now().time_since_epoch()).count();
     }
 
-    cc::Vec2 getVectorDirection(Dir d)
-    {
-        cocos2d::Vec2 res(
-            (d.contains(Dir::Left) ? -1.0f : 0.0f) + (d.contains(Dir::Right) ? 1.0f : 0.0f),
-            (d.contains(Dir::Up) ? 1.0f : 0.0f) + (d.contains(Dir::Down) ? -1.0f : 0.0f));
-        return res.getNormalized();
-    }
-    
     bool intersectRects(const std::vector<cocos2d::Rect> &rs1,
                         const std::vector<cocos2d::Rect> &rs2)
     {
@@ -44,25 +36,6 @@ namespace lib
         };
     }
     
-    unsigned getDirectionVector(cc::Vec2 v, bool cardinal)
-    {
-        unsigned res = Dir::None;
-        
-        if ((abs(v.x) > abs(v.y)) || !cardinal)
-        {
-            if (v.x < 0) res |= Dir::Left;
-            if (v.x > 0) res |= Dir::Right;
-        }
-        
-        if ((abs(v.y) > abs(v.x)) || !cardinal)
-        {
-            if (v.y < 0) res |= Dir::Down;
-            if (v.y > 0) res |= Dir::Up;
-        }
-
-        return res;
-    }
-
     std::string format(const std::string fmt_str, ...)
     {
         int final_n, n = ((int)fmt_str.size()) * 2;

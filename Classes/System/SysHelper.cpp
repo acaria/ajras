@@ -6,8 +6,8 @@ cocos2d::Rect SysHelper::getBounds(const PositionComponent &position,
     return Rect(
         position.pos.x + collision.rect.origin.x,
         position.pos.y + collision.rect.origin.y,
-        collision.rect.size.width,
-        collision.rect.size.height
+        collision.rect.size.width - 1,
+        collision.rect.size.height - 1
     );
 }
 

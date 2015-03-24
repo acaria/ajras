@@ -12,6 +12,60 @@ void RenderComponent::setFrame(const std::string &frameName,
     parent->addChild(this->container, zOrder);
 }
 
+void RenderComponent::setProfile(const std::string &profileName,
+                                 cocos2d::Node *parent,
+                                 int zOrder)
+{
+    this->profile = GameCtrl::instance()->profileModel.get(profileName);
+    this->setAnimation("idle", -1);
+    //set default walk animation
+    this->setMoveCategory("walk");
+    this->sprite = this->initSprite(getCurAnim()->frameNames.at(0));
+    this->container->addChild(this->sprite);
+    parent->addChild(this->container, zOrder);
+    this->busy = false;
+}
+
+cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
+{
+    auto res = cocos2d::Sprite::createWithSpriteFrameName(frameName);
+    res->setAnchorPoint({0, 0});
+    
+
+#if kDrawDebug
+    this->collision = Sprite::createWithSpriteFrameName("pixel.png");
+    this->collision->setOpacity(100);
+    this->collision->setColor(Color3B::GREEN);
+    this->collision->setAnchorPoint({0,0});
+    this->collision->setVisible(false);
+    this->container->addChild(this->collision);
+
+    this->melee = Sprite::createWithSpriteFrameName("pixel.png");
+    this->melee->setOpacity(100);
+    this->melee->setColor(Color3B::YELLOW);
+    this->melee->setAnchorPoint({0,0});
+    this->melee->setVisible(false);
+    this->container->addChild(this->melee);
+    
+    this->sight = Sprite::createWithSpriteFrameName("circle.png");
+    this->sight->setAnchorPoint({0.5,0.5});
+    this->sight->setPosition(res->getContentSize().width / 2, res->getContentSize().height / 2);
+    this->sight->setOpacity(80);
+    this->sight->setColor(Color3B::ORANGE);
+    this->sight->setVisible(false);
+    this->container->addChild(this->sight);
+#endif
+
+#if kDrawInfo
+    this->lInfo = Label::createWithTTF("", "fonts/04b03.ttf", 8);
+    this->lInfo->setPosition(res->getContentSize().width / 2, res->getContentSize().height);
+    this->container->addChild(this->lInfo);
+#endif
+
+
+    return res;
+}
+
 void RenderComponent::setMoveCategory(const std::string &cat)
 {
     if (this->profile == nullptr)
@@ -27,50 +81,6 @@ void RenderComponent::setMoveCategory(const std::string &cat)
         return;
     }
     this->moveAnimationKey = "";
-}
-
-void RenderComponent::setProfile(const std::string &profileName,
-                                 cocos2d::Node *parent,
-                                 int zOrder)
-{
-    this->profile = GameCtrl::instance()->profileModel.get(profileName);
-    this->setAnimation("idle", -1);
-    //set default walk animation
-    this->setMoveCategory("walk");
-    this->sprite = this->initSprite(getCurAnim()->frameNames.at(0));
-    this->container->addChild(this->sprite);
-    
-    parent->addChild(this->container, zOrder);
-    this->busy = false;
-}
-
-cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
-{
-    auto res = cocos2d::Sprite::createWithSpriteFrameName(frameName);
-    res->setAnchorPoint({0, 0});
-    
-#if kDrawDebug
-    this->collision = Sprite::createWithSpriteFrameName("pixel.png");
-    this->collision->setOpacity(100);
-    this->collision->setColor(Color3B::GREEN);
-    this->collision->setAnchorPoint({0,0});
-    this->collision->setVisible(false);
-    res->addChild(this->collision);
-
-    this->melee = Sprite::createWithSpriteFrameName("pixel.png");
-    this->melee->setOpacity(100);
-    this->melee->setColor(Color3B::YELLOW);
-    this->melee->setAnchorPoint({0,0});
-    this->melee->setVisible(false);
-    res->addChild(this->melee);
-#endif
-
-#if kDrawInfo
-    this->lInfo = Label::createWithTTF("", "fonts/04b03.ttf", 8);
-    this->lInfo->setPosition(res->getContentSize().width / 2, res->getContentSize().height);
-    res->addChild(this->lInfo);
-#endif
-    return res;
 }
 
 void RenderComponent::cancelAnimation()

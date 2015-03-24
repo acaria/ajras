@@ -38,24 +38,33 @@ void RoomSystemCtrl::changeRoom(unsigned roomIndex,
     
     this->gView->interface->clearTarget();
     unsigned prevRoomIndex = this->data->getCurRoom()->index;
+    
+    bool changeView = false;
     for(auto eid : eids)
     {
         cp::entity::move(eid, prevRoomIndex, roomIndex);
+        if (ecs::has<cp::Control>(eid) &&
+            ecs::get<cp::Control>(eid) == ControlSystem::INDEX_P1)
+            changeView = true;
         if (ecs::has<cp::Render>(eid))
         {
             this->roomViews[prevRoomIndex]->main->removeChild(ecs::get<cp::Render>(eid).container, false);
             this->roomViews[roomIndex]->main->addChild(ecs::get<cp::Render>(eid).container);
         }
     }
-    this->data->setCurIdxRoom(roomIndex);
     
-    collisionSystem.init(data->getCurRoom());
-    renderSystem.init(data->getCurRoom());
-    ecsGroup.setID(roomIndex);
+    if (changeView)
+    {
+        this->data->setCurIdxRoom(roomIndex);
+
+        collisionSystem.init(data->getCurRoom());
+        renderSystem.init(data->getCurRoom());
+        ecsGroup.setID(roomIndex);
     
-    //camera
-    auto bounds = this->data->getCurRoom()->getBounds();
-    this->gView->moveCamera({bounds.getMidX(), bounds.getMidY()}, 1);
+        //camera
+        auto bounds = this->data->getCurRoom()->getBounds();
+        this->gView->moveCamera({bounds.getMidX(), bounds.getMidY()}, 1);
+    }
 }
 
 void RoomSystemCtrl::load(GameScene *gview, MapData *data)
@@ -150,7 +159,6 @@ void RoomSystemCtrl::load(GameScene *gview, MapData *data)
                 ecs::add<cp::Control>(eid, roomIndex) = ControlSystem::INDEX_P1;
                 ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 12);
                 ecs::add<cp::Health>(eid, roomIndex).set(20);
-                ecs::add<cp::Target>(eid, roomIndex) = 0;
             }
             
             if (obj.profileName == "zomb")
@@ -159,7 +167,9 @@ void RoomSystemCtrl::load(GameScene *gview, MapData *data)
                 ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
                 ecs::add<cp::Input>(eid, roomIndex);
                 ecs::add<cp::Health>(eid, roomIndex).set(10);
-                ecs::add<cp::AI>(eid, roomIndex).setProfile(obj.profileName);
+                //ecs::add<cp::AI>(eid, roomIndex).setProfile(obj.profileName);
+                ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 12);
+
             }
             
             if (obj.profileName == "torch")

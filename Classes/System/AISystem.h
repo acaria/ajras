@@ -20,7 +20,8 @@ private:
     };
     
     enum class CheckBType {
-        TIME
+        TIME,
+        COLLISION
     };
     
     enum class ActionBType {
@@ -31,6 +32,7 @@ private:
     
     std::map<std::string, CheckBType> checkMap = {
         {"time", CheckBType::TIME},
+        {"collision", CheckBType::COLLISION},
     };
     
     std::map<std::string, ExecBType> execMap = {

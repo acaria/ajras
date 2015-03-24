@@ -12,6 +12,13 @@ void AISystem::tick(double dt)
         
         auto& cpAI = ecs::get<cp::AI>(eid);
 
+#if kDrawDebug
+        auto& cpRender = ecs::get<cp::Render>(eid);
+        cpRender.sight->setVisible(true);
+        cpRender.sight->setScale(cpAI.sightRange * 2 / 16,
+                                 cpAI.sightRange * 2 / 16);
+#endif
+
         cpAI.board.onCheck = [eid, this](unsigned nid) {
             return this->onCheck(eid, nid);
         };
@@ -47,7 +54,11 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
             }
             return state::SUCCESS;
         }
-        break;
+        case CheckBType::COLLISION:
+            assert(node->values.size() == 0); //no params
+            if (!ecs::has<cp::Collision>(eid) || ecs::get<cp::Collision>(eid).collide)
+                return state::FAILURE;
+            return state::SUCCESS;
         default:
             Log("unsupported check: %s", node->name.c_str());
             break;
@@ -122,8 +133,6 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                     cpInput.lastOrientation = cpInput.orientation;
                     if (cpInput.orientation == Dir::None)
                         cpInput.orientation = Dir::rand();
-                    //else
-                    //    cpInput.orientation.turnLeft();
                     return state::RUNNING;
                 }
                 case ActionBType::STOP: {
@@ -139,11 +148,26 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
             }
         }
         case ExecBType::MOVE_NEAR: {
-            assert(node->values.size() == 1); //params=[type]
+            assert(node->values.size() == 2); //params=[type, range]
             switch(actionMap[node->values[0]])
             {
                 case ActionBType::TARGET: {
-                    return state::FAILURE;
+                    if (!ecs::has<cp::Target, cp::Input>(eid))
+                        return state::FAILURE;
+                    
+                    auto& cpInput = ecs::get<cp::Input>(eid);
+                    cpInput.lastOrientation = cpInput.orientation;
+                    auto bounds = SysHelper::getBounds(eid);
+                    auto bounds2 = SysHelper::getBounds(ecs::get<cp::Target>(eid));
+                    auto vdir = Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
+                    Log("length = %f", vdir.getLength());
+                    if (vdir.length() < std::stod(node->values[1]))
+                    {
+                        cpInput.orientation = Dir::None;
+                        return state::SUCCESS;
+                    }
+                    cpInput.orientation = Dir::fromVec(vdir.getNormalized());
+                    return state::RUNNING;
                 }
                 default:
                     Log("invalid sub parameter: %s", node->values[0].c_str());

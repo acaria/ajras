@@ -8,4 +8,5 @@ struct CollisionComponent
     
     cocos2d::Rect       rect;
     CollisionCategory   category;
+    bool                collide = false;
 };

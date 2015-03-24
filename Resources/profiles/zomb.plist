@@ -248,7 +248,7 @@
 	<key>sight</key>
 	<dict>
 		<key>range</key>
-		<string>50</string>
+		<string>75</string>
 	</dict>
 </dict>
 </plist>

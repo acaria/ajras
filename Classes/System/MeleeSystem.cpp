@@ -2,7 +2,7 @@
 
 void MeleeSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Melee, cp::Collision, cp::Position, cp::Render>())
+    for(auto eid : ecs.join<cp::Target, cp::Melee, cp::Collision, cp::Position, cp::Render>())
     {
         if (ecs::has<cp::Input>(eid) && ecs::get<cp::Input>(eid).disabled)
             continue;
@@ -10,6 +10,7 @@ void MeleeSystem::tick(double dt)
         auto& cpCollision = ecs::get<cp::Collision>(eid);
         auto& cpRender = ecs::get<cp::Render>(eid);
         auto& cpMelee = ecs::get<cp::Melee>(eid);
+        auto& cpTarget = ecs::get<cp::Target>(eid);
         
         cocos2d::Rect body = {
             cpPosition.pos.x + cpCollision.rect.origin.x,
@@ -59,7 +60,7 @@ void MeleeSystem::tick(double dt)
         //check room objects
         for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position, cp::Health>())
         {
-            if (oid != eid)
+            if (cpTarget == oid)
             {
                 auto &cpPosition2 = ecs::get<cp::Position>(oid);
                 auto &cpCollision2 = ecs::get<cp::Collision>(oid);
@@ -89,8 +90,6 @@ void MeleeSystem::tick(double dt)
                                 float duration = 1.f;
                                 int   freq = 5;
                                 
-                                Log("strike=%u", oid);
-                                
                                 if (ecs::has<cp::Input>(oid))
                                     ecs::get<cp::Input>(oid).disable(duration);
                                 cpRender2.runAction(Repeat::create(
@@ -102,12 +101,10 @@ void MeleeSystem::tick(double dt)
                                 {
                                     ecs::get<cp::Velocity>(oid).decelFactor = 1;
                                     ecs::get<cp::Velocity>(oid).velocity = (bounds.origin - body.origin).getNormalized() * 5;
-                                    Log("x:%f,y:%f", ecs::get<cp::Velocity>(oid).velocity.x,
-                                        ecs::get<cp::Velocity>(oid).velocity.y);
                                 }
                                 
                                 cpHealth2.hp -= cpMelee.damage;
-#ifdef kDrawInfo
+#if kDrawInfo
                                 cpRender2.lInfo->setString(std::to_string(cpHealth2.hp));
 #endif
                             }

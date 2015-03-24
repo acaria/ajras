@@ -124,7 +124,7 @@ namespace behaviour
     
         nState visit(BoardNode& board)
         {
-#ifdef kTraceBehaviours
+#if kTraceBehaviours
             Log("SequenceNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
@@ -155,7 +155,7 @@ namespace behaviour
     
         nState visit(BoardNode& board)
         {
-#ifdef kTraceBehaviours
+#if kTraceBehaviours
             Log("SelectorNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
@@ -186,7 +186,7 @@ namespace behaviour
         
         nState visit(BoardNode& board)
         {
-#ifdef kTraceBehaviours
+#if kTraceBehaviours
             Log("UntilNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
@@ -211,6 +211,32 @@ namespace behaviour
             }
         }
     };
+    
+    struct WaitNode : public BaseNode
+    {
+        WaitNode(unsigned id) : BaseNode(id) {}
+        
+        nState visit(BoardNode& board)
+        {
+#if kTraceBehaviours
+            Log("WaitNode: %s", this->toStr().c_str());
+#endif
+            if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
+                return board.states[id];
+            board.states[this->id] = RUNNING;
+            
+            auto &properties = board.getFields(this->id);
+            if (!lib::hasKey(properties, "timer"))
+                properties["timer"] = lib::now();
+            if (lib::now() - properties["timer"].asDouble() > std::stod(this->name))
+            {
+                board.states[this->id] = SUCCESS;
+                properties.erase("timer");
+                return SUCCESS;
+            }
+            return RUNNING;
+        }
+    };
 
     struct CheckNode : public BaseNode
     {
@@ -219,7 +245,7 @@ namespace behaviour
     
         nState visit(BoardNode& board)
         {
-#ifdef kTraceBehaviours
+#if kTraceBehaviours
             Log("CheckNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
@@ -242,7 +268,7 @@ namespace behaviour
     
         nState visit(BoardNode& board)
         {
-#ifdef kTraceBehaviours
+#if kTraceBehaviours
             Log("ActionNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
@@ -262,6 +288,7 @@ namespace behaviour
         {"selector", [](unsigned id) { return new SelectorNode(id); }},
         {"sequence", [](unsigned id) { return new SequenceNode(id); }},
         {"repeat", [](unsigned id) { return new RepeatNode(id); }},
+        {"wait", [](unsigned id) { return new WaitNode(id); }},
         {"until", [](unsigned id) { return new UntilNode(id); }},
         {"check", [](unsigned id) { return new CheckNode(id); }},
         {"check+", [](unsigned id) { return new CheckNode(id, true); }},

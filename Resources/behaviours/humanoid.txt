@@ -1,11 +1,12 @@
 selector
     sequence attack
-        action target mood hostile
+        action target mood friendly
         until time 2.0
-            action movenear target
+            action movenear target 20.0
+        wait 1.0
     sequence wander
         action target none
         selector
-            until time 2.0
+            until collision
                 action movedir rand
             action movedir stop

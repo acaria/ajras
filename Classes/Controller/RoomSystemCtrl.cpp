@@ -167,7 +167,7 @@ void RoomSystemCtrl::load(GameScene *gview, MapData *data)
                 ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
                 ecs::add<cp::Input>(eid, roomIndex);
                 ecs::add<cp::Health>(eid, roomIndex).set(10);
-                //ecs::add<cp::AI>(eid, roomIndex).setProfile(obj.profileName);
+                ecs::add<cp::AI>(eid, roomIndex).setProfile(obj.profileName);
                 ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 12);
 
             }

@@ -125,7 +125,7 @@ void CollisionSystem::tick(double dt)
         if (!ecs::has<cp::Velocity>(eid))
             continue;
         
-        auto &cpVel = ecs::get<cp::Velocity>(eid);
+        auto &cpVelocity = ecs::get<cp::Velocity>(eid);
         //if (cpVelocity.velocity.isZero())
         //    continue;
         
@@ -174,12 +174,6 @@ void CollisionSystem::tick(double dt)
             }
         }
         
-        if (eid == 2)
-        {
-            Log("after: p=%f, c=%d", cpPosition.pos.x, cpCollision.collide?1:0);
-        }
-        
-        /*
         //check room objects
         for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position>())
         {
@@ -189,7 +183,6 @@ void CollisionSystem::tick(double dt)
                 auto cpCollision2 = ecs::get<cp::Collision>(oid);
                 
                 cocos2d::Rect bounds2 = SysHelper::getBounds(cpPosition2, cpCollision2);
-                
                 if (bounds2.intersectsRect(bounds))
                 {
                     cpCollision.collide = true;
@@ -199,22 +192,21 @@ void CollisionSystem::tick(double dt)
 
                     
                     //bounce
-                    auto box = slide(cpPosition, cpCollision, bounds2);
-                    cpPosition.pos = {box.x, box.y};
-                    cpVelocity.applyVelocity({box.vx, box.vy});
+                    auto diff = slide(bounds, bounds2);
+                    cpPosition.pos += diff;
                     
                     if (ecs::has<cp::Input>(eid))
                     {
                         //ecs::get<cp::Render>(eid).cancelAnimation();
-                        ecs::get<cp::Input>(eid).predicates.push_back([](unsigned id) {
+                        /*ecs::get<cp::Input>(eid).predicates.push_back([](unsigned id) {
                             if (!ecs::has<cp::Velocity>(id))
                                 return true;
                             return ecs::get<cp::Velocity>(id).velocity.isZero();
-                        });
+                        });*/
                     }
                 }
             }
-        }*/
+        }
     }
 }
 
@@ -248,31 +240,31 @@ lib::Box CollisionSystem::bounce(const PositionComponent &cpPos,
     return lib::Box(pRes.x, pRes.y, b1.w, b1.h, b1.vx, b1.vy);
 }
 
-lib::Box CollisionSystem::slide(PositionComponent &cpPos,
-                                 const CollisionComponent &cpCol,
-                                 const cocos2d::Rect& target)
+cc::Vec2 CollisionSystem::slide(const cc::Rect& src,
+                                const cc::Rect& target)
 {
-    cocos2d::Vec2 pRes = cpPos.last;
-    auto b1 = lib::Box(cpPos.last.x + cpCol.rect.getMinX() - 1,
-                       cpPos.last.y + cpCol.rect.getMinY() - 1,
-                       cpCol.rect.size.width, cpCol.rect.size.height,
-                       cpPos.pos.x - cpPos.last.x,
-                       cpPos.pos.y - cpPos.last.y);
-    auto b2 = lib::Box(target, {0, 0});
+    cc::Rect intersect = {
+        MAX(src.getMinX(), target.getMinX()),
+        MAX(src.getMinY(), target.getMinY()),
+        MIN(src.getMaxX(), target.getMaxX()) - MAX(src.getMinX(), target.getMinX()),
+        MIN(src.getMaxY(), target.getMaxY()) - MAX(src.getMinY(), target.getMinY())
+    };
     
-    float nX, nY;
-    auto ct = MAX(0, lib::SweptAABB(b1, b2, nX, nY) - 0.0001f);
-    auto translation = Vec2(0,0);
-    if (ct < 1.0f)
+    cocos2d::Vec2 result;
+    if (intersect.size.width > intersect.size.height) // ySlide
     {
-        translation = {b1.vx * ct, b1.vy * ct};
-        auto rt = 1.f - ct;
-        auto dotProd = (b1.vx * nY + b1.vy * nX) * rt;
-        b1.vx = dotProd * nY * rt;
-        b1.vy = dotProd * nX * rt;
-        translation += {b1.vx * rt, b1.vy * rt};
+        if (intersect.getMinY() > src.getMinY())
+            result.y = -intersect.size.height - 1;
+        else
+            result.y = intersect.size.height + 1;
     }
-    Log("T=%f,%f", translation.x, translation.y);
-    pRes += translation;
-    return lib::Box(pRes.x, pRes.y, b1.w, b1.h, b1.vx, b1.vy);
+    else //xSlide
+    {
+        if (intersect.getMinX() > src.getMinX())
+            result.x = -intersect.size.width - 1;
+        else
+            result.x = intersect.size.width + 1;
+    }
+    
+    return result;
 }

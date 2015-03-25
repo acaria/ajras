@@ -154,11 +154,14 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                 case ActionBType::TARGET: {
                     if (!ecs::has<cp::Target, cp::Input>(eid))
                         return state::FAILURE;
+                    auto tid = ecs::get<cp::Target>(eid);
+                    if (!ecs::has<cp::Position, cp::Collision>(tid))
+                        return state::FAILURE;
                     
                     auto& cpInput = ecs::get<cp::Input>(eid);
                     cpInput.lastOrientation = cpInput.orientation;
                     auto bounds = SysHelper::getBounds(eid);
-                    auto bounds2 = SysHelper::getBounds(ecs::get<cp::Target>(eid));
+                    auto bounds2 = SysHelper::getBounds(tid);
                     auto vdir = Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
                     Log("length = %f", vdir.getLength());
                     if (vdir.length() < std::stod(node->values[1]))

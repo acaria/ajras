@@ -107,6 +107,14 @@ void MeleeSystem::tick(double dt)
 #if kDrawInfo
                                 cpRender2.lInfo->setString(std::to_string(cpHealth2.hp));
 #endif
+                                if (cpHealth2.hp == 0)
+                                {
+                                    ecs.del<cp::Target>(eid);
+                                    //ecs.del<cp::Input>(oid);
+                                    cpRender2.setAnimation("death", 1, [oid, this](bool cancel){
+                                        cp::entity::remove(oid, ecs.getID());
+                                    });
+                                }
                             }
                         }
                     }

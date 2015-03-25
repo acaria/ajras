@@ -235,7 +235,7 @@ lib::Box CollisionSystem::bounce(const PositionComponent &cpPos,
         if (abs(nY) > 0.0001f) b1.vy = -b1.vy;
         translation += {b1.vx * rt, b1.vy * rt};
     }
-    Log("T=%f,%f", translation.x, translation.y);
+    
     pRes += translation;
     return lib::Box(pRes.x, pRes.y, b1.w, b1.h, b1.vx, b1.vy);
 }

@@ -17,7 +17,7 @@ public:
     }
 
     void load(GameScene* view, MapData* data);
-    void changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned>& eids);
+    RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned>& eids);
 
     void tick(double dt);
     void animate(double dt, double tickPercent);

@@ -65,8 +65,7 @@ void GameCtrl::destroyMap()
 
 RoomData* GameCtrl::changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned> &eids)
 {
-    roomSystemCtrl.changeRoom(roomIndex, gateIndex, eids);
-    return currentMap->getCurRoom();
+    return roomSystemCtrl.changeRoom(roomIndex, gateIndex, eids);
 }
 
 void GameCtrl::newSession()

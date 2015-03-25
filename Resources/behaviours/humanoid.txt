@@ -7,6 +7,6 @@ selector
     sequence wander
         action target none
         selector
-            until collision
+            until time 2.0
                 action movedir rand
             action movedir stop

@@ -150,8 +150,8 @@ void GateSystem::gateringLeave(unsigned eid, unsigned roomIdx, unsigned gateIdx)
     render.setPosition(srcPos);
     render.container->runAction(Sequence::create(
         MoveBy::create(duration, movePos),
-        CallFunc::create([eid, destPos, this](){
-            ecs.add<cp::Position>(eid).set(destPos);
+        CallFunc::create([eid, destPos, roomIdx](){
+            ecs::add<cp::Position>(eid, roomIdx).set(destPos);
         }),
         NULL
     ));

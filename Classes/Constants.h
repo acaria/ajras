@@ -1,6 +1,6 @@
 #pragma once
 
-#define kDrawDebug 1
+#define kDrawDebug 0
 #define kDrawInfo 0
 
 #define kTraceBehaviours 0

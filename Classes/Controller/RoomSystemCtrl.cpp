@@ -26,7 +26,7 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
     renderSystem.animate(dt, tickPercent);
 }
 
-void RoomSystemCtrl::changeRoom(unsigned roomIndex,
+RoomData* RoomSystemCtrl::changeRoom(unsigned roomIndex,
                                 unsigned gateIndex,
                                 const std::vector<unsigned>& eids)
 {
@@ -65,6 +65,8 @@ void RoomSystemCtrl::changeRoom(unsigned roomIndex,
         auto bounds = this->data->getCurRoom()->getBounds();
         this->gView->moveCamera({bounds.getMidX(), bounds.getMidY()}, 1);
     }
+    
+    return this->data->getRoomAt(roomIndex);
 }
 
 void RoomSystemCtrl::load(GameScene *gview, MapData *data)
@@ -166,7 +168,7 @@ void RoomSystemCtrl::load(GameScene *gview, MapData *data)
                 ecs::add<cp::Orientation>(eid, roomIndex);
                 ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
                 ecs::add<cp::Input>(eid, roomIndex);
-                ecs::add<cp::Health>(eid, roomIndex).set(10);
+                ecs::add<cp::Health>(eid, roomIndex).set(3);
                 ecs::add<cp::AI>(eid, roomIndex).setProfile(obj.profileName);
                 ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 12);
 

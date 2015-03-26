@@ -5,7 +5,7 @@ TP="/usr/local/bin/TexturePacker"
 PDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
 
 ##skin list
-declare -a sheet=("main" "map1" "char")
+declare -a sheet=("main" "map1" "char" "gui")
 
 
 ##engine--------------------------------------------------

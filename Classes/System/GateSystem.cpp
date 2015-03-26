@@ -106,13 +106,16 @@ void GateSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint, c
             eid, srcGate.destRoomIdx, srcGate.destGateIdx)),
         NULL
     ));
-    render.runAction(FadeTo::create(duration / 2, 0));
-    render.runAction(TintTo::create(duration / 2, Color3B::BLACK));
+    render.runAction(Sequence::create(
+        TintTo::create(duration / 2, Color3B::BLACK),
+        FadeTo::create(duration / 4, 0),
+        NULL
+    ));
 }
 
 void GateSystem::gateringLeave(unsigned eid, unsigned roomIdx, unsigned gateIdx)
 {
-    float duration = 0.5f;
+    float duration = 1.0f;
     
     auto newRoom = GameCtrl::instance()->changeRoom(roomIdx, gateIdx, {eid});
     auto gateInfo = newRoom->getModel()->gates[gateIdx];

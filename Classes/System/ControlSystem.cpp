@@ -55,6 +55,11 @@ void ControlSystem::clearReleased(unsigned index)
     this->entitySelection[index] = 0;
 }
 
+void ControlSystem::changeRoom(RoomData* data)
+{
+    this->data = data;
+}
+
 void ControlSystem::init(GameScene *gview, RoomData* data)
 {
     this->data = data;

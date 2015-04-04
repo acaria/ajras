@@ -17,6 +17,7 @@ public:
     virtual ~ControlSystem() {}
 
     void init(GameScene *gview, RoomData* data);
+    void changeRoom(RoomData* data);
     
     //overrides
     void tick(double dt) final;

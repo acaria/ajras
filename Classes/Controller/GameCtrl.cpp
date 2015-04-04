@@ -9,8 +9,6 @@ GameCtrl::GameCtrl():log(), scene(log),
 {
     log.setLevelMask(LL_DEBUG | LL_INFO | LL_TRACE | LL_WARNING | LL_ERROR | LL_FATAL);
     log.setTimeoutSeconds(15);
-    
-    behaviourModel.get("humanoid");
 }
 
 GameCtrl::~GameCtrl()

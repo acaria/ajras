@@ -38,7 +38,6 @@ RoomData* FloorSystemCtrl::changeRoom(unsigned int nextRoomIndex,
                                       unsigned int gateIndex,
                                       const std::vector<unsigned int> &eids)
 {
-    this->gView->interface->clearTarget();
     unsigned prevRoomIndex = this->currentRoomIndex;
     
     bool changeView = false;
@@ -57,18 +56,19 @@ RoomData* FloorSystemCtrl::changeRoom(unsigned int nextRoomIndex,
     
     if (changeView)
     {
+        this->gView->interface->clearTarget();
         this->currentRoomIndex = nextRoomIndex;
         ecsGroup.setID(this->currentRoomIndex);
         
         auto dataRoom = data->getRoomAt(nextRoomIndex);
-        this->controlSystem.init(this->gView, dataRoom);
+        this->controlSystem.changeRoom(dataRoom);
         
         //move camera
         auto bounds = dataRoom->getBounds();
         this->gView->moveCamera({bounds.getMidX(), bounds.getMidY()}, 1);
     }
     
-    return data->getRoomAt(this->currentRoomIndex);
+    return data->getRoomAt(nextRoomIndex);
 }
 
 void FloorSystemCtrl::load(GameScene *gview, MapData *data)

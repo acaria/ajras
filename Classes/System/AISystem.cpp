@@ -15,8 +15,8 @@ void AISystem::tick(double dt)
 #if kDrawDebug
         auto& cpRender = ecs::get<cp::Render>(eid);
         cpRender.sight->setVisible(true);
-        cpRender.sight->setScale(cpAI.sightRange * 2 / 16,
-                                 cpAI.sightRange * 2 / 16);
+        cpRender.sight->setScale(cpAI.sightRange * 2 / kBlockSize,
+                                 cpAI.sightRange * 2 / kBlockSize);
 #endif
 
         cpAI.board.onCheck = [eid, this](unsigned nid) {
@@ -125,21 +125,17 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
         break;
         case ExecBType::MOVE_DIR: {
             assert(node->values.size() == 1); //params=[type]
+            
+            auto& cpInput = ecs::get<cp::Input>(eid);
             switch(actionMap[node->values[0]])
             {
                 case ActionBType::RAND: {
-                    auto& cpInput = ecs::get<cp::Input>(eid);
-                    
-                    cpInput.lastOrientation = cpInput.orientation;
                     if (cpInput.orientation == Dir::None)
-                        cpInput.orientation = Dir::rand();
+                        cpInput.setDirection(Dir::rand());
                     return state::RUNNING;
                 }
                 case ActionBType::STOP: {
-                    auto& cpInput = ecs::get<cp::Input>(eid);
-                    
-                    cpInput.lastOrientation = cpInput.orientation;
-                    cpInput.orientation = Dir::None;
+                    cpInput.setDirection(Dir::None);
                     return state::SUCCESS;
                 }
                 default:
@@ -159,17 +155,15 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                         return state::FAILURE;
                     
                     auto& cpInput = ecs::get<cp::Input>(eid);
-                    cpInput.lastOrientation = cpInput.orientation;
                     auto bounds = SysHelper::getBounds(eid);
                     auto bounds2 = SysHelper::getBounds(tid);
                     auto vdir = Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
-                    Log("length = %f", vdir.getLength());
                     if (vdir.length() < std::stod(node->values[1]))
                     {
-                        cpInput.orientation = Dir::None;
+                        cpInput.setDirection(Dir::None);
                         return state::SUCCESS;
                     }
-                    cpInput.orientation = Dir::fromVec(vdir.getNormalized());
+                    cpInput.setDirection(vdir.getNormalized());
                     return state::RUNNING;
                 }
                 default:

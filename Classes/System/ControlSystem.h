@@ -16,7 +16,7 @@ public:
     
     virtual ~ControlSystem() {}
 
-    void init(GameScene *gview, MapData* data);
+    void init(GameScene *gview, RoomData* data);
     
     //overrides
     void tick(double dt) final;
@@ -49,10 +49,11 @@ private:
     std::map<unsigned, unsigned> curDirPressed;
     std::map<unsigned, unsigned> curDirReleased;
     std::map<unsigned, unsigned> preDirPressed;
-    std::map<unsigned, unsigned> savedOrientation;
+    std::map<unsigned, int>      joyID;
+    std::map<unsigned, cc::Vec2>     joyDir;
     //selection input
     std::map<unsigned, unsigned> entitySelection;
     
-    MapData *data = nullptr;
+    RoomData *data = nullptr;
     GameScene *view = nullptr;
 };

@@ -38,17 +38,17 @@ void GameCtrl::tickUpdate(float dt)
 
 void GameCtrl::onTick(double dt)
 {
-    roomSystemCtrl.tick(dt);
+    floorSystemCtrl.tick(dt);
 }
 
 void GameCtrl::onAnimate(double dt, double tickPercent)
 {
-    roomSystemCtrl.animate(dt, tickPercent);
+    floorSystemCtrl.animate(dt, tickPercent);
 }
 
 void GameCtrl::loadSession(GameScene* view)
 {
-    roomSystemCtrl.load(view, this->currentMap);
+    floorSystemCtrl.load(view, this->currentMap);
     tick.schedule(view);
 }
 
@@ -65,7 +65,7 @@ void GameCtrl::destroyMap()
 
 RoomData* GameCtrl::changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned> &eids)
 {
-    return roomSystemCtrl.changeRoom(roomIndex, gateIndex, eids);
+    return floorSystemCtrl.changeRoom(roomIndex, gateIndex, eids);
 }
 
 void GameCtrl::newSession()
@@ -81,6 +81,7 @@ void GameCtrl::newSession()
         SpriteFrameCache::getInstance()->addSpriteFramesWithFile(
             "ss-" + ss + ".plist");
     }
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-gui.plist");
     
     this->scene.go2Game();
 }

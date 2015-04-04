@@ -33,5 +33,5 @@ private:
     void destroyMap();
     
     MapData*        currentMap;
-    RoomSystemCtrl  roomSystemCtrl;
+    FloorSystemCtrl  floorSystemCtrl;
 };

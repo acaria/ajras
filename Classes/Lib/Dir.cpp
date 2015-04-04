@@ -128,7 +128,6 @@ Dir Dir::fromVec(cc::Vec2 r, bool cardinal)
         roundf(r.x * 10) / 10,
         roundf(r.y * 10) / 10
     };
-    log("vdir=%f,%f", v.x, v.y);
     unsigned res = Dir::None;
     
     if ((abs(v.x) > abs(v.y)) || !cardinal)

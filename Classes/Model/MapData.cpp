@@ -204,13 +204,12 @@ const std::vector<RoomModel*> MapData::getModels()
     return this->lib;
 }
 
-RoomData* MapData::getCurRoom()
-{
-    CCASSERT(lib::hasKey(rooms, this->curIdxRoom), "room is missing");
-    return this->rooms[this->curIdxRoom];
-}
-
 const std::set<std::string>& MapData::getSriteSheets()
 {
     return this->spriteSheets;
+}
+
+unsigned MapData::getStartRoomIdx()
+{
+    return curIdxRoom;
 }

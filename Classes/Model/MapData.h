@@ -13,7 +13,7 @@ public:
     void addModel(RoomModel* model);
     void setCurIdxRoom(unsigned roomIndex);
     
-    RoomData*                       getCurRoom();
+    unsigned                        getStartRoomIdx();
     RoomData*                       getRoomAt(unsigned idx);
     std::vector<RoomData*>          getRandRoom();
     const std::vector<RoomModel*>   getModels();

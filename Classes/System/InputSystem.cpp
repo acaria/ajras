@@ -50,8 +50,11 @@ void InputSystem::tick(double dt)
         {
             auto& cpVelocity = ecs::get<cp::Velocity>(eid);
             if (cpInput.orientation.uncross(cpInput.lastOrientation))
+            {
+                cpInput.lastOrientation = cpInput.orientation;
                 cpVelocity.accelFactor = 0.0f;
-            cpVelocity.direction = cpInput.orientation.toVec();
+            }
+            cpVelocity.direction = cpInput.direction;
         }
     }
 }

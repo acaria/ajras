@@ -5,10 +5,14 @@ bool GameScene::init()
     if (!Base::init())
         return false;
     
-    auto back = LayerColor::create(Color4B::WHITE);
+    auto back = LayerColor::create(Color4B(143,86,59,255));
     this->addChild(back);
     
-    this->canvas = Layer::create();
+    this->canvas = ui::Layout::create();
+    this->canvas->setLayoutType(LayoutType::RELATIVE);
+    this->canvas->setClippingEnabled(true);
+    this->canvas->setPosition(kCanvasRect.origin);
+    this->canvas->setSize(kCanvasRect.size);
     this->addChild(canvas);
     
     this->frame = Layer::create();
@@ -23,7 +27,7 @@ bool GameScene::init()
 void GameScene::setCamera(cocos2d::Vec2 pos)
 {
     auto wsize = Director::getInstance()->getWinSize();
-    this->frame->setPosition(wsize.width / 2 - pos.x, wsize.height / 2 - pos.y);
+    this->frame->setPosition({wsize.width / 2 - pos.x, wsize.height / 2 - pos.y});
 }
 
 void GameScene::moveCamera(cocos2d::Vec2 pos, float duration)

@@ -82,7 +82,7 @@ ProfileData::ProfileData(const std::string &path) : behaviourMood("neutral")
     }
     
     collisionCat = "walkable";
-    collisionRect = {0, 0, 16, 16};
+    collisionRect = {0, 0, kBlockSize, kBlockSize};
     
     if (rawData.find("collision") != rawData.end())
     {

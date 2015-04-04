@@ -12,8 +12,9 @@ public:
     event::Subject<void()> onBack;
     
     //layers
-    cocos2d::Layer* canvas = nullptr;
+    cc::ui::Layout* canvas = nullptr;
     cocos2d::Layer* frame = nullptr;
+    
     InterfaceLayer* interface = nullptr;
     
     //touch event?

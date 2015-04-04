@@ -78,6 +78,7 @@
 #include "GameMediator.h"
 #include "SceneManager.h"
 #include "RoomSystemCtrl.h"
+#include "FloorSystemCtrl.h"
 #include "GameCtrl.h"
 
 #include "AppDelegate.h"

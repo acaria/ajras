@@ -9,14 +9,13 @@ public:
                       moveSystem(ecsGroup),
                       gateSystem(ecsGroup),
                       inputSystem(ecsGroup),
-                      controlSystem(ecsGroup),
                       meleeSystem(ecsGroup),
                       targetSystem(ecsGroup),
                       aiSystem(ecsGroup)
     {
     }
 
-    void load(GameScene* view, MapData* data);
+    void load(RoomLayer* view, RoomData* data);
     RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned>& eids);
 
     void tick(double dt);
@@ -30,7 +29,6 @@ private:
     MoveSystem      moveSystem;
     GateSystem      gateSystem;
     InputSystem     inputSystem;
-    ControlSystem   controlSystem;
     MeleeSystem     meleeSystem;
     TargetSystem    targetSystem;
     AISystem        aiSystem;
@@ -40,8 +38,4 @@ private:
     
     //data
     MapData*    data;
-    std::map<unsigned, RoomLayer*> roomViews;
-    
-    //view
-    GameScene* gView = nullptr;
 };

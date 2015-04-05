@@ -18,7 +18,10 @@ public:
     
     cocos2d::Rect getBounds()
     {
-        return cocos2d::Rect(position.x, position.y, model->totalSize.x, model->totalSize.y);
+        return cocos2d::Rect(position.x,
+                             position.y,
+                             model->totalSize.x,
+                             model->totalSize.y);
     }
     
     unsigned                                            index;

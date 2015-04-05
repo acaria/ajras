@@ -70,7 +70,7 @@ void GameCtrl::newSession()
 {
     this->destroyMap();
     
-    this->currentMap = MapData::generate();
+    this->currentMap = MapData::generate("map1");
     assert(currentMap);
     
     //todo: loader

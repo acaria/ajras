@@ -1,14 +1,46 @@
 #include "Headers.h"
 
-MapData* MapData::generate()
+void MapData::extractInfo(const std::string &name)
+{
+    auto path = cc::FileUtils::getInstance()->fullPathForFilename(
+        "maps/" + name + ".plist");
+    auto rawData = cc::FileUtils::getInstance()->getValueMapFromFile(path);
+    
+    CCASSERT(rawData.find("rooms") != rawData.end(), "invalid map data");
+    auto rooms = rawData.at("rooms").asValueMap();
+    CCASSERT(rooms.find("content") != rooms.end(), "invalid map data");
+    CCASSERT(rooms.find("start") != rooms.end(), "invalid map data");
+    
+    CCASSERT(rawData.find("background") != rawData.end(), "invalid map data");
+    auto bgData = rawData.at("background").asValueMap();
+    auto bgRawColor = std::vector<std::string>();
+    lib::split(bgData.at("color").asString(), bgRawColor, ",", true);
+    this->bgColor = Color3B(lib::parseInt(bgRawColor[0]),
+                           lib::parseInt(bgRawColor[1]),
+                           lib::parseInt(bgRawColor[2]));
+    for(auto tile : bgData.at("tiles").asValueVector())
+        this->bgTiles.push_back(tile.asString());
+    
+    for(auto contentModel : rooms.at("content").asValueVector())
+    {
+        this->addModel(RoomModel::create(contentModel.asString()));
+    }
+    
+    //starter
+    auto starterCount = rooms.at("start").asValueVector().size();
+    auto starterModelName = rooms.at("start").asValueVector().at(rand() % starterCount).asString();
+    this->startModel = RoomModel::create(starterModelName);
+}
+
+MapData::MapData(const std::string& fileName)
+{
+    this->extractInfo(fileName);
+}
+
+MapData* MapData::generate(const std::string& filename)
 {
     auto seed = time(0);
-    MapData* map = new MapData();
-    
-    map->addModel(RoomModel::create("map1r1"));
-    map->addModel(RoomModel::create("map1r2"));
-    map->addModel(RoomModel::create("map1r3"));
-    map->addModel(RoomModel::create("map1r4"));
+    MapData* map = new MapData(filename);
     
     std::vector<RoomModel*> modelList(map->getModels());
     std::vector<RoomData*> roomList;
@@ -17,11 +49,9 @@ MapData* MapData::generate()
                  std::default_random_engine(seed));
     
     //starter
-    auto starterModel = RoomModel::create("map1s1");
-    map->addModel(starterModel);
     auto firstRoom = map->addRoom({
         (unsigned)(map->shape.getSize().x / 2),
-        (unsigned)(map->shape.getSize().y / 2)}, starterModel);
+        (unsigned)(map->shape.getSize().y / 2)}, map->startModel);
     roomList.push_back(firstRoom);
     map->setCurIdxRoom(firstRoom->index);
     
@@ -110,6 +140,9 @@ MapData* MapData::generate()
 
 MapData::~MapData()
 {
+    if (this->startModel != nullptr)
+        delete this->startModel;
+    
     //clearrooms
     for(auto room : this->rooms)
     {

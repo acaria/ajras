@@ -4,9 +4,9 @@
 class MapData
 {
 public:
-    static MapData* generate();
+    static MapData* generate(const std::string& fileName);
 
-    MapData() {}
+    MapData(const std::string& fileName);
     ~MapData();
     
     RoomData* addRoom(lib::v2u gridPos, RoomModel* data);
@@ -22,8 +22,14 @@ public:
     MapShape                        shape;
     
 private:
+    void                            extractInfo(const std::string& name);
     unsigned                        curIdxRoom;
     std::vector<RoomModel*>         lib;
+    RoomModel*                      startModel;
     std::set<std::string>           spriteSheets;
+    
+    cc::Color3B                     bgColor;
+    std::vector<std::string>        bgTiles;
+    
     bool checkInsertRoom(lib::v2u gridPos, RoomModel* model);
 };

@@ -21,6 +21,10 @@ bool GameScene::init()
     this->interface = InterfaceLayer::create();
     this->addChild(interface);
     
+    auto spotLight = SpotLight::create(Vec3(-1.0f, -1.0f, 0.0f), Vec3(0.0f, 0.0f, 0.0f),
+                                       Color3B::RED, 0.0, 0.5, 10000.0f) ;
+    addChild (spotLight);
+    
     return true;
 }
 

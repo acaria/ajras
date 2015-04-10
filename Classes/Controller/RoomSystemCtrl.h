@@ -15,7 +15,9 @@ public:
     {
     }
 
-    void load(RoomLayer* view, RoomData* data);
+    void loadRoom(RoomLayer* view, RoomData* data);
+    void loadStart(RoomLayer* view, RoomData* data);
+    
     RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned>& eids);
 
     void tick(double dt);

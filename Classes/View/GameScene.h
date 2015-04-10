@@ -15,6 +15,9 @@ public:
     cc::ui::Layout* canvas = nullptr;
     cocos2d::Layer* frame = nullptr;
     
+    //background
+    void setBgColor(cc::Color3B bgColor);
+    
     InterfaceLayer* interface = nullptr;
     
     //touch event?

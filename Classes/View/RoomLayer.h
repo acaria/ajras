@@ -22,13 +22,19 @@ struct RoomLayer : public cocos2d::Layer
         if (!Layer::init())
             return false;
     
-        this->bg = cocos2d::Layer::create();
-        this->main = cocos2d::Layer::create();
-        this->fg = cocos2d::Layer::create();
+        this->setCascadeOpacityEnabled(true);
+        this->bg = cc::Layer::create();
+        this->bg->setCascadeOpacityEnabled(true);
+        this->main = cc::Layer::create();
+        this->main->setCascadeOpacityEnabled(true);
+        this->fg = cc::Layer::create();
+        this->fg->setCascadeOpacityEnabled(true);
     
         this->addChild(bg);
         this->addChild(main);
         this->addChild(fg);
+    
+        this->setOpacity(0);
     
         return true;
     }

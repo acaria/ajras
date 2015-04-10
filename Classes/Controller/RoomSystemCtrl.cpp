@@ -24,40 +24,66 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
     renderSystem.animate(dt, tickPercent);
 }
 
-void RoomSystemCtrl::load(RoomLayer *view, RoomData *data)
+void RoomSystemCtrl::loadStart(RoomLayer *view, RoomData *data)
+{
+    this->loadRoom(view, data);
+ 
+    auto roomIndex = data->index;
+    assert(data->getModel()->warps.size() > 0);
+    
+    auto warpInfo = data->getModel()->warps.front();
+    auto srcPos = warpInfo.getSrcPos();
+    auto destPos = warpInfo.getDestPos();
+    
+    //create player
+    auto pName = "boy";
+    auto eid = cp::entity::genID();
+    
+    auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
+    auto& cpCollision = ecs::add<cp::Collision>(eid, roomIndex);
+    
+    cpRender.setProfile(pName, view->main, data->getModel()->getZOrder(srcPos));
+    cpCollision.setProfile(pName);
+    
+    ecs::add<cp::Cat>(eid, roomIndex).setProfile(pName);
+    cpRender.container->setPosition({
+        srcPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
+        srcPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
+    });
+    
+    float duration = 3.0f;
+    
+    cpRender.container->setCascadeOpacityEnabled(true);
+    cpRender.container->setOpacity(0);
+    cpRender.container->runAction(Sequence::create(
+        MoveTo::create(duration, {
+            destPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
+            destPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
+        }),
+        CallFunc::create([eid, roomIndex, cpRender](){
+            ecs::add<cp::Position>(eid, roomIndex).set(cpRender.container->getPosition());
+            ecs::add<cp::Control>(eid, roomIndex) = ControlSystem::INDEX_P1;
+            ecs::add<cp::Orientation>(eid, roomIndex);
+            ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
+            ecs::add<cp::Input>(eid, roomIndex);
+            ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 12);
+            ecs::add<cp::Health>(eid, roomIndex).set(20);
+        }),
+        NULL));
+    cpRender.container->runAction(Sequence::create(
+        DelayTime::create(duration / 2),
+        FadeTo::create(duration / 4, 255),
+        NULL
+    ));
+    
+    view->setOpacity(255);
+}
+
+void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
 {
     collisionSystem.init(data);
     renderSystem.init(data);
     ecsGroup.setID(data->index);
-    
-    //88888888888888888
-    /*auto sLayer = Layer::create();
-     sLayer->setPosition({10,10});
-     auto shape = this->currentMap->shape;
-     for(unsigned j = 0; j < shape.size.y; j++)
-     for(unsigned i = 0; i < shape.size.x; i++)
-     {
-     auto pxl = Sprite::createWithSpriteFrameName("pixel.png");
-     pxl->getTexture()->setAliasTexParameters();
-     pxl->setPosition((int)(i * 5),(int)( j * 5));
-     pxl->setScale(5.0f, 5.0f);
-     sLayer->addChild(pxl);
-     
-     switch(shape.get(i,j))
-     {
-     case MapShape::NONE:
-     pxl->setColor(Color3B::GRAY);
-     break;
-     case MapShape::WALL:
-     pxl->setColor(Color3B::RED);
-     break;
-     case MapShape::GATE:
-     pxl->setColor(Color3B::MAGENTA);
-     break;
-     }
-     }
-     view->addChild(sLayer);*/
-    //88888888888888888
     
     auto roomIndex = data->index;
     auto grid = data->getModel()->grid;
@@ -136,8 +162,8 @@ void RoomSystemCtrl::load(RoomLayer *view, RoomData *data)
     for(auto gateMap : data->gateMapping)
     {
         unsigned srcGateIndex = gateMap.first;
-        unsigned destRoomIndex = gateMap.second.first;
-        unsigned destGateIndex = gateMap.second.second;
+        unsigned destRoomIndex = gateMap.second.roomIndex;
+        unsigned destGateIndex = gateMap.second.gateIndex;
         
         auto eid = cp::entity::genID();
         ecs::add<cp::Gate>(eid, roomIndex).set(

@@ -7,8 +7,9 @@ public:
     RoomData(unsigned roomIndex, RoomModel* model) : model(model),
                                                      index(roomIndex)
     {
+        this->depth = 0;
         for(auto gate : model->gates)
-            gateMapping[gate.first] = {0,0};
+            gateMapping[gate.first] = GateMap(0,0);
     }
     
     RoomModel* getModel()
@@ -25,10 +26,25 @@ public:
     }
     
     unsigned                                            index;
+    unsigned                                            depth;
     cocos2d::Vec2                                       position;
     
+    struct GateMap
+    {
+        GateMap(){};
+        
+        GateMap(unsigned roomIndex, unsigned gateIndex)
+        {
+            this->roomIndex = roomIndex;
+            this->gateIndex = gateIndex;
+        }
+        
+        unsigned roomIndex;
+        unsigned gateIndex;
+    };
+    
     //mapping src_gateindex => dest_roomindex + dest_gateindex
-    std::map<unsigned, std::pair<unsigned, unsigned>>   gateMapping;
+    std::map<unsigned, GateMap>   gateMapping;
     
 private:
     RoomModel*                                          model;

@@ -11,6 +11,7 @@ public:
     ~FloorSystemCtrl();
     
     void load(GameScene* view, MapData* data);
+    void displayDebug(GameScene* view, MapData* data);
     
     RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned>& eids);
     

@@ -14,6 +14,8 @@ RoomModel* RoomModel::create(const std::string &fileName)
                                 {(unsigned)o.get<jsonxx::Number>("tilewidth"),
                                  (unsigned)o.get<jsonxx::Number>("tileheight")});
     
+    result->name = fileName;
+    
     std::map<unsigned, std::string>                         tileNames;
     std::map<unsigned, std::map<std::string, std::string>>  tileProperties;
     
@@ -83,6 +85,11 @@ RoomModel* RoomModel::create(const std::string &fileName)
                         result->grid.get({c, r}).fields[BlockInfo::bgTileName] = tileNames[tileIndex];
                     else if (name == "foreground")
                         result->grid.get({c, r}).fields[BlockInfo::fgTileName] = tileNames[tileIndex];
+                    
+                    if (tileNames[tileIndex] == "purple.png" && name == "background")
+                    {
+                        int y = 3;
+                    }
                     else //filling properties
                     {
                         if (tileProperties.find(tileIndex) != tileProperties.end())
@@ -134,6 +141,45 @@ RoomModel* RoomModel::create(const std::string &fileName)
     return result;
 }
 
+GateInfo RoomModel::extractGate(RoomModel& mapData, const std::string& collisionType,
+                                unsigned i, unsigned j)
+{
+    GateInfo gate {
+        .rect = mapData.getRectCoord({i,j}),
+        .type = GateInfo::Unknowm
+    };
+    
+    int maxK = mapData.grid.width;
+    int maxL = mapData.grid.height;
+    bool yAxis = false;
+    for(unsigned l = j; l < maxL; l++)
+        for(unsigned k = i; k < maxK; k++)
+        {
+            auto &block = mapData.grid.get({k, l});
+            if (block.fields.find(BlockInfo::collision) != block.fields.end() &&
+                block.fields[BlockInfo::collision] == collisionType)
+            {
+                gate.rect = mapData.getRectCoord({k,l}).unionWithRect(gate.rect);
+                if (gate.type == GateInfo::Unknowm)
+                    gate.type = gessGateType({k,l}, mapData);
+                block.fields[BlockInfo::collision] = "walkable";
+            }
+            else
+            {
+                if (yAxis)
+                    maxL = l;
+                else
+                {
+                    yAxis = true;
+                    maxK = k;
+                }
+            }
+        }
+    
+    CCASSERT(gate.type != GateInfo::Unknowm, "gate extraction error");
+    return gate;
+}
+
 void RoomModel::processing(RoomModel& mapData)
 {
     unsigned gateIndex=1;
@@ -145,41 +191,11 @@ void RoomModel::processing(RoomModel& mapData)
         {
             if (block.fields[BlockInfo::collision] == "crossing")
             {
-                //gate detected
-                GateInfo gate {
-                    .rect = mapData.getRectCoord({i,j}),
-                    .type = GateInfo::Unknowm
-                };
-                
-                int maxK = mapData.grid.width;
-                int maxL = mapData.grid.height;
-                bool yAxis = false;
-                for(unsigned l = j; l < maxL; l++)
-                for(unsigned k = i; k < maxK; k++)
-                {
-                    auto &block2 = mapData.grid.get({k, l});
-                    if (block2.fields.find(BlockInfo::collision) != block2.fields.end() &&
-                        block2.fields[BlockInfo::collision] == "crossing")
-                    {
-                        gate.rect = mapData.getRectCoord({k,l}).unionWithRect(gate.rect);
-                        if (gate.type == GateInfo::Unknowm)
-                            gate.type = gessGateType({k,l}, mapData);
-                        block2.fields[BlockInfo::collision] = "walkable";
-                    }
-                    else
-                    {
-                        if (yAxis)
-                            maxL = l;
-                        else
-                        {
-                            yAxis = true;
-                            maxK = k;
-                        }
-                    }
-                }
-                
-                CCASSERT(gate.type != GateInfo::Unknowm, "gate extraction error");
-                mapData.gates[gateIndex++] = gate;
+                mapData.gates[gateIndex++] = extractGate(mapData, "crossing", i, j);
+            }
+            else if (block.fields[BlockInfo::collision] == "warping")
+            {
+                mapData.warps.push_back(extractGate(mapData, "warping", i, j));
             }
         }
     }

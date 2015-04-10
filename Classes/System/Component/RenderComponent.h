@@ -6,6 +6,7 @@ struct RenderComponent
     RenderComponent() : sprite(nullptr)
     {
         this->container = cocos2d::Sprite::create();
+        this->container->setCascadeOpacityEnabled(true);
         this->container->setAnchorPoint({0,0});
     }
     
@@ -49,7 +50,6 @@ struct RenderComponent
     void setSpriteFrame(const std::string &spriteFrameName);
     cocos2d::Action* runAction(cocos2d::Action* action);
 private:
-    cc::Rect            bounds;
     cocos2d::Sprite*    sprite;
     cocos2d::Sprite* initSprite(const std::string &frameName);
 };

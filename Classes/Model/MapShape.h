@@ -13,9 +13,9 @@ public:
             grid[{i,j}] = NONE;
     }
 
-    MapShape():MapShape(120,120) {}
+    MapShape():MapShape(200,200) {}
     
-    enum BType { NONE, WALL, GATE };
+    enum BType { NONE, WALL, GATE};
     
     lib::v2u size;
     
@@ -31,7 +31,7 @@ public:
     
     BType &get(lib::v2i p)
     {
-        return get(p.x>=0?p.x:0, p.y>=0?p.y:0);
+        return get(p.x >=0 ? p.x : 0, p.y >= 0 ? p.y : 0);
     }
     
     BType &get(lib::v2u p)
@@ -39,12 +39,12 @@ public:
         return get(p.x, p.y);
     }
     
-    void fill(cocos2d::Rect r, BType t)
+    void fill(cocos2d::Rect r)
     {
         for(int j = 0; j < r.size.height; j++)
         for(int i = 0; i < r.size.width; i++)
         {
-            grid.get(r.origin.x + i, r.origin.y + j) = t;
+            grid.get(r.origin.x + i, r.origin.y + j) = WALL;
         }
     }
     

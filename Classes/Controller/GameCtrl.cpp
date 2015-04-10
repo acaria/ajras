@@ -46,6 +46,7 @@ void GameCtrl::onAnimate(double dt, double tickPercent)
 
 void GameCtrl::loadSession(GameScene* view)
 {
+    //floorSystemCtrl.displayDebug(view, this->currentMap);
     floorSystemCtrl.load(view, this->currentMap);
     tick.schedule(view);
 }

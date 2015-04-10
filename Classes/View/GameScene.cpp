@@ -9,6 +9,8 @@ bool GameScene::init()
     this->addChild(back);
     
     this->canvas = ui::Layout::create();
+    this->canvas->setBackGroundColorType(cocos2d::ui::HBox::BackGroundColorType::SOLID);
+    this->canvas->setBackGroundColor(back->getColor());
     this->canvas->setLayoutType(LayoutType::RELATIVE);
     this->canvas->setClippingEnabled(true);
     this->canvas->setPosition(kCanvasRect.origin);
@@ -28,15 +30,20 @@ bool GameScene::init()
     return true;
 }
 
+void GameScene::setBgColor(cc::Color3B bgColor)
+{
+    this->canvas->setBackGroundColor(bgColor);
+}
+
 void GameScene::setCamera(cocos2d::Vec2 pos)
 {
-    auto wsize = Director::getInstance()->getWinSize();
+    auto wsize = kCanvasRect.size;
     this->frame->setPosition({wsize.width / 2 - pos.x, wsize.height / 2 - pos.y});
 }
 
 void GameScene::moveCamera(cocos2d::Vec2 pos, float duration)
 {
-    auto wsize = Director::getInstance()->getWinSize();
+    auto wsize = kCanvasRect.size;
     cocos2d::Vec2 p = {wsize.width / 2 - pos.x, wsize.height / 2 - pos.y};
     
     this->frame->runAction(EaseInOut::create(MoveTo::create(duration, p), 5));

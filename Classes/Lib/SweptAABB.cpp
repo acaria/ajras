@@ -25,11 +25,11 @@ namespace lib {
             return false;
         
         // find the offset of both sides
-        moveX = abs(l) < r ? l : r;
-        moveY = abs(t) < b ? t : b;
+        moveX = fabs(l) < r ? l : r;
+        moveY = fabs(t) < b ? t : b;
         
         // only use whichever offset is the smallest
-        if (abs(moveX) < abs(moveY))
+        if (fabs(moveX) < fabs(moveY))
             moveY = 0.0f;
         else
             moveX = 0.0f;

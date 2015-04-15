@@ -130,13 +130,13 @@ Dir Dir::fromVec(cc::Vec2 r, bool cardinal)
     };
     unsigned res = Dir::None;
     
-    if ((abs(v.x) > abs(v.y)) || !cardinal)
+    if ((fabs(v.x) > fabs(v.y)) || !cardinal)
     {
         if (v.x < 0) res |= Dir::Left;
         if (v.x > 0) res |= Dir::Right;
     }
     
-    if ((abs(v.y) > abs(v.x)) || !cardinal)
+    if ((fabs(v.y) > fabs(v.x)) || !cardinal)
     {
         if (v.y < 0) res |= Dir::Down;
         if (v.y > 0) res |= Dir::Up;

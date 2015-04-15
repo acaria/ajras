@@ -34,4 +34,5 @@ private:
     
     MapData*        currentMap;
     FloorSystemCtrl  floorSystemCtrl;
+    bool sessionEnabled;
 };

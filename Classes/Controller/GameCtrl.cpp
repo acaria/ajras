@@ -9,6 +9,7 @@ GameCtrl::GameCtrl():log(), scene(log),
 {
     log.setLevelMask(LL_DEBUG | LL_INFO | LL_TRACE | LL_WARNING | LL_ERROR | LL_FATAL);
     log.setTimeoutSeconds(15);
+    this->sessionEnabled = false;
 }
 
 GameCtrl::~GameCtrl()
@@ -36,12 +37,18 @@ void GameCtrl::tickUpdate(float dt)
 
 void GameCtrl::onTick(double dt)
 {
-    floorSystemCtrl.tick(dt);
+    if (sessionEnabled)
+    {
+        floorSystemCtrl.tick(dt);
+    }
 }
 
 void GameCtrl::onAnimate(double dt, double tickPercent)
 {
-    floorSystemCtrl.animate(dt, tickPercent);
+    if (sessionEnabled)
+    {
+        floorSystemCtrl.animate(dt, tickPercent);
+    }
 }
 
 void GameCtrl::loadSession(GameScene* view)
@@ -49,6 +56,7 @@ void GameCtrl::loadSession(GameScene* view)
     //floorSystemCtrl.displayDebug(view, this->currentMap);
     floorSystemCtrl.load(view, this->currentMap);
     tick.schedule(view);
+    this->sessionEnabled = true;
 }
 
 void GameCtrl::destroyMap()
@@ -69,6 +77,7 @@ RoomData* GameCtrl::changeRoom(unsigned roomIndex, unsigned gateIndex, const std
 
 void GameCtrl::newSession()
 {
+    this->sessionEnabled = false;
     this->destroyMap();
     
     this->currentMap = MapData::generate("map1");

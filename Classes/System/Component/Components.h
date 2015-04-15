@@ -3,20 +3,21 @@
 
 namespace cp
 {
-    using Render = ecs::component<RenderComponent, 1>;
-    using Position = ecs::component<PositionComponent, 2>;
-    using Orientation = ecs::component<OrientationComponent, 3>;
-    using Velocity = ecs::component<VelocityComponent, 4>;
-    using Profile = ecs::component<ProfileData*, 5>;
-    using Input = ecs::component<InputComponent, 6>;
-    using Collision = ecs::component<CollisionComponent, 7>;
-    using Gate = ecs::component<GateComponent, 8>;
-    using Control = ecs::component<unsigned, 9>;
-    using Melee = ecs::component<MeleeComponent, 10>;
-    using Health = ecs::component<HealthComponent, 11>;
-    using Target = ecs::component<unsigned, 12>;
-    using AI = ecs::component<AIComponent, 13>;
-    using Cat = ecs::component<CategoryComponent, 14>;
+    using Render = ecs::component<RenderComponent,              1>;
+    using Position = ecs::component<PositionComponent,          2>;
+    using Orientation = ecs::component<OrientationComponent,    3>;
+    using Velocity = ecs::component<VelocityComponent,          4>;
+    using Profile = ecs::component<ProfileData*,                5>;
+    using Input = ecs::component<InputComponent,                6>;
+    using Collision = ecs::component<CollisionComponent,        7>;
+    using Gate = ecs::component<GateComponent,                  8>;
+    using Warp = ecs::component<WarpComponent,                  9>;
+    using Control = ecs::component<unsigned,                    10>;
+    using Melee = ecs::component<MeleeComponent,                11>;
+    using Health = ecs::component<HealthComponent,              12>;
+    using Target = ecs::component<unsigned,                     13>;
+    using AI = ecs::component<AIComponent,                      14>;
+    using Cat = ecs::component<CategoryComponent,               15>;
     
     struct entity
     {
@@ -37,6 +38,7 @@ namespace cp
             ecs::move<Input>(id, g1, g2);
             ecs::move<Collision>(id, g1, g2);
             ecs::move<Gate>(id, g1, g2);
+            ecs::move<Warp>(id, g1, g2);
             ecs::move<Control>(id, g1, g2);
             ecs::move<Melee>(id, g1, g2);
             ecs::move<Health>(id, g1, g2);
@@ -55,6 +57,7 @@ namespace cp
             ecs::del<Input>(id, 1);
             ecs::del<Collision>(id, group);
             ecs::del<Gate>(id, group);
+            ecs::del<Warp>(id, group);
             ecs::del<Control>(id, group);
             ecs::del<Melee>(id, group);
             ecs::del<Health>(id, group);
@@ -73,6 +76,7 @@ namespace cp
             ecs::clearGroup<Input>(group);
             ecs::clearGroup<Collision>(group);
             ecs::clearGroup<Gate>(group);
+            ecs::clearGroup<Warp>(group);
             ecs::clearGroup<Control>(group);
             ecs::clearGroup<Melee>(group);
             ecs::clearGroup<Health>(group);

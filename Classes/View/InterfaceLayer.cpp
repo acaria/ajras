@@ -20,7 +20,6 @@ InterfaceLayer::~InterfaceLayer()
 {
     this->targetEnemy->release();
     this->targetFriend->release();
-    Layer::~Layer();
 }
 
 void InterfaceLayer::setTargetID(unsigned eid, bool friendly)

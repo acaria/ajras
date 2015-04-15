@@ -15,9 +15,7 @@ public:
     void addEndModel(RoomModel* model);
     void setCurIdxRoom(unsigned roomIndex);
     
-    unsigned                        getStartRoomIdx();
     RoomData*                       getRoomAt(unsigned idx);
-    std::vector<RoomData*>          getRandRoom();
     const std::vector<RoomModel*>   getModels();
     const std::vector<RoomModel*>   getEndModels();
     const std::set<std::string>&    getSriteSheets();
@@ -25,6 +23,7 @@ public:
     
     MapShape*                       shape;
     
+    unsigned                        getCurIdxRoom();
     cc::Color3B                     getBgColor();
     std::vector<std::string>&       getBgTiles();
     

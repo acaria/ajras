@@ -16,7 +16,7 @@ void TargetSystem::tick(double dt)
         
         Dir odir = Dir::None;
         
-        if (abs(pdir.x) > abs(pdir.y))
+        if (fabs(pdir.x) > fabs(pdir.y))
             odir = pdir.x < 0 ? Dir::Left : Dir::Right;
         else
             odir = pdir.y < 0 ? Dir::Down : Dir::Up;

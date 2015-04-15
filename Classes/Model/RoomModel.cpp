@@ -85,11 +85,6 @@ RoomModel* RoomModel::create(const std::string &fileName)
                         result->grid.get({c, r}).fields[BlockInfo::bgTileName] = tileNames[tileIndex];
                     else if (name == "foreground")
                         result->grid.get({c, r}).fields[BlockInfo::fgTileName] = tileNames[tileIndex];
-                    
-                    if (tileNames[tileIndex] == "purple.png" && name == "background")
-                    {
-                        int y = 3;
-                    }
                     else //filling properties
                     {
                         if (tileProperties.find(tileIndex) != tileProperties.end())

@@ -76,10 +76,9 @@ RoomData* FloorSystemCtrl::changeRoom(unsigned int nextRoomIndex,
 
 void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
 {
-    auto currentRoomIdx = data->getStartRoomIdx();
     for(auto pair : data->rooms)
     {
-        auto roomIndex = pair.first;
+        //auto roomIndex = pair.first;
         auto roomData = pair.second;
         auto bounds = roomData->getBounds();
         
@@ -100,8 +99,10 @@ void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
             if (gridInfo.fields[BlockInfo::collision] == "walkable" ||
                 gridInfo.fields[BlockInfo::collision] == "flyable")
             {
-                if (currentRoomIdx == roomData->index)
+                if (roomData->type == RoomData::RoomType::START)
                     pxl->setColor(Color3B::RED);
+                else if (roomData->type == RoomData::RoomType::END)
+                    pxl->setColor(Color3B::GREEN);
                 else
                     pxl->setColor(Color3B::YELLOW);
             }
@@ -120,7 +121,7 @@ void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
 void FloorSystemCtrl::load(GameScene *gview, MapData *data)
 {
     this->clear();
-    this->currentRoomIndex = data->getStartRoomIdx();
+    this->currentRoomIndex = data->getCurIdxRoom();
     this->gView = gview;
     this->gView->setBgColor(data->getBgColor());
     this->data = data;
@@ -137,10 +138,7 @@ void FloorSystemCtrl::load(GameScene *gview, MapData *data)
         auto roomSystemCtrl = new RoomSystemCtrl();
         auto roomLayer = RoomLayer::create();
         
-        if (roomIndex == this->currentRoomIndex)
-            roomSystemCtrl->loadStart(roomLayer, roomData);
-        else
-            roomSystemCtrl->loadRoom(roomLayer, roomData);
+        roomSystemCtrl->loadRoom(roomLayer, roomData);
         
         this->roomViews[roomIndex] = roomLayer;
         this->roomSystems[roomIndex] = roomSystemCtrl;
@@ -152,14 +150,17 @@ void FloorSystemCtrl::load(GameScene *gview, MapData *data)
         bounds = bounds.unionWithRect(roomData->getBounds());
     }
     
-    /*for(auto j = 0; j < bounds.size.height; j+=kBlockSize)
+    for(auto j = 0; j < bounds.size.height; j+=kBlockSize)
     for(auto i = 0; i < bounds.size.width; i+=kBlockSize)
     {
-        auto floorTile = Sprite::createWithSpriteFrameName("floor_tile_fill_1.png");
+        if (lib::randf01() > 0.1)
+            continue;
+        auto bgName = *lib::selectRand(data->getBgTiles().begin(), data->getBgTiles().end());
+        auto floorTile = Sprite::createWithSpriteFrameName(bgName);
         floorTile->setAnchorPoint({0,0});
         floorTile->setPosition({bounds.origin.x + i, bounds.origin.y + j});
         this->gView->frame->addChild(floorTile, 0);
-    }*/
+    }
     
     auto camRect = data->rooms[this->currentRoomIndex]->getBounds();
     gview->setCamera({camRect.getMidX(), camRect.getMidY()});

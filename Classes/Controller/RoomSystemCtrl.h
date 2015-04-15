@@ -7,7 +7,7 @@ public:
     RoomSystemCtrl(): renderSystem(ecsGroup),
                       collisionSystem(ecsGroup),
                       moveSystem(ecsGroup),
-                      gateSystem(ecsGroup),
+                      transSystem(ecsGroup),
                       inputSystem(ecsGroup),
                       meleeSystem(ecsGroup),
                       targetSystem(ecsGroup),
@@ -16,7 +16,6 @@ public:
     }
 
     void loadRoom(RoomLayer* view, RoomData* data);
-    void loadStart(RoomLayer* view, RoomData* data);
     
     RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned>& eids);
 
@@ -25,11 +24,15 @@ public:
 
 private:
 
+    void loadStart(RoomLayer* view, RoomData* data);
+    void loadCommon(RoomLayer* view, RoomData* data);
+    void loadEnd(RoomLayer* view, RoomData* data);
+
     //systems
     RenderSystem    renderSystem;
     CollisionSystem collisionSystem;
     MoveSystem      moveSystem;
-    GateSystem      gateSystem;
+    TransitSystem   transSystem;
     InputSystem     inputSystem;
     MeleeSystem     meleeSystem;
     TargetSystem    targetSystem;
@@ -37,7 +40,4 @@ private:
     
     //local ecs
     lib::EcsGroup   ecsGroup;
-    
-    //data
-    MapData*    data;
 };

@@ -125,10 +125,6 @@ void CollisionSystem::tick(double dt)
         if (!ecs::has<cp::Velocity>(eid))
             continue;
         
-        auto &cpVelocity = ecs::get<cp::Velocity>(eid);
-        //if (cpVelocity.velocity.isZero())
-        //    continue;
-        
         cocos2d::Rect bounds = SysHelper::getBounds(cpPosition, cpCollision);
         
         //check room limits
@@ -231,8 +227,8 @@ lib::Box CollisionSystem::bounce(const PositionComponent &cpPos,
         auto rt = 1.f - ct;
         b1.vx *= rt;
         b1.vy *= rt;
-        if (abs(nX) > 0.0001f) b1.vx = -b1.vx;
-        if (abs(nY) > 0.0001f) b1.vy = -b1.vy;
+        if (fabs(nX) > 0.0001f) b1.vx = -b1.vx;
+        if (fabs(nY) > 0.0001f) b1.vy = -b1.vy;
         translation += {b1.vx * rt, b1.vy * rt};
     }
     

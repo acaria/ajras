@@ -1,0 +1,31 @@
+#pragma once
+#include "Headers.h"
+
+class TransitSystem : public BaseTickSystem
+{
+public:
+    TransitSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
+    virtual ~TransitSystem() {}
+    
+    virtual void tick(double dt) final;
+    virtual void animate(double dt, double tp) final {}
+    
+private:
+    
+
+    void gateringEnter(unsigned targetEntity,
+                       const cocos2d::Vec2& targetPoint,
+                       const GateComponent& srcGate);
+    
+    void gateringLeave(unsigned eid,
+                       unsigned roomIdx,
+                       unsigned gateIdx);
+    
+    void warpingEnter(unsigned targetEntity,
+                      const cocos2d::Vec2& targetPoint,
+                      const WarpComponent& srcWarp);
+    
+    std::pair<float, cc::Vec2> processing(GateInfo info,
+                                          PositionComponent& pos,
+                                          CollisionComponent& col);
+};

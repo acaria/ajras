@@ -42,6 +42,7 @@
 #include "CategoryComponent.h"
 #include "RenderComponent.h"
 #include "GateComponent.h"
+#include "WarpComponent.h"
 #include "HealthComponent.h"
 #include "CollisionComponent.h"
 #include "PositionComponent.h"
@@ -57,7 +58,7 @@
 #include "ControlSystem.h"
 #include "TargetSystem.h"
 #include "InputSystem.h"
-#include "GateSystem.h"
+#include "TransitSystem.h"
 #include "AISystem.h"
 #include "MeleeSystem.h"
 

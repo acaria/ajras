@@ -71,6 +71,7 @@ MapData* MapData::generate(const std::string& filename, int nbTry)
         (unsigned)(map->shape->getSize().x / 2),
         (unsigned)(map->shape->getSize().y / 2)}, map->startModel);
     firstRoom->depth = 1;
+    firstRoom->type = RoomData::RoomType::START;
     roomList.push_back(firstRoom);
     map->setCurIdxRoom(firstRoom->index);
     
@@ -140,15 +141,16 @@ MapData* MapData::generate(const std::string& filename, int nbTry)
                     {
                         withEndRoom = true;
                         
-                        auto newRoom = map->addRoom(newPos, model);
-                        roomList.push_back(newRoom);
+                        auto endRoom = map->addRoom(newPos, model);
+                        endRoom->type = RoomData::RoomType::END;
+                        roomList.push_back(endRoom);
                         
                         //link rooms
-                        newRoom->gateMapping[destGateIdx] = {refRoom->index, refGateIdx};
-                        refRoom->gateMapping[refGateIdx] = {newRoom->index, destGateIdx};
+                        endRoom->gateMapping[destGateIdx] = {refRoom->index, refGateIdx};
+                        refRoom->gateMapping[refGateIdx] = {endRoom->index, destGateIdx};
                         
                         //compute depth
-                        map->computeDepth(newRoom);
+                        map->computeDepth(endRoom);
                         break;
                     }
                 }
@@ -341,6 +343,11 @@ void MapData::setCurIdxRoom(unsigned int roomIndex)
     this->curIdxRoom = roomIndex;
 }
 
+unsigned MapData::getCurIdxRoom()
+{
+    return this->curIdxRoom;
+}
+
 RoomData* MapData::getRoomAt(unsigned int idx)
 {
     CCASSERT(lib::hasKey(rooms, idx), "room is missing");
@@ -370,9 +377,4 @@ const std::vector<RoomModel*> MapData::getEndModels()
 const std::set<std::string>& MapData::getSriteSheets()
 {
     return this->spriteSheets;
-}
-
-unsigned MapData::getStartRoomIdx()
-{
-    return curIdxRoom;
 }

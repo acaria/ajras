@@ -8,7 +8,7 @@ void RoomSystemCtrl::tick(double dt)
     moveSystem.tick(dt);
     collisionSystem.tick(dt);
     meleeSystem.tick(dt);
-    gateSystem.tick(dt);
+    transSystem.tick(dt);
     renderSystem.tick(dt);
 }
 
@@ -20,14 +20,29 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
     moveSystem.animate(dt, tickPercent);
     collisionSystem.animate(dt, tickPercent);
     meleeSystem.animate(dt, tickPercent);
-    gateSystem.animate(dt, tickPercent);
+    transSystem.animate(dt, tickPercent);
     renderSystem.animate(dt, tickPercent);
+}
+
+void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
+{
+    this->loadCommon(view, data);
+    
+    switch(data->type)
+    {
+        case RoomData::RoomType::COMMON:
+            break;
+        case RoomData::RoomType::START:
+            this->loadStart(view, data);
+            break;
+        case RoomData::RoomType::END:
+            this->loadEnd(view, data);
+            break;
+    }
 }
 
 void RoomSystemCtrl::loadStart(RoomLayer *view, RoomData *data)
 {
-    this->loadRoom(view, data);
- 
     auto roomIndex = data->index;
     assert(data->getModel()->warps.size() > 0);
     
@@ -53,7 +68,6 @@ void RoomSystemCtrl::loadStart(RoomLayer *view, RoomData *data)
     
     float duration = 3.0f;
     
-    cpRender.container->setCascadeOpacityEnabled(true);
     cpRender.container->setOpacity(0);
     cpRender.container->runAction(Sequence::create(
         MoveTo::create(duration, {
@@ -77,9 +91,15 @@ void RoomSystemCtrl::loadStart(RoomLayer *view, RoomData *data)
     ));
     
     view->setOpacity(255);
+    
+    //warp
+    eid = cp::entity::genID();
+    ecs::add<cp::Warp>(eid, roomIndex).set(warpInfo, [](){
+        GameCtrl::instance()->newSession();
+    });
 }
 
-void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
+void RoomSystemCtrl::loadCommon(RoomLayer *view, RoomData *data)
 {
     collisionSystem.init(data);
     renderSystem.init(data);
@@ -158,7 +178,8 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
             view->fg->addChild(light, 1);
         }
     }
-        
+    
+    //gates
     for(auto gateMap : data->gateMapping)
     {
         unsigned srcGateIndex = gateMap.first;
@@ -169,4 +190,15 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
         ecs::add<cp::Gate>(eid, roomIndex).set(
             destRoomIndex, destGateIndex, data->getModel()->gates[srcGateIndex]);
     }
+}
+
+void RoomSystemCtrl::loadEnd(RoomLayer *view, RoomData *data)
+{
+    assert(data->getModel()->warps.size() > 0);
+    auto warpInfo = data->getModel()->warps.front();
+    //warp
+    auto eid = cp::entity::genID();
+    ecs::add<cp::Warp>(eid, data->index).set(warpInfo, [](){
+        GameCtrl::instance()->newSession();
+    });
 }

@@ -4,9 +4,17 @@
 class RoomData
 {
 public:
+    enum class RoomType
+    {
+        START,
+        COMMON,
+        END
+    };
+
     RoomData(unsigned roomIndex, RoomModel* model) : model(model),
                                                      index(roomIndex)
     {
+        this->type = RoomType::COMMON;
         this->depth = 0;
         for(auto gate : model->gates)
             gateMapping[gate.first] = GateMap(0,0);
@@ -25,9 +33,11 @@ public:
                              model->totalSize.y);
     }
     
-    unsigned                                            index;
-    unsigned                                            depth;
-    cocos2d::Vec2                                       position;
+    unsigned        index;
+    unsigned        depth;
+    cocos2d::Vec2   position;
+    RoomType        type;
+    
     
     struct GateMap
     {

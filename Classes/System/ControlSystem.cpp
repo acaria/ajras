@@ -165,7 +165,7 @@ void ControlSystem::onMouseUp(cocos2d::Event *event)
 
 void ControlSystem::onMouseDown(cocos2d::Event *event)
 {
-    unsigned index = INDEX_P1;
+    //unsigned index = INDEX_P1;
     
     Vec2 minColSize = {20,20};
     

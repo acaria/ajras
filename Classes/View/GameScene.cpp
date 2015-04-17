@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "InterfaceLayer.h"
+#include "Defines.h"
 
 bool GameScene::init()
 {

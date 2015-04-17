@@ -2,6 +2,8 @@
 #include "GameCtrl.h"
 #include "AnimationData.h"
 #include "ProfileData.h"
+#include "RoomLayer.h"
+#include "Defines.h"
 
 void RenderComponent::setFrame(const std::string &frameName, cc::Node *parent, int zOrder)
 {
@@ -119,6 +121,24 @@ void RenderComponent::setMoveAnimation(const Dir &orientation, bool moving)
         this->curAnimKey = anim->key;
     }
     this->onComplete = nullptr;
+}
+
+cc::Layer* RenderComponent::chooseLayer(ProfileData* profile, RoomLayer *roomLayer)
+{
+    if (profile != nullptr && profile->withCollision)
+    {
+        if (profile->collisionCat == "walkable")
+            return roomLayer->main;
+        if (profile->collisionCat == "flyable")
+            return roomLayer->main2;
+        return roomLayer->bg;
+    }
+    return roomLayer->bg;
+}
+
+cc::Layer* RenderComponent::chooseLayer(RoomLayer *roomLayer)
+{
+    return chooseLayer(this->profile, roomLayer);
 }
 
 void RenderComponent::setLocalZOrder(int z)

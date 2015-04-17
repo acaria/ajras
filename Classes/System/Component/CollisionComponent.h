@@ -2,6 +2,8 @@
 
 class ProfileData;
 
+#include "Defines.h"
+
 struct CollisionComponent
 {
     void set(cc::Rect rect);

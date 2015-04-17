@@ -83,7 +83,8 @@ void MeleeSystem::tick(double dt)
                         if (!cpMelee.processed)
                         {
                             ///detect striking
-                            auto p = cpRender.elapsedTime / cpRender.getCurAnim()->duration();
+                            auto anim = cpRender.getCurAnim();
+                            auto p = cpRender.elapsedTime / anim->duration();
                             if (p > 0.3 && p < 0.7)
                             {
                                 //strike

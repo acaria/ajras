@@ -47,6 +47,7 @@ struct InputComponent
     
     void forceEnable()
     {
+        disabled = false;
         predicates.erase("force");
     }
     

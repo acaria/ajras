@@ -56,7 +56,9 @@ RoomData* FloorSystemCtrl::changeRoom(unsigned int nextRoomIndex,
         if (ecs::has<cp::Render>(eid))
         {
             ecs::get<cp::Render>(eid).container->removeFromParentAndCleanup(false);
-            this->roomViews[nextRoomIndex]->main->addChild(ecs::get<cp::Render>(eid).container);
+            auto layer = ecs::get<cp::Render>(eid).chooseLayer(
+                this->roomViews[nextRoomIndex]);
+            layer->addChild(ecs::get<cp::Render>(eid).container);
         }
     }
     

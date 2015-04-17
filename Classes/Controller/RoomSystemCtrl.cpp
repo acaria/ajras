@@ -62,7 +62,8 @@ void RoomSystemCtrl::loadStart(RoomLayer *view, RoomData *data)
     auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
     auto& cpCollision = ecs::add<cp::Collision>(eid, roomIndex);
     
-    cpRender.setProfile(profile, view->main, data->getModel()->getZOrder(srcPos));
+    cpRender.setProfile(profile, RenderComponent::chooseLayer(profile, view),
+                        data->getModel()->getZOrder(srcPos));
     cpCollision.setProfile(profile);
     
     ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
@@ -147,7 +148,8 @@ void RoomSystemCtrl::loadCommon(RoomLayer *view, RoomData *data)
         auto profile = GameCtrl::instance()->profileModel.get(obj.profileName);
         auto eid = cp::entity::genID();
         ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
-            view->main, data->getModel()->getZOrder(obj.pos));
+            RenderComponent::chooseLayer(profile, view),
+            data->getModel()->getZOrder(obj.pos));
         ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
         ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
         ecs::add<cp::Input>(eid, roomIndex);

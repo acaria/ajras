@@ -171,7 +171,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                         (unsigned)properties["target"].asValueMap()["y"].asInt()
                     });
                     auto vdir = cc::Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
-                    if (vdir.length() < 10)
+                    if (vdir.length() < 4)
                     {
                         cpInput.setDirection(Dir::None);
                         return state::SUCCESS;

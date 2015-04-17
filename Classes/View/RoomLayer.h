@@ -26,19 +26,23 @@ struct RoomLayer : public cc::Layer
         this->bg->setCascadeOpacityEnabled(true);
         this->main = cc::Layer::create();
         this->main->setCascadeOpacityEnabled(true);
+        this->main2 = cc::Layer::create();
+        this->main2->setCascadeOpacityEnabled(true);
         this->fg = cc::Layer::create();
         this->fg->setCascadeOpacityEnabled(true);
     
         this->addChild(bg);
         this->addChild(main);
+        this->addChild(main2);
         this->addChild(fg);
     
         this->setOpacity(0);
     
         return true;
     }
-
+    
     cc::Layer* bg;
     cc::Layer* fg;
     cc::Layer* main;
+    cc::Layer* main2;
 };

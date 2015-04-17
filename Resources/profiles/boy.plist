@@ -30,7 +30,7 @@
 			<string>atk</string>
 		</dict>
 		<key>health</key>
-		<string>3</string>
+		<string>5</string>
 	</dict>
 	<key>behaviour</key>
 	<dict>

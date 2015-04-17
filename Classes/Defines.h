@@ -1,6 +1,6 @@
 #pragma once
 
-#define kDrawDebug 0
+#define kDrawDebug 1
 #define kDrawInfo 0
 
 #define kTraceBehaviours 0
@@ -22,5 +22,3 @@ enum CollisionCategory
     walkable,
     flyable,
 };
-
-namespace cc = cocos2d;

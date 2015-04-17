@@ -18,7 +18,7 @@
 		<key>sight</key>
 		<dict>
 			<key>range</key>
-			<string>75</string>
+			<string>50</string>
 		</dict>
 		<key>melee</key>
 		<dict>

@@ -118,7 +118,7 @@ void CollisionSystem::tick(double dt)
 #if kDrawDebug
         auto& cpRender = ecs::get<cp::Render>(eid);
         cpRender.collision->setVisible(true);
-        cpRender.collision->setColor(Color3B::GREEN);
+        cpRender.collision->setColor(cc::Color3B::GREEN);
         cpRender.collision->setPosition(cpCollision.rect.origin.x,
                                         cpCollision.rect.origin.y);
         cpRender.collision->setScale(cpCollision.rect.size.width,
@@ -178,30 +178,23 @@ void CollisionSystem::tick(double dt)
         {
             if (oid != eid)
             {
-                auto cpPosition2 = ecs::get<cp::Position>(oid);
-                auto cpCollision2 = ecs::get<cp::Collision>(oid);
+                auto& cpPosition2 = ecs::get<cp::Position>(oid);
+                auto& cpCollision2 = ecs::get<cp::Collision>(oid);
                 
                 cocos2d::Rect bounds2 = SysHelper::getBounds(cpPosition2, cpCollision2);
                 if (bounds2.intersectsRect(bounds))
                 {
                     cpCollision.collide = true;
 #if kDrawDebug
-                    ecs::get<cp::Render>(eid).collision->setColor(Color3B::RED);
+                    ecs::get<cp::Render>(eid).collision->setColor(cc::Color3B::RED);
 #endif
 
-                    
-                    //bounce
                     auto diff = slide(bounds, bounds2);
                     cpPosition.pos += diff;
                     
-                    if (ecs::has<cp::Input>(eid))
+                    if (ecs::has<cp::Velocity>(oid))
                     {
-                        //ecs::get<cp::Render>(eid).cancelAnimation();
-                        /*ecs::get<cp::Input>(eid).predicates.push_back([](unsigned id) {
-                            if (!ecs::has<cp::Velocity>(id))
-                                return true;
-                            return ecs::get<cp::Velocity>(id).velocity.isZero();
-                        });*/
+                        cpPosition2.pos -= diff;
                     }
                 }
             }

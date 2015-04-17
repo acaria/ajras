@@ -1,6 +1,7 @@
 #include "ProfileData.h"
 #include "AnimationData.h"
 #include "Dir.h"
+#include "Defines.h"
 
 ProfileData::~ProfileData()
 {
@@ -159,9 +160,9 @@ ProfileData::ProfileData(const std::string &path) : behaviourMood("neutral")
             if (mData.find("type") != mData.end())
                 this->meleeType = mData.at("type").asString();
             if (mData.find("range") != mData.end())
-                this->meleeRange = mData.at("type").asDouble();
+                this->meleeRange = mData.at("range").asDouble();
             if (mData.find("anim_key") != mData.end())
-                this->meleeAnimKey = mData.at("type").asString();
+                this->meleeAnimKey = mData.at("anim_key").asString();
         }
         
         if (sData.find("health") != sData.end())

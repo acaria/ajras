@@ -2,7 +2,11 @@
 
 void CategoryComponent::setProfile(const std::string &profileName)
 {
-    auto profile = GameCtrl::instance()->profileModel.get(profileName);
+    this->setProfile(GameCtrl::instance()->profileModel.get(profileName));
+}
+
+void CategoryComponent::setProfile(ProfileData* profile)
+{
     this->setMood(profile->behaviourMood);
 }
 

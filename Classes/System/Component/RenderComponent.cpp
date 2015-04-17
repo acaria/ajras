@@ -16,7 +16,14 @@ void RenderComponent::setProfile(const std::string &profileName,
                                  cocos2d::Node *parent,
                                  int zOrder)
 {
-    this->profile = GameCtrl::instance()->profileModel.get(profileName);
+    this->setProfile(GameCtrl::instance()->profileModel.get(profileName), parent, zOrder);
+}
+
+void RenderComponent::setProfile(ProfileData* profile,
+                                 cocos2d::Node *parent,
+                                 int zOrder)
+{
+    this->profile = profile;
     this->setAnimation("idle", -1);
     //set default walk animation
     this->setMoveCategory("walk");

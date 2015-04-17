@@ -2,8 +2,40 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>stats</key>
+	<dict>
+		<key>move</key>
+		<dict>
+			<key>orientation</key>
+			<false/>
+			<key>speed</key>
+			<string>40</string>
+			<key>deceleration</key>
+			<string>0.2</string>
+			<key>acceleration</key>
+			<string>0.3</string>
+		</dict>
+		<key>sight</key>
+		<dict>
+			<key>range</key>
+			<string>75</string>
+		</dict>
+		<key>melee</key>
+		<dict>
+			<key>type</key>
+			<string>dir</string>
+			<key>range</key>
+			<string>12</string>
+			<key>anim_key</key>
+			<string>atk</string>
+		</dict>
+		<key>health</key>
+		<string>3</string>
+	</dict>
 	<key>behaviour</key>
 	<dict>
+		<key>key</key>
+		<string>bat</string>
 		<key>mood</key>
 		<string>hostile</string>
 	</dict>
@@ -22,6 +54,17 @@
 			<string>bat_atk%d.png</string>
 			<key>delay</key>
 			<string>0.01</string>
+			<key>frameCount</key>
+			<integer>4</integer>
+			<key>frameOrder</key>
+			<string>1,2,3,2</string>
+		</dict>
+		<key>move</key>
+		<dict>
+			<key>format</key>
+			<string>bat_walk%d.png</string>
+			<key>delay</key>
+			<string>0.1</string>
 			<key>frameCount</key>
 			<integer>4</integer>
 			<key>frameOrder</key>

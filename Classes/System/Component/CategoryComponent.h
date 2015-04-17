@@ -15,6 +15,8 @@ struct CategoryComponent
     };
 
     void setProfile(const std::string &profileName);
+    void setProfile(ProfileData* profile);
+
     void setMood(std::string& mood);
     
     eMood mood = eMood::NEUTRAL;

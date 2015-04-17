@@ -1,0 +1,6 @@
+selector
+    sequence wander
+        selector
+            until time 5.0
+                action moveto rand
+            action movedir stop

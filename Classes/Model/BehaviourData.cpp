@@ -8,7 +8,7 @@ BehaviourData::BehaviourData(const std::string& path)
     lib::split(rawData, lines, "\n", true);
     
     this->curId = 1;
-    this->tree = new behaviour::RepeatNode(this->curId++);
+    this->tree = new behaviour::RepeatNode(this->curId++, nullptr);
     this->dict[this->tree->id] = this->tree;
     this->parsingNode(this->tree, lines);
 }
@@ -54,7 +54,7 @@ void BehaviourData::parsingNode(behaviour::BaseNode *node,
         lib::split(line, words, "\t ", true);
         auto tagName = words[0];
     
-        auto subNode = behaviour::factory[tagName](this->curId++);
+        auto subNode = behaviour::factory[tagName](this->curId++, node);
         this->dict[subNode->id] = subNode;
         if (words.size() > 1)
             subNode->name = words[1];

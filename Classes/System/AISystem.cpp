@@ -1,5 +1,9 @@
 #include "Headers.h"
 
+void AISystem::init(RoomData *data)
+{
+    this->data = data;
+}
 
 void AISystem::tick(double dt)
 {
@@ -123,6 +127,61 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
             }
         }
         break;
+        case ExecBType::MOVE_TO: {
+            assert(node->values.size() == 1); //params=[type]
+            
+            auto& cpInput = ecs::get<cp::Input>(eid);
+            switch(actionMap[node->values[0]])
+            {
+                case ActionBType::RAND: {
+                    if (!ecs::has<cp::Input>(eid))
+                        return state::FAILURE;
+                
+                    auto &properties = cpAI.board.getFields(nid);
+                    if (!lib::hasKey(properties, "target"))
+                    {
+                        auto model = this->data->getModel();
+                        lib::v2u pos = {
+                            lib::randAB(0, model->grid.width), lib::randAB(0, model->grid.height)
+                        };
+                        
+                        auto maxCount = 1000;
+                        while(maxCount-- > 0 &&
+                              (!lib::hasKey(model->grid.get({pos.x, pos.y}).fields, BlockInfo::collision) ||
+                              model->grid.get({pos.x, pos.y}).fields[BlockInfo::collision] != "walkable"))
+                        {
+                            pos = {
+                                lib::randAB(0, model->grid.width), lib::randAB(0, model->grid.height)
+                            };
+                        }
+                        
+                        properties["target"] = ValueMap{{"x", Value((int)pos.x)}, {"y", Value((int)pos.y)}};
+                    }
+                    
+                    auto& cpInput = ecs::get<cp::Input>(eid);
+                    auto bounds = SysHelper::getBounds(eid);
+                    auto bounds2 = data->getModel()->getRectCoord({
+                        (unsigned)properties["target"].asValueMap()["x"].asInt(),
+                        (unsigned)properties["target"].asValueMap()["y"].asInt()
+                    });
+                    auto vdir = Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
+                    if (vdir.length() < 10)
+                    {
+                        cpInput.setDirection(Dir::None);
+                        return state::SUCCESS;
+                    }
+                    cpInput.setDirection(vdir.getNormalized());
+                    return state::RUNNING;
+                }
+                case ActionBType::STOP: {
+                    cpInput.setDirection(Dir::None);
+                    return state::SUCCESS;
+                }
+                default:
+                    Log("invalid sub parameter: %s", node->values[0].c_str());
+                    break;
+            }
+        }
         case ExecBType::MOVE_DIR: {
             assert(node->values.size() == 1); //params=[type]
             

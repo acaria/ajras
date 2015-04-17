@@ -3,6 +3,11 @@
 
 struct HealthComponent
 {
+    void setProfile(ProfileData* profile)
+    {
+        this->set(profile->health);
+    }
+    
     void set(int hp)
     {
         this->maxHp = hp;

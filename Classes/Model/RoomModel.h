@@ -16,10 +16,12 @@ public:
     std::map<unsigned, GateInfo> gates;
     std::list<GateInfo>          warps;
     lib::DataGrid<BlockInfo>     grid;
-    lib::v2u                     tileSize;
-    lib::v2u                     totalSize;
-    RoomShape                    shape;
-    std::string                  name;
+    
+    
+    lib::v2u        tileSize; //sizeof a tile case (in pxl)
+    lib::v2u        totalSize; //sizeof the room (in pxl)
+    RoomShape       shape;
+    std::string     name;
     
     cocos2d::Rect   getRectCoord(lib::v2u pos);
     cocos2d::Vec2   getPosCoord(lib::v2u pos);

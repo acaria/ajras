@@ -12,6 +12,7 @@ struct RenderComponent
     
     void setFrame(const std::string &frameName, cocos2d::Node *parent, int zOrder = 0);
     void setProfile(const std::string &frameName, cocos2d::Node *parent, int zOrder = 0);
+    void setProfile(ProfileData* profile, cocos2d::Node *parent, int zOrder = 0);
     void setAnimation(const std::string &key, int repeat,
                       std::function<void(bool)> onComplete = nullptr);
     void cancelAnimation();

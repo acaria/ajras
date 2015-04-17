@@ -10,7 +10,4 @@ public:
     
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
-    
-private:
-    bool checkPredicates(unsigned eid, InputComponent& cp);
 };

@@ -5,6 +5,7 @@ struct AIComponent
 {
     using state = behaviour::nState;
     
+    void setProfile(ProfileData* profile);
     void setProfile(const std::string &profileName);
     
     double timer = 0;

@@ -112,6 +112,7 @@ void TransitSystem::warpingEnter(unsigned eid,
     float duration = 0.5f;
     
     auto& render = ecs::get<cp::Render>(eid);
+    ecs::get<cp::Input>(eid).forceDisable();
     ecs.del<cp::Position>(eid);
     ecs::get<cp::Velocity>(eid).reset();
     render.container->runAction(Sequence::create(
@@ -132,6 +133,8 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     float duration = 0.5f;
     
     auto& render = ecs::get<cp::Render>(eid);
+    
+    ecs::get<cp::Input>(eid).forceDisable();
     ecs.del<cp::Position>(eid);
     ecs::get<cp::Velocity>(eid).reset();
     render.container->runAction(Sequence::create(
@@ -188,6 +191,7 @@ void TransitSystem::gateringLeave(unsigned eid, unsigned roomIdx, unsigned gateI
     render.container->runAction(Sequence::create(
         MoveBy::create(duration, movePos),
         CallFunc::create([eid, destPos, roomIdx](){
+            ecs::get<cp::Input>(eid).forceEnable();
             ecs::add<cp::Position>(eid, roomIdx).set(destPos);
         }),
         NULL

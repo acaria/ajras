@@ -6,6 +6,8 @@ class AISystem : public BaseTickSystem
 public:
     AISystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
     
+    void init(RoomData* data);
+    
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
     
@@ -15,6 +17,7 @@ public:
 private:
     enum class ExecBType {
         TARGET,
+        MOVE_TO,
         MOVE_NEAR,
         MOVE_DIR
     };
@@ -37,6 +40,7 @@ private:
     
     std::map<std::string, ExecBType> execMap = {
         {"target", ExecBType::TARGET},
+        {"moveto", ExecBType::MOVE_TO},
         {"movenear", ExecBType::MOVE_NEAR},
         {"movedir", ExecBType::MOVE_DIR},
     };
@@ -46,4 +50,6 @@ private:
         {"target", ActionBType::TARGET},
         {"stop", ActionBType::STOP}
     };
+    
+    RoomData* data;
 };

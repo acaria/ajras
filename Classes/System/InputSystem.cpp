@@ -1,33 +1,18 @@
 #include "Headers.h"
 
-bool InputSystem::checkPredicates(unsigned eid, InputComponent &cp)
-{
-    if (cp.predicates.size() == 0)
-        return true;
-    for(auto check : cp.predicates)
-    {
-        if (!check(eid))
-            return false;
-    }
-    cp.predicates.clear();
-    return true;
-}
-
 void InputSystem::tick(double dt)
 {
     for(auto eid : ecs.system<cp::Input>())
     {
         auto& cpInput = ecs::get<cp::Input>(eid);
         
-        if (!checkPredicates(eid, cpInput)) //inhibitor
+        if (!cpInput.checkPredicates(eid)) //inhibitor
         {
             //reset velocity dir
             if (ecs::has<cp::Velocity>(eid))
                 ecs::get<cp::Velocity>(eid).direction = Vec2::ZERO;
-            cpInput.disabled = true;
             continue;
         }
-        cpInput.disabled = false;
         
         //set orientation
         if (ecs::has<cp::Orientation>(eid))

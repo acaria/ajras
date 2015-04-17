@@ -2,6 +2,36 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>stats</key>
+	<dict>
+		<key>move</key>
+		<dict>
+			<key>orientation</key>
+			<true/>
+			<key>speed</key>
+			<string>80</string>
+			<key>deceleration</key>
+			<string>0.2</string>
+			<key>acceleration</key>
+			<string>0.3</string>
+		</dict>
+		<key>sight</key>
+		<dict>
+			<key>range</key>
+			<string>75</string>
+		</dict>
+		<key>melee</key>
+		<dict>
+			<key>type</key>
+			<string>dir</string>
+			<key>range</key>
+			<string>12</string>
+			<key>anim_key</key>
+			<string>atk</string>
+		</dict>
+		<key>health</key>
+		<string>3</string>
+	</dict>
 	<key>behaviour</key>
 	<dict>
 		<key>mood</key>

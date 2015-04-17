@@ -19,11 +19,13 @@ namespace behaviour
         {
             states.clear();
             fields.clear();
+            lasts.clear();
         }
         
         void clear(unsigned id)
         {
             states.erase(id);
+            lasts.erase(id);
             fields[id].clear();
         }
         
@@ -35,6 +37,7 @@ namespace behaviour
         }
         
         std::map<unsigned, nState> states;
+        std::map<unsigned, nState> lasts;
         
         std::function<nState(unsigned id)> onCheck;
         std::function<nState(unsigned id)> onExecute;
@@ -45,9 +48,10 @@ namespace behaviour
 
     struct BaseNode
     {
-        BaseNode(unsigned id)
+        BaseNode(unsigned id, BaseNode* parent)
         {
             this->id = id;
+            this->parent = parent;
         }
     
         virtual ~BaseNode()
@@ -65,8 +69,9 @@ namespace behaviour
         std::string name = "";
         std::vector<std::string> values;
         std::vector<BaseNode*> children;
+        BaseNode* parent;
         
-    protected:
+        protected:
         virtual std::string toStr()
         {
             std::stringstream ss;
@@ -85,11 +90,34 @@ namespace behaviour
             }
             return ss.str();
         }
+        
+        void clearNexts(BoardNode& board)
+        {
+            if (parent != nullptr)
+            {
+                std::function<void(BaseNode* n, BoardNode& b)> visitAndClear;
+                visitAndClear = [&](BaseNode* n, BoardNode& b){
+                    b.clear(n->id);
+                    for(auto subNode : n->children)
+                        visitAndClear(subNode, b);
+                };
+            
+                bool clearMode = false;
+                for(int i = 0; i < parent->children.size(); i++)
+                {
+                    if (parent->children[i] == this)
+                        clearMode = true;
+                    
+                    if (clearMode)
+                        visitAndClear(parent->children[i], board);
+                }
+            }
+        }
     };
     
     struct RepeatNode : public BaseNode
     {
-        RepeatNode(unsigned id) : BaseNode(id) {}
+        RepeatNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
         
         nState visit(BoardNode& board)
         {
@@ -120,7 +148,7 @@ namespace behaviour
 
     struct SequenceNode : public BaseNode
     {
-        SequenceNode(unsigned id) : BaseNode(id) {}
+        SequenceNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
     
         nState visit(BoardNode& board)
         {
@@ -151,7 +179,7 @@ namespace behaviour
 
     struct SelectorNode : public BaseNode
     {
-        SelectorNode(unsigned id) : BaseNode(id) {}
+        SelectorNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
     
         nState visit(BoardNode& board)
         {
@@ -182,7 +210,7 @@ namespace behaviour
 
     struct UntilNode : public BaseNode
     {
-        UntilNode(unsigned id) : BaseNode(id) {}
+        UntilNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
         
         nState visit(BoardNode& board)
         {
@@ -214,7 +242,7 @@ namespace behaviour
     
     struct WaitNode : public BaseNode
     {
-        WaitNode(unsigned id) : BaseNode(id) {}
+        WaitNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
         
         nState visit(BoardNode& board)
         {
@@ -240,8 +268,8 @@ namespace behaviour
 
     struct CheckNode : public BaseNode
     {
-        CheckNode(unsigned id, bool redo = false) : BaseNode(id),
-                                                    redo(redo) {}
+        CheckNode(unsigned id, BaseNode* parent, bool redo = false) : BaseNode(id, parent),
+                                                                      redo(redo) {}
     
         nState visit(BoardNode& board)
         {
@@ -263,8 +291,8 @@ namespace behaviour
 
     struct ActionNode : public BaseNode
     {
-        ActionNode(unsigned id, bool redo = false) : BaseNode(id),
-                                                     redo(redo) {}
+        ActionNode(unsigned id, BaseNode* parent, bool redo = false) : BaseNode(id, parent),
+                                                                       redo(redo) {}
     
         nState visit(BoardNode& board)
         {
@@ -277,6 +305,16 @@ namespace behaviour
             auto state = board.onExecute(this->id);
             if (!redo)
                 board.states[this->id] = state;
+            else
+            {
+                if (!lib::hasKey(board.lasts, this->id))
+                    board.lasts[this->id] = state;
+                else if (board.lasts[this->id] != state)
+                {
+                    this->clearNexts(board);
+                    board.lasts[this->id] = state;
+                }
+            }
             return state;
         }
         
@@ -284,15 +322,15 @@ namespace behaviour
         bool redo;
     };
     
-    static std::map<std::string, std::function<BaseNode*(unsigned id)>> factory {
-        {"selector", [](unsigned id) { return new SelectorNode(id); }},
-        {"sequence", [](unsigned id) { return new SequenceNode(id); }},
-        {"repeat", [](unsigned id) { return new RepeatNode(id); }},
-        {"wait", [](unsigned id) { return new WaitNode(id); }},
-        {"until", [](unsigned id) { return new UntilNode(id); }},
-        {"check", [](unsigned id) { return new CheckNode(id); }},
-        {"check+", [](unsigned id) { return new CheckNode(id, true); }},
-        {"action", [](unsigned id) { return new ActionNode(id); }},
-        {"action+", [](unsigned id) { return new ActionNode(id); }},
+    static std::map<std::string, std::function<BaseNode*(unsigned id, BaseNode* parent)>> factory {
+        {"selector", [](unsigned id, BaseNode* parent) { return new SelectorNode(id, parent); }},
+        {"sequence", [](unsigned id, BaseNode* parent) { return new SequenceNode(id, parent); }},
+        {"repeat", [](unsigned id, BaseNode* parent) { return new RepeatNode(id, parent); }},
+        {"wait", [](unsigned id, BaseNode* parent) { return new WaitNode(id, parent); }},
+        {"until", [](unsigned id, BaseNode* parent) { return new UntilNode(id, parent); }},
+        {"check", [](unsigned id, BaseNode* parent) { return new CheckNode(id, parent); }},
+        {"check+", [](unsigned id, BaseNode* parent) { return new CheckNode(id, parent, true); }},
+        {"action", [](unsigned id, BaseNode* parent) { return new ActionNode(id, parent); }},
+        {"action+", [](unsigned id, BaseNode* parent) { return new ActionNode(id, parent, true); }},
     };
 }

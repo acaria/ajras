@@ -3,6 +3,11 @@
 
 struct VelocityComponent
 {
+    void setProfile(ProfileData* profile)
+    {
+        this->set(profile->speed, profile->acceleration, profile->deceleration);
+    }
+    
     void set(double speed, double accelDuration, double decelDuration)
     {
         this->speed = speed;

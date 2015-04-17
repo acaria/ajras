@@ -31,6 +31,16 @@ namespace lib
         return (randf01() - 0.5f) * 2.0f;
     }
     
+    inline float randfAB(float a, float b){
+        return (rand() / (double)RAND_MAX) * (b - a) + a;
+    }
+    
+    inline unsigned randAB(int a, int b){
+        //a included //b excluded
+        assert(b > a);
+        return std::rand() % (b - a) + a;
+    }
+    
     inline int parseInt(const std::string& str)
     {
         return (int)strtol(str.c_str(), nullptr, 10);

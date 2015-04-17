@@ -5,6 +5,14 @@ struct MeleeComponent
 {
     enum type { SELF, DIR };
     
+    void setProfile(ProfileData* profile)
+    {
+        enum type meleeType = type::SELF;
+        if (profile->meleeType == "dir")
+            meleeType = type::DIR;
+        this->set(profile->meleeAnimKey, meleeType, profile->meleeRange);
+    }
+    
     void set(const std::string& name, type meleeType, unsigned range)
     {
         this->range = range;

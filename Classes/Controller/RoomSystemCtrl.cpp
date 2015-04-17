@@ -51,16 +51,21 @@ void RoomSystemCtrl::loadStart(RoomLayer *view, RoomData *data)
     auto destPos = warpInfo.getDestPos();
     
     //create player
-    auto pName = "boy";
     auto eid = cp::entity::genID();
+    auto profile = GameCtrl::instance()->profileModel.get("boy");
     
     auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
     auto& cpCollision = ecs::add<cp::Collision>(eid, roomIndex);
     
-    cpRender.setProfile(pName, view->main, data->getModel()->getZOrder(srcPos));
-    cpCollision.setProfile(pName);
+    cpRender.setProfile(profile, view->main, data->getModel()->getZOrder(srcPos));
+    cpCollision.setProfile(profile);
     
-    ecs::add<cp::Cat>(eid, roomIndex).setProfile(pName);
+    ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::Orientation>(eid, roomIndex);
+
     cpRender.container->setPosition({
         srcPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
         srcPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
@@ -77,11 +82,7 @@ void RoomSystemCtrl::loadStart(RoomLayer *view, RoomData *data)
         CallFunc::create([eid, roomIndex, cpRender](){
             ecs::add<cp::Position>(eid, roomIndex).set(cpRender.container->getPosition());
             ecs::add<cp::Control>(eid, roomIndex) = ControlSystem::INDEX_P1;
-            ecs::add<cp::Orientation>(eid, roomIndex);
-            ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
             ecs::add<cp::Input>(eid, roomIndex);
-            ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 12);
-            ecs::add<cp::Health>(eid, roomIndex).set(20);
         }),
         NULL));
     cpRender.container->runAction(Sequence::create(
@@ -103,6 +104,7 @@ void RoomSystemCtrl::loadCommon(RoomLayer *view, RoomData *data)
 {
     collisionSystem.init(data);
     renderSystem.init(data);
+    aiSystem.init(data);
     ecsGroup.setID(data->index);
     
     auto roomIndex = data->index;
@@ -137,33 +139,37 @@ void RoomSystemCtrl::loadCommon(RoomLayer *view, RoomData *data)
     //objects
     for(auto obj : data->getModel()->objs)
     {
+        auto profile = GameCtrl::instance()->profileModel.get(obj.profileName);
         auto eid = cp::entity::genID();
-        ecs::add<cp::Render>(eid, roomIndex).setProfile(obj.profileName,
+        ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
             view->main, data->getModel()->getZOrder(obj.pos));
-        ecs::add<cp::Collision>(eid, roomIndex).setProfile(obj.profileName);
-        ecs::add<cp::Cat>(eid, roomIndex).setProfile(obj.profileName);
+        ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
+        ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
+        ecs::add<cp::Input>(eid, roomIndex);
         ecs::add<cp::Position>(eid, roomIndex).set(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
-            
-        if (obj.profileName == "boy") //player
+        
+        if (profile->withMove)
         {
-            ecs::add<cp::Orientation>(eid, roomIndex);
-            ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
-            ecs::add<cp::Input>(eid, roomIndex);
-            ecs::add<cp::Control>(eid, roomIndex) = ControlSystem::INDEX_P1;
-            ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 12);
-            ecs::add<cp::Health>(eid, roomIndex).set(20);
+            if (profile->orientation)
+                ecs::add<cp::Orientation>(eid, roomIndex);
+            ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
         }
-            
-        if (obj.profileName == "zomb")
+        
+        if (profile->withMelee)
         {
-            ecs::add<cp::Orientation>(eid, roomIndex);
-            ecs::add<cp::Velocity>(eid, roomIndex).set(80.0, 0.3, 0.2);
-            ecs::add<cp::Input>(eid, roomIndex);
-            ecs::add<cp::Health>(eid, roomIndex).set(3);
-            ecs::add<cp::AI>(eid, roomIndex).setProfile(obj.profileName);
-            ecs::add<cp::Melee>(eid, roomIndex).set("atk", MeleeComponent::DIR, 12);
+            ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
         }
-            
+        
+        if (profile->withBehaviour)
+        {
+            ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
+        }
+        
+        if (profile->withHealth)
+        {
+            ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
+        }
+        
         if (obj.profileName == "torch")
         {
             ecs::get<cp::Render>(eid).setAnimation("activated", -1);

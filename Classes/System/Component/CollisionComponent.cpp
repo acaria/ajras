@@ -1,9 +1,7 @@
 #include "Headers.h"
 
-void CollisionComponent::setProfile(const std::string& profileName)
+void CollisionComponent::setProfile(ProfileData* profile)
 {
-    auto profile = GameCtrl::instance()->profileModel.get(profileName);
-
     this->rect = profile->collisionRect;
     
     if (profile->collisionCat == "walkable")
@@ -12,6 +10,11 @@ void CollisionComponent::setProfile(const std::string& profileName)
         this->category = CollisionCategory::flyable;
     else
         Log("unrecognised category:%s", profile->collisionCat.c_str());
+}
+
+void CollisionComponent::setProfile(const std::string& profileName)
+{
+    this->setProfile(GameCtrl::instance()->profileModel.get(profileName));
 }
 
 void CollisionComponent::set(cocos2d::Rect rect)

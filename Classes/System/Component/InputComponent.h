@@ -9,14 +9,44 @@ struct InputComponent
     Dir lastOrientation;
     cc::Vec2 direction;
     
-    std::list<std::function<bool(unsigned)>> predicates;
-    
     void disable(float duration)
     {
         double lastTime = lib::now();
-        predicates.push_back([duration, lastTime](unsigned id){
+        predicates["time"] = [duration, lastTime](unsigned id){
             return lib::now() - lastTime > duration;
-        });
+        };
+    }
+    
+    void forceDisable()
+    {
+        disabled = true;
+        predicates["force"] = [](unsigned id) {
+            return false;
+        };
+    }
+    
+    bool checkPredicates(unsigned eid)
+    {
+        if (predicates.size() == 0)
+            return true;
+        
+        auto itr = predicates.begin();
+        while(itr != predicates.end())
+        {
+            if (!itr->second(eid))
+            {
+                disabled = true;
+                return false;
+            }
+            predicates.erase(itr++);
+        }
+        disabled = false;
+        return true;
+    }
+    
+    void forceEnable()
+    {
+        predicates.erase("force");
     }
     
     void setDirection(Dir orientation)
@@ -34,6 +64,8 @@ struct InputComponent
             lib::clamp(direction.x, -1.0f, 1.0f),
             lib::clamp(direction.y, -1.0f, 1.0f)
         );
-        Log("dir=%f,%f", this->direction.x, this->direction.y);
     }
+    
+private:
+    std::map<std::string, std::function<bool(unsigned)>> predicates;
 };

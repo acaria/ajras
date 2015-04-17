@@ -1,5 +1,7 @@
 #pragma once
-#include "Headers.h"
+#include "ScreenLog.h"
+#include "BaseMediator.h"
+#include "EventScene.h"
 
 USING_NS_CC;
 

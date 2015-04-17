@@ -1,4 +1,6 @@
-#include "Headers.h"
+#include "SceneManager.h"
+#include "MainMenuMediator.h"
+#include "GameMediator.h"
 
 SceneManager::SceneManager(ScreenLog &screenLog) : screenLog(&screenLog)
 {

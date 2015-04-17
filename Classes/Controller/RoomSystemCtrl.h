@@ -1,5 +1,16 @@
 #pragma once
-#include "Headers.h"
+#include "RenderSystem.h"
+#include "CollisionSystem.h"
+#include "TransitSystem.h"
+#include "MeleeSystem.h"
+#include "TargetSystem.h"
+#include "AISystem.h"
+#include "TargetSystem.h"
+#include "InputSystem.h"
+#include "MoveSystem.h"
+
+class RoomData;
+class RoomLayer;
 
 class RoomSystemCtrl
 {

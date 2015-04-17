@@ -1,8 +1,9 @@
-#include "Headers.h"
+#include "RenderComponent.h"
+#include "GameCtrl.h"
+#include "AnimationData.h"
+#include "ProfileData.h"
 
-void RenderComponent::setFrame(const std::string &frameName,
-                               cocos2d::Node *parent,
-                               int zOrder)
+void RenderComponent::setFrame(const std::string &frameName, cc::Node *parent, int zOrder)
 {
     this->moveAnimationKey = "";
     this->profile = nullptr;
@@ -13,15 +14,13 @@ void RenderComponent::setFrame(const std::string &frameName,
 }
 
 void RenderComponent::setProfile(const std::string &profileName,
-                                 cocos2d::Node *parent,
+                                 cc::Node *parent,
                                  int zOrder)
 {
     this->setProfile(GameCtrl::instance()->profileModel.get(profileName), parent, zOrder);
 }
 
-void RenderComponent::setProfile(ProfileData* profile,
-                                 cocos2d::Node *parent,
-                                 int zOrder)
+void RenderComponent::setProfile(ProfileData* profile, cc::Node *parent, int zOrder)
 {
     this->profile = profile;
     this->setAnimation("idle", -1);

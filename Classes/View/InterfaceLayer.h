@@ -1,5 +1,4 @@
 #pragma once
-#include "Headers.h"
 
 class InterfaceLayer : public cocos2d::Layer
 {

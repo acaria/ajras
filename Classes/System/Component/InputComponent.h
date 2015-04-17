@@ -1,5 +1,6 @@
 #pragma once
-#include "Headers.h"
+#include "Dir.h"
+#include "Misc.h"
 
 struct InputComponent
 {

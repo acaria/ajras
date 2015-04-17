@@ -1,5 +1,6 @@
 #pragma once
-#include "Headers.h"
+#include "BaseMediator.h"
+#include "cocos2d.h"
 
 #define STRINGIFY(x) #x
 

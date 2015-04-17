@@ -1,4 +1,5 @@
-#include "Headers.h"
+#include "BehaviourData.h"
+#include "BehaviourNodes.h"
 
 BehaviourData::BehaviourData(const std::string& path)
 {
@@ -11,6 +12,12 @@ BehaviourData::BehaviourData(const std::string& path)
     this->tree = new behaviour::RepeatNode(this->curId++, nullptr);
     this->dict[this->tree->id] = this->tree;
     this->parsingNode(this->tree, lines);
+}
+
+BehaviourData::~BehaviourData()
+{
+    if (tree != nullptr)
+        delete tree;
 }
 
 int BehaviourData::getLineDepth(const std::string& line)

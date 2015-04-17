@@ -1,5 +1,10 @@
 #pragma once
-#include "Headers.h"
+#include "BaseTickSystem.h"
+class PositionComponent;
+class GateInfo;
+class GateComponent;
+class WarpComponent;
+class CollisionComponent;
 
 class TransitSystem : public BaseTickSystem
 {

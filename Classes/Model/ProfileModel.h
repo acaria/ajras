@@ -1,5 +1,5 @@
 #pragma once
-#include "Headers.h"
+class ProfileData;
 
 class ProfileModel
 {

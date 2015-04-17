@@ -1,4 +1,5 @@
-#include "Headers.h"
+#include "MoveSystem.h"
+#include "Components.h"
 
 void MoveSystem::tick(double dt)
 {

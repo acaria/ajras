@@ -1,4 +1,6 @@
-#include "Headers.h"
+#include "CollisionComponent.h"
+#include "ProfileData.h"
+#include "GameCtrl.h"
 
 void CollisionComponent::setProfile(ProfileData* profile)
 {

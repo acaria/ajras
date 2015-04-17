@@ -1,4 +1,9 @@
-#include "Headers.h"
+#include "RoomSystemCtrl.h"
+#include "RoomData.h"
+#include "RoomLayer.h"
+#include "Components.h"
+#include "GameCtrl.h"
+#include "CsActionInterval.h"
 
 void RoomSystemCtrl::tick(double dt)
 {

@@ -1,7 +1,6 @@
 #pragma once
-#include "Headers.h"
 
-struct RoomLayer : public cocos2d::Layer
+struct RoomLayer : public cc::Layer
 {
     static RoomLayer* create()
     {
@@ -39,7 +38,7 @@ struct RoomLayer : public cocos2d::Layer
         return true;
     }
 
-    cocos2d::Layer* bg;
-    cocos2d::Layer* fg;
-    cocos2d::Layer* main;
+    cc::Layer* bg;
+    cc::Layer* fg;
+    cc::Layer* main;
 };

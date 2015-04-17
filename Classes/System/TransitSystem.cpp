@@ -1,4 +1,9 @@
-#include "Headers.h"
+#include "TransitSystem.h"
+#include "GateInfo.h"
+#include "Misc.h"
+#include "Components.h"
+#include "GameCtrl.h"
+#include "RoomData.h"
 
 std::pair<float, cc::Vec2> TransitSystem::processing(GateInfo info,
                                                      PositionComponent &cpPos,
@@ -115,14 +120,14 @@ void TransitSystem::warpingEnter(unsigned eid,
     ecs::get<cp::Input>(eid).forceDisable();
     ecs.del<cp::Position>(eid);
     ecs::get<cp::Velocity>(eid).reset();
-    render.container->runAction(Sequence::create(
-        MoveTo::create(duration, targetPoint),
-        CallFunc::create(std::bind(srcWarp.onWarp)),
+    render.container->runAction(cc::Sequence::create(
+                                                     cc::MoveTo::create(duration, targetPoint),
+                                                     cc::CallFunc::create(std::bind(srcWarp.onWarp)),
         NULL
     ));
-    render.runAction(Sequence::create(
-        TintTo::create(duration / 2, Color3B::YELLOW),
-        FadeTo::create(duration / 4, 0),
+    render.runAction(cc::Sequence::create(
+                                          cc::TintTo::create(duration / 2, cc::Color3B::YELLOW),
+                                          cc::FadeTo::create(duration / 4, 0),
         NULL
     ));
 }
@@ -137,15 +142,15 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     ecs::get<cp::Input>(eid).forceDisable();
     ecs.del<cp::Position>(eid);
     ecs::get<cp::Velocity>(eid).reset();
-    render.container->runAction(Sequence::create(
-        MoveTo::create(duration, targetPoint),
-        CallFunc::create(std::bind(&TransitSystem::gateringLeave, this,
+    render.container->runAction(cc::Sequence::create(
+                                                 cc::MoveTo::create(duration, targetPoint),
+                                                     cc::CallFunc::create(std::bind(&TransitSystem::gateringLeave, this,
             eid, srcGate.destRoomIdx, srcGate.destGateIdx)),
         NULL
     ));
-    render.runAction(Sequence::create(
-        TintTo::create(duration / 2, Color3B::BLACK),
-        FadeTo::create(duration / 4, 0),
+    render.runAction(cc::Sequence::create(
+                                          TintTo::create(duration / 2, cc::Color3B::BLACK),
+                                          cc::FadeTo::create(duration / 4, 0),
         NULL
     ));
 }

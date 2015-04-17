@@ -1,5 +1,9 @@
 #pragma once
-#include "Headers.h"
+class RoomModel;
+class RoomData;
+class MapShape;
+
+#include "V2.h"
 
 class MapData
 {

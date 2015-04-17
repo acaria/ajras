@@ -1,7 +1,6 @@
 #pragma once
-#include "Headers.h"
 
-#include <string>
+#include "Event.h"
 
 class BaseMediator
 {

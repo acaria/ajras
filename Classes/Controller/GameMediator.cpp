@@ -1,4 +1,6 @@
-#include "Headers.h"
+#include "GameMediator.h"
+#include "GameScene.h"
+#include "GameCtrl.h"
 
 void GameMediator::onAddView(GameScene& scene)
 {

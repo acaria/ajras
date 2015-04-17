@@ -1,4 +1,6 @@
-#include "Headers.h"
+#include "ProfileData.h"
+#include "AnimationData.h"
+#include "Dir.h"
 
 ProfileData::~ProfileData()
 {

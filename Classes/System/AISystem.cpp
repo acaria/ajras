@@ -1,4 +1,10 @@
-#include "Headers.h"
+#include "AISystem.h"
+#include "ECSGroup.h"
+#include "Components.h"
+#include "SysHelper.h"
+#include "BehaviourData.h"
+#include "BlockInfo.h"
+#include "RoomData.h"
 
 void AISystem::init(RoomData *data)
 {
@@ -98,7 +104,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                         if (targetMood != ecs::get<cp::Cat>(tid).mood)
                             continue;
                         auto bounds2 = SysHelper::getBounds(tid);
-                        float dist = Vec2(
+                        float dist = cc::Vec2(
                             bounds.getMidX() - bounds2.getMidX(),
                             bounds.getMidY() - bounds2.getMidY()).lengthSquared();
                         if (dist < maxDist && dist < nearest)
@@ -155,7 +161,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                             };
                         }
                         
-                        properties["target"] = ValueMap{{"x", Value((int)pos.x)}, {"y", Value((int)pos.y)}};
+                        properties["target"] = cc::ValueMap{{"x", cc::Value((int)pos.x)}, {"y", cc::Value((int)pos.y)}};
                     }
                     
                     auto& cpInput = ecs::get<cp::Input>(eid);
@@ -164,7 +170,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                         (unsigned)properties["target"].asValueMap()["x"].asInt(),
                         (unsigned)properties["target"].asValueMap()["y"].asInt()
                     });
-                    auto vdir = Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
+                    auto vdir = cc::Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
                     if (vdir.length() < 10)
                     {
                         cpInput.setDirection(Dir::None);
@@ -216,7 +222,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                     auto& cpInput = ecs::get<cp::Input>(eid);
                     auto bounds = SysHelper::getBounds(eid);
                     auto bounds2 = SysHelper::getBounds(tid);
-                    auto vdir = Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
+                    auto vdir = cc::Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
                     if (vdir.length() < std::stod(node->values[1]))
                     {
                         cpInput.setDirection(Dir::None);

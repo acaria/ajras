@@ -1,4 +1,7 @@
-#include "Headers.h"
+#include "MapData.h"
+#include "MapShape.h"
+#include "RoomModel.h"
+#include "RoomData.h"
 
 void MapData::extractInfo(const std::string &name)
 {
@@ -21,7 +24,7 @@ void MapData::extractInfo(const std::string &name)
     auto bgData = rawData.at("background").asValueMap();
     auto bgRawColor = std::vector<std::string>();
     lib::split(bgData.at("color").asString(), bgRawColor, ",", true);
-    this->bgColor = Color3B(lib::parseInt(bgRawColor[0]),
+    this->bgColor = cc::Color3B(lib::parseInt(bgRawColor[0]),
                             lib::parseInt(bgRawColor[1]),
                             lib::parseInt(bgRawColor[2]));
     for(auto tile : bgData.at("tiles").asValueVector())

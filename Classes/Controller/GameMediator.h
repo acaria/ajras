@@ -1,5 +1,6 @@
 #pragma once
-#include "Headers.h"
+#include "BaseSceneMediator.h"
+#include "GameScene.h"
 
 class GameMediator : public BaseSceneMediator<GameScene>
 {

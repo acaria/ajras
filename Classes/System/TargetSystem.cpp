@@ -1,4 +1,6 @@
-#include "Headers.h"
+#include "TargetSystem.h"
+#include "Components.h"
+#include "SysHelper.h"
 
 void TargetSystem::tick(double dt)
 {
@@ -8,11 +10,11 @@ void TargetSystem::tick(double dt)
         if (eid2 == 0 || !ecs::has<cp::Position, cp::Collision>(eid2))
             continue;
         
-        Rect r1 = SysHelper::getBounds(eid);
-        Rect r2 = SysHelper::getBounds(eid2);
+        cc::Rect r1 = SysHelper::getBounds(eid);
+        cc::Rect r2 = SysHelper::getBounds(eid2);
         
-        Point pdir = Point(r2.getMidX(), r2.getMidY()) -
-                     Point(r1.getMidX(), r1.getMidY());
+        cc::Point pdir = cc::Point(r2.getMidX(), r2.getMidY()) -
+        cc::Point(r1.getMidX(), r1.getMidY());
         
         Dir odir = Dir::None;
         

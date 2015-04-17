@@ -1,5 +1,15 @@
 #pragma once
-#include "Headers.h"
+
+class RoomData;
+
+#include "BaseTickSystem.h"
+#include "ECSGroup.h"
+#include "Misc.h"
+#include "SweptAABB.h"
+#include "PositionComponent.h"
+#include "CollisionComponent.h"
+#include "V2.h"
+#include "DataGrid.h"
 
 class CollisionSystem : public BaseTickSystem
 {

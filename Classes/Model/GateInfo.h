@@ -1,5 +1,4 @@
 #pragma once
-#include "Headers.h"
 
 struct GateInfo
 {
@@ -14,7 +13,7 @@ struct GateInfo
         DownStair
     };
 
-    cocos2d::Rect   rect;
+    cc::Rect   rect;
     GateType        type;
     
     cc::Point getSrcPos()

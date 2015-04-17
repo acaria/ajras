@@ -1,4 +1,7 @@
-#include "Headers.h"
+#include "CollisionSystem.h"
+#include "Components.h"
+#include "SysHelper.h"
+#include "RoomData.h"
 
 CollisionSystem::~CollisionSystem()
 {
@@ -52,9 +55,9 @@ std::list<cocos2d::Rect> CollisionSystem::getRectGridCollisions(const cocos2d::R
     {
         if (!moveAble->get({x,y}))
         {
-            auto gridRect = cocos2d::Rect(
+            auto gridRect = cc::Rect(
                 x * blockSize.x, y * blockSize.y, blockSize.x, blockSize.y);
-            cocos2d::Vec2 origin = {
+            cc::Vec2 origin = {
                 MAX(gridRect.getMinX(), rect.getMinX()),
                 MAX(gridRect.getMinY(), rect.getMinY())
             };
@@ -220,7 +223,7 @@ lib::Box CollisionSystem::bounce(const PositionComponent &cpPos,
     
     float nX, nY;
     auto ct = lib::SweptAABB(b1, b2, nX, nY);
-    auto translation = Vec2(0,0);
+    auto translation = cc::Vec2(0,0);
     if (ct < 1.0f)
     {
         translation = {b1.vx * ct, b1.vy * ct};

@@ -1,4 +1,8 @@
-#include "Headers.h"
+#include "RenderSystem.h"
+#include "Components.h"
+#include "SysHelper.h"
+#include "RoomData.h"
+#include "AnimationData.h"
 
 void RenderSystem::init(RoomData *data)
 {

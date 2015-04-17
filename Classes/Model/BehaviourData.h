@@ -1,14 +1,15 @@
 #pragma once
-#include "Headers.h"
+
+namespace behaviour
+{
+    class BaseNode;
+}
 
 class BehaviourData
 {
 public:
     BehaviourData(const std::string& path);
-    ~BehaviourData() {
-        if (tree != nullptr)
-            delete tree;
-    }
+    ~BehaviourData();
     
     behaviour::BaseNode* getNode(unsigned id);
     behaviour::BaseNode* getRootNode();

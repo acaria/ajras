@@ -1,8 +1,9 @@
-#include "Headers.h"
+#include "RoomModel.h"
+#include "Jsonxx.h"
 
 RoomModel* RoomModel::create(const std::string &fileName)
 {
-    auto str = cocos2d::FileUtils::getInstance()->getStringFromFile(
+    auto str = cc::FileUtils::getInstance()->getStringFromFile(
                                                                     "maps/" + fileName + ".json");
     
     assert(str != "");

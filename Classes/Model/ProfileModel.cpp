@@ -1,10 +1,12 @@
-#include "Headers.h"
+#include "ProfileModel.h"
+#include "Misc.h"
+#include "ProfileData.h"
 
 ProfileData *ProfileModel::get(const std::string &profileName)
 {
     if (!lib::hasKey(this->profiles, profileName))
     {
-        auto path = cocos2d::FileUtils::getInstance()->
+        auto path = cc::FileUtils::getInstance()->
             fullPathForFilename("profiles/" + profileName + ".plist");
         profiles[profileName] = new ProfileData(path);
     }

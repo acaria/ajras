@@ -1,4 +1,6 @@
-#include "Headers.h"
+#include "MainMenuMediator.h"
+#include "MainMenuScene.h"
+#include "GameCtrl.h"
 
 void MainMenuMediator::onAddView(MainMenuScene& scene)
 {

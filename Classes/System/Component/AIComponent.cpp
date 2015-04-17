@@ -1,4 +1,6 @@
-#include "Headers.h"
+#include "AIComponent.h"
+#include "GameCtrl.h"
+#include "ProfileData.h"
 
 void AIComponent::setProfile(const std::string &profileName)
 {

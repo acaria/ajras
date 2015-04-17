@@ -1,5 +1,5 @@
 #pragma once
-#include "Headers.h"
+#include "EventScene.h"
 
 template <class T>
 class BaseScene : public EventScene

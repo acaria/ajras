@@ -1,4 +1,5 @@
-#include "Headers.h"
+#include "CsActionInterval.h"
+#include "Misc.h"
 
 Flicker* Flicker::create(float duration, float interval,
                          const cocos2d::Vec2& opacity,
@@ -66,7 +67,7 @@ Flicker* Flicker::clone() const
 
 int Flicker::r[] = {0};
 
-void Flicker::startWithTarget(Node *target)
+void Flicker::startWithTarget(cc::Node *target)
 {
     ActionInterval::startWithTarget(target);
 }
@@ -95,7 +96,7 @@ void Flicker::update(float t)
         if (scaleY.y - scaleY.x > 0)
             _target->setScaleY(scaleY.x + ((r[randIndex+2] / (float)RAND_MAX) * (scaleY.y - scaleY.x)));
         
-        Color3B color;
+        cc::Color3B color;
         float alpha = (float)r[randIndex+3] / (float)RAND_MAX;
         color.r = ((float)minColor.r * alpha) + ((float)maxColor.r * (1.0f - alpha));
         color.g = ((float)minColor.g * alpha) + ((float)maxColor.g * (1.0f - alpha));

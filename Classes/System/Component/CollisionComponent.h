@@ -1,13 +1,14 @@
 #pragma once
-#include "Headers.h"
+
+class ProfileData;
 
 struct CollisionComponent
 {
-    void set(cocos2d::Rect rect);
+    void set(cc::Rect rect);
     void setProfile(const std::string& profileName);
     void setProfile(ProfileData* profileData);
     
-    cocos2d::Rect       rect;
+    cc::Rect       rect;
     CollisionCategory   category;
     bool                collide = false;
 };

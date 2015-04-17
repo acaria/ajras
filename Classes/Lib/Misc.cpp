@@ -1,4 +1,4 @@
-#include "Headers.h"
+#include "Misc.h"
 
 namespace lib
 {
@@ -8,8 +8,8 @@ namespace lib
         return std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::system_clock::now().time_since_epoch()).count();
     }
 
-    bool intersectRects(const std::vector<cocos2d::Rect> &rs1,
-                        const std::vector<cocos2d::Rect> &rs2)
+    bool intersectRects(const std::vector<cc::Rect> &rs1,
+                        const std::vector<cc::Rect> &rs2)
     {
         for(auto r1 : rs1)
         for(auto r2 : rs2)

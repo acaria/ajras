@@ -1,16 +1,17 @@
-#include "Headers.h"
+#include "TickScheduler.h"
+#include "GameCtrl.h"
 
 void TickScheduler::onEnterTransitionDidFinish()
 {
-    cocos2d::Node::onEnterTransitionDidFinish();
-    cocos2d::Director::getInstance()->getScheduler()->setTimeScale(1.0f);
+    cc::Node::onEnterTransitionDidFinish();
+    cc::Director::getInstance()->getScheduler()->setTimeScale(1.0f);
     this->scheduleUpdate();
 }
 
 void TickScheduler::onExitTransitionDidStart()
 {
-    cocos2d::Node::onExitTransitionDidStart();
-    cocos2d::Director::getInstance()->getScheduler()->setTimeScale(1.0f);
+    cc::Node::onExitTransitionDidStart();
+    cc::Director::getInstance()->getScheduler()->setTimeScale(1.0f);
     this->unscheduleUpdate();
 }
 

@@ -1,5 +1,16 @@
 #pragma once
-#include "Headers.h"
+
+#include "Singleton.h"
+#include "ScreenLog.h"
+#include "TickCtrl.h"
+#include "ProfileModel.h"
+#include "BehaviourModel.h"
+#include "SceneManager.h"
+#include "FloorSystemCtrl.h"
+
+class RoomData;
+class MapData;
+class GameScene;
 
 class GameCtrl : public Singleton<GameCtrl>
 {

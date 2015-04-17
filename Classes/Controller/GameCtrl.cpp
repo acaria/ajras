@@ -1,4 +1,6 @@
-#include "Headers.h"
+#include "GameCtrl.h"
+#include "MapData.h"
+#include "GameScene.h"
 
 using namespace std::placeholders;
 

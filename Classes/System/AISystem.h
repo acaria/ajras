@@ -1,5 +1,11 @@
 #pragma once
-#include "Headers.h"
+
+class EcsGroup;
+class RoomData;
+
+#include "BaseTickSystem.h"
+#include "BehaviourNodes.h"
+
 
 class AISystem : public BaseTickSystem
 {

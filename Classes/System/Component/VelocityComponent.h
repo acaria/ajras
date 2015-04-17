@@ -1,5 +1,5 @@
 #pragma once
-#include "Headers.h"
+#include "ProfileData.h"
 
 struct VelocityComponent
 {
@@ -23,7 +23,7 @@ struct VelocityComponent
         direction = {0,0};
     }
     
-    void applyVelocity(const cocos2d::Vec2& v)
+    void applyVelocity(const cc::Vec2& v)
     {
         velocity = v;
         decelFactor = 1.0;
@@ -37,8 +37,8 @@ struct VelocityComponent
     //internal
     double          accelFactor;
     double          decelFactor;
-    cocos2d::Vec2   direction;
+    cc::Vec2   direction;
     
     //output
-    cocos2d::Vec2 velocity;
+    cc::Vec2 velocity;
 };

@@ -1,5 +1,6 @@
 #pragma once
-#include "Headers.h"
+
+#include "Event.h"
 
 class EventScene : public cocos2d::Scene
 {

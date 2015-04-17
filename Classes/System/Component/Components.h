@@ -1,5 +1,19 @@
 #pragma once
-#include "Headers.h"
+
+#include "ECS.h"
+#include "RenderComponent.h"
+#include "OrientationComponent.h"
+#include "PositionComponent.h"
+#include "VelocityComponent.h"
+#include "ProfileData.h"
+#include "InputComponent.h"
+#include "CollisionComponent.h"
+#include "GateComponent.h"
+#include "WarpComponent.h"
+#include "MeleeComponent.h"
+#include "HealthComponent.h"
+#include "AIComponent.h"
+#include "CategoryComponent.h"
 
 namespace cp
 {

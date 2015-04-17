@@ -1,5 +1,5 @@
 #pragma once
-#include "Headers.h"
+#include "DataGrid.h"
 
 class MapShape
 {
@@ -39,7 +39,7 @@ public:
         return get(p.x, p.y);
     }
     
-    void fill(cocos2d::Rect r)
+    void fill(cc::Rect r)
     {
         for(int j = 0; j < r.size.height; j++)
         for(int i = 0; i < r.size.width; i++)

@@ -1,5 +1,7 @@
 #pragma once
-#include "Headers.h"
+
+#include "BaseSceneMediator.h"
+#include "MainMenuScene.h"
 
 class MainMenuMediator : public BaseSceneMediator<MainMenuScene>
 {

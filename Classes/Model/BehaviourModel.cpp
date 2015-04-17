@@ -1,4 +1,6 @@
-#include "Headers.h"
+#include "BehaviourModel.h"
+#include "BehaviourData.h"
+#include "Misc.h"
 
 BehaviourData* BehaviourModel::get(const std::string &bName)
 {

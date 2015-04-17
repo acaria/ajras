@@ -1,5 +1,7 @@
 #pragma once
-#include "Headers.h"
+#include "BaseTickSystem.h"
+#include "ECSGroup.h"
+class RoomData;
 
 class RenderSystem : public BaseTickSystem
 {

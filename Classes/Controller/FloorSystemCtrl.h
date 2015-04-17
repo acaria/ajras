@@ -1,5 +1,10 @@
 #pragma once
-#include "Headers.h"
+
+class MapData;
+
+#include "ControlSystem.h"
+#include "RoomSystemCtrl.h"
+#include "RoomLayer.h"
 
 class FloorSystemCtrl
 {

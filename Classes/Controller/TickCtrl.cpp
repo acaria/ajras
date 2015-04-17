@@ -1,4 +1,7 @@
-#include "Headers.h"
+#include "TickCtrl.h"
+#include "TickScheduler.h"
+#include "Misc.h"
+#include "cocos2d.h"
 
 TickCtrl::TickCtrl(std::function<void(double)> onTick,
                    std::function<void(double, double)> onAnimate) :
@@ -20,7 +23,7 @@ void TickCtrl::update(float dt)
     
     //normal motion
     float timeScale = 1.0f;
-    Director::getInstance()->getScheduler()->setTimeScale(timeScale);
+    cc::Director::getInstance()->getScheduler()->setTimeScale(timeScale);
     
     int tickCount = 0;
     while (this->accumulator > kSecondsPerTick)
@@ -35,7 +38,7 @@ void TickCtrl::update(float dt)
     
     this->lastUpdateTime = currentTime;
     
-    double tickPercent = clampf(this->accumulator,
+    double tickPercent = cc::clampf(this->accumulator,
         0.0, kSecondsPerTick) / (double) kSecondsPerTick;
     
     //animate process

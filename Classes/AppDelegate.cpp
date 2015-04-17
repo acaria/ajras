@@ -1,6 +1,5 @@
-#include "Headers.h"
-
-USING_NS_CC;
+#include "AppDelegate.h"
+#include "GameCtrl.h"
 
 AppDelegate::AppDelegate() {
 

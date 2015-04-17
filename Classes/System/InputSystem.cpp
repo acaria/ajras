@@ -1,4 +1,5 @@
-#include "Headers.h"
+#include "InputSystem.h"
+#include "Components.h"
 
 void InputSystem::tick(double dt)
 {
@@ -10,7 +11,7 @@ void InputSystem::tick(double dt)
         {
             //reset velocity dir
             if (ecs::has<cp::Velocity>(eid))
-                ecs::get<cp::Velocity>(eid).direction = Vec2::ZERO;
+                ecs::get<cp::Velocity>(eid).direction = cc::Vec2::ZERO;
             continue;
         }
         

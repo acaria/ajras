@@ -1,4 +1,6 @@
-#include "Headers.h"
+#include "MeleeSystem.h"
+#include "Components.h"
+#include "AnimationData.h"
 
 void MeleeSystem::tick(double dt)
 {
@@ -48,7 +50,7 @@ void MeleeSystem::tick(double dt)
         
         cocos2d::Rect atkRect = getAtkRectFromDir(body, cpMelee.range, atkDir);
 
-        if (atkRect.equals(Rect::ZERO))
+        if (atkRect.equals(cc::Rect::ZERO))
             continue;
         
 #if kDrawDebug
@@ -92,10 +94,10 @@ void MeleeSystem::tick(double dt)
                                 
                                 if (ecs::has<cp::Input>(oid))
                                     ecs::get<cp::Input>(oid).disable(duration);
-                                cpRender2.runAction(Repeat::create(
-                                    Sequence::create(TintTo::create(duration / freq / 2, 255, 50, 50),
-                                                     TintTo::create(duration / freq / 2, 255, 255, 255),
-                                                     NULL), freq));
+                                cpRender2.runAction(cc::Repeat::create(
+                                                                       cc::Sequence::create(cc::TintTo::create(duration / freq / 2, 255, 50, 50),
+                                                     cc::TintTo::create(duration / freq / 2, 255, 255, 255),
+                                    NULL), freq));
                                 
                                 if (ecs::has<cp::Velocity>(oid))
                                 {

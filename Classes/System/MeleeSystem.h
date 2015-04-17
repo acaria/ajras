@@ -1,5 +1,12 @@
 #pragma once
-#include "Headers.h"
+
+namespace lib
+{
+    class EcsGroup;
+}
+class Dir;
+
+#include "BaseTickSystem.h"
 
 class MeleeSystem : public BaseTickSystem
 {

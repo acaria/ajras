@@ -1,4 +1,6 @@
-#include "Headers.h"
+#include "CategoryComponent.h"
+#include "GameCtrl.h"
+#include "ProfileData.h"
 
 void CategoryComponent::setProfile(const std::string &profileName)
 {

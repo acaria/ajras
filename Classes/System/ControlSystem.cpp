@@ -1,4 +1,9 @@
-#include "Headers.h"
+#include "ControlSystem.h"
+#include "Components.h"
+#include "InputComponent.h"
+#include "RoomData.h"
+#include "GameScene.h"
+#include "InterfaceLayer.h"
 
 using namespace std::placeholders;
 using KeyCode = cocos2d::EventKeyboard::KeyCode;
@@ -68,19 +73,19 @@ void ControlSystem::init(GameScene *gview, RoomData* data)
     this->initControl(INDEX_P1);
     
     //keyboard
-    auto kListener = EventListenerKeyboard::create();
+    auto kListener = cc::EventListenerKeyboard::create();
     kListener->onKeyPressed = std::bind(&ControlSystem::onKeyPressed, this, _1, _2);
     kListener->onKeyReleased = std::bind(&ControlSystem::onKeyReleased, this, _1, _2);
     
     //mouse
-    auto mListener = EventListenerMouse::create();
+    auto mListener = cc::EventListenerMouse::create();
     mListener->onMouseDown = std::bind(&ControlSystem::onMouseDown, this, _1);
     mListener->onMouseUp = std::bind(&ControlSystem::onMouseUp, this, _1);
     mListener->onMouseMove = std::bind(&ControlSystem::onMouseMove, this, _1);
     mListener->onMouseScroll = std::bind(&ControlSystem::onMouseScroll, this, _1);
     
     //touch
-    auto tListener = EventListenerTouchOneByOne::create();
+    auto tListener = cc::EventListenerTouchOneByOne::create();
     tListener->onTouchBegan = std::bind(&ControlSystem::onTouchBegan, this, _1, _2);
     tListener->onTouchEnded = std::bind(&ControlSystem::onTouchEnded, this, _1, _2);
     tListener->onTouchMoved = std::bind(&ControlSystem::onTouchMoved, this, _1, _2);
@@ -167,16 +172,16 @@ void ControlSystem::onMouseDown(cocos2d::Event *event)
 {
     //unsigned index = INDEX_P1;
     
-    Vec2 minColSize = {20,20};
+    cc::Vec2 minColSize = {20,20};
     
-    EventMouse* e = (EventMouse*)event;
+    cc::EventMouse* e = (cc::EventMouse*)event;
     
-    Vec2 roomPos = {
+    cc::Vec2 roomPos = {
         data->getBounds().getMinX() + this->view->frame->getPositionX(),
         data->getBounds().getMinY() + this->view->frame->getPositionY()
     };
     
-    Vec2 pos = {e->getCursorX() - roomPos.x - kCanvasRect.origin.x,
+    cc::Vec2 pos = {e->getCursorX() - roomPos.x - kCanvasRect.origin.x,
         e->getCursorY() - roomPos.y - kCanvasRect.origin.y};
     
     Log("mouse pos=%f,%f", pos.x, pos.y);
@@ -191,18 +196,18 @@ bool ControlSystem::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event)
 {
     unsigned index = INDEX_P1;
     
-    Vec2 minColSize = {20,20};
+    cc::Vec2 minColSize = {20,20};
     
     auto touchPos = touch->getLocation();
     
     if (kCanvasRect.containsPoint(touchPos)) // frame zone
     {
-        Vec2 roomPos = {
+        cc::Vec2 roomPos = {
             data->getBounds().getMinX() + this->view->frame->getPositionX(),
             data->getBounds().getMinY() + this->view->frame->getPositionY()
         };
     
-        Vec2 pos = {touchPos.x - roomPos.x - kCanvasRect.origin.x,
+        cc::Vec2 pos = {touchPos.x - roomPos.x - kCanvasRect.origin.x,
                 touchPos.y - roomPos.y - kCanvasRect.origin.y};
 
         for(auto eid : ecs.join<cp::Position, cp::Collision, cp::Render>())
@@ -210,15 +215,15 @@ bool ControlSystem::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event)
             auto& cpPos = ecs::get<cp::Position>(eid);
             auto& cpCol = ecs::get<cp::Collision>(eid);
         
-            Vec2 plus = {
+            cc::Vec2 plus = {
                 MAX(0, (minColSize.x - cpCol.rect.size.width) / 2),
                 MAX(0, (minColSize.y - cpCol.rect.size.height) / 2)
             };
         
-            auto bound = Rect(cpPos.pos.x + cpCol.rect.origin.x - plus.x,
-                              cpPos.pos.y + cpCol.rect.origin.y - plus.y,
-                              cpCol.rect.size.width + plus.x * 2,
-                              cpCol.rect.size.height + plus.y * 2);
+            auto bound = cc::Rect(cpPos.pos.x + cpCol.rect.origin.x - plus.x,
+                                  cpPos.pos.y + cpCol.rect.origin.y - plus.y,
+                                  cpCol.rect.size.width + plus.x * 2,
+                                  cpCol.rect.size.height + plus.y * 2);
             if (bound.containsPoint(pos))
             {
                 entitySelection[index] = eid;

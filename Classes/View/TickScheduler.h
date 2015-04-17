@@ -1,7 +1,6 @@
 #pragma once
-#include "Headers.h"
 
-class TickScheduler : public cocos2d::Node
+class TickScheduler : public cc::Node
 {
 public:
     TickScheduler() {}

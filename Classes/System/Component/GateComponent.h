@@ -1,5 +1,5 @@
 #pragma once
-#include "Headers.h"
+#include "GateInfo.h"
 
 struct GateComponent
 {

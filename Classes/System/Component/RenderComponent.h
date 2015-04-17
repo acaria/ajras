@@ -1,5 +1,7 @@
 #pragma once
-#include "Headers.h"
+class Dir;
+class AnimationData;
+class ProfileData;
 
 struct RenderComponent
 {
@@ -10,9 +12,9 @@ struct RenderComponent
         this->container->setAnchorPoint({0,0});
     }
     
-    void setFrame(const std::string &frameName, cocos2d::Node *parent, int zOrder = 0);
-    void setProfile(const std::string &frameName, cocos2d::Node *parent, int zOrder = 0);
-    void setProfile(ProfileData* profile, cocos2d::Node *parent, int zOrder = 0);
+    void setFrame(const std::string &frameName, cc::Node *parent, int zOrder = 0);
+    void setProfile(const std::string &frameName, cc::Node *parent, int zOrder = 0);
+    void setProfile(ProfileData* profile, cc::Node *parent, int zOrder = 0);
     void setAnimation(const std::string &key, int repeat,
                       std::function<void(bool)> onComplete = nullptr);
     void cancelAnimation();
@@ -31,7 +33,7 @@ struct RenderComponent
 #endif
 
 #if kDrawInfo
-    cocos2d::Label*     lInfo;
+    cc::Label*     lInfo;
 #endif
  
     //input
@@ -45,11 +47,11 @@ struct RenderComponent
 
     //sprite commands
     void setLocalZOrder(int z);
-    void setPosition(const cocos2d::Vec2& position);
+    void setPosition(const cc::Vec2& position);
     void setFlippedX(bool);
     void setFlippedY(bool);
     void setSpriteFrame(const std::string &spriteFrameName);
-    cocos2d::Action* runAction(cocos2d::Action* action);
+    cocos2d::Action* runAction(cc::Action* action);
 private:
     cocos2d::Sprite*    sprite;
     cocos2d::Sprite* initSprite(const std::string &frameName);

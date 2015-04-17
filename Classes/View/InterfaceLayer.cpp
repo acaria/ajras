@@ -1,4 +1,5 @@
-#include "Headers.h"
+#include "InterfaceLayer.h"
+#include "Components.h"
 
 InterfaceLayer * InterfaceLayer::create()
 {
@@ -37,7 +38,7 @@ void InterfaceLayer::setTargetID(unsigned eid, bool friendly)
     auto& cpRender = ecs::get<cp::Render>(eid);
     auto& cpCol = ecs::get<cp::Collision>(eid);
     
-    Sprite* target = friendly ? this->targetFriend : this->targetEnemy;
+    cc::Sprite* target = friendly ? this->targetFriend : this->targetEnemy;
 
     cpRender.container->addChild(target, -1);
     target->setPosition({
@@ -72,30 +73,30 @@ bool InterfaceLayer::init()
 {
     if (!Layer::init())
         return false;
-    this->targetEnemy = Sprite::createWithSpriteFrameName("target_e.png");
+    this->targetEnemy = cc::Sprite::createWithSpriteFrameName("target_e.png");
     this->targetEnemy->setAnchorPoint({0,0});
     this->targetEnemy->retain();
-    this->targetFriend = Sprite::createWithSpriteFrameName("target_f.png");
+    this->targetFriend = cc::Sprite::createWithSpriteFrameName("target_f.png");
     this->targetFriend->setAnchorPoint({0,0});
     this->targetFriend->retain();
     
-    auto borders = Scale9Sprite::createWithSpriteFrameName("main_frame.png");
+    auto borders = cc::ui::Scale9Sprite::createWithSpriteFrameName("main_frame.png");
     borders->setAnchorPoint({0,0});
-    borders->setPosition(kCanvasRect.origin - Point(10.0f,10.0f));
-    borders->cocos2d::Node::setContentSize(kCanvasRect.size + Size(20.0f,20.0f));
+    borders->setPosition(kCanvasRect.origin - cc::Point(10.0f,10.0f));
+    borders->cocos2d::Node::setContentSize(kCanvasRect.size + cc::Size(20.0f,20.0f));
     this->addChild(borders);
     
-    this->rArrow = Sprite::createWithSpriteFrameName("arrow_right.png");
+    this->rArrow = cc::Sprite::createWithSpriteFrameName("arrow_right.png");
     this->rArrow->setPosition({155,90});
     
-    this->lArrow = Sprite::createWithSpriteFrameName("arrow_right.png");
+    this->lArrow = cc::Sprite::createWithSpriteFrameName("arrow_right.png");
     this->lArrow->setFlippedX(true);
     this->lArrow->setPosition({25,90});
     
-    this->uArrow = Sprite::createWithSpriteFrameName("arrow_up.png");
+    this->uArrow = cc::Sprite::createWithSpriteFrameName("arrow_up.png");
     this->uArrow->setPosition({94,155});
     
-    this->dArrow = Sprite::createWithSpriteFrameName("arrow_up.png");
+    this->dArrow = cc::Sprite::createWithSpriteFrameName("arrow_up.png");
     this->dArrow->setFlippedY(true);
     this->dArrow->setPosition({94,25});
     
@@ -104,7 +105,7 @@ bool InterfaceLayer::init()
     this->addChild(this->uArrow);
     this->addChild(this->dArrow);
     
-    this->cursor = Sprite::createWithSpriteFrameName("joystick2.png");
+    this->cursor = cc::Sprite::createWithSpriteFrameName("joystick2.png");
     this->cursor->setPosition(kCursorCenter);
     this->addChild(this->cursor);
 

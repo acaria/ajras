@@ -1,5 +1,10 @@
 #pragma once
-#include "Headers.h"
+#include "DataGrid.h"
+#include "BlockInfo.h"
+#include "GateInfo.h"
+#include "V2.h"
+#include "ObjectInfo.h"
+#include "RoomShape.h"
 
 class RoomModel
 {
@@ -23,8 +28,8 @@ public:
     RoomShape       shape;
     std::string     name;
     
-    cocos2d::Rect   getRectCoord(lib::v2u pos);
-    cocos2d::Vec2   getPosCoord(lib::v2u pos);
+    cc::Rect   getRectCoord(lib::v2u pos);
+    cc::Vec2   getPosCoord(lib::v2u pos);
     lib::v2u        getGridPos(cocos2d::Vec2 coord);
     int             getZOrder(const cocos2d::Vec2& pos);
     

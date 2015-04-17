@@ -1,5 +1,9 @@
 #pragma once
-#include "Headers.h"
+
+class BehaviourData;
+class ProfileData;
+
+#include "BehaviourNodes.h"
 
 struct AIComponent
 {

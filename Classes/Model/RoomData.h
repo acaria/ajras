@@ -1,5 +1,6 @@
 #pragma once
-#include "Headers.h"
+
+#include "RoomModel.h"
 
 class RoomData
 {
@@ -25,7 +26,7 @@ public:
         return model;
     }
     
-    cocos2d::Rect getBounds()
+    cc::Rect getBounds()
     {
         return cocos2d::Rect(position.x,
                              position.y,

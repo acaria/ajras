@@ -1,8 +1,5 @@
 #pragma once
-#include "Headers.h"
-
-using namespace cocos2d;
-using namespace ui;
+#include "BaseScene.h"
 
 class MainMenuScene : public BaseScene<MainMenuScene>
 {
@@ -19,5 +16,5 @@ public:
     event::Subject<void(ItemTag tag)> onMenuSelect;
         
 private:
-    void touchEvent(Ref *pSender, Widget::TouchEventType type);
+        void touchEvent(Ref *pSender, cc::ui::Widget::TouchEventType type);
 };

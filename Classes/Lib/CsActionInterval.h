@@ -1,20 +1,19 @@
 #pragma once
-#include "Headers.h"
 
-class CC_DLL Flicker : public cocos2d::ActionInterval
+class CC_DLL Flicker : public cc::ActionInterval
 {
 public:
     static Flicker* create(float duration, float interval,
-                           const cocos2d::Vec2& opacity,
-                           const cocos2d::Vec2& scaleX, const cocos2d::Vec2& scaleY,
-                           const cocos2d::Color3B &minColor, const cocos2d::Color3B &maxColor);
+                           const cc::Vec2& opacity,
+                           const cc::Vec2& scaleX, const cc::Vec2& scaleY,
+                           const cc::Color3B &minColor, const cc::Color3B &maxColor);
 
     //
     // Overrides
     //
     virtual Flicker* clone() const override;
     virtual Flicker* reverse(void) const  override;
-    virtual void startWithTarget(cocos2d::Node *target) override;
+    virtual void startWithTarget(cc::Node *target) override;
     /**
      * @param time in seconds
      */
@@ -26,16 +25,16 @@ CC_CONSTRUCTOR_ACCESS:
     
     /** initializes the action */
     bool initWithDuration(float duration, float interval,
-                          const cocos2d::Vec2& opacity,
-                          const cocos2d::Vec2& scaleX,
-                          const cocos2d::Vec2& scaleY,
-                          const cocos2d::Color3B &minColor,
-                          const cocos2d::Color3B &maxColor);
+                          const cc::Vec2& opacity,
+                          const cc::Vec2& scaleX,
+                          const cc::Vec2& scaleY,
+                          const cc::Color3B &minColor,
+                          const cc::Color3B &maxColor);
     
 protected:
-    cocos2d::Vec2 opacity;
-    cocos2d::Vec2 scaleX, scaleY;
-    cocos2d::Color3B minColor, maxColor;
+    cc::Vec2 opacity;
+    cc::Vec2 scaleX, scaleY;
+    cc::Color3B minColor, maxColor;
     double accumulator, lastUpdate;
     float interval;
 

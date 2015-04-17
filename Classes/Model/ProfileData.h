@@ -1,5 +1,7 @@
 #pragma once
-#include "Headers.h"
+
+class AnimationData;
+class Dir;
 
 class ProfileData
 {

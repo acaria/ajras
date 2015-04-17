@@ -1,5 +1,6 @@
 #pragma once
-#include "Headers.h"
+#include "PositionComponent.h"
+#include "CollisionComponent.h"
 
 class SysHelper
 {

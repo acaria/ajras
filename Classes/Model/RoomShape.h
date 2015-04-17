@@ -1,10 +1,10 @@
 #pragma once
-#include "Headers.h"
+#include "Misc.h"
 
 struct RoomShape
 {
-    lib::v2i                     position;
-    std::list<cocos2d::Rect>     walls;
-    std::list<cocos2d::Rect>     warps;
-    std::map<unsigned, lib::v2i> gates;
+    lib::v2i                        position;
+    std::list<cc::Rect>             walls;
+    std::list<cc::Rect>             warps;
+    std::map<unsigned, lib::v2i>    gates;
 };

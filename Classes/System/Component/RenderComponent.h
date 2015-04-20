@@ -8,13 +8,7 @@ class RoomLayer;
 
 struct RenderComponent
 {
-    RenderComponent() : sprite(nullptr)
-    {
-        this->container = cocos2d::Sprite::create();
-        this->container->setCascadeOpacityEnabled(true);
-        this->container->setAnchorPoint({0,0});
-    }
-    
+    RenderComponent();
     void setFrame(const std::string &frameName, cc::Node *parent, int zOrder = 0);
     void setProfile(const std::string &frameName, cc::Node *parent, int zOrder = 0);
     void setProfile(ProfileData* profile, cc::Node *parent, int zOrder = 0);

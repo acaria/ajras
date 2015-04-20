@@ -43,7 +43,7 @@ private:
     //data
     MapData*    data;
     std::map<unsigned, RoomLayer*>      roomViews;
-    std::map<unsigned, NodeRenderer*>     roomPreviews;
+    std::map<unsigned, NodeRenderer*>   roomPreviews;
     
     //view
     GameScene* gView = nullptr;

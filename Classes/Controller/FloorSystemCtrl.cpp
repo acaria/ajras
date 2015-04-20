@@ -65,6 +65,7 @@ RoomData* FloorSystemCtrl::changeRoom(unsigned int nextRoomIndex,
     
     if (changeView)
     {
+        this->roomSystems[prevRoomIndex]->hideObjects(1);
         this->gView->interface->clearTarget();
         this->currentRoomIndex = nextRoomIndex;
         ecsGroup.setID(this->currentRoomIndex);
@@ -172,6 +173,7 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
     
     if (!lib::hasKey(this->roomPreviews, roomIndex))
     {
+        this->roomSystems[roomIndex]->showObjects(1);
         if (after != nullptr)
             after();
     }
@@ -185,10 +187,11 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
         
         preview->getSprite()->runAction(cc::Sequence::create(
             cc::FadeTo::create(1, 255),
-            cc::CallFunc::create([this, view, preview](){
+            cc::CallFunc::create([this, view, preview, roomIndex](){
                 this->gView->frame->removeChild(preview);
                 this->gView->frame->addChild(view);
                 view->release();
+                this->roomSystems[roomIndex]->showObjects(1);
             }),
             cc::CallFunc::create(after),
             NULL
@@ -219,6 +222,7 @@ void FloorSystemCtrl::load(GameScene *gview,
         roomLayer->retain();
         
         roomSystemCtrl->loadRoom(roomLayer, roomData);
+        roomSystemCtrl->hideObjects(0);
         
         this->roomViews[roomIndex] = roomLayer;
         this->roomSystems[roomIndex] = roomSystemCtrl;

@@ -5,6 +5,13 @@
 #include "RoomLayer.h"
 #include "Defines.h"
 
+RenderComponent::RenderComponent() : sprite(nullptr)
+{
+    this->container = cocos2d::Sprite::create();
+    this->container->setCascadeOpacityEnabled(true);
+    this->container->setAnchorPoint({0,0});
+}
+
 void RenderComponent::setFrame(const std::string &frameName, cc::Node *parent, int zOrder)
 {
     this->moveAnimationKey = "";

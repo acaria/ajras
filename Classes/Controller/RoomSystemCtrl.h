@@ -33,6 +33,10 @@ public:
     void tick(double dt);
     void animate(double dt, double tickPercent);
 
+    //dispays
+    void hideObjects(float duration);
+    void showObjects(float duration);
+
 private:
 
     void loadStart(RoomLayer* view, RoomData* data);

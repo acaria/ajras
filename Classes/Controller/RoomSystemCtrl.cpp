@@ -86,6 +86,32 @@ void RoomSystemCtrl::loadStart(RoomLayer *view, RoomData *data)
     });
 }
 
+void RoomSystemCtrl::hideObjects(float duration)
+{
+    for(auto eid : ecsGroup.join<cp::Render, cp::AI>())
+    {
+        if (duration == 0)
+            ecs::get<cp::Render>(eid).container->setOpacity(0);
+        else
+        {
+            ecs::get<cp::Render>(eid).container->runAction(cc::FadeOut::create(duration));
+        }
+    }
+}
+
+void RoomSystemCtrl::showObjects(float duration)
+{
+    for(auto eid : ecsGroup.join<cp::Render, cp::AI>())
+    {
+        if (duration == 0)
+            ecs::get<cp::Render>(eid).container->setOpacity(255);
+        else
+        {
+            ecs::get<cp::Render>(eid).container->runAction(cc::FadeIn::create(duration));
+        }
+    }
+}
+
 void RoomSystemCtrl::loadCommon(RoomLayer *view, RoomData *data)
 {
     collisionSystem.init(data);
@@ -130,6 +156,7 @@ void RoomSystemCtrl::loadCommon(RoomLayer *view, RoomData *data)
         ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
             RenderComponent::chooseLayer(profile, view),
             data->getModel()->getZOrder(obj.pos));
+        ecs::get<cp::Render>(eid).setPosition(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
         ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
         ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
         ecs::add<cp::Input>(eid, roomIndex);

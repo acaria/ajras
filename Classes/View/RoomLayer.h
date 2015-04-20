@@ -1,5 +1,7 @@
 #pragma once
 
+#include "NodeRenderer.h"
+
 struct RoomLayer : public cc::Layer
 {
     static RoomLayer* create()
@@ -8,12 +10,10 @@ struct RoomLayer : public cc::Layer
         if (ret && ret->init())
         {
             ret->autorelease();
+            return ret;
         }
-        else
-        {
-            CC_SAFE_DELETE(ret);
-        }
-        return ret;
+        CC_SAFE_DELETE(ret);
+        return nullptr;
     }
     
     virtual bool init() override
@@ -21,24 +21,22 @@ struct RoomLayer : public cc::Layer
         if (!Layer::init())
             return false;
     
-        this->setCascadeOpacityEnabled(true);
         this->bg = cc::Layer::create();
-        this->bg->setCascadeOpacityEnabled(true);
         this->main = cc::Layer::create();
-        this->main->setCascadeOpacityEnabled(true);
         this->main2 = cc::Layer::create();
-        this->main2->setCascadeOpacityEnabled(true);
         this->fg = cc::Layer::create();
-        this->fg->setCascadeOpacityEnabled(true);
     
         this->addChild(bg);
         this->addChild(main);
         this->addChild(main2);
         this->addChild(fg);
     
-        this->setOpacity(0);
-    
         return true;
+    }
+    
+    NodeRenderer* getShot(int w, int h)
+    {
+        return NodeRenderer::create(this, w, h);
     }
     
     cc::Layer* bg;

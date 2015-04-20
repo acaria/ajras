@@ -57,6 +57,7 @@ void GameCtrl::loadSession(GameScene* view)
 {
     //floorSystemCtrl.displayDebug(view, this->currentMap);
     floorSystemCtrl.load(view, this->currentMap);
+    floorSystemCtrl.start();
     tick.schedule(view);
     this->sessionEnabled = true;
 }

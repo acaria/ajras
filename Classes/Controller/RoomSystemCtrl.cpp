@@ -71,34 +71,14 @@ void RoomSystemCtrl::loadStart(RoomLayer *view, RoomData *data)
     ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Orientation>(eid, roomIndex);
+    ecs::add<cp::Control>(eid, roomIndex) = ControlSystem::INDEX_P1;
 
     cpRender.container->setPosition({
         srcPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
         srcPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
     });
-    
-    float duration = 3.0f;
-    
     cpRender.container->setOpacity(0);
-    cpRender.container->runAction(Sequence::create(
-        MoveTo::create(duration, {
-            destPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
-            destPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
-        }),
-        CallFunc::create([eid, roomIndex, cpRender](){
-            ecs::add<cp::Position>(eid, roomIndex).set(cpRender.container->getPosition());
-            ecs::add<cp::Control>(eid, roomIndex) = ControlSystem::INDEX_P1;
-            ecs::add<cp::Input>(eid, roomIndex);
-        }),
-        NULL));
-    cpRender.container->runAction(Sequence::create(
-        DelayTime::create(duration / 2),
-        FadeTo::create(duration / 4, 255),
-        NULL
-    ));
-    
-    view->setOpacity(255);
-    
+
     //warp
     eid = cp::entity::genID();
     ecs::add<cp::Warp>(eid, roomIndex).set(warpInfo, [](){

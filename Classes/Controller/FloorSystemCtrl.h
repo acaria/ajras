@@ -1,6 +1,7 @@
 #pragma once
 
 class MapData;
+class NodeRenderer;
 
 #include "ControlSystem.h"
 #include "RoomSystemCtrl.h"
@@ -16,6 +17,7 @@ public:
     ~FloorSystemCtrl();
     
     void load(GameScene* view, MapData* data);
+    void start();
     void displayDebug(GameScene* view, MapData* data);
     
     RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned>& eids);
@@ -26,6 +28,8 @@ public:
 private:
     
     void clear();
+    void showRoom(unsigned roomIndex,
+                  std::function<void()> after);
     
     //local ecs
     lib::EcsGroup   ecsGroup;
@@ -39,6 +43,7 @@ private:
     //data
     MapData*    data;
     std::map<unsigned, RoomLayer*>      roomViews;
+    std::map<unsigned, NodeRenderer*>     roomPreviews;
     
     //view
     GameScene* gView = nullptr;

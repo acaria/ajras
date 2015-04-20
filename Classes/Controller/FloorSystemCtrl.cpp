@@ -5,6 +5,7 @@
 #include "RoomData.h"
 #include "GameScene.h"
 #include "InterfaceLayer.h"
+#include "NodeRenderer.h"
 
 void FloorSystemCtrl::clear()
 {
@@ -74,9 +75,7 @@ RoomData* FloorSystemCtrl::changeRoom(unsigned int nextRoomIndex,
         //move camera
         auto bounds = dataRoom->getBounds();
         this->gView->moveCamera({bounds.getMidX(), bounds.getMidY()}, 1);
-        
-        
-        this->roomViews[nextRoomIndex]->runAction(cc::FadeTo::create(1, 255));
+        this->showRoom(nextRoomIndex, nullptr);
     }
     
     return data->getRoomAt(nextRoomIndex);
@@ -126,7 +125,79 @@ void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
     }
 }
 
-void FloorSystemCtrl::load(GameScene *gview, MapData *data)
+void FloorSystemCtrl::start()
+{
+    auto camRect = data->rooms[this->currentRoomIndex]->getBounds();
+    this->gView->setCamera({camRect.getMidX(), camRect.getMidY()});
+    
+    this->showRoom(this->currentRoomIndex, [this](){
+        float duration = 3.0f;
+        
+        auto roomData = this->data->rooms[this->currentRoomIndex];
+        auto roomIndex = roomData->index;
+        
+        auto warpInfo = roomData->getModel()->warps.front();
+        auto srcPos = warpInfo.getSrcPos();
+        auto destPos = warpInfo.getDestPos();
+        
+        for(auto eid : ecs::join<cp::Control, cp::Render, cp::Collision>(roomData->index))
+        {
+            auto& cpRender = ecs::get<cp::Render>(eid);
+            auto& cpCollision = ecs::get<cp::Collision>(eid);
+            
+            cpRender.container->runAction(cc::Sequence::create(
+                cc::MoveTo::create(duration, {
+                    destPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
+                    destPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
+                }),
+                cc::CallFunc::create([eid, roomIndex, cpRender](){
+                    ecs::add<cp::Position>(eid, roomIndex).set(cpRender.container->getPosition());
+                    ecs::add<cp::Input>(eid, roomIndex);
+                }),
+                NULL
+            ));
+            cpRender.container->runAction(cc::Sequence::create(
+                cc::DelayTime::create(duration / 2),
+                cc::FadeTo::create(duration / 4, 255),
+                NULL
+            ));
+        }
+
+    });
+}
+
+void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> after)
+{
+    assert(lib::hasKey(this->roomViews, roomIndex));
+    
+    if (!lib::hasKey(this->roomPreviews, roomIndex))
+    {
+        if (after != nullptr)
+            after();
+    }
+    else
+    {
+        auto preview = this->roomPreviews[roomIndex];
+        this->roomPreviews.erase(roomIndex);
+        
+        auto view = this->roomViews[roomIndex];
+        view->setPosition(preview->getPosition());
+        
+        preview->getSprite()->runAction(cc::Sequence::create(
+            cc::FadeTo::create(1, 255),
+            cc::CallFunc::create([this, view, preview](){
+                this->gView->frame->removeChild(preview);
+                this->gView->frame->addChild(view);
+                view->release();
+            }),
+            cc::CallFunc::create(after),
+            NULL
+        ));
+    }
+}
+
+void FloorSystemCtrl::load(GameScene *gview,
+                           MapData *data)
 {
     this->clear();
     this->currentRoomIndex = data->getCurIdxRoom();
@@ -145,15 +216,22 @@ void FloorSystemCtrl::load(GameScene *gview, MapData *data)
         
         auto roomSystemCtrl = new RoomSystemCtrl();
         auto roomLayer = RoomLayer::create();
+        roomLayer->retain();
         
         roomSystemCtrl->loadRoom(roomLayer, roomData);
         
         this->roomViews[roomIndex] = roomLayer;
         this->roomSystems[roomIndex] = roomSystemCtrl;
+
+        auto preview = roomLayer->getShot(
+            roomData->getBounds().size.width, roomData->getBounds().size.height);
+        this->roomPreviews[roomIndex] = preview;
         
-        roomLayer->setPosition(roomData->position);
+        preview->setPosition(roomData->position);
+        preview->getSprite()->setOpacity(0);
         
-        this->gView->frame->addChild(roomLayer, 1);
+        this->gView->frame->addChild(preview, 1);
+        preview->setOpacity(0);
         
         bounds = bounds.unionWithRect(roomData->getBounds());
     }
@@ -169,7 +247,4 @@ void FloorSystemCtrl::load(GameScene *gview, MapData *data)
         floorTile->setPosition({bounds.origin.x + i, bounds.origin.y + j});
         this->gView->frame->addChild(floorTile, 0);
     }
-    
-    auto camRect = data->rooms[this->currentRoomIndex]->getBounds();
-    gview->setCamera({camRect.getMidX(), camRect.getMidY()});
 }

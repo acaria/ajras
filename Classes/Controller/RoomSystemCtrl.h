@@ -8,9 +8,11 @@
 #include "TargetSystem.h"
 #include "InputSystem.h"
 #include "MoveSystem.h"
+#include "Event.h"
 
 class RoomData;
 class RoomLayer;
+class GameScene;
 
 class RoomSystemCtrl
 {
@@ -24,6 +26,7 @@ public:
                       targetSystem(ecsGroup),
                       aiSystem(ecsGroup)
     {
+        this->registerControllers();
     }
 
     void loadRoom(RoomLayer* view, RoomData* data);
@@ -36,8 +39,13 @@ public:
     //dispays
     void hideObjects(float duration);
     void showObjects(float duration);
+    
+    //events
+    event::Subject<void(unsigned roomID, unsigned eid, int health)> onHealthChanged;
 
 private:
+
+    void registerControllers();
 
     void loadStart(RoomLayer* view, RoomData* data);
     void loadCommon(RoomLayer* view, RoomData* data);

@@ -23,7 +23,8 @@ RoomModel* RoomModel::create(const std::string &fileName)
     for (const auto &s : o.get<jsonxx::Array>("tilesets").values())
     {
         auto tileset = s->get<jsonxx::Object>();
-        if (tileset.get<jsonxx::Object>("properties").has<jsonxx::String>("ss"))
+        if (tileset.has<jsonxx::Object>("properties") &&
+            tileset.get<jsonxx::Object>("properties").has<jsonxx::String>("ss"))
         {
             //spritesheet mode
             auto ssName = tileset.get<jsonxx::Object>("properties").get<jsonxx::String>("ss");

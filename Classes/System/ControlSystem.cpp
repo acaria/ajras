@@ -32,11 +32,35 @@ void ControlSystem::tick(double dt)
             }
             
             //selection
-            if (this->entitySelection[index] != 0)
+            if (this->entitySelection[index] != 0 &&
+                ecs::has<cp::Collision>(this->entitySelection[index]))
             {
-                unsigned tid = this->entitySelection[index];
-                this->view->interface->setTargetID(tid, ecs::has<cp::Control>(tid));
+                auto tid = this->entitySelection[index];
+                
+                auto& cpRender = ecs::get<cp::Render>(tid);
+                auto& cpCol = ecs::get<cp::Collision>(tid);
+                
+                auto pos = cc::Point(
+                    cpCol.rect.getMinX() + cpCol.rect.size.width / 2,
+                    cpCol.rect.getMinY() + cpCol.rect.size.height / 2
+                );
+                
+                this->view->interface->setTargetID(tid, ecs::has<cp::Control>(tid), cpRender.container, pos);
                 ecs.add<cp::Target>(eid) = tid;
+            }
+            
+            if (this->actionSelection != ActionMode::none)
+            {
+                cpInput.actionMode = this->actionSelection;
+                //data driver, unselect requirements
+                if (this->actionSelection == ActionMode::walk)
+                {
+                    ecs.del<cp::Target>(eid);
+                    this->view->interface->clearTarget();
+                }
+                
+                //gui interface
+                this->view->interface->setAction(this->actionSelection);
             }
         }
         
@@ -58,6 +82,7 @@ void ControlSystem::clearReleased(unsigned index)
     this->preDirPressed[index] = this->curDirPressed[index];
     this->curDirReleased[index] = Dir::None;
     this->entitySelection[index] = 0;
+    this->actionSelection = ActionMode::none;
 }
 
 void ControlSystem::changeRoom(RoomData* data)
@@ -121,6 +146,12 @@ void ControlSystem::onKeyPressed(KeyCode code, cocos2d::Event *event)
         case KeyCode::KEY_S:
             toAdd = Dir::Down;
             break;
+        case KeyCode::KEY_1:
+            actionSelection = ActionMode::walk;
+            break;
+        case KeyCode::KEY_2:
+            actionSelection = ActionMode::melee;
+            break;
         default:
             break;
     }
@@ -150,6 +181,12 @@ void ControlSystem::onKeyReleased(KeyCode code, cocos2d::Event *event)
         case KeyCode::KEY_DOWN_ARROW:
         case KeyCode::KEY_S:
             toDel = Dir::Down;
+            break;
+        case KeyCode::KEY_1:
+            actionSelection = ActionMode::walk;
+            break;
+        case KeyCode::KEY_2:
+            actionSelection = ActionMode::melee;
             break;
         default:
             break;
@@ -236,7 +273,7 @@ bool ControlSystem::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event)
         joyID[index] = touch->getID();
         joyDir[index] = (touchPos - kCursorCenter) / 40.f;
     }
-
+    
     return true;
 }
 
@@ -253,6 +290,21 @@ void ControlSystem::onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *event)
     {
         joyID.erase(index);
         joyDir.erase(index);
+    }
+    
+    if (this->view->interface->getActionBounds().containsPoint(touch->getStartLocation()))
+    {
+        auto diff = touch->getLocation() - touch->getStartLocation();
+        ActionMode doAction = ActionMode::none;
+        if (diff.x < -40)
+            doAction = this->view->interface->getPrevAction();
+        else if (diff.x > 40)
+            doAction = this->view->interface->getNextAction();
+        
+        if (doAction != ActionMode::none)
+        {
+            actionSelection = doAction;
+        }
     }
 }
 

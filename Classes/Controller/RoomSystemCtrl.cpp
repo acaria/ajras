@@ -4,6 +4,8 @@
 #include "Components.h"
 #include "GameCtrl.h"
 #include "CsActionInterval.h"
+#include "GameScene.h"
+#include "HealthBar.h"
 
 void RoomSystemCtrl::tick(double dt)
 {
@@ -68,11 +70,13 @@ void RoomSystemCtrl::loadStart(RoomLayer *view, RoomData *data)
     
     ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
-    ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Orientation>(eid, roomIndex);
     ecs::add<cp::Control>(eid, roomIndex) = ControlSystem::INDEX_P1;
 
+    auto& csHealth = ecs::add<cp::Health>(eid, roomIndex);
+    csHealth.setProfile(profile);
+    
     cpRender.container->setPosition({
         srcPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
         srcPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
@@ -110,6 +114,13 @@ void RoomSystemCtrl::showObjects(float duration)
             ecs::get<cp::Render>(eid).container->runAction(cc::FadeIn::create(duration));
         }
     }
+}
+
+void RoomSystemCtrl::registerControllers()
+{
+    meleeSystem.onHealthChanged.registerObserver([this](unsigned eid, int health){
+        this->onHealthChanged(this->ecsGroup.getID(), eid, health);
+    });
 }
 
 void RoomSystemCtrl::loadCommon(RoomLayer *view, RoomData *data)

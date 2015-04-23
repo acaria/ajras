@@ -45,7 +45,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "width":20,
          "x":0,
          "y":0
@@ -521,10 +521,6 @@
          "firstgid":110,
          "margin":0,
          "name":"char",
-         "properties":
-            {
-             "ss":"char"
-            },
          "spacing":0,
          "tileheight":24,
          "tileproperties":

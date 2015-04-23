@@ -143,8 +143,8 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     ecs.del<cp::Position>(eid);
     ecs::get<cp::Velocity>(eid).reset();
     render.container->runAction(cc::Sequence::create(
-                                                 cc::MoveTo::create(duration, targetPoint),
-                                                     cc::CallFunc::create(std::bind(&TransitSystem::gateringLeave, this,
+        cc::MoveTo::create(duration, targetPoint),
+        cc::CallFunc::create(std::bind(&TransitSystem::gateringLeave, this,
             eid, srcGate.destRoomIdx, srcGate.destGateIdx)),
         NULL
     ));

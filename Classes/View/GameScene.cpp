@@ -9,7 +9,7 @@ bool GameScene::init()
     
     auto back = cc::LayerColor::create(cc::Color4B(143,86,59,255));
     this->addChild(back);
-    
+
     this->canvas = cc::ui::Layout::create();
     this->canvas->setBackGroundColorType(cc::ui::HBox::BackGroundColorType::SOLID);
     this->canvas->setBackGroundColor(back->getColor());

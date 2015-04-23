@@ -553,10 +553,6 @@
          "firstgid":110,
          "margin":0,
          "name":"char",
-         "properties":
-            {
-             "ss":"char"
-            },
          "spacing":0,
          "tileheight":23,
          "tileproperties":

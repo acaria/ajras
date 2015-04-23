@@ -11,10 +11,11 @@ void RenderSystem::init(RoomData *data)
 
 void RenderSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Render, cp::Velocity>())
+    for(auto eid : ecs.join<cp::Render, cp::Velocity, cp::Input>())
     {
         auto &cpRender = ecs::get<cp::Render>(eid);
         auto &cpVel = ecs::get<cp::Velocity>(eid);
+        auto &cpInput = ecs::get<cp::Input>(eid);
  
         //processing velocity animations
         if (!cpRender.busy && cpRender.profile != nullptr)
@@ -37,8 +38,8 @@ void RenderSystem::tick(double dt)
         }
         
         //update target mode
-        if (ecs::has<cp::Target>(eid))
-            cpRender.setMoveCategory("target");
+        if (cpInput.actionMode == ActionMode::melee)
+            cpRender.setMoveCategory("melee");
         else
             cpRender.setMoveCategory("walk");
     }

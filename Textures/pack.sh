@@ -5,7 +5,7 @@ TP="/usr/local/bin/TexturePacker"
 PDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
 
 ##skin list
-declare -a sheet=("main" "map1" "char" "gui")
+declare -a sheet=("main" "map1" "gui")
 
 
 ##engine--------------------------------------------------
@@ -34,7 +34,7 @@ else
 		      --data ${PDIR}/Resources-iOS/{v}/ss-${d}.plist \
 		      --sheet ${PDIR}/Resources-iOS/{v}/ss-${d}.png \
 		      --opt RGBA8888 \
-        ${PDIR}/Textures/assets/${d}/*.png
+        ${PDIR}/Textures/assets/${d}/*
 
         ${TP} --smart-update \
               --max-size 1024 \
@@ -49,7 +49,7 @@ else
 		      --data ${PDIR}/Resources-android/{v}/ss-${d}.plist \
 		      --sheet ${PDIR}/Resources-android/{v}/ss-${d}.png \
 		      --opt RGBA8888 \
-        ${PDIR}/Textures/assets/${d}/*.png
+        ${PDIR}/Textures/assets/${d}/*
     done
 fi
 exit 0

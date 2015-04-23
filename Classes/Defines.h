@@ -1,11 +1,11 @@
 #pragma once
 
-#define kDrawDebug 1
+#define kDrawDebug 0
 #define kDrawInfo 0
 
 #define kTraceBehaviours 0
 
-const bool  kShowFPS = true;
+const bool  kShowFPS = false;
 const float kUpdatesPerSecond = 60.0f;
 const float kIdealInterval = 1.0f / kUpdatesPerSecond;
 const float kTicksPerSecond = 20;
@@ -21,4 +21,11 @@ enum CollisionCategory
     impassable,
     walkable,
     flyable,
+};
+
+enum class ActionMode
+{
+    none,
+    walk,
+    melee,
 };

@@ -25,6 +25,8 @@ public:
     void tick(double dt);
     void animate(double dt, double tickPercent);
     
+    void onHealthChanged(unsigned roomIndex, unsigned eid, int health);
+    
 private:
     
     void clear();

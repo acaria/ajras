@@ -1,14 +1,16 @@
 #pragma once
 #include "Dir.h"
 #include "Misc.h"
+#include "Defines.h"
 
 struct InputComponent
 {
     //output
-    bool disabled = false;
-    Dir orientation;
-    Dir lastOrientation;
-    cc::Vec2 direction;
+    bool        disabled = false;
+    Dir         orientation;
+    Dir         lastOrientation;
+    cc::Vec2    direction;
+    ActionMode  actionMode = ActionMode::walk;
     
     void disable(float duration)
     {

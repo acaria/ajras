@@ -1,5 +1,7 @@
 #pragma once
 #include "BaseTickSystem.h"
+#include "Event.h"
+
 class PositionComponent;
 class GateInfo;
 class GateComponent;
@@ -14,6 +16,8 @@ public:
     
     virtual void tick(double dt) final;
     virtual void animate(double dt, double tp) final {}
+    
+    event::Subject<void(unsigned eid, int health)> onRoomChanged;
     
 private:
     

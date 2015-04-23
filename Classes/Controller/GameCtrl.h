@@ -44,6 +44,7 @@ private:
     void destroyMap();
     
     MapData*        currentMap;
+    
     FloorSystemCtrl  floorSystemCtrl;
     bool sessionEnabled;
 };

@@ -1,7 +1,6 @@
 #pragma once
 
-class InterfaceLayer;
-
+#include "InterfaceLayer.h"
 #include "BaseScene.h"
 #include "Event.h"
 

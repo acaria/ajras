@@ -1,6 +1,7 @@
 #pragma once
 #include "BaseTickSystem.h"
 #include "ECSGroup.h"
+#include "InterfaceLayer.h"
 
 class GameScene;
 class RoomData;
@@ -13,6 +14,7 @@ public:
 
     //ctors
     ControlSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {
+        this->actionSelection = ActionMode::none;
         this->initControl(INDEX_P1);
     }
     
@@ -53,9 +55,10 @@ private:
     std::map<unsigned, unsigned> curDirReleased;
     std::map<unsigned, unsigned> preDirPressed;
     std::map<unsigned, int>      joyID;
-    std::map<unsigned, cc::Vec2>     joyDir;
+    std::map<unsigned, cc::Vec2> joyDir;
     //selection input
     std::map<unsigned, unsigned> entitySelection;
+    ActionMode                   actionSelection;
     
     RoomData *data = nullptr;
     GameScene *view = nullptr;

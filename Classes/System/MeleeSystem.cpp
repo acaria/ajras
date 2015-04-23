@@ -1,18 +1,23 @@
 #include "MeleeSystem.h"
 #include "Components.h"
 #include "AnimationData.h"
+#include "GameCtrl.h"
+#include "GameScene.h"
+#include "ControlSystem.h"
 
 void MeleeSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Target, cp::Melee, cp::Collision, cp::Position, cp::Render>())
+    for(auto eid : ecs.join<cp::Melee, cp::Collision, cp::Position, cp::Render, cp::Input>())
     {
-        if (ecs::has<cp::Input>(eid) && ecs::get<cp::Input>(eid).disabled)
+        auto& cpInput = ecs::get<cp::Input>(eid);
+        if (cpInput.disabled)
+            continue;
+        if (cpInput.actionMode != ActionMode::melee)
             continue;
         auto& cpPosition = ecs::get<cp::Position>(eid);
         auto& cpCollision = ecs::get<cp::Collision>(eid);
         auto& cpRender = ecs::get<cp::Render>(eid);
         auto& cpMelee = ecs::get<cp::Melee>(eid);
-        auto& cpTarget = ecs::get<cp::Target>(eid);
         
         cocos2d::Rect body = {
             cpPosition.pos.x + cpCollision.rect.origin.x,
@@ -62,7 +67,9 @@ void MeleeSystem::tick(double dt)
         //check room objects
         for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position, cp::Health>())
         {
-            if (cpTarget == oid)
+            if (oid == eid) continue;
+            
+            if (!ecs::has<cp::Target>(eid) || ecs::get<cp::Target>(eid) == oid)
             {
                 auto &cpPosition2 = ecs::get<cp::Position>(oid);
                 auto &cpCollision2 = ecs::get<cp::Collision>(oid);
@@ -96,8 +103,8 @@ void MeleeSystem::tick(double dt)
                                 if (ecs::has<cp::Input>(oid))
                                     ecs::get<cp::Input>(oid).disable(duration);
                                 cpRender2.runAction(cc::Repeat::create(
-                                                                       cc::Sequence::create(cc::TintTo::create(duration / freq / 2, 255, 50, 50),
-                                                     cc::TintTo::create(duration / freq / 2, 255, 255, 255),
+                                    cc::Sequence::create(cc::TintTo::create(duration / freq / 2, 255, 50, 50),
+                                    cc::TintTo::create(duration / freq / 2, 255, 255, 255),
                                     NULL), freq));
                                 
                                 if (ecs::has<cp::Velocity>(oid))
@@ -107,6 +114,8 @@ void MeleeSystem::tick(double dt)
                                 }
                                 
                                 cpHealth2.hp -= cpMelee.damage;
+                                this->onHealthChanged(oid, cpHealth2.hp);
+
 #if kDrawInfo
                                 cpRender2.lInfo->setString(std::to_string(cpHealth2.hp));
 #endif

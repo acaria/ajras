@@ -69,6 +69,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
           designSize.width, designSize.height,
           resourceSize.width / designSize.width);
     
+    //glClearColor(143 / 255.0f,86 / 255.0f, 59 / 255.0f, 1.0f);
+    
     director->setDisplayStats(kShowFPS);
     director->setAnimationInterval(kIdealInterval);
     director->setProjection(Director::Projection::_2D);

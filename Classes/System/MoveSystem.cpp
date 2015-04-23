@@ -3,15 +3,16 @@
 
 void MoveSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Velocity, cp::Position>())
+    for(auto eid : ecs.join<cp::Velocity, cp::Position, cp::Input>())
     {
         //shortcuts
         auto& cpPos = ecs::get<cp::Position>(eid);
         auto& cpVel = ecs::get<cp::Velocity>(eid);
+        auto& cpInput = ecs::get<cp::Input>(eid);
     
         //slowing target move
         float speed = cpVel.speed;
-        if (ecs::has<cp::Target>(eid) && ecs::get<cp::Target>(eid) != 0)
+        if (cpInput.actionMode != ActionMode::walk)
             speed *= 0.6;
     
         //save previous pos

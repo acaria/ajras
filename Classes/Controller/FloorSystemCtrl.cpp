@@ -7,6 +7,8 @@
 #include "InterfaceLayer.h"
 #include "NodeRenderer.h"
 
+using namespace std::placeholders;
+
 void FloorSystemCtrl::clear()
 {
     for(auto pair : this->roomSystems)
@@ -80,6 +82,11 @@ RoomData* FloorSystemCtrl::changeRoom(unsigned int nextRoomIndex,
     }
     
     return data->getRoomAt(nextRoomIndex);
+}
+
+void FloorSystemCtrl::onHealthChanged(unsigned int roomIndex, unsigned int eid, int health)
+{
+    
 }
 
 void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
@@ -218,6 +225,8 @@ void FloorSystemCtrl::load(GameScene *gview,
         auto roomData = pair.second;
         
         auto roomSystemCtrl = new RoomSystemCtrl();
+        roomSystemCtrl->onHealthChanged.registerObserver(std::bind(&FloorSystemCtrl::onHealthChanged, this, _1, _2, _3));
+        
         auto roomLayer = RoomLayer::create();
         roomLayer->retain();
         

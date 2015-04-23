@@ -48,6 +48,15 @@
 	</dict>
 	<key>animations</key>
 	<dict>
+		<key>death</key>
+		<dict>
+			<key>format</key>
+			<string>bat_death%d.png</string>
+			<key>delay</key>
+			<string>0.07</string>
+			<key>frameCount</key>
+			<integer>7</integer>
+		</dict>
 		<key>atk</key>
 		<dict>
 			<key>format</key>

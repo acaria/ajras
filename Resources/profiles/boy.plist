@@ -111,14 +111,14 @@
 				<string>1,2,3,4,5,4,3,2,1</string>
 			</dict>
 		</dict>
-		<key>_target</key>
+		<key>_melee</key>
 		<dict>
 			<key>_move</key>
 			<dict>
 				<key>left</key>
 				<dict>
 					<key>format</key>
-					<string>boy_target_left%d.png</string>
+					<string>boy_melee_left%d.png</string>
 					<key>delay</key>
 					<string>0.1</string>
 					<key>frameCount</key>
@@ -131,7 +131,7 @@
 					<key>flipX</key>
 					<true/>
 					<key>format</key>
-					<string>boy_target_left%d.png</string>
+					<string>boy_melee_left%d.png</string>
 					<key>delay</key>
 					<string>0.1</string>
 					<key>frameCount</key>
@@ -142,7 +142,7 @@
 				<key>up</key>
 				<dict>
 					<key>format</key>
-					<string>boy_target_up%d.png</string>
+					<string>boy_melee_up%d.png</string>
 					<key>delay</key>
 					<string>0.1</string>
 					<key>frameCount</key>
@@ -153,7 +153,7 @@
 				<key>down</key>
 				<dict>
 					<key>format</key>
-					<string>boy_target_down%d.png</string>
+					<string>boy_melee_down%d.png</string>
 					<key>delay</key>
 					<string>0.1</string>
 					<key>frameCount</key>
@@ -167,7 +167,7 @@
 				<key>left</key>
 				<dict>
 					<key>format</key>
-					<string>boy_target_left1.png</string>
+					<string>boy_melee_left1.png</string>
 					<key>frameCount</key>
 					<integer>1</integer>
 				</dict>
@@ -176,21 +176,21 @@
 					<key>flipX</key>
 					<true/>
 					<key>format</key>
-					<string>boy_target_left1.png</string>
+					<string>boy_melee_left1.png</string>
 					<key>frameCount</key>
 					<integer>1</integer>
 				</dict>
 				<key>up</key>
 				<dict>
 					<key>format</key>
-					<string>boy_target_up1.png</string>
+					<string>boy_melee_up1.png</string>
 					<key>frameCount</key>
 					<integer>1</integer>
 				</dict>
 				<key>down</key>
 				<dict>
 					<key>format</key>
-					<string>boy_target_down1.png</string>
+					<string>boy_melee_down1.png</string>
 					<key>frameCount</key>
 					<integer>1</integer>
 				</dict>

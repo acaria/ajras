@@ -116,11 +116,14 @@ void RoomSystemCtrl::showObjects(float duration)
     }
 }
 
-void RoomSystemCtrl::registerControllers()
+void RoomSystemCtrl::registerEvents()
 {
-    meleeSystem.onHealthChanged.registerObserver([this](unsigned eid, int health){
+    this->eventRegs.push_back(meleeSystem.onHealthChanged.registerObserver([this](unsigned eid, int health){
         this->onHealthChanged(this->ecsGroup.getID(), eid, health);
-    });
+    }));
+    this->eventRegs.push_back(transSystem.onRoomChanged.registerObserver([this](unsigned roomIdx, unsigned gateIdx, unsigned eid){
+        this->onRoomChanged(roomIdx, gateIdx, eid);
+    }));
 }
 
 void RoomSystemCtrl::loadCommon(RoomLayer *view, RoomData *data)

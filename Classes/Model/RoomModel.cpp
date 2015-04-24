@@ -138,6 +138,42 @@ RoomModel* RoomModel::create(const std::string &fileName)
     return result;
 }
 
+void RoomModel::extractGateringIntroInfo(unsigned gateIndex, cc::Rect colRect,
+                                         cc::Point& srcPos, cc::Point& destPos)
+{
+    cocos2d::Vec2 movePos;
+    auto gateInfo = this->gates[gateIndex];
+    
+    switch(gateInfo.type)
+    {
+        case GateInfo::Left:
+            srcPos = {gateInfo.rect.getMinX() - colRect.getMinX(),
+                gateInfo.rect.getMinY() + (gateInfo.rect.size.height - colRect.size.height) / 2 - colRect.getMinY()};
+            movePos = {gateInfo.rect.size.width,0};
+            break;
+        case GateInfo::Right:
+            srcPos = {gateInfo.rect.getMaxX() - colRect.size.width - colRect.getMinX(),
+                gateInfo.rect.getMinY() + (gateInfo.rect.size.height - colRect.size.height) / 2 - colRect.getMinY()};
+            movePos = {-gateInfo.rect.size.width,0};
+            break;
+        case GateInfo::Up:
+            srcPos = {gateInfo.rect.getMinX() + (gateInfo.rect.size.width - colRect.size.width) / 2 - colRect.getMinX(),
+                gateInfo.rect.getMaxY() - colRect.size.height - colRect.getMinY()};
+            movePos = {0,-gateInfo.rect.size.height};
+            break;
+        case GateInfo::Down:
+            srcPos = {gateInfo.rect.getMinX() + (gateInfo.rect.size.width - colRect.size.width) / 2 - colRect.getMinX(),
+                gateInfo.rect.getMinY() - colRect.getMinY()};
+            movePos = {0,gateInfo.rect.size.height};
+            break;
+        default:
+            Log("2: unsupported gate type detected");
+            break;
+    }
+    
+    destPos = srcPos + movePos;
+}
+
 GateInfo RoomModel::extractGate(RoomModel& mapData, const std::string& collisionType,
                                 unsigned i, unsigned j)
 {

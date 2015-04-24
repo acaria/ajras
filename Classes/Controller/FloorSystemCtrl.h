@@ -20,19 +20,18 @@ public:
     void start();
     void displayDebug(GameScene* view, MapData* data);
     
-    RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned>& eids);
-    
     void tick(double dt);
     void animate(double dt, double tickPercent);
     
     void onHealthChanged(unsigned roomIndex, unsigned eid, int health);
+    void onRoomChanged(unsigned roomIndex, unsigned gateIndex, unsigned eid);
     
 private:
     
     void clear();
     void showRoom(unsigned roomIndex,
                   std::function<void()> after);
-    
+    void registerEvents(RoomSystemCtrl* ctrl);
     //local ecs
     lib::EcsGroup   ecsGroup;
     
@@ -49,6 +48,9 @@ private:
     
     //view
     GameScene* gView = nullptr;
+    
+    //event
+    std::vector<event::Registration> eventRegs;
     
     unsigned currentRoomIndex;
 };

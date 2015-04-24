@@ -17,7 +17,7 @@ public:
     virtual void tick(double dt) final;
     virtual void animate(double dt, double tp) final {}
     
-    event::Subject<void(unsigned eid, int health)> onRoomChanged;
+    event::Subject<void(unsigned roomIndex, unsigned gateIndex, unsigned eid)> onRoomChanged;
     
 private:
     
@@ -25,10 +25,6 @@ private:
     void gateringEnter(unsigned targetEntity,
                        const cocos2d::Vec2& targetPoint,
                        const GateComponent& srcGate);
-    
-    void gateringLeave(unsigned eid,
-                       unsigned roomIdx,
-                       unsigned gateIdx);
     
     void warpingEnter(unsigned targetEntity,
                       const cocos2d::Vec2& targetPoint,

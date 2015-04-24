@@ -26,7 +26,7 @@ public:
                       targetSystem(ecsGroup),
                       aiSystem(ecsGroup)
     {
-        this->registerControllers();
+        this->registerEvents();
     }
 
     void loadRoom(RoomLayer* view, RoomData* data);
@@ -42,10 +42,12 @@ public:
     
     //events
     event::Subject<void(unsigned roomID, unsigned eid, int health)> onHealthChanged;
+    event::Subject<void(unsigned roomIdx, unsigned gateIdx, unsigned eid)> onRoomChanged;
 
 private:
 
-    void registerControllers();
+    void registerEvents();
+    std::vector<event::Registration> eventRegs;
 
     void loadStart(RoomLayer* view, RoomData* data);
     void loadCommon(RoomLayer* view, RoomData* data);

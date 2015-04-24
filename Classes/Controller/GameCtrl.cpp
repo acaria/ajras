@@ -73,11 +73,6 @@ void GameCtrl::destroyMap()
     profileModel.clear();
 }
 
-RoomData* GameCtrl::changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned> &eids)
-{
-    return floorSystemCtrl.changeRoom(roomIndex, gateIndex, eids);
-}
-
 void GameCtrl::newSession()
 {
     this->sessionEnabled = false;

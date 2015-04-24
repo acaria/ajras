@@ -40,7 +40,6 @@ struct GateInfo
         }
     }
 
-    
     GateType getOpposite()
     {
         if (type == Left)

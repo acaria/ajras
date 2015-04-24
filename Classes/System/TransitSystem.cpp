@@ -144,67 +144,14 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     ecs::get<cp::Velocity>(eid).reset();
     render.container->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, targetPoint),
-        cc::CallFunc::create(std::bind(&TransitSystem::gateringLeave, this,
-            eid, srcGate.destRoomIdx, srcGate.destGateIdx)),
-        NULL
-    ));
-    render.runAction(cc::Sequence::create(
-                                          TintTo::create(duration / 2, cc::Color3B::BLACK),
-                                          cc::FadeTo::create(duration / 4, 0),
-        NULL
-    ));
-}
-
-void TransitSystem::gateringLeave(unsigned eid, unsigned roomIdx, unsigned gateIdx)
-{
-    float duration = 1.0f;
-    
-    auto newRoom = GameCtrl::instance()->changeRoom(roomIdx, gateIdx, {eid});
-    auto gateInfo = newRoom->getModel()->gates[gateIdx];
-    
-    auto& render = ecs::get<cp::Render>(eid);
-    auto colRect = ecs::get<cp::Collision>(eid).rect;
-    cocos2d::Vec2 movePos, srcPos;
-    switch(gateInfo.type)
-    {
-        case GateInfo::Left:
-            srcPos = {gateInfo.rect.getMinX() - colRect.getMinX(),
-                      gateInfo.rect.getMinY() + (gateInfo.rect.size.height - colRect.size.height) / 2 - colRect.getMinY()};
-            movePos = {gateInfo.rect.size.width,0};
-            break;
-        case GateInfo::Right:
-            srcPos = {gateInfo.rect.getMaxX() - colRect.size.width - colRect.getMinX(),
-                                 gateInfo.rect.getMinY() + (gateInfo.rect.size.height - colRect.size.height) / 2 - colRect.getMinY()};
-            movePos = {-gateInfo.rect.size.width,0};
-            break;
-        case GateInfo::Up:
-            srcPos = {gateInfo.rect.getMinX() + (gateInfo.rect.size.width - colRect.size.width) / 2 - colRect.getMinX(),
-                                 gateInfo.rect.getMaxY() - colRect.size.height - colRect.getMinY()};
-            movePos = {0,-gateInfo.rect.size.height};
-            break;
-        case GateInfo::Down:
-            srcPos = {gateInfo.rect.getMinX() + (gateInfo.rect.size.width - colRect.size.width) / 2 - colRect.getMinX(),
-                                 gateInfo.rect.getMinY() - colRect.getMinY()};
-            movePos = {0,gateInfo.rect.size.height};
-            break;
-        default:
-            Log("2: unsupported gate type detected");
-            break;
-    }
-    auto destPos = srcPos + movePos;
-    render.setPosition(srcPos);
-    render.container->runAction(Sequence::create(
-        MoveBy::create(duration, movePos),
-        CallFunc::create([eid, destPos, roomIdx](){
-            ecs::get<cp::Input>(eid).forceEnable();
-            ecs::add<cp::Position>(eid, roomIdx).set(destPos);
+        cc::CallFunc::create([this, eid, &srcGate](){
+            this->onRoomChanged(srcGate.destRoomIdx, srcGate.destGateIdx, eid);
         }),
         NULL
     ));
-    render.runAction(Sequence::create(DelayTime::create(duration / 2),
-                                       TintTo::create(duration / 2, Color3B::WHITE),
-                                       NULL));
-    render.runAction(Sequence::create(DelayTime::create(duration / 2),
-                                       FadeTo::create(duration / 2, 255),
-                                       NULL));
+    render.runAction(cc::Sequence::create(
+        TintTo::create(duration / 2, cc::Color3B::BLACK),
+        cc::FadeTo::create(duration / 4, 0),
+        NULL
+    ));
 }

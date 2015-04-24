@@ -43,26 +43,32 @@ void FloorSystemCtrl::animate(double dt, double tickPercent)
     roomSystems[currentRoomIndex]->animate(dt, tickPercent);
 }
 
-RoomData* FloorSystemCtrl::changeRoom(unsigned int nextRoomIndex,
-                                      unsigned int gateIndex,
-                                      const std::vector<unsigned int> &eids)
+void FloorSystemCtrl::registerEvents(RoomSystemCtrl *ctrl)
+{
+    this->eventRegs.push_back(ctrl->onHealthChanged.registerObserver(
+        std::bind(&FloorSystemCtrl::onHealthChanged, this, _1, _2, _3)));
+    
+    this->eventRegs.push_back(ctrl->onRoomChanged.registerObserver(
+        std::bind(&FloorSystemCtrl::onRoomChanged, this, _1, _2, _3)));
+}
+
+void FloorSystemCtrl::onRoomChanged(unsigned nextRoomIndex,
+                                    unsigned gateIndex,
+                                    unsigned eid)
 {
     unsigned prevRoomIndex = this->currentRoomIndex;
     
     bool changeView = false;
-    for(auto eid : eids)
+    
+    cp::entity::move(eid, prevRoomIndex, nextRoomIndex);
+    if (ecs::has<cp::Control>(eid) && ecs::get<cp::Control>(eid) == ControlSystem::INDEX_P1)
+        changeView = true;
+    if (ecs::has<cp::Render>(eid))
     {
-        cp::entity::move(eid, prevRoomIndex, nextRoomIndex);
-        if (ecs::has<cp::Control>(eid) &&
-            ecs::get<cp::Control>(eid) == ControlSystem::INDEX_P1)
-            changeView = true;
-        if (ecs::has<cp::Render>(eid))
-        {
-            ecs::get<cp::Render>(eid).container->removeFromParentAndCleanup(false);
-            auto layer = ecs::get<cp::Render>(eid).chooseLayer(
-                this->roomViews[nextRoomIndex]);
-            layer->addChild(ecs::get<cp::Render>(eid).container);
-        }
+        ecs::get<cp::Render>(eid).container->removeFromParentAndCleanup(false);
+        auto layer = ecs::get<cp::Render>(eid).chooseLayer(
+            this->roomViews[nextRoomIndex]);
+        layer->addChild(ecs::get<cp::Render>(eid).container);
     }
     
     if (changeView)
@@ -81,7 +87,38 @@ RoomData* FloorSystemCtrl::changeRoom(unsigned int nextRoomIndex,
         this->showRoom(nextRoomIndex, nullptr);
     }
     
-    return data->getRoomAt(nextRoomIndex);
+    auto nextRoom = data->getRoomAt(nextRoomIndex);
+    
+    //gate introduction
+    float duration = 1.0f;
+    
+    auto gateInfo = nextRoom->getModel()->gates[gateIndex];
+    
+    auto& render = ecs::get<cp::Render>(eid);
+    auto colRect = ecs::get<cp::Collision>(eid).rect;
+    cocos2d::Vec2 srcPos, destPos;
+    
+    nextRoom->getModel()->extractGateringIntroInfo(gateIndex,
+                                                   ecs::get<cp::Collision>(eid).rect,
+                                                   /*out*/srcPos,
+                                                   /*out*/destPos);
+    render.setPosition(srcPos);
+    render.container->runAction(cc::Sequence::create(
+        cc::MoveBy::create(duration, destPos - srcPos),
+        cc::CallFunc::create([eid, destPos, nextRoomIndex](){
+            ecs::get<cp::Input>(eid).forceEnable();
+            ecs::add<cp::Position>(eid, nextRoomIndex).set(destPos);
+        }),
+        NULL
+    ));
+    render.runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
+        cc::TintTo::create(duration / 2, cc::Color3B::WHITE),
+        NULL
+    ));
+    render.runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
+        cc::FadeTo::create(duration / 2, 255),
+        NULL
+    ));
 }
 
 void FloorSystemCtrl::onHealthChanged(unsigned int roomIndex, unsigned int eid, int health)
@@ -225,7 +262,7 @@ void FloorSystemCtrl::load(GameScene *gview,
         auto roomData = pair.second;
         
         auto roomSystemCtrl = new RoomSystemCtrl();
-        roomSystemCtrl->onHealthChanged.registerObserver(std::bind(&FloorSystemCtrl::onHealthChanged, this, _1, _2, _3));
+        this->registerEvents(roomSystemCtrl);
         
         auto roomLayer = RoomLayer::create();
         roomLayer->retain();

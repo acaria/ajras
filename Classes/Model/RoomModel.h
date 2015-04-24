@@ -18,8 +18,6 @@ public:
     
     std::vector<std::string>     ss;
     std::vector<ObjectInfo>      objs;
-    std::map<unsigned, GateInfo> gates;
-    std::list<GateInfo>          warps;
     lib::DataGrid<BlockInfo>     grid;
     
     
@@ -28,10 +26,16 @@ public:
     RoomShape       shape;
     std::string     name;
     
-    cc::Rect   getRectCoord(lib::v2u pos);
-    cc::Vec2   getPosCoord(lib::v2u pos);
+    cc::Rect        getRectCoord(lib::v2u pos);
+    cc::Vec2        getPosCoord(lib::v2u pos);
     lib::v2u        getGridPos(cocos2d::Vec2 coord);
     int             getZOrder(const cocos2d::Vec2& pos);
+    
+    //gates & warps
+    std::map<unsigned, GateInfo> gates;
+    std::list<GateInfo>          warps;
+    void            extractGateringIntroInfo(unsigned gateIndex, cc::Rect colRect,
+                                             cc::Point& srcPos, cc::Point& destPos);
     
 private:
     static GateInfo::GateType gessGateType(lib::v2u pos, const RoomModel& mapData);

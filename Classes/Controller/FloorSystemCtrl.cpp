@@ -6,6 +6,7 @@
 #include "GameScene.h"
 #include "InterfaceLayer.h"
 #include "NodeRenderer.h"
+#include "HealthBar.h"
 
 using namespace std::placeholders;
 
@@ -57,12 +58,9 @@ void FloorSystemCtrl::onRoomChanged(unsigned nextRoomIndex,
                                     unsigned eid)
 {
     unsigned prevRoomIndex = this->currentRoomIndex;
-    
-    bool changeView = false;
-    
+
     cp::entity::move(eid, prevRoomIndex, nextRoomIndex);
-    if (ecs::has<cp::Control>(eid) && ecs::get<cp::Control>(eid) == ControlSystem::INDEX_P1)
-        changeView = true;
+
     if (ecs::has<cp::Render>(eid))
     {
         ecs::get<cp::Render>(eid).container->removeFromParentAndCleanup(false);
@@ -71,7 +69,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned nextRoomIndex,
         layer->addChild(ecs::get<cp::Render>(eid).container);
     }
     
-    if (changeView)
+    if (eid == this->focusEntity) //change room
     {
         this->roomSystems[prevRoomIndex]->hideObjects(1);
         this->gView->interface->clearTarget();
@@ -123,7 +121,14 @@ void FloorSystemCtrl::onRoomChanged(unsigned nextRoomIndex,
 
 void FloorSystemCtrl::onHealthChanged(unsigned int roomIndex, unsigned int eid, int health)
 {
-    
+    if (health == 0)
+    {
+        this->gView->interface->unsetTargetID(eid);
+    }
+    if (eid == this->focusEntity)
+    {
+        this->gView->interface->getHealthBar()->updateProperties(health);
+    }
 }
 
 void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
@@ -185,8 +190,9 @@ void FloorSystemCtrl::start()
         auto srcPos = warpInfo.getSrcPos();
         auto destPos = warpInfo.getDestPos();
         
-        for(auto eid : ecs::join<cp::Control, cp::Render, cp::Collision>(roomData->index))
+        if (this->focusEntity != 0 && ecs::has<cp::Render, cp::Collision>(this->focusEntity))
         {
+            unsigned eid = this->focusEntity;
             auto& cpRender = ecs::get<cp::Render>(eid);
             auto& cpCollision = ecs::get<cp::Collision>(eid);
             
@@ -207,8 +213,23 @@ void FloorSystemCtrl::start()
                 NULL
             ));
         }
-
     });
+    
+    //guess focus entity
+    for(auto eid : ecs::system<cp::Control>(this->currentRoomIndex))
+    {
+        //guess focus entity
+        if (ecs::get<cp::Control>(eid) == ControlSystem::INDEX_P1)
+            focusEntity = eid;
+    }
+    
+    //init interface
+    if (ecs::has<cp::Health>(this->focusEntity))
+    {
+        auto& cpHealth = ecs::get<cp::Health>(this->focusEntity);
+        this->gView->interface->getHealthBar()->initProperties(cpHealth.maxHp,
+                                                               cpHealth.hp);
+    }
 }
 
 void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> after)

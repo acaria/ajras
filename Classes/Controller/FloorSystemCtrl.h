@@ -52,5 +52,8 @@ private:
     //event
     std::vector<event::Registration> eventRegs;
     
+    //mainEntity
+    unsigned focusEntity = 0;
+    
     unsigned currentRoomIndex;
 };

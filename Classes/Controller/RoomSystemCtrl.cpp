@@ -6,6 +6,7 @@
 #include "CsActionInterval.h"
 #include "GameScene.h"
 #include "HealthBar.h"
+#include "GateMap.h"
 
 void RoomSystemCtrl::tick(double dt)
 {
@@ -33,61 +34,119 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
 
 void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
 {
-    this->loadCommon(view, data);
+    ecsGroup.setID(data->index);
     
-    switch(data->type)
-    {
-        case RoomData::RoomType::COMMON:
-            break;
-        case RoomData::RoomType::START:
-            this->loadStart(view, data);
-            break;
-        case RoomData::RoomType::END:
-            this->loadEnd(view, data);
-            break;
-    }
-}
-
-void RoomSystemCtrl::loadStart(RoomLayer *view, RoomData *data)
-{
     auto roomIndex = data->index;
-    assert(data->getModel()->warps.size() > 0);
+    auto grid = data->getContent();
     
-    auto warpInfo = data->getModel()->warps.front();
-    auto srcPos = warpInfo.getSrcPos();
-    auto destPos = warpInfo.getDestPos();
+    //todo: try not generating entities for bg maps
     
-    //create player
-    auto eid = cp::entity::genID();
-    auto profile = GameCtrl::instance()->profileModel.get("boy");
+    //map
+    for(unsigned j = 0; j < grid.height; j++)
+        for(unsigned i = 0; i < grid.width; i++)
+        {
+            auto properties = grid.get(i, j).fields;
+            if (properties.find(BlockInfo::bgTileName) != properties.end())
+            {
+                //HACK: put most of tiles in bg layer
+                auto rl = view->bg;
+                if (properties.find(BlockInfo::collision) != properties.end() &&
+                    properties[BlockInfo::collision] == "flyable")
+                {
+                    rl = view->main;
+                }
+                
+                auto coord = data->getPosFromCoord({i,j});
+                auto sprite = Sprite::createWithSpriteFrameName(properties[BlockInfo::bgTileName]);
+                sprite->setAnchorPoint({0, 0});
+                sprite->setPosition(coord);
+                rl->addChild(sprite, data->getZOrder(coord));
+            }
+        }
     
-    auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
-    auto& cpCollision = ecs::add<cp::Collision>(eid, roomIndex);
+    //objects
+    for(auto obj : data->getModelObjs())
+    {
+        auto profile = GameCtrl::instance()->profileModel.get(obj.profileName);
+        auto eid = cp::entity::genID();
+        ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
+                                                        RenderComponent::chooseLayer(profile, view),
+                                                        data->getZOrder(obj.pos));
+        ecs::get<cp::Render>(eid).setPosition(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
+        ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
+        ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
+        ecs::add<cp::Input>(eid, roomIndex);
+        ecs::add<cp::Position>(eid, roomIndex).set(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
+        
+        if (profile->withMove)
+        {
+            if (profile->orientation)
+                ecs::add<cp::Orientation>(eid, roomIndex);
+            ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
+        }
+        
+        if (profile->withMelee)
+        {
+            ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
+        }
+        
+        if (profile->withBehaviour)
+        {
+            ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
+        }
+        
+        if (profile->withHealth)
+        {
+            ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
+        }
+        
+        if (obj.profileName == "torch")
+        {
+            ecs::get<cp::Render>(eid).setAnimation("activated", -1);
+            
+            auto light = Sprite::createWithSpriteFrameName("grad_ellipse.png");
+            //light->setOpacity(120);
+            light->setColor(Color3B(252, 195, 159));
+            light->setBlendFunc(BlendFunc::ADDITIVE);
+            light->setPosition(obj.pos + Vec2(8, 8));
+            light->runAction(RepeatForever::create(Flicker::create(80.0f, 0.1f,
+                {150, 200}, {0.98, 1.2}, {0.9,1.1}, Color3B(252, 168, 50), Color3B(252, 168, 50))));
+            view->fg->addChild(light, 1);
+        }
+    }
     
-    cpRender.setProfile(profile, RenderComponent::chooseLayer(profile, view),
-                        data->getModel()->getZOrder(srcPos));
-    cpCollision.setProfile(profile);
+    //gates
+    for(auto element : data->gateMapping)
+    {
+        GateMap gateMap = element.second;
+        auto eid = cp::entity::genID();
+        ecs::add<cp::Gate>(eid, roomIndex) = gateMap;
+        
+        //view
+        cc::Point pos = {gateMap.info.rect.origin.x, gateMap.info.rect.origin.y};
+        auto sprite = Sprite::createWithSpriteFrameName(gateMap.tileName + ".png");
+        sprite->setAnchorPoint({0, 0});
+        sprite->setPosition(pos);
+        view->bg->addChild(sprite, data->getZOrder(pos));
+        
+        //change collision data
+        
+        auto gateSrcCoord = data->getCoordFromPos(pos);
+        auto gateDestCoord = data->getCoordFromPos({
+            gateMap.info.rect.getMaxX(),
+            gateMap.info.rect.getMaxY()});
+        
+        for(int j = gateSrcCoord.y; j < gateDestCoord.y; j++)
+        for(int i = gateSrcCoord.x; i < gateDestCoord.x; i++)
+        {
+            data->getContent().get(i, j).fields[BlockInfo::collision] = "walkable";
+        }
+    }
     
-    ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
-    ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
-    ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
-    ecs::add<cp::Orientation>(eid, roomIndex);
-    ecs::add<cp::Control>(eid, roomIndex) = ControlSystem::INDEX_P1;
-
-    auto& csHealth = ecs::add<cp::Health>(eid, roomIndex);
-    csHealth.setProfile(profile);
-    
-    cpRender.container->setPosition({
-        srcPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
-        srcPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
-    });
-    cpRender.container->setOpacity(0);
-
-    //warp
-    eid = cp::entity::genID();
-    ecs::add<cp::Warp>(eid, roomIndex).set(warpInfo, [](){
-        GameCtrl::instance()->newSession();
-    });
+    //init systems
+    collisionSystem.init(data);
+    renderSystem.init(data);
+    aiSystem.init(data);
 }
 
 void RoomSystemCtrl::hideObjects(float duration)
@@ -121,118 +180,7 @@ void RoomSystemCtrl::registerEvents()
     this->eventRegs.push_back(meleeSystem.onHealthChanged.registerObserver([this](unsigned eid, int health){
         this->onHealthChanged(this->ecsGroup.getID(), eid, health);
     }));
-    this->eventRegs.push_back(transSystem.onRoomChanged.registerObserver([this](unsigned roomIdx, unsigned gateIdx, unsigned eid){
-        this->onRoomChanged(roomIdx, gateIdx, eid);
+    this->eventRegs.push_back(transSystem.onGateTriggered.registerObserver([this](unsigned eid, GateMap gate){
+        this->onGateTriggered(this->ecsGroup.getID(), eid, gate);
     }));
-}
-
-void RoomSystemCtrl::loadCommon(RoomLayer *view, RoomData *data)
-{
-    collisionSystem.init(data);
-    renderSystem.init(data);
-    aiSystem.init(data);
-    ecsGroup.setID(data->index);
-    
-    auto roomIndex = data->index;
-    auto grid = data->getModel()->grid;
-        
-    //todo: try not generating entities for bg maps
-        
-    //map
-    for(unsigned j = 0; j < grid.height; j++)
-    for(unsigned i = 0; i < grid.width; i++)
-    {
-        auto properties = grid.get(i, j).fields;
-        if (properties.find(BlockInfo::bgTileName) != properties.end())
-        {
-            //HACK: put most of tiles in bg layer
-            auto rl = view->bg;
-            if (properties.find(BlockInfo::collision) != properties.end() &&
-                properties[BlockInfo::collision] == "flyable")
-            {
-                rl = view->main;
-            }
-                
-            auto coord = data->getModel()->getPosCoord({i,j});
-            auto sprite = Sprite::createWithSpriteFrameName(properties[BlockInfo::bgTileName]);
-            sprite->getTexture()->setAliasTexParameters();
-            sprite->setAnchorPoint({0, 0});
-            sprite->setPosition(coord);
-            rl->addChild(sprite, data->getModel()->getZOrder(coord));
-        }
-    }
-        
-    //objects
-    for(auto obj : data->getModel()->objs)
-    {
-        auto profile = GameCtrl::instance()->profileModel.get(obj.profileName);
-        auto eid = cp::entity::genID();
-        ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
-            RenderComponent::chooseLayer(profile, view),
-            data->getModel()->getZOrder(obj.pos));
-        ecs::get<cp::Render>(eid).setPosition(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
-        ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
-        ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
-        ecs::add<cp::Input>(eid, roomIndex);
-        ecs::add<cp::Position>(eid, roomIndex).set(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
-        
-        if (profile->withMove)
-        {
-            if (profile->orientation)
-                ecs::add<cp::Orientation>(eid, roomIndex);
-            ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
-        }
-        
-        if (profile->withMelee)
-        {
-            ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
-        }
-        
-        if (profile->withBehaviour)
-        {
-            ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
-        }
-        
-        if (profile->withHealth)
-        {
-            ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
-        }
-        
-        if (obj.profileName == "torch")
-        {
-            ecs::get<cp::Render>(eid).setAnimation("activated", -1);
-                
-            auto light = Sprite::createWithSpriteFrameName("grad_ellipse.png");
-            //light->setOpacity(120);
-            light->setColor(Color3B(252, 195, 159));
-            light->setBlendFunc(BlendFunc::ADDITIVE);
-            light->setPosition(obj.pos + Vec2(8, 8));
-            light->runAction(RepeatForever::create(Flicker::create(80.0f, 0.1f,
-                {150, 200}, {0.98, 1.2}, {0.9,1.1}, Color3B(252, 168, 50), Color3B(252, 168, 50))));
-            view->fg->addChild(light, 1);
-        }
-    }
-    
-    //gates
-    for(auto gateMap : data->gateMapping)
-    {
-        unsigned srcGateIndex = gateMap.first;
-        unsigned destRoomIndex = gateMap.second.roomIndex;
-        unsigned destGateIndex = gateMap.second.gateIndex;
-        
-        auto eid = cp::entity::genID();
-        ecs::add<cp::Gate>(eid, roomIndex).set(
-            destRoomIndex, destGateIndex, data->getModel()->gates[srcGateIndex]);
-    }
-}
-
-void RoomSystemCtrl::loadEnd(RoomLayer *view, RoomData *data)
-{
-    assert(data->getModel()->warps.size() > 0);
-    auto warpInfo = data->getModel()->warps.front();
-    //warp
-    auto eid = cp::entity::genID();
-    ecs::add<cp::Warp>(eid, data->index).set(warpInfo, [](){
-        GameCtrl::instance()->newSession();
-    });
 }

@@ -4,8 +4,7 @@
 
 class PositionComponent;
 class GateInfo;
-class GateComponent;
-class WarpComponent;
+class GateMap;
 class CollisionComponent;
 
 class TransitSystem : public BaseTickSystem
@@ -17,18 +16,14 @@ public:
     virtual void tick(double dt) final;
     virtual void animate(double dt, double tp) final {}
     
-    event::Subject<void(unsigned roomIndex, unsigned gateIndex, unsigned eid)> onRoomChanged;
+    event::Subject<void(unsigned eid, GateMap gate)> onGateTriggered;
     
 private:
     
 
     void gateringEnter(unsigned targetEntity,
                        const cocos2d::Vec2& targetPoint,
-                       const GateComponent& srcGate);
-    
-    void warpingEnter(unsigned targetEntity,
-                      const cocos2d::Vec2& targetPoint,
-                      const WarpComponent& srcWarp);
+                       const GateMap& gateMap);
     
     std::pair<float, cc::Vec2> processing(GateInfo info,
                                           PositionComponent& pos,

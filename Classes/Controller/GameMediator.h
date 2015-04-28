@@ -10,5 +10,5 @@ public:
     
     static const size_t ID() {
         return std::hash<std::string>()(STRINGIFY(GameMediator));
-    };    
+    };
 };

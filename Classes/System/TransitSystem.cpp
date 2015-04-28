@@ -95,62 +95,29 @@ void TransitSystem::tick(double dt)
                 break;
             }
         }
-        
-        for(auto eid : ecs.system<cp::Warp>())
-        {
-            auto& cpWarp = ecs::get<cp::Warp>(eid);
-            
-            auto result = this->processing(cpWarp.info, cpPos, cpCol);
-            if (result.first >= 1)
-            {
-                warpingEnter(eid2, result.second, cpWarp);
-                break;
-            }
-        }
     }
 }
 
-void TransitSystem::warpingEnter(unsigned eid,
-                                 const cocos2d::Vec2 &targetPoint,
-                                 const WarpComponent &srcWarp)
-{
-    float duration = 0.5f;
-    
-    auto& render = ecs::get<cp::Render>(eid);
-    ecs::get<cp::Input>(eid).forceDisable();
-    ecs.del<cp::Position>(eid);
-    ecs::get<cp::Velocity>(eid).reset();
-    render.container->runAction(cc::Sequence::create(
-                                                     cc::MoveTo::create(duration, targetPoint),
-                                                     cc::CallFunc::create(std::bind(srcWarp.onWarp)),
-        NULL
-    ));
-    render.runAction(cc::Sequence::create(
-                                          cc::TintTo::create(duration / 2, cc::Color3B::YELLOW),
-                                          cc::FadeTo::create(duration / 4, 0),
-        NULL
-    ));
-}
-
-void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint, const GateComponent& srcGate)
+void TransitSystem::gateringEnter(unsigned eid,
+                                  const cocos2d::Vec2& targetPoint,
+                                  const GateMap& gateMap)
 {
     using namespace std::placeholders;
     float duration = 0.5f;
     
     auto& render = ecs::get<cp::Render>(eid);
-    
     ecs::get<cp::Input>(eid).forceDisable();
     ecs.del<cp::Position>(eid);
     ecs::get<cp::Velocity>(eid).reset();
     render.container->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, targetPoint),
-        cc::CallFunc::create([this, eid, &srcGate](){
-            this->onRoomChanged(srcGate.destRoomIdx, srcGate.destGateIdx, eid);
+        cc::CallFunc::create([this, eid, &gateMap](){
+            this->onGateTriggered(eid, gateMap);
         }),
         NULL
     ));
     render.runAction(cc::Sequence::create(
-        TintTo::create(duration / 2, cc::Color3B::BLACK),
+        cc::TintTo::create(duration / 2, cc::Color3B::BLACK),
         cc::FadeTo::create(duration / 4, 0),
         NULL
     ));

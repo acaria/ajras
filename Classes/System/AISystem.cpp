@@ -146,18 +146,18 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                     auto &properties = cpAI.board.getFields(nid);
                     if (!lib::hasKey(properties, "target"))
                     {
-                        auto model = this->data->getModel();
+                        auto grid = this->data->getContent();
                         lib::v2u pos = {
-                            lib::randAB(0, model->grid.width), lib::randAB(0, model->grid.height)
+                            lib::randAB(0, grid.width), lib::randAB(0, grid.height - 1)
                         };
                         
                         auto maxCount = 1000;
                         while(maxCount-- > 0 &&
-                              (!lib::hasKey(model->grid.get({pos.x, pos.y}).fields, BlockInfo::collision) ||
-                              model->grid.get({pos.x, pos.y}).fields[BlockInfo::collision] != "walkable"))
+                              (!lib::hasKey(grid.get({pos.x, pos.y}).fields, BlockInfo::collision) ||
+                              grid.get({pos.x, pos.y}).fields[BlockInfo::collision] != "walkable"))
                         {
                             pos = {
-                                lib::randAB(0, model->grid.width), lib::randAB(0, model->grid.height)
+                                lib::randAB(0, grid.width), lib::randAB(0, grid.height - 1)
                             };
                         }
                         
@@ -166,7 +166,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                     
                     auto& cpInput = ecs::get<cp::Input>(eid);
                     auto bounds = SysHelper::getBounds(eid);
-                    auto bounds2 = data->getModel()->getRectCoord({
+                    auto bounds2 = data->getBlockBound({
                         (unsigned)properties["target"].asValueMap()["x"].asInt(),
                         (unsigned)properties["target"].asValueMap()["y"].asInt()
                     });

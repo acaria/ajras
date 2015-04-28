@@ -7,6 +7,9 @@
 #include "InterfaceLayer.h"
 #include "NodeRenderer.h"
 #include "HealthBar.h"
+#include "GateMap.h"
+#include "GameCtrl.h"
+#include "RenderComponent.h"
 
 using namespace std::placeholders;
 
@@ -49,13 +52,13 @@ void FloorSystemCtrl::registerEvents(RoomSystemCtrl *ctrl)
     this->eventRegs.push_back(ctrl->onHealthChanged.registerObserver(
         std::bind(&FloorSystemCtrl::onHealthChanged, this, _1, _2, _3)));
     
-    this->eventRegs.push_back(ctrl->onRoomChanged.registerObserver(
+    this->eventRegs.push_back(ctrl->onGateTriggered.registerObserver(
         std::bind(&FloorSystemCtrl::onRoomChanged, this, _1, _2, _3)));
 }
 
 void FloorSystemCtrl::onRoomChanged(unsigned nextRoomIndex,
-                                    unsigned gateIndex,
-                                    unsigned eid)
+                                      unsigned eid,
+                                      GateMap  gate)
 {
     unsigned prevRoomIndex = this->currentRoomIndex;
 
@@ -90,16 +93,16 @@ void FloorSystemCtrl::onRoomChanged(unsigned nextRoomIndex,
     //gate introduction
     float duration = 1.0f;
     
-    auto gateInfo = nextRoom->getModel()->gates[gateIndex];
+    auto destGate = nextRoom->gateMapping[gate.destGateIndex];
     
     auto& render = ecs::get<cp::Render>(eid);
     auto colRect = ecs::get<cp::Collision>(eid).rect;
     cocos2d::Vec2 srcPos, destPos;
     
-    nextRoom->getModel()->extractGateringIntroInfo(gateIndex,
-                                                   ecs::get<cp::Collision>(eid).rect,
-                                                   /*out*/srcPos,
-                                                   /*out*/destPos);
+    nextRoom->extractGateAnimInfo(destGate.index,
+                                  ecs::get<cp::Collision>(eid).rect,
+                                  /*out*/srcPos,
+                                  /*out*/destPos);
     render.setPosition(srcPos);
     render.container->runAction(cc::Sequence::create(
         cc::MoveBy::create(duration, destPos - srcPos),
@@ -139,7 +142,7 @@ void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
         auto roomData = pair.second;
         auto bounds = roomData->getBounds();
         
-        auto grid = roomData->getModel()->grid;
+        auto grid = roomData->getContent();
         
         for(int j = 0; j < grid.height; j++)
         for(int i = 0; i < grid.width; i++)
@@ -156,9 +159,9 @@ void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
             if (gridInfo.fields[BlockInfo::collision] == "walkable" ||
                 gridInfo.fields[BlockInfo::collision] == "flyable")
             {
-                if (roomData->type == RoomData::RoomType::START)
+                if (roomData->type == RoomData::RoomType::STARTER)
                     pxl->setColor(cc::Color3B::RED);
-                else if (roomData->type == RoomData::RoomType::END)
+                else if (roomData->type == RoomData::RoomType::FINISHER)
                     pxl->setColor(cc::Color3B::GREEN);
                 else
                     pxl->setColor(cc::Color3B::YELLOW);
@@ -180,22 +183,40 @@ void FloorSystemCtrl::start()
     auto camRect = data->rooms[this->currentRoomIndex]->getBounds();
     this->gView->setCamera({camRect.getMidX(), camRect.getMidY()});
     
-    this->showRoom(this->currentRoomIndex, [this](){
+    auto roomIndex = this->currentRoomIndex;
+    auto roomData = this->data->rooms[roomIndex];
+    auto roomView = this->roomViews[roomIndex];
+    
+    //find warp enter
+    GateMap* enterGateRef = nullptr;
+    for(auto element : roomData->gateMapping)
+    {
+        if (element.second.cmd == GateMap::CmdType::ENTER_MAP)
+        {
+            enterGateRef = &element.second;
+            break;
+        }
+    }
+    assert(enterGateRef != nullptr);
+    GateMap enterGate = *enterGateRef;
+    
+    //show room
+    this->showRoom(roomIndex, [this, enterGate]() {
         float duration = 3.0f;
         
         auto roomData = this->data->rooms[this->currentRoomIndex];
         auto roomIndex = roomData->index;
         
-        auto warpInfo = roomData->getModel()->warps.front();
-        auto srcPos = warpInfo.getSrcPos();
-        auto destPos = warpInfo.getDestPos();
-        
-        if (this->focusEntity != 0 && ecs::has<cp::Render, cp::Collision>(this->focusEntity))
+        auto srcPos = enterGate.info.getSrcPos();
+        auto destPos = enterGate.info.getDestPos();
+                
+        if (this->focusEntity != 0 &&
+            ecs::has<cp::Render, cp::Collision>(this->focusEntity))
         {
             unsigned eid = this->focusEntity;
             auto& cpRender = ecs::get<cp::Render>(eid);
             auto& cpCollision = ecs::get<cp::Collision>(eid);
-            
+                    
             cpRender.container->runAction(cc::Sequence::create(
                 cc::MoveTo::create(duration, {
                     destPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
@@ -215,21 +236,37 @@ void FloorSystemCtrl::start()
         }
     });
     
-    //guess focus entity
-    for(auto eid : ecs::system<cp::Control>(this->currentRoomIndex))
-    {
-        //guess focus entity
-        if (ecs::get<cp::Control>(eid) == ControlSystem::INDEX_P1)
-            focusEntity = eid;
-    }
+    //create player
+    auto eid = cp::entity::genID();
+    auto profile = GameCtrl::instance()->profileModel.get("boy");
+    auto srcPos = enterGate.info.getSrcPos();
     
-    //init interface
-    if (ecs::has<cp::Health>(this->focusEntity))
-    {
-        auto& cpHealth = ecs::get<cp::Health>(this->focusEntity);
-        this->gView->interface->getHealthBar()->initProperties(cpHealth.maxHp,
-                                                               cpHealth.hp);
-    }
+    auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
+    auto& cpCollision = ecs::add<cp::Collision>(eid, roomIndex);
+    
+    cpRender.setProfile(profile,
+                        RenderComponent::chooseLayer(profile, roomView),
+                        roomData->getZOrder(srcPos));
+    cpCollision.setProfile(profile);
+    
+    ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::Orientation>(eid, roomIndex);
+    ecs::add<cp::Control>(eid, roomIndex) = ControlSystem::INDEX_P1;
+    
+    auto& csHealth = ecs::add<cp::Health>(eid, roomIndex);
+    csHealth.setProfile(profile);
+    
+    cpRender.container->setPosition({
+        srcPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
+        srcPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
+    });
+    cpRender.container->setOpacity(0);
+    
+    this->focusEntity = eid;
+    this->gView->interface->getHealthBar()->initProperties(csHealth.maxHp,
+                                                           csHealth.hp);
 }
 
 void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> after)

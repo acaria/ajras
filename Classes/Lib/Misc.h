@@ -35,9 +35,9 @@ namespace lib
     }
     
     inline unsigned randAB(int a, int b){
-        //a included //b excluded
-        assert(b > a);
-        return std::rand() % (b - a) + a;
+        //a included //b included
+        assert(b >= a);
+        return std::rand() % (b + 1 - a) + a;
     }
     
     inline int parseInt(const std::string& str)

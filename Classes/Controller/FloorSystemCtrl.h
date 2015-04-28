@@ -2,6 +2,7 @@
 
 class MapData;
 class NodeRenderer;
+class GateMap;
 
 #include "ControlSystem.h"
 #include "RoomSystemCtrl.h"
@@ -24,7 +25,7 @@ public:
     void animate(double dt, double tickPercent);
     
     void onHealthChanged(unsigned roomIndex, unsigned eid, int health);
-    void onRoomChanged(unsigned roomIndex, unsigned gateIndex, unsigned eid);
+    void onRoomChanged(unsigned nextRoomIndex, unsigned eid, GateMap   gate);
     
 private:
     

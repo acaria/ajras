@@ -1,7 +1,8 @@
 #include "MapData.h"
-#include "MapShape.h"
+#include "FloorMapping.h"
 #include "RoomModel.h"
 #include "RoomData.h"
+#include "GateMap.h"
 
 void MapData::extractInfo(const std::string &name)
 {
@@ -9,78 +10,129 @@ void MapData::extractInfo(const std::string &name)
         "maps/" + name + ".plist");
     auto rawData = cc::FileUtils::getInstance()->getValueMapFromFile(path);
     
+    //layout
     CCASSERT(rawData.find("layout") != rawData.end(), "invalid map data");
     auto layout = rawData.at("layout").asValueMap();
-    depthConfig.first = layout.at("minDepth").asInt();
-    depthConfig.second = layout.at("maxDepth").asInt();
-    this->shape = new MapShape(layout.at("width").asInt(), layout.at("height").asInt());
+    depthConfig.first = layout.at("min_depth").asInt();
+    depthConfig.second = layout.at("max_depth").asInt();
+    this->floorMapping = new FloorMapping(layout.at("width").asInt(), layout.at("height").asInt());
+    auto minMaxStartNbGates = std::vector<std::string>();
+    lib::split(layout.at("start_nb_gates").asString(), minMaxStartNbGates, ",", true);
+    this->startNbGates.first = lib::parseInt(minMaxStartNbGates[0]);
+    this->startNbGates.second = lib::parseInt(minMaxStartNbGates[1]);
     
-    CCASSERT(rawData.find("rooms") != rawData.end(), "invalid map data");
-    auto rooms = rawData.at("rooms").asValueMap();
-    CCASSERT(rooms.find("content") != rooms.end(), "invalid map data");
-    CCASSERT(rooms.find("start") != rooms.end(), "invalid map data");
-    
-    CCASSERT(rawData.find("background") != rawData.end(), "invalid map data");
-    auto bgData = rawData.at("background").asValueMap();
+    //design
+    CCASSERT(rawData.find("design") != rawData.end(), "invalid map data");
+    auto design = rawData.at("design").asValueMap();
     auto bgRawColor = std::vector<std::string>();
-    lib::split(bgData.at("color").asString(), bgRawColor, ",", true);
+    lib::split(design.at("bg_color").asString(), bgRawColor, ",", true);
     this->bgColor = cc::Color3B(lib::parseInt(bgRawColor[0]),
                             lib::parseInt(bgRawColor[1]),
                             lib::parseInt(bgRawColor[2]));
-    for(auto tile : bgData.at("tiles").asValueVector())
+    for(auto tile : design.at("bg_tiles").asValueVector())
         this->bgTiles.push_back(tile.asString());
-    
-    for(auto contentModel : rooms.at("content").asValueVector())
+    CCASSERT(design.find("gate") != design.end(), "invalid gate data");
+    for(auto element : design.at("gate").asValueMap())
     {
-        this->addModel(RoomModel::create(contentModel.asString()));
+        this->gateConfig[GateInfo::typeFromStr(element.first)] = this->subExtractGateInfo(element.second.asValueMap());
+    }
+    CCASSERT(design.find("warp") != design.end(), "invalid warp data");
+    for(auto element : design.at("warp").asValueMap())
+    {
+        this->warpConfig[GateInfo::typeFromStr(element.first)] = this->subExtractGateInfo(element.second.asValueMap());
+    }
+    CCASSERT(design.find("ss") != design.end(), "invalid ss data");
+    for(auto ss : design.at("ss").asValueVector())
+    {
+        this->spriteSheets.insert(ss.asString());
     }
     
-    for(auto contentModel : rooms.at("end").asValueVector())
+    //rooms
+    CCASSERT(rawData.find("rooms") != rawData.end(), "invalid room data");
+    auto rooms = rawData.at("rooms").asValueMap();
+    for(auto roomCategory : {"common", "empty"})
     {
-        this->addEndModel(RoomModel::create(contentModel.asString()));
+        CCASSERT(rooms.find(roomCategory) != rooms.end(),
+                 "invalid room category data");
+        for(auto contentModel : rooms.at(roomCategory).asValueVector())
+        {
+            auto modelName = contentModel.asString();
+            if (!lib::hasKey(this->modelLib, modelName))
+                this->modelLib[modelName] = RoomModel::create(modelName);
+            if (!lib::hasKey(this->modelCategory, roomCategory))
+                this->modelCategory[roomCategory] = ModelVector();
+            this->modelCategory[roomCategory].push_back(modelLib[modelName]);
+        }
     }
+}
+
+std::pair<std::string, cc::Rect> MapData::subExtractGateInfo(const cc::ValueMap& el)
+{
+    CCASSERT(el.find("tile") != el.end(), "invalid gate info");
+    CCASSERT(el.find("bounds") != el.end(), "invalid gate info");
     
-    //starter
-    auto starterCount = rooms.at("start").asValueVector().size();
-    auto starterModelName = rooms.at("start").asValueVector().at(rand() % starterCount).asString();
-    this->startModel = RoomModel::create(starterModelName);
+    auto tileName = el.at("tile").asString();
+    auto tileBounds = std::vector<std::string>();
+    lib::split(el.at("bounds").asString(), tileBounds, ",", true);
+
+    cc::Rect gateBounds = cc::Rect(
+        lib::parseFloat(tileBounds[0]),
+        lib::parseFloat(tileBounds[1]),
+        lib::parseFloat(tileBounds[2]),
+        lib::parseFloat(tileBounds[3])
+    );
+    
+    return {tileName, gateBounds};
 }
 
 MapData::MapData(const std::string& fileName)
 {
-    this->shape = nullptr;
+    this->floorMapping = nullptr;
     this->extractInfo(fileName);
 }
 
-MapData* MapData::generate(const std::string& filename, int nbTry)
+const ModelVector MapData::getModels(const std::string& category)
 {
-    auto seed = time(0);
+    if (!lib::hasKey(this->modelCategory, category))
+        return ModelVector();
+    return this->modelCategory[category];
+}
+
+MapData* MapData::generate(const std::string& filename, long seed, int nbTry)
+{
     MapData* map = new MapData(filename);
     
-    std::vector<RoomData*> roomList;
+    std::vector<RoomData*>              roomList;
+    std::map<std::string, ModelVector>  modelList;
     
-    std::vector<RoomModel*> modelList(map->getModels());
-    std::vector<RoomModel*> endList(map->getEndModels());
-    
-    
-    std::shuffle(modelList.begin(), modelList.end(),
-                 std::default_random_engine(seed));
-    
-    std::shuffle(endList.begin(), endList.end(),
-                 std::default_random_engine(seed));
+    for(auto modelCat : {"common", "empty"})
+    {
+        modelList[modelCat] = ModelVector(map->getModels(modelCat));
+        std::shuffle(modelList[modelCat].begin(),
+                     modelList[modelCat].end(),
+                     std::default_random_engine(seed));
+    }
 
     //starter
-    auto firstRoom = map->addRoom({
-        (unsigned)(map->shape->getSize().x / 2),
-        (unsigned)(map->shape->getSize().y / 2)}, map->startModel);
+    auto firstModel = MapData::pickModel(modelList["empty"]);
+    auto coord = lib::v2u(
+        (map->floorMapping->getSize().x / 2),
+        (map->floorMapping->getSize().y / 2)
+    );
+    
+    auto firstRoom = map->addRoom(firstModel, {
+        .coord = coord,
+        .nbGates = map->startNbGates,
+        .profile = RoomData::RoomType::STARTER
+    });
     firstRoom->depth = 1;
-    firstRoom->type = RoomData::RoomType::START;
+    
     roomList.push_back(firstRoom);
     map->setCurIdxRoom(firstRoom->index);
     
     bool loop = true;
     bool withEndRoom = false;
-    while(loop)
+    /*while(loop)
     {
         std::shuffle(roomList.begin(), roomList.end(),
             std::default_random_engine(seed));
@@ -208,25 +260,30 @@ MapData* MapData::generate(const std::string& filename, int nbTry)
         }
         else
         {
-            modelList.erase(std::remove(modelList.begin(),
-                                        modelList.end(),
-                                        modelFound),
-                            modelList.end());
-            modelList.push_back(modelFound);
+            MapData::sendBackModel(modelList, modelFound);
         }
     }
     
-    if ((!loop || !withEndRoom) && nbTry < 50) //fail
+    if ((!loop || !withEndRoom) && nbTry > 0) //fail
     {
         delete map;
-        return generate(filename, nbTry + 1);
+        return generate(filename, nbTry - 1);
     }
     
     CCASSERT(loop, "cannot generate map after 50 tries");
     CCLOG("nb try to generate the map = %d", nbTry);
-    
+    */
     
     return map;
+}
+
+RoomModel* MapData::pickModel(ModelVector& modelList)
+{
+    auto model = modelList.front();
+    modelList.erase(std::remove(modelList.begin(), modelList.end(), model),
+                    modelList.end());
+    modelList.push_back(model);
+    return model;
 }
 
 void MapData::computeDepth(RoomData *room)
@@ -234,10 +291,10 @@ void MapData::computeDepth(RoomData *room)
     unsigned minDepth = 0;
     for(auto &pair : room->gateMapping)
     {
-        RoomData::GateMap gateRef = pair.second;
-        if (gateRef.roomIndex != 0) //gate filled
+        GateMap gateRef = pair.second;
+        if (gateRef.destRoomIndex != 0) //gate filled
         {
-            auto currentDepth = this->rooms[gateRef.roomIndex]->depth;
+            auto currentDepth = this->rooms[gateRef.destRoomIndex]->depth;
             if (minDepth == 0 || minDepth > currentDepth)
                 minDepth = currentDepth;
         }
@@ -247,13 +304,11 @@ void MapData::computeDepth(RoomData *room)
 
 MapData::~MapData()
 {
-    if (this->startModel != nullptr)
-        delete this->startModel;
+    //map shape
+    if (this->floorMapping != nullptr)
+        delete this->floorMapping;
     
-    if (this->shape != nullptr)
-        delete this->shape;
-    
-    //clearrooms
+    //clear rooms
     for(auto room : this->rooms)
     {
         if (room.second != nullptr)
@@ -261,30 +316,16 @@ MapData::~MapData()
     }
     
     //clear models
-    for(auto model : this->lib)
+    for(auto model : this->modelLib)
     {
-        if (model != nullptr)
-            delete model;
+        if (model.second != nullptr)
+            delete model.second;
     }
-    for(auto model : this->endLib)
-    {
-        if (model != nullptr)
-            delete model;
-    }
-}
-
-void MapData::addModel(RoomModel *model)
-{
-    lib.push_back(model);
-}
-
-void MapData::addEndModel(RoomModel *model)
-{
-    endLib.push_back(model);
 }
 
 bool MapData::checkInsertRoom(lib::v2u gridPos, RoomModel* model)
 {
+    /*
     //check walls
     for(auto wall : model->shape.walls)
     {
@@ -293,7 +334,7 @@ bool MapData::checkInsertRoom(lib::v2u gridPos, RoomModel* model)
             for(int i=0; i < wall.size.width; i++)
             {
                 if (this->shape->get(gridPos.x + i,
-                                    gridPos.y + j) != MapShape::NONE)
+                                     gridPos.y + j) != MapShape::NONE)
                     return false;
             }
         }
@@ -306,18 +347,69 @@ bool MapData::checkInsertRoom(lib::v2u gridPos, RoomModel* model)
                                                 gridPos.y + pgate.second.y);
         if (btype == MapShape::WALL)
             return false;
-    }
+    }*/
     
     return true;
 }
 
-RoomData* MapData::addRoom(lib::v2u gridPos, RoomModel* model)
+RoomData* MapData::addRoom(RoomModel* model, RoomData::Config config)
 {
     static unsigned roomIndex = 1;
     auto room = new RoomData(roomIndex++, model);
-    room->position = {(float)gridPos.x * model->tileSize.x,
-                      (float)gridPos.y * model->tileSize.y};
-    for(auto wRect : model->shape.walls)
+    room->type = config.profile;
+    room->position = {(float)config.coord.x * model->tileSize.x,
+                      (float)config.coord.y * model->tileSize.y};
+    auto nbGates = lib::randAB(config.nbGates.first, config.nbGates.second);
+    
+    CCASSERT(room->crossAreas.size() >= nbGates, "too small");
+    
+    int gateIndex = 1;
+    
+    bool ifStarter = false;
+    bool ifFinisher = false;
+    
+    for(int i = nbGates; i > 0; i--)
+    {
+        auto crossInfoIt = lib::selectRand(room->crossAreas.begin(),
+                                          room->crossAreas.end());
+        auto crossInfo = *crossInfoIt;
+        room->crossAreas.erase(crossInfoIt);
+        
+        cc::Rect gateRect = this->gateConfig[crossInfo.type].second;
+        
+        int tx = (crossInfo.rect.size.width - gateRect.size.width) / model->tileSize.x;
+        int ty = (crossInfo.rect.size.height - gateRect.size.height) / model->tileSize.y;
+        
+        GateMap gateMap;
+        gateMap.info.type = crossInfo.type;
+        gateMap.info.rect = cc::Rect(
+            crossInfo.rect.origin.x + (model->tileSize.x * lib::randAB(0, tx)),
+            crossInfo.rect.origin.y + (model->tileSize.y * lib::randAB(0, ty)),
+            gateRect.size.width, gateRect.size.height
+        );
+        
+        if (config.profile == RoomData::RoomType::STARTER && !ifStarter)
+        {
+            ifStarter = true;
+            gateMap.cmd = GateMap::CmdType::ENTER_MAP;
+            gateMap.tileName = this->warpConfig[crossInfo.type].first;
+        }
+        else if (config.profile == RoomData::RoomType::FINISHER && !ifFinisher)
+        {
+            ifFinisher = true;
+            gateMap.cmd = GateMap::CmdType::EXIT_MAP;
+            gateMap.tileName = this->warpConfig[crossInfo.type].first;
+        }
+        else
+        {
+            gateMap.cmd = GateMap::CmdType::CHANGE_ROOM;
+            gateMap.tileName = this->gateConfig[crossInfo.type].first;
+        }
+        
+        room->gateMapping[gateIndex++] = gateMap;
+    }
+    
+    /*for(auto wRect : model->shape.walls)
     {
         this->shape->fill({
             wRect.origin.x + gridPos.x - 1,
@@ -331,12 +423,9 @@ RoomData* MapData::addRoom(lib::v2u gridPos, RoomModel* model)
         lib::v2i gpos = gate.second;
         this->shape->get(gpos.x + gridPos.x,
                         gpos.y + gridPos.y) = MapShape::GATE;
-    }
+    }*/
     
-    for (auto ssName : model->ss)
-        this->spriteSheets.insert(ssName);
-    
-    rooms.insert(std::make_pair(room->index, room));
+    rooms[room->index] = room;
     return room;
 }
 
@@ -365,16 +454,6 @@ cc::Color3B MapData::getBgColor()
 std::vector<std::string>& MapData::getBgTiles()
 {
     return this->bgTiles;
-}
-
-const std::vector<RoomModel*> MapData::getModels()
-{
-    return this->lib;
-}
-
-const std::vector<RoomModel*> MapData::getEndModels()
-{
-    return this->endLib;
 }
 
 const std::set<std::string>& MapData::getSriteSheets()

@@ -4,7 +4,7 @@
 RoomModel* RoomModel::create(const std::string &fileName)
 {
     auto str = cc::FileUtils::getInstance()->getStringFromFile(
-                                                                    "maps/" + fileName + ".json");
+        "maps/" + fileName + ".json");
     
     assert(str != "");
     jsonxx::Object o;
@@ -23,13 +23,6 @@ RoomModel* RoomModel::create(const std::string &fileName)
     for (const auto &s : o.get<jsonxx::Array>("tilesets").values())
     {
         auto tileset = s->get<jsonxx::Object>();
-        if (tileset.has<jsonxx::Object>("properties") &&
-            tileset.get<jsonxx::Object>("properties").has<jsonxx::String>("ss"))
-        {
-            //spritesheet mode
-            auto ssName = tileset.get<jsonxx::Object>("properties").get<jsonxx::String>("ss");
-            result->ss.push_back(ssName);
-        }
         
         unsigned pindex = (unsigned) tileset.get<jsonxx::Number>("firstgid");
         
@@ -132,13 +125,28 @@ RoomModel* RoomModel::create(const std::string &fileName)
         }
     }
     
-    processing(*result);
-    genShape(*result);
+    //processing walls
+    result->walls.push_back(cc::Rect(
+        0, 0, result->grid.width, result->grid.height));
+    
+    //processing cross areas
+    for(unsigned j = 0; j < result->grid.height; j++)
+    for(unsigned i = 0; i < result->grid.width; i++)
+    {
+        auto &block = result->grid.get({i,j});
+        if (block.fields.find(BlockInfo::collision) != block.fields.end())
+        {
+            if (block.fields[BlockInfo::collision] == "crossing")
+                result->crossAreas.push_back(extractCrossArea(*result, {i, j}));
+        }
+    }
+    
+    //genShape(*result);
 
     return result;
 }
 
-void RoomModel::extractGateringIntroInfo(unsigned gateIndex, cc::Rect colRect,
+/*void RoomModel::extractGateringIntroInfo(unsigned gateIndex, cc::Rect colRect,
                                          cc::Point& srcPos, cc::Point& destPos)
 {
     cocos2d::Vec2 movePos;
@@ -172,30 +180,29 @@ void RoomModel::extractGateringIntroInfo(unsigned gateIndex, cc::Rect colRect,
     }
     
     destPos = srcPos + movePos;
-}
+}*/
 
-GateInfo RoomModel::extractGate(RoomModel& mapData, const std::string& collisionType,
-                                unsigned i, unsigned j)
+GateInfo RoomModel::extractCrossArea(RoomModel& roomModel, lib::v2u coord)
 {
     GateInfo gate {
-        .rect = mapData.getRectCoord({i,j}),
+        .rect = roomModel.getRectCoord({coord.x,coord.y}),
         .type = GateInfo::Unknowm
     };
     
-    int maxK = mapData.grid.width;
-    int maxL = mapData.grid.height;
+    int maxK = roomModel.grid.width;
+    int maxL = roomModel.grid.height;
     bool yAxis = false;
-    for(unsigned l = j; l < maxL; l++)
-        for(unsigned k = i; k < maxK; k++)
+    for(unsigned l = coord.y; l < maxL; l++)
+        for(unsigned k = coord.x; k < maxK; k++)
         {
-            auto &block = mapData.grid.get({k, l});
+            auto &block = roomModel.grid.get({k, l});
             if (block.fields.find(BlockInfo::collision) != block.fields.end() &&
-                block.fields[BlockInfo::collision] == collisionType)
+                block.fields[BlockInfo::collision] == "crossing")
             {
-                gate.rect = mapData.getRectCoord({k,l}).unionWithRect(gate.rect);
+                gate.rect = roomModel.getRectCoord({k,l}).unionWithRect(gate.rect);
                 if (gate.type == GateInfo::Unknowm)
-                    gate.type = gessGateType({k,l}, mapData);
-                block.fields[BlockInfo::collision] = "walkable";
+                    gate.type = gessGateType({k,l}, roomModel);
+                block.fields.erase(BlockInfo::collision);// = "walkable";
             }
             else
             {
@@ -213,36 +220,29 @@ GateInfo RoomModel::extractGate(RoomModel& mapData, const std::string& collision
     return gate;
 }
 
-void RoomModel::processing(RoomModel& mapData)
+/*void RoomModel::processing(RoomModel& roomModel)
 {
-    unsigned gateIndex=1;
-    for(unsigned j = 0; j < mapData.grid.height; j++)
-    for(unsigned i = 0; i < mapData.grid.width; i++)
+    for(unsigned j = 0; j < roomModel.grid.height; j++)
+    for(unsigned i = 0; i < roomModel.grid.width; i++)
     {
-        auto &block = mapData.grid.get({i,j});
+        auto &block = roomModel.grid.get({i,j});
         if (block.fields.find(BlockInfo::collision) != block.fields.end())
         {
             if (block.fields[BlockInfo::collision] == "crossing")
-            {
-                mapData.gates[gateIndex++] = extractGate(mapData, "crossing", i, j);
-            }
-            else if (block.fields[BlockInfo::collision] == "warping")
-            {
-                mapData.warps.push_back(extractGate(mapData, "warping", i, j));
-            }
+                roomModel.crossAreas.push_back(extractCrossArea(roomModel, i, j));
         }
     }
-}
+}*/
 
-GateInfo::GateType RoomModel::gessGateType(lib::v2u pos, const RoomModel& mapData)
+GateInfo::GateType RoomModel::gessGateType(lib::v2u pos, const RoomModel& roomModel)
 {
     if (pos.x == 0)
         return GateInfo::Left;
     if (pos.y == 0)
         return GateInfo::Down;
-    if (pos.x == mapData.grid.width - 1)
+    if (pos.x == roomModel.grid.width - 1)
         return GateInfo::Right;
-    if (pos.y == mapData.grid.height - 1)
+    if (pos.y == roomModel.grid.height - 1)
         return GateInfo::Up;
     return GateInfo::Unknowm;
 }
@@ -253,16 +253,14 @@ cocos2d::Rect RoomModel::getRectCoord(lib::v2u pos)
              (float)tileSize.x, (float)tileSize.y };
 }
 
-cocos2d::Vec2 RoomModel::getPosCoord(lib::v2u pos)
+cocos2d::Vec2 RoomModel::getPosFromCoord(lib::v2u coord)
 {
-    return { (float)pos.x * tileSize.x, (float)pos.y * tileSize.y };
+    return {(float)coord.x * tileSize.x, (float)coord.y * tileSize.y};
 }
 
-lib::v2u RoomModel::getGridPos(cocos2d::Vec2 coord)
+lib::v2u RoomModel::getCoordFromPos(cocos2d::Vec2 pos)
 {
-    return {(unsigned)coord.x / tileSize.x,
-            (unsigned)coord.y / tileSize.y
-    };
+    return {(unsigned)pos.x / tileSize.x, (unsigned)pos.y / tileSize.y};
 }
 
 int RoomModel::getZOrder(const cocos2d::Vec2& pos)
@@ -270,40 +268,40 @@ int RoomModel::getZOrder(const cocos2d::Vec2& pos)
     return (totalSize.x - pos.x + ((totalSize.y - pos.y) * totalSize.y));
 }
 
-void RoomModel::genShape(RoomModel& mapData)
+/*void RoomModel::genShape(RoomModel& roomModel)
 {
-    mapData.shape.walls.push_back(cocos2d::Rect(0, 0,
-        mapData.grid.width, mapData.grid.height));
+    roomModel.shape.walls.push_back(cocos2d::Rect(
+        0, 0, roomModel.grid.width, roomModel.grid.height));
     
-    for(auto pair : mapData.gates)
+    for(auto pair : roomModel.gates)
     {
         auto gate = pair.second;
         lib::v2i p;
         
         if (gate.type == GateInfo::Left)
         {
-            p = {(int)(gate.rect.getMinX() / mapData.tileSize.x - 1),
-                (int)(gate.rect.origin.y / mapData.tileSize.y)};
+            p = {(int)(gate.rect.getMinX() / roomModel.tileSize.x - 1),
+                 (int)(gate.rect.origin.y / roomModel.tileSize.y)};
         }
         else if (gate.type == GateInfo::Right)
         {
-            p = {(int)(gate.rect.getMaxX() / mapData.tileSize.x),
-                (int)(gate.rect.origin.y / mapData.tileSize.y)};
+            p = {(int)(gate.rect.getMaxX() / roomModel.tileSize.x),
+                 (int)(gate.rect.origin.y / roomModel.tileSize.y)};
         }
         else if (gate.type == GateInfo::Up)
         {
-            p = {(int)(gate.rect.origin.x / mapData.tileSize.x),
-                (int)(gate.rect.getMaxY() / mapData.tileSize.y)};
+            p = {(int)(gate.rect.origin.x / roomModel.tileSize.x),
+                 (int)(gate.rect.getMaxY() / roomModel.tileSize.y)};
         }
         else if (gate.type == GateInfo::Down)
         {
-            p = {(int)(gate.rect.origin.x / mapData.tileSize.x),
-                (int)(gate.rect.getMinY() / mapData.tileSize.y - 1)};
+            p = {(int)(gate.rect.origin.x / roomModel.tileSize.x),
+                 (int)(gate.rect.getMinY() / roomModel.tileSize.y - 1)};
         }
         else
         {
             Log("invalid gate");
         }
-        mapData.shape.gates[pair.first] = p;
+        roomModel.shape.gates[pair.first] = p;
     }
-}
+}*/

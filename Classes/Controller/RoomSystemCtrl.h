@@ -13,6 +13,7 @@
 class RoomData;
 class RoomLayer;
 class GameScene;
+class GateMap;
 
 class RoomSystemCtrl
 {
@@ -42,16 +43,12 @@ public:
     
     //events
     event::Subject<void(unsigned roomID, unsigned eid, int health)> onHealthChanged;
-    event::Subject<void(unsigned roomIdx, unsigned gateIdx, unsigned eid)> onRoomChanged;
+    event::Subject<void(unsigned roomID, unsigned eid, GateMap gate)> onGateTriggered;
 
 private:
 
     void registerEvents();
     std::vector<event::Registration> eventRegs;
-
-    void loadStart(RoomLayer* view, RoomData* data);
-    void loadCommon(RoomLayer* view, RoomData* data);
-    void loadEnd(RoomLayer* view, RoomData* data);
 
     //systems
     RenderSystem    renderSystem;

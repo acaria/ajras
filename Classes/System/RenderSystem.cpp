@@ -33,7 +33,7 @@ void RenderSystem::tick(double dt)
             if (cpPos.last != cpPos.pos)
             {
                 auto pos = SysHelper::getBounds(eid);
-                cpRender.setLocalZOrder(data->getModel()->getZOrder(pos.origin));
+                cpRender.setLocalZOrder(data->getZOrder(pos.origin));
             }
         }
         

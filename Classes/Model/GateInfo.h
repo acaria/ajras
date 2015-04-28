@@ -14,9 +14,26 @@ struct GateInfo
     };
 
     cc::Rect   rect;
-    GateType        type;
+    GateType   type;
     
-    cc::Point getSrcPos()
+    static GateType typeFromStr(std::string str)
+    {
+        if (str == "left")
+            return GateType::Left;
+        if (str == "right")
+            return GateType::Right;
+        if (str == "up")
+            return GateType::Up;
+        if (str == "down")
+            return GateType::Down;
+        if (str == "upstair")
+            return GateType::Upstair;
+        if (str == "downStair")
+            return GateType::DownStair;
+        return GateType::Unknowm;
+    }
+    
+    cc::Point getSrcPos() const
     {
         switch(type)
         {
@@ -28,7 +45,7 @@ struct GateInfo
         }
     }
     
-    cc::Point getDestPos()
+    cc::Point getDestPos() const
     {
         switch(type)
         {

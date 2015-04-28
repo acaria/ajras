@@ -1,10 +1,11 @@
 #pragma once
 #include "DataGrid.h"
+#include "GateInfo.h"
 
-class MapShape
+class FloorMapping
 {
 public:
-    MapShape(unsigned width, unsigned height):
+    FloorMapping(unsigned width, unsigned height):
         size{width,height},
         grid(width, height)
     {
@@ -13,20 +14,19 @@ public:
             grid[{i,j}] = NONE;
     }
 
-    MapShape():MapShape(200,200) {}
+    FloorMapping():FloorMapping(200,200) {}
     
     enum BType { NONE, WALL, GATE};
     
     lib::v2u size;
     
-    BType &get(int x, int y)
+    BType &get(unsigned cx, unsigned cy)
     {
-        if (x >= grid.width || y >= grid.height)
+        if (cx >= grid.width || cy >= grid.height)
         {
-            dummy = WALL;
             return dummy;
         }
-        return grid.get(x, y);
+        return grid.get(cx, cy);
     }
     
     BType &get(lib::v2i p)
@@ -39,13 +39,13 @@ public:
         return get(p.x, p.y);
     }
     
-    void fill(cc::Rect r)
+    void fill(cc::Rect r, BType bType = WALL)
     {
         for(int j = 0; j < r.size.height; j++)
-        for(int i = 0; i < r.size.width; i++)
-        {
-            grid.get(r.origin.x + i, r.origin.y + j) = WALL;
-        }
+            for(int i = 0; i < r.size.width; i++)
+            {
+                grid.get(r.origin.x + i, r.origin.y + j) = bType;
+            }
     }
     
     lib::v2u getSize()
@@ -53,7 +53,11 @@ public:
         return {grid.width, grid.height};
     }
     
+    std::list<std::pair<unsigned, GateInfo>>    crossingLeft;
+    
 private:
-    BType dummy;
-    lib::DataGrid<BType> grid;
+
+    BType dummy = WALL;
+    lib::DataGrid<BType>                        grid;
+    
 };

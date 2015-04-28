@@ -80,9 +80,11 @@ void CollisionSystem::init(RoomData* room)
 {
     this->reset();
 
-    auto grid = room->getModel()->grid;
+    auto grid = room->getContent();
     
-    this->blockSize = room->getModel()->tileSize;
+    auto blockBound = room->getBlockBound({0,0});
+    this->blockSize.x = blockBound.size.width;
+    this->blockSize.y = blockBound.size.height;
     this->grids[CollisionCategory::walkable] = new lib::DataGrid<bool>(grid.width, grid.height);
     this->grids[CollisionCategory::flyable] = new lib::DataGrid<bool>(grid.width, grid.height);
 

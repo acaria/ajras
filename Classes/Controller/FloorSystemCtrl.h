@@ -7,11 +7,13 @@ class GateMap;
 #include "ControlSystem.h"
 #include "RoomSystemCtrl.h"
 #include "RoomLayer.h"
+#include "Randgine.h"
 
 class FloorSystemCtrl
 {
 public:
-    FloorSystemCtrl() : controlSystem(ecsGroup)
+    FloorSystemCtrl() : controlSystem(ecsGroup),
+                        random(Randgine::instance()->get(Randgine::MAP))
     {
     }
     
@@ -20,6 +22,7 @@ public:
     void load(GameScene* view, MapData* data);
     void start();
     void displayDebug(GameScene* view, MapData* data);
+    cc::Sprite* displayMap(MapData* data);
     
     void tick(double dt);
     void animate(double dt, double tickPercent);
@@ -51,10 +54,11 @@ private:
     GameScene* gView = nullptr;
     
     //event
-    std::vector<event::Registration> eventRegs;
+    std::vector<lib::Registration> eventRegs;
     
     //mainEntity
     unsigned focusEntity = 0;
     
     unsigned currentRoomIndex;
+    lib::Random& random;
 };

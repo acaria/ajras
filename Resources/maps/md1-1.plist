@@ -82,13 +82,13 @@
 		<key>start_nb_gates</key>
 		<string>2,2</string>
 		<key>max_depth</key>
-		<integer>6</integer>
+		<integer>15</integer>
 		<key>min_depth</key>
-		<integer>4</integer>
+		<integer>13</integer>
 		<key>width</key>
-		<integer>200</integer>
+		<integer>12000</integer>
 		<key>height</key>
-		<integer>200</integer>
+		<integer>12000</integer>
 	</dict>
 	<key>rooms</key>
 	<dict>

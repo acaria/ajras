@@ -9,7 +9,7 @@ class GameScene : public BaseScene<GameScene>
 public:
     virtual bool init() override;
     
-    event::Subject<void()> onBack;
+    lib::Subject<void()> onBack;
     
     //layers
     cc::ui::Layout* canvas = nullptr;

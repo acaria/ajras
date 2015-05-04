@@ -42,13 +42,13 @@ public:
     void showObjects(float duration);
     
     //events
-    event::Subject<void(unsigned roomID, unsigned eid, int health)> onHealthChanged;
-    event::Subject<void(unsigned roomID, unsigned eid, GateMap gate)> onGateTriggered;
+    lib::Subject<void(unsigned roomID, unsigned eid, int health)> onHealthChanged;
+    lib::Subject<void(unsigned roomID, unsigned eid, GateMap gate)> onGateTriggered;
 
 private:
 
     void registerEvents();
-    std::vector<event::Registration> eventRegs;
+    std::vector<lib::Registration> eventRegs;
 
     //systems
     RenderSystem    renderSystem;

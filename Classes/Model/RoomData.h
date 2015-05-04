@@ -19,7 +19,7 @@ public:
     
     struct Config
     {
-        lib::v2u                        coord;
+        cc::Point                       pos;
         std::pair<unsigned, unsigned>   nbGates;
         RoomType                        profile;
     };
@@ -36,9 +36,10 @@ public:
     cc::Vec2                    getPosFromCoord(const lib::v2u& coord);
     lib::v2u                    getCoordFromPos(const cc::Vec2& pos);
     cc::Rect                    getBlockBound(lib::v2u coord);
+    std::list<cc::Rect>         getWalls();
     
     void extractGateAnimInfo(unsigned gateIndex, cc::Rect colRect,
-                                    cc::Point& srcPos, cc::Point& destPos);
+                             cc::Point& srcPos, cc::Point& destPos);
     
     //fields
     unsigned        index;

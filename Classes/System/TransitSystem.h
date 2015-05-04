@@ -16,7 +16,7 @@ public:
     virtual void tick(double dt) final;
     virtual void animate(double dt, double tp) final {}
     
-    event::Subject<void(unsigned eid, GateMap gate)> onGateTriggered;
+    lib::Subject<void(unsigned eid, GateMap gate)> onGateTriggered;
     
 private:
     

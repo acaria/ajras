@@ -1,4 +1,5 @@
 #include "RoomData.h"
+#include "Misc.h"
 
 RoomData::RoomData(unsigned roomIndex, RoomModel* model) : model(model),
                         index(roomIndex),
@@ -50,6 +51,11 @@ lib::DataGrid<BlockInfo>& RoomData::getContent()
 cc::Rect RoomData::getBlockBound(lib::v2u coord)
 {
     return this->model->getRectCoord(coord);
+}
+
+std::list<cc::Rect> RoomData::getWalls()
+{
+    return this->model->walls;
 }
 
 void RoomData::extractGateAnimInfo(unsigned gateIndex, cc::Rect colRect,

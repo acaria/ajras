@@ -1,63 +1,65 @@
 #pragma once
-#include "DataGrid.h"
 #include "GateInfo.h"
+#include "RoomData.h"
+#include "Randgine.h"
+#include "Misc.h"
 
 class FloorMapping
 {
 public:
-    FloorMapping(unsigned width, unsigned height):
-        size{width,height},
-        grid(width, height)
-    {
-        for(unsigned j = 0; j < size.y; j++)
-        for(unsigned i = 0; i < size.x; i++)
-            grid[{i,j}] = NONE;
-    }
+    const float margin = 16;
 
-    FloorMapping():FloorMapping(200,200) {}
-    
-    enum BType { NONE, WALL, GATE};
-    
-    lib::v2u size;
-    
-    BType &get(unsigned cx, unsigned cy)
+    //defines
+    struct CrossingInfo
     {
-        if (cx >= grid.width || cy >= grid.height)
-        {
-            return dummy;
-        }
-        return grid.get(cx, cy);
-    }
+        unsigned refRoomIndex;
+        unsigned refGateIndex;
+        GateInfo gateInfo;
+    };
+
+    //ctors
+    FloorMapping(unsigned width, unsigned height, std::map<GateInfo::GateType,
+                 std::pair<std::string, cc::Rect>> gateConfig);
     
-    BType &get(lib::v2i p)
-    {
-        return get(p.x >=0 ? p.x : 0, p.y >= 0 ? p.y : 0);
-    }
+    void addRoom(cc::Point roomPos, std::list<cc::Rect> walls);
     
-    BType &get(lib::v2u p)
-    {
-        return get(p.x, p.y);
-    }
+    cc::Point getStartPosition(RoomModel* model);
+    CrossingInfo& selectCrossing();
+    void removeCrossing(const CrossingInfo& info);
     
-    void fill(cc::Rect r, BType bType = WALL)
-    {
-        for(int j = 0; j < r.size.height; j++)
-            for(int i = 0; i < r.size.width; i++)
-            {
-                grid.get(r.origin.x + i, r.origin.y + j) = bType;
-            }
-    }
+    std::list<cc::Point> extractPositions(RoomModel* model,
+                                          GateInfo gateAbs,
+                                          GateInfo gateRel);
+    GateMap createSpecialGate(RoomData* room,
+        RoomData::RoomType roomType,
+        std::map<GateInfo::GateType, std::pair<std::string, cc::Rect>> gateConfig);
+    std::list<GateMap> bindGates(cc::Point pos,
+                                 RoomData* roomData,
+                                 unsigned& gateIndex);
+
+    bool withCrossingLeft();
+    bool tryAddCross(cc::Point roomPos,
+                  GateInfo crossing,
+                  unsigned roomIndex,
+                  unsigned gateIndex);
+    bool tryChangeCross(CrossingInfo& crossingInfo,
+                        cc::Point roomPos,
+                        GateInfo newGateInfo);
     
-    lib::v2u getSize()
-    {
-        return {grid.width, grid.height};
-    }
-    
-    std::list<std::pair<unsigned, GateInfo>>    crossingLeft;
+    cc::Size getMappingSize();
     
 private:
+    //components
+    lib::Random                   random;
 
-    BType dummy = WALL;
-    lib::DataGrid<BType>                        grid;
-    
+    //internal methods
+    GateInfo getOppositeFromGateInfo(GateInfo info);
+    bool checkRoom(cc::Point roomPos, RoomModel* model);
+
+    //fields
+    cc::Size size;
+    std::map<GateInfo::GateType, std::pair<std::string, cc::Rect>> gateConfig;
+    std::vector<cc::Rect>         takenList;
+    cc::Rect                      totalBounds;
+    std::vector<CrossingInfo>     crossingLeft;
 };

@@ -13,7 +13,6 @@ struct GateMap
     };
     
     //model
-    unsigned    index;
     GateInfo    info;
     unsigned    destRoomIndex;
     unsigned    destGateIndex;

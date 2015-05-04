@@ -5,12 +5,14 @@ class RoomData;
 
 #include "BaseTickSystem.h"
 #include "BehaviourNodes.h"
-
+#include "Randgine.h"
 
 class AISystem : public BaseTickSystem
 {
 public:
-    AISystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
+    AISystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs),
+        random(Randgine::instance()->get(Randgine::AI))
+    {}
     
     void init(RoomData* data);
     
@@ -58,4 +60,5 @@ private:
     };
     
     RoomData* data;
+    lib::Random random;
 };

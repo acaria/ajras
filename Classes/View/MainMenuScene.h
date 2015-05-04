@@ -13,7 +13,7 @@ public:
         QUIT = 4,
     };
         
-    event::Subject<void(ItemTag tag)> onMenuSelect;
+    lib::Subject<void(ItemTag tag)> onMenuSelect;
         
 private:
         void touchEvent(Ref *pSender, cc::ui::Widget::TouchEventType type);

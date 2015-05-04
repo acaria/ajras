@@ -4,7 +4,6 @@
 #include "GateInfo.h"
 #include "V2.h"
 #include "ObjectInfo.h"
-#include "RoomShape.h"
 
 class RoomModel
 {
@@ -22,7 +21,7 @@ public:
     
     lib::v2u        tileSize; //sizeof a tile case (in pxl)
     lib::v2u        totalSize; //sizeof the room (in pxl)
-    //RoomShape       shape;
+
     std::string     name;
     
     cc::Rect        getRectCoord(lib::v2u pos);
@@ -30,18 +29,12 @@ public:
     lib::v2u        getCoordFromPos(cocos2d::Vec2 coord);
     int             getZOrder(const cocos2d::Vec2& pos);
     
-    //declare wall shapes
-    std::list<cc::Rect> walls;
     //areas for gate & warp
     std::list<GateInfo> crossAreas;
-    /*void            extractGateringIntroInfo(unsigned gateIndex,
-                                             cc::Rect colRect,
-                                             cc::Point& srcPos,
-                                             cc::Point& destPos);*/
+    std::list<cc::Rect> walls;
     
 private:
     static GateInfo::GateType gessGateType(lib::v2u pos,
                                            const RoomModel& roomModel);
-    //static void genShape(RoomModel& mapData);
     static GateInfo extractCrossArea(RoomModel& mapData, lib::v2u coord);
 };

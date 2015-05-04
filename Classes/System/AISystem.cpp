@@ -148,7 +148,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                     {
                         auto grid = this->data->getContent();
                         lib::v2u pos = {
-                            lib::randAB(0, grid.width), lib::randAB(0, grid.height - 1)
+                            random.interval((unsigned)0, grid.width),
+                            random.interval((unsigned)0, grid.height - 1)
                         };
                         
                         auto maxCount = 1000;
@@ -157,7 +158,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                               grid.get({pos.x, pos.y}).fields[BlockInfo::collision] != "walkable"))
                         {
                             pos = {
-                                lib::randAB(0, grid.width), lib::randAB(0, grid.height - 1)
+                                random.interval((unsigned)0, grid.width),
+                                random.interval((unsigned)0, grid.height - 1)
                             };
                         }
                         

@@ -5,7 +5,7 @@
 #include <functional>
 #include <algorithm>
 
-namespace event
+namespace lib
 {
     // Registration is just a scoped type, once it goes out of scope,
     // your registration has expired. The idea is that you store this

@@ -1,10 +1,11 @@
 #pragma once
 class RoomModel;
-class FloorMapping;
 
 #include "V2.h"
 #include "GateInfo.h"
 #include "RoomData.h"
+#include "FloorMapping.h"
+#include "Random.h"
 
 using GateConfig = std::map<GateInfo::GateType, std::pair<std::string, cc::Rect>>;
 using ModelMap = std::map<std::string, RoomModel*>;
@@ -13,14 +14,13 @@ using ModelVector = std::vector<RoomModel*>;
 class MapData
 {
 public:
-    static MapData* generate(const std::string& fileName,
-                             long seed,
-                             int nbTry = 50);
+    static MapData* generate(const std::string& fileName);
 
     MapData(const std::string& fileName);
     ~MapData();
     
-    RoomData* addRoom(RoomModel* data, RoomData::Config config);
+    RoomData* addRoom(RoomModel* data,
+                      const RoomData::Config& config);
     void setCurIdxRoom(unsigned roomIndex);
     
     RoomData*                       getRoomAt(unsigned idx);
@@ -33,6 +33,7 @@ public:
     unsigned                        getCurIdxRoom();
     cc::Color3B                     getBgColor();
     std::vector<std::string>&       getBgTiles();
+    lib::Random&                    getRand();
     
 private:
     void                            extractInfo(const std::string& name);
@@ -56,6 +57,7 @@ private:
     GateConfig                      gateConfig;
     GateConfig                      warpConfig;
     
-    bool checkInsertRoom(lib::v2u gridPos, RoomModel* model);
+    lib::Random&                    random;
+    
     std::pair<std::string, cc::Rect> subExtractGateInfo(const cc::ValueMap& el);
 };

@@ -15,5 +15,5 @@ public:
     }
     
 protected:
-    std::vector<event::Registration> eventRegs;
+    std::vector<lib::Registration> eventRegs;
 };

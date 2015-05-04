@@ -25,8 +25,8 @@ public:
         cocos2d::Scene::onExit();
     }
 
-    event::Subject<void()> onEnterBeforeTransition;
-    event::Subject<void()> onEnterAfterTransition;
-    event::Subject<void()> onLeaveBeforeTransition;
-    event::Subject<void()> onLeaveAfterTransition;
+    lib::Subject<void()> onEnterBeforeTransition;
+    lib::Subject<void()> onEnterAfterTransition;
+    lib::Subject<void()> onLeaveBeforeTransition;
+    lib::Subject<void()> onLeaveAfterTransition;
 };

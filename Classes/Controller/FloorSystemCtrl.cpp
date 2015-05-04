@@ -56,11 +56,11 @@ void FloorSystemCtrl::registerEvents(RoomSystemCtrl *ctrl)
         std::bind(&FloorSystemCtrl::onRoomChanged, this, _1, _2, _3)));
 }
 
-void FloorSystemCtrl::onRoomChanged(unsigned nextRoomIndex,
+void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
                                       unsigned eid,
                                       GateMap  gate)
 {
-    unsigned prevRoomIndex = this->currentRoomIndex;
+    unsigned nextRoomIndex = gate.destRoomIndex;
 
     cp::entity::move(eid, prevRoomIndex, nextRoomIndex);
 
@@ -93,13 +93,11 @@ void FloorSystemCtrl::onRoomChanged(unsigned nextRoomIndex,
     //gate introduction
     float duration = 1.0f;
     
-    auto destGate = nextRoom->gateMapping[gate.destGateIndex];
-    
     auto& render = ecs::get<cp::Render>(eid);
     auto colRect = ecs::get<cp::Collision>(eid).rect;
     cocos2d::Vec2 srcPos, destPos;
     
-    nextRoom->extractGateAnimInfo(destGate.index,
+    nextRoom->extractGateAnimInfo(gate.destGateIndex,
                                   ecs::get<cp::Collision>(eid).rect,
                                   /*out*/srcPos,
                                   /*out*/destPos);
@@ -132,6 +130,61 @@ void FloorSystemCtrl::onHealthChanged(unsigned int roomIndex, unsigned int eid, 
     {
         this->gView->interface->getHealthBar()->updateProperties(health);
     }
+}
+
+cc::Sprite* FloorSystemCtrl::displayMap(MapData *data)
+{
+    auto result = Sprite::create();
+    
+    auto pxl = cc::Sprite::createWithSpriteFrameName("pixel.png");
+    pxl->setAnchorPoint({0,0});
+    pxl->setScale(data->floorMapping->getMappingSize().width / 4,
+                  data->floorMapping->getMappingSize().height / 4);
+    pxl->setColor(cc::Color3B::ORANGE);
+    result->addChild(pxl);
+
+     data->floorMapping->getMappingSize();
+    
+    for(auto pair : data->rooms)
+    {
+        auto dataRoom = pair.second;
+        for(auto wall : dataRoom->getWalls())
+        {
+            auto pxl = cc::Sprite::createWithSpriteFrameName("pixel.png");
+            pxl->setAnchorPoint({0,0});
+            pxl->setPosition({(dataRoom->position.x + wall.origin.x) / 4,
+                (dataRoom->position.y + wall.origin.y) / 4});
+            pxl->setScale(wall.size.width / 4, wall.size.height / 4);
+            pxl->setColor(cc::Color3B::RED);
+            result->addChild(pxl);
+        }
+        
+        for(auto gate : dataRoom->gateMapping)
+        {
+            auto gateMap = gate.second;
+            auto pxl = cc::Sprite::createWithSpriteFrameName("pixel.png");
+            pxl->setAnchorPoint({0,0});
+            pxl->setPosition({
+                (dataRoom->position.x + gateMap.info.rect.origin.x) / 4,
+                (dataRoom->position.y + gateMap.info.rect.origin.y) / 4});
+            pxl->setScale(gateMap.info.rect.size.width / 4, gateMap.info.rect.size.height / 4);
+            if (gateMap.cmd == GateMap::CmdType::ENTER_MAP)
+                pxl->setColor(cc::Color3B::BLACK);
+            else if (gateMap.cmd == GateMap::CmdType::EXIT_MAP)
+                pxl->setColor(cc::Color3B::BLUE);
+            else
+                pxl->setColor(cc::Color3B::MAGENTA);
+            result->addChild(pxl);
+        }
+        
+        auto txt = cc::Label::createWithTTF(std::to_string(dataRoom->depth), "fonts/04b03.ttf", 8);
+        txt->setColor(cc::Color3B::GREEN);
+        txt->setPosition({dataRoom->getBounds().getMidX() / 4,
+                          dataRoom->getBounds().getMidY() / 4});
+        result->addChild(txt);
+    }
+
+    return result;
 }
 
 void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
@@ -177,6 +230,8 @@ void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
         view->frame->addChild(txt);
     }
 }
+
+
 
 void FloorSystemCtrl::start()
 {
@@ -344,15 +399,21 @@ void FloorSystemCtrl::load(GameScene *gview,
         bounds = bounds.unionWithRect(roomData->getBounds());
     }
     
+    //too slow!
+    /*auto batch = cc::Sprite::create();
+    int count = 0;
     for(auto j = 0; j < bounds.size.height; j+=kBlockSize)
     for(auto i = 0; i < bounds.size.width; i+=kBlockSize)
     {
-        if (lib::randf01() > 0.1)
+        if (random.ratio() > 0.1)
             continue;
-        auto bgName = *lib::selectRand(data->getBgTiles().begin(), data->getBgTiles().end());
+        auto bgName = random.select(data->getBgTiles());
         auto floorTile = cc::Sprite::createWithSpriteFrameName(bgName);
         floorTile->setAnchorPoint({0,0});
         floorTile->setPosition({bounds.origin.x + i, bounds.origin.y + j});
-        this->gView->frame->addChild(floorTile, 0);
+        batch->addChild(floorTile);
+        count++;
     }
+    this->gView->frame->addChild(batch);
+    */
 }

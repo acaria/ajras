@@ -1,6 +1,7 @@
 #include "GameCtrl.h"
 #include "MapData.h"
 #include "GameScene.h"
+#include "Randgine.h"
 
 using namespace std::placeholders;
 
@@ -55,7 +56,16 @@ void GameCtrl::onAnimate(double dt, double tickPercent)
 
 void GameCtrl::loadSession(GameScene* view)
 {
-    //floorSystemCtrl.displayDebug(view, this->currentMap);
+    /*
+    auto map = floorSystemCtrl.displayMap(this->currentMap);
+    auto currentRoom = this->currentMap->getRoomAt(this->currentMap->getCurIdxRoom());
+    auto startPos = currentRoom->position * -0.1;
+    map->setAnchorPoint({0,0});
+    map->setScale(0.2);
+    map->setPosition(80,0);
+    view->frame->addChild(map);
+    */
+    
     floorSystemCtrl.load(view, this->currentMap);
     floorSystemCtrl.start();
     tick.schedule(view);
@@ -78,7 +88,10 @@ void GameCtrl::newSession()
     this->sessionEnabled = false;
     this->destroyMap();
     
-    this->currentMap = MapData::generate("md1-1", time(0));
+    //Randgine::instance()->setMaster(time(0));
+    Randgine::instance()->setMaster(1);
+    
+    this->currentMap = MapData::generate("md1-1");
     assert(currentMap);
     
     //todo: loader

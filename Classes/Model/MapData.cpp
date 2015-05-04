@@ -3,6 +3,7 @@
 #include "RoomModel.h"
 #include "RoomData.h"
 #include "GateMap.h"
+#include "Randgine.h"
 
 void MapData::extractInfo(const std::string &name)
 {
@@ -15,7 +16,7 @@ void MapData::extractInfo(const std::string &name)
     auto layout = rawData.at("layout").asValueMap();
     depthConfig.first = layout.at("min_depth").asInt();
     depthConfig.second = layout.at("max_depth").asInt();
-    this->floorMapping = new FloorMapping(layout.at("width").asInt(), layout.at("height").asInt());
+    
     auto minMaxStartNbGates = std::vector<std::string>();
     lib::split(layout.at("start_nb_gates").asString(), minMaxStartNbGates, ",", true);
     this->startNbGates.first = lib::parseInt(minMaxStartNbGates[0]);
@@ -64,6 +65,10 @@ void MapData::extractInfo(const std::string &name)
             this->modelCategory[roomCategory].push_back(modelLib[modelName]);
         }
     }
+    
+    this->floorMapping = new FloorMapping(
+        layout.at("width").asInt(), layout.at("height").asInt(),
+        this->gateConfig);
 }
 
 std::pair<std::string, cc::Rect> MapData::subExtractGateInfo(const cc::ValueMap& el)
@@ -85,7 +90,8 @@ std::pair<std::string, cc::Rect> MapData::subExtractGateInfo(const cc::ValueMap&
     return {tileName, gateBounds};
 }
 
-MapData::MapData(const std::string& fileName)
+MapData::MapData(const std::string& fileName) :
+    random(Randgine::instance()->get(Randgine::MAP))
 {
     this->floorMapping = nullptr;
     this->extractInfo(fileName);
@@ -98,11 +104,10 @@ const ModelVector MapData::getModels(const std::string& category)
     return this->modelCategory[category];
 }
 
-MapData* MapData::generate(const std::string& filename, long seed, int nbTry)
+MapData* MapData::generate(const std::string& filename)
 {
     MapData* map = new MapData(filename);
     
-    std::vector<RoomData*>              roomList;
     std::map<std::string, ModelVector>  modelList;
     
     for(auto modelCat : {"common", "empty"})
@@ -110,169 +115,119 @@ MapData* MapData::generate(const std::string& filename, long seed, int nbTry)
         modelList[modelCat] = ModelVector(map->getModels(modelCat));
         std::shuffle(modelList[modelCat].begin(),
                      modelList[modelCat].end(),
-                     std::default_random_engine(seed));
+                     map->random.getEngine());
     }
 
     //starter
     auto firstModel = MapData::pickModel(modelList["empty"]);
-    auto coord = lib::v2u(
-        (map->floorMapping->getSize().x / 2),
-        (map->floorMapping->getSize().y / 2)
-    );
-    
     auto firstRoom = map->addRoom(firstModel, {
-        .coord = coord,
+        .pos = map->floorMapping->getStartPosition(firstModel),
         .nbGates = map->startNbGates,
         .profile = RoomData::RoomType::STARTER
     });
     firstRoom->depth = 1;
-    
-    roomList.push_back(firstRoom);
     map->setCurIdxRoom(firstRoom->index);
     
-    bool loop = true;
-    bool withEndRoom = false;
-    /*while(loop)
+    bool endRoomPlaced = false;
+    while(map->floorMapping->withCrossingLeft())
     {
-        std::shuffle(roomList.begin(), roomList.end(),
-            std::default_random_engine(seed));
-            
-        RoomData* refRoom = nullptr;
-        GateInfo* refGateInfo = nullptr;
-        unsigned  refGateIdx = 0;
-        for(auto room : roomList)
+        bool found = false;
+        auto& crossingInfo = map->floorMapping->selectCrossing();
+        
+        auto currentDepth = map->rooms[crossingInfo.refRoomIndex]->depth;
+        
+        auto targetProfile = RoomData::RoomType::COMMON;
+        auto targetModel = "common";
+        auto nbGates = std::pair<unsigned, unsigned>(1, 1);
+        
+        if (currentDepth < map->depthConfig.first - 1)
         {
-            for(auto &pair : room->gateMapping)
+            nbGates = {2, 4};
+        }
+        else if (currentDepth < map->depthConfig.second - 1)
+        {
+            if (!endRoomPlaced)
             {
-                RoomData::GateMap gateRef = pair.second;
-                if (gateRef.roomIndex == 0) //gate free detected
-                {
-                    refGateInfo = &room->getModel()->gates[pair.first];
-                    refGateIdx = pair.first;
-                    refRoom = room;
-                    break;
-                }
-                if (refRoom != nullptr)
-                    break;
+                targetProfile = RoomData::RoomType::FINISHER;
+                endRoomPlaced = true;
+                targetModel = "empty";
+            }
+            else
+            {
+                nbGates = {1, 3};
             }
         }
-        
-        if (refRoom == nullptr) //finished map
+    
+        for(auto model : modelList["common"])
         {
-            break;
-        }
-        
-        //room + gate selected, find and link another room
-        lib::v2u refRoomPos {
-            (unsigned)(refRoom->position.x / refRoom->getModel()->tileSize.x),
-            (unsigned)(refRoom->position.y / refRoom->getModel()->tileSize.y)
-        };
-        lib::v2i refGatePos {
-            refRoom->getModel()->shape.gates[refGateIdx].x,
-            refRoom->getModel()->shape.gates[refGateIdx].y
-        };
-        
-        unsigned destGateIdx = 0;
-            
-        GateInfo::GateType searchType = refGateInfo->getOpposite();
-        
-        //let's try to place end room
-        if (refRoom->depth >= map->depthConfig.second - 1 && !withEndRoom)
-        {
-            for(auto model : endList)
+            for(auto gateInfo : model->crossAreas)
             {
-                for(auto pModelGate: model->gates)
+                if (gateInfo.type == crossingInfo.gateInfo.type) //gate match
                 {
-                    destGateIdx = pModelGate.first;
-                    if (pModelGate.second.type != searchType)
-                        continue; //wrong gate type
+                    //processing all possible positions
+                    auto positions = map->floorMapping->extractPositions(model, crossingInfo.gateInfo, gateInfo);
                     
-                    lib::v2u newPos = {
-                        refRoomPos.x + refGatePos.x - model->shape.gates[pModelGate.first].x,
-                        refRoomPos.y + refGatePos.y - model->shape.gates[pModelGate.first].y
-                    };
-                    
-                    if (map->checkInsertRoom(newPos, model))
+                    if (positions.size() > 0) //room
                     {
-                        withEndRoom = true;
-                        
-                        auto endRoom = map->addRoom(newPos, model);
-                        endRoom->type = RoomData::RoomType::END;
-                        roomList.push_back(endRoom);
-                        
-                        //link rooms
-                        endRoom->gateMapping[destGateIdx] = {refRoom->index, refGateIdx};
-                        refRoom->gateMapping[refGateIdx] = {endRoom->index, destGateIdx};
-                        
-                        //compute depth
-                        map->computeDepth(endRoom);
-                        break;
+                        auto room = map->addRoom(model, {
+                            .pos = map->random.select(positions),
+                            .nbGates = nbGates,
+                            .profile = targetProfile,
+                        });
+                        if (room != nullptr)
+                        {
+                            map->computeDepth(room);
+                            found = true;
+                            break;
+                        }
+                        else
+                        {
+                           Log("mapgen: invalid room, cannot generate map");
+                        }
                     }
                 }
-                
-                if (withEndRoom) break;
             }
             
-            if (withEndRoom) continue;
+            if (found)
+                break;
         }
         
-        RoomModel* modelFound = nullptr;
-        for(auto model : modelList)
+        if (!found)
         {
-            if (refRoom->depth <= map->depthConfig.first && model->gates.size() < 2)
-                continue;
-            if (refRoom->depth >= map->depthConfig.second - 1 && model->gates.size() > 1)
-                continue;
-                
-            if (modelFound) break;
-        
-            for(auto pModelGate: model->gates)
+            //let's try another crossingInfo
+            bool crossingChanged = false;
+            auto refRoom = map->rooms[crossingInfo.refRoomIndex];
+            
+            while (refRoom->crossAreas.size() > 0)
             {
-                destGateIdx = pModelGate.first;
-                if (pModelGate.second.type != searchType)
-                    continue; //wrong gate type
-                
-                lib::v2u newPos = {
-                    refRoomPos.x + refGatePos.x - model->shape.gates[pModelGate.first].x,
-                    refRoomPos.y + refGatePos.y - model->shape.gates[pModelGate.first].y
-                };
-
-                if (map->checkInsertRoom(newPos, model))
+                auto area = map->random.pick(refRoom->crossAreas);
+                if (map->floorMapping->tryChangeCross(/*ref*/crossingInfo,
+                                                      refRoom->position, area))
                 {
-                    modelFound = model;
-                    auto newRoom = map->addRoom(newPos, model);
-                    roomList.push_back(newRoom);
-                
-                    //link rooms
-                    newRoom->gateMapping[destGateIdx] = {refRoom->index, refGateIdx};
-                    refRoom->gateMapping[refGateIdx] = {newRoom->index, destGateIdx};
-                    
-                    //compute depth
-                    map->computeDepth(newRoom);
+                    crossingChanged = true;
                     break;
                 }
             }
-        }
-    
-        if (modelFound == nullptr) //no one fit
-        {
-            loop = false;
-        }
-        else
-        {
-            MapData::sendBackModel(modelList, modelFound);
+            
+            if (!crossingChanged)
+            {
+                if (refRoom->gateMapping.size() < 1)
+                {
+                    Log("mapgen: invalid map, cannot find correct room position");
+                    break;
+                }
+                else
+                {
+                    map->floorMapping->removeCrossing(crossingInfo);
+                }
+            }
         }
     }
     
-    if ((!loop || !withEndRoom) && nbTry > 0) //fail
+    if (!endRoomPlaced)
     {
-        delete map;
-        return generate(filename, nbTry - 1);
+        Log("mapgen: end room is missing");
     }
-    
-    CCASSERT(loop, "cannot generate map after 50 tries");
-    CCLOG("nb try to generate the map = %d", nbTry);
-    */
     
     return map;
 }
@@ -288,6 +243,8 @@ RoomModel* MapData::pickModel(ModelVector& modelList)
 
 void MapData::computeDepth(RoomData *room)
 {
+    if (room == nullptr)
+        return;
     unsigned minDepth = 0;
     for(auto &pair : room->gateMapping)
     {
@@ -323,108 +280,64 @@ MapData::~MapData()
     }
 }
 
-bool MapData::checkInsertRoom(lib::v2u gridPos, RoomModel* model)
-{
-    /*
-    //check walls
-    for(auto wall : model->shape.walls)
-    {
-        for(int j=0; j < wall.size.height; j++)
-        {
-            for(int i=0; i < wall.size.width; i++)
-            {
-                if (this->shape->get(gridPos.x + i,
-                                     gridPos.y + j) != MapShape::NONE)
-                    return false;
-            }
-        }
-    }
-    
-    //check gates
-    for(auto pgate : model->shape.gates)
-    {
-        MapShape::BType btype = this->shape->get(gridPos.x + pgate.second.x,
-                                                gridPos.y + pgate.second.y);
-        if (btype == MapShape::WALL)
-            return false;
-    }*/
-    
-    return true;
-}
-
-RoomData* MapData::addRoom(RoomModel* model, RoomData::Config config)
+RoomData* MapData::addRoom(RoomModel* model, const RoomData::Config& config)
 {
     static unsigned roomIndex = 1;
     auto room = new RoomData(roomIndex++, model);
     room->type = config.profile;
-    room->position = {(float)config.coord.x * model->tileSize.x,
-                      (float)config.coord.y * model->tileSize.y};
-    auto nbGates = lib::randAB(config.nbGates.first, config.nbGates.second);
-    
+    room->position = config.pos;
+
+    auto nbGates = random.interval(config.nbGates.first,
+                                   config.nbGates.second);
+    nbGates = lib::clamp((int)nbGates, 1, (int)room->crossAreas.size());
     CCASSERT(room->crossAreas.size() >= nbGates, "too small");
     
-    int gateIndex = 1;
+    unsigned gateIndex = 1;
     
-    bool ifStarter = false;
-    bool ifFinisher = false;
+    //gates binder
+    auto gates = this->floorMapping->bindGates(config.pos, room, /*ref*/gateIndex);
     
-    for(int i = nbGates; i > 0; i--)
+    if (gates.size() == 0 &&
+        config.profile != RoomData::RoomType::STARTER)
     {
-        auto crossInfoIt = lib::selectRand(room->crossAreas.begin(),
-                                          room->crossAreas.end());
-        auto crossInfo = *crossInfoIt;
-        room->crossAreas.erase(crossInfoIt);
-        
-        cc::Rect gateRect = this->gateConfig[crossInfo.type].second;
-        
-        int tx = (crossInfo.rect.size.width - gateRect.size.width) / model->tileSize.x;
-        int ty = (crossInfo.rect.size.height - gateRect.size.height) / model->tileSize.y;
-        
-        GateMap gateMap;
-        gateMap.info.type = crossInfo.type;
-        gateMap.info.rect = cc::Rect(
-            crossInfo.rect.origin.x + (model->tileSize.x * lib::randAB(0, tx)),
-            crossInfo.rect.origin.y + (model->tileSize.y * lib::randAB(0, ty)),
-            gateRect.size.width, gateRect.size.height
-        );
-        
-        if (config.profile == RoomData::RoomType::STARTER && !ifStarter)
-        {
-            ifStarter = true;
-            gateMap.cmd = GateMap::CmdType::ENTER_MAP;
-            gateMap.tileName = this->warpConfig[crossInfo.type].first;
-        }
-        else if (config.profile == RoomData::RoomType::FINISHER && !ifFinisher)
-        {
-            ifFinisher = true;
-            gateMap.cmd = GateMap::CmdType::EXIT_MAP;
-            gateMap.tileName = this->warpConfig[crossInfo.type].first;
-        }
-        else
-        {
-            gateMap.cmd = GateMap::CmdType::CHANGE_ROOM;
-            gateMap.tileName = this->gateConfig[crossInfo.type].first;
-        }
-        
+        //error
+        delete room;
+        return nullptr;
+    }
+    
+    for(GateMap gate : gates)
+    {
+        auto gIndex = room->gateMapping[gate.destGateIndex].destGateIndex;
+        auto rIndex = room->gateMapping[gate.destGateIndex].destRoomIndex;
+        auto destRoom = this->rooms[rIndex];
+        gate.info.rect.origin -= destRoom->position;
+        destRoom->gateMapping[gIndex] = gate;
+        nbGates--;
+    }
+    
+    //handle special gates (warps)
+    if (config.profile == RoomData::RoomType::STARTER ||
+        config.profile == RoomData::RoomType::FINISHER)
+    {
+        GateMap gateMap = this->floorMapping->createSpecialGate(
+            room, config.profile, this->warpConfig);
         room->gateMapping[gateIndex++] = gateMap;
+        nbGates--;
     }
     
-    /*for(auto wRect : model->shape.walls)
+    //door gates
+    int i = nbGates;
+    while(i > 0 && room->crossAreas.size() > 0)
     {
-        this->shape->fill({
-            wRect.origin.x + gridPos.x - 1,
-            wRect.origin.y + gridPos.y - 1,
-            wRect.size.width + 2,
-            wRect.size.height + 2
-        });
+        auto crossInfo = random.pick(room->crossAreas);
+        if (this->floorMapping->tryAddCross(room->position,
+            crossInfo, room->index, gateIndex++))
+        {
+            i--;
+        }
     }
-    for(auto gate : model->shape.gates)
-    {
-        lib::v2i gpos = gate.second;
-        this->shape->get(gpos.x + gridPos.x,
-                        gpos.y + gridPos.y) = MapShape::GATE;
-    }*/
     
+    this->floorMapping->addRoom(room->position, model->walls);
     rooms[room->index] = room;
     return room;
 }

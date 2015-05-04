@@ -1,5 +1,6 @@
 #include "RoomModel.h"
 #include "Jsonxx.h"
+#include "Misc.h"
 
 RoomModel* RoomModel::create(const std::string &fileName)
 {
@@ -125,9 +126,12 @@ RoomModel* RoomModel::create(const std::string &fileName)
         }
     }
     
-    //processing walls
-    result->walls.push_back(cc::Rect(
-        0, 0, result->grid.width, result->grid.height));
+    //todo: define walls for non rectangular rooms
+    result->walls.push_back({
+        0,
+        0,
+        (float)result->totalSize.x,
+        (float)result->totalSize.y});
     
     //processing cross areas
     for(unsigned j = 0; j < result->grid.height; j++)
@@ -181,6 +185,7 @@ RoomModel* RoomModel::create(const std::string &fileName)
     
     destPos = srcPos + movePos;
 }*/
+
 
 GateInfo RoomModel::extractCrossArea(RoomModel& roomModel, lib::v2u coord)
 {
@@ -267,41 +272,3 @@ int RoomModel::getZOrder(const cocos2d::Vec2& pos)
 {
     return (totalSize.x - pos.x + ((totalSize.y - pos.y) * totalSize.y));
 }
-
-/*void RoomModel::genShape(RoomModel& roomModel)
-{
-    roomModel.shape.walls.push_back(cocos2d::Rect(
-        0, 0, roomModel.grid.width, roomModel.grid.height));
-    
-    for(auto pair : roomModel.gates)
-    {
-        auto gate = pair.second;
-        lib::v2i p;
-        
-        if (gate.type == GateInfo::Left)
-        {
-            p = {(int)(gate.rect.getMinX() / roomModel.tileSize.x - 1),
-                 (int)(gate.rect.origin.y / roomModel.tileSize.y)};
-        }
-        else if (gate.type == GateInfo::Right)
-        {
-            p = {(int)(gate.rect.getMaxX() / roomModel.tileSize.x),
-                 (int)(gate.rect.origin.y / roomModel.tileSize.y)};
-        }
-        else if (gate.type == GateInfo::Up)
-        {
-            p = {(int)(gate.rect.origin.x / roomModel.tileSize.x),
-                 (int)(gate.rect.getMaxY() / roomModel.tileSize.y)};
-        }
-        else if (gate.type == GateInfo::Down)
-        {
-            p = {(int)(gate.rect.origin.x / roomModel.tileSize.x),
-                 (int)(gate.rect.getMinY() / roomModel.tileSize.y - 1)};
-        }
-        else
-        {
-            Log("invalid gate");
-        }
-        roomModel.shape.gates[pair.first] = p;
-    }
-}*/

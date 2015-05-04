@@ -62,7 +62,7 @@ protected:
 private:
     bool                            firstTime = true;
     std::map<size_t, BaseMediator*> mediators;
-    std::vector<event::Registration> eventRegs;
+    std::vector<lib::Registration> eventRegs;
     EventScene*                     currentScene;
 
     ScreenLog*                      screenLog;

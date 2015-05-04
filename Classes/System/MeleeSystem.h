@@ -21,7 +21,7 @@ public:
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
     
-    event::Subject<void(unsigned eid, int health)> onHealthChanged;
+    lib::Subject<void(unsigned eid, int health)> onHealthChanged;
     
 private:
     cocos2d::Rect getAtkRectFromDir(const cocos2d::Rect& bounds,

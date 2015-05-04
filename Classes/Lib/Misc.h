@@ -20,26 +20,6 @@ namespace lib
         return (val > max ? max : (val < min ? min : val));
     }
     
-    inline float randf01()
-    {
-        return (float)(rand() % RAND_MAX) / (float)RAND_MAX;
-    }
-    
-    inline float rand()
-    {
-        return (randf01() - 0.5f) * 2.0f;
-    }
-    
-    inline float randfAB(float a, float b){
-        return (rand() / (double)RAND_MAX) * (b - a) + a;
-    }
-    
-    inline unsigned randAB(int a, int b){
-        //a included //b included
-        assert(b >= a);
-        return std::rand() % (b + 1 - a) + a;
-    }
-    
     inline int parseInt(const std::string& str)
     {
         return (int)strtol(str.c_str(), nullptr, 10);
@@ -194,18 +174,4 @@ namespace lib
     
     double now();
     std::string format(const std::string fmt_str, ...);
-    
-    template<typename Iter, typename RandomGenerator>
-    Iter selectRand(Iter start, Iter end, RandomGenerator& g) {
-        std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
-        std::advance(start, dis(g));
-        return start;
-    }
-    
-    template<typename Iter>
-    Iter selectRand(Iter start, Iter end) {
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        return selectRand(start, end, gen);
-    }
 }

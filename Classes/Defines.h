@@ -5,7 +5,7 @@
 
 #define kTraceBehaviours 0
 
-const bool  kShowFPS = false;
+const bool  kShowFPS = true;
 const float kUpdatesPerSecond = 60.0f;
 const float kIdealInterval = 1.0f / kUpdatesPerSecond;
 const float kTicksPerSecond = 20;

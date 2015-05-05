@@ -5,9 +5,9 @@
 	<key>layout</key>
 	<dict>
 		<key>maxDepth</key>
-		<integer>6</integer>
+		<string>5</string>
 		<key>minDepth</key>
-		<integer>4</integer>
+		<string>3</string>
 		<key>width</key>
 		<integer>200</integer>
 		<key>height</key>

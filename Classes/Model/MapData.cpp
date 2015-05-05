@@ -158,8 +158,9 @@ MapData* MapData::generate(const std::string& filename)
             }
         }
     
-        for(auto model : modelList["common"])
+        for(int i = 0; i < modelList["common"].size(); i++)
         {
+            auto model = pickModel(modelList["common"]);
             for(auto gateInfo : model->crossAreas)
             {
                 if (gateInfo.type == crossingInfo.gateInfo.type) //gate match

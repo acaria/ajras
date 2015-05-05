@@ -31,12 +31,19 @@ cc::Size FloorMapping::getMappingSize()
 
 bool FloorMapping::checkRoom(cc::Point roomPos, RoomModel* model)
 {
+    bool oneFit = false;
     for(auto wallRef : model->walls)
     {
         cc::Rect newWall = {wallRef.origin.x + roomPos.x,
             wallRef.origin.y + roomPos.y,
             wallRef.size.width,
             wallRef.size.height};
+        
+        if (newWall.getMinX() < 0 || newWall.getMinY() < 0 ||
+            newWall.getMaxX() > this->size.width ||
+            newWall.getMaxY() > this->size.height)
+            return false;
+        
         for(auto wall : takenList)
         {
             if (wall.intersectsRect(newWall))
@@ -62,6 +69,7 @@ bool FloorMapping::checkRoom(cc::Point roomPos, RoomModel* model)
                     if (resultRect.size.width >= gateRect.size.width &&
                         resultRect.size.height >= gateRect.size.height)
                     {
+                        oneFit = true;
                         gateFits = true;
                         break; //gate fits
                     }
@@ -71,6 +79,9 @@ bool FloorMapping::checkRoom(cc::Point roomPos, RoomModel* model)
             }
         }
     }
+    
+    if (!oneFit)
+        return false;
     
     return true;
 }
@@ -210,6 +221,7 @@ std::list<GateMap> FloorMapping::bindGates(cc::Point pos,
         while(it2 != this->crossingLeft.end())
         {
             auto crossInfo = *it2;
+            
             if (crossArea.type != crossInfo.gateInfo.type ||
                 !crossRect.intersectsRect(crossInfo.gateInfo.rect))
             {

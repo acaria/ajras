@@ -75,7 +75,7 @@ RoomModel* RoomModel::create(const std::string &fileName)
                 else
                 {
                     unsigned c = gridIndex % result->grid.width;
-                    unsigned r = result->grid.height - 1 - gridIndex / result->grid.height;
+                    unsigned r = result->grid.height - 1 - gridIndex / result->grid.width;
                     
                     if (name == "background")
                         result->grid.get({c, r}).fields[BlockInfo::bgTileName] = tileNames[tileIndex];

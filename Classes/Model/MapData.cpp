@@ -144,7 +144,7 @@ MapData* MapData::generate(const std::string& filename)
         {
             nbGates = {2, 4};
         }
-        else if (currentDepth < map->depthConfig.second - 1)
+        else if (currentDepth <= map->depthConfig.second - 1)
         {
             if (!endRoomPlaced)
             {
@@ -154,7 +154,8 @@ MapData* MapData::generate(const std::string& filename)
             }
             else
             {
-                nbGates = {1, 3};
+                if (currentDepth < map->depthConfig.second - 1)
+                    nbGates = {1, 3};
             }
         }
     

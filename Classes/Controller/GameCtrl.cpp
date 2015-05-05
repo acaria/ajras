@@ -56,7 +56,6 @@ void GameCtrl::onAnimate(double dt, double tickPercent)
 
 void GameCtrl::loadSession(GameScene* view)
 {
-    
     /*auto map = floorSystemCtrl.displayMap(this->currentMap);
     auto currentRoom = this->currentMap->getRoomAt(this->currentMap->getCurIdxRoom());
     auto startPos = currentRoom->position * -0.1;
@@ -64,8 +63,8 @@ void GameCtrl::loadSession(GameScene* view)
     map->setScale(0.2);
     map->setPosition(80,0);
     view->frame->addChild(map);
-    return;*/
-    
+    return;
+    */
     
     floorSystemCtrl.load(view, this->currentMap);
     floorSystemCtrl.start();
@@ -89,7 +88,6 @@ void GameCtrl::newSession()
     this->sessionEnabled = false;
     this->destroyMap();
     
-    //Randgine::instance()->setMaster(time(0));
     Randgine::instance()->setMaster(1);
     
     this->currentMap = MapData::generate("md1-1");

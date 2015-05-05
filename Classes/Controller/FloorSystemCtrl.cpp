@@ -52,8 +52,34 @@ void FloorSystemCtrl::registerEvents(RoomSystemCtrl *ctrl)
     this->eventRegs.push_back(ctrl->onHealthChanged.registerObserver(
         std::bind(&FloorSystemCtrl::onHealthChanged, this, _1, _2, _3)));
     
-    this->eventRegs.push_back(ctrl->onGateTriggered.registerObserver(
-        std::bind(&FloorSystemCtrl::onRoomChanged, this, _1, _2, _3)));
+    this->eventRegs.push_back(ctrl->onGateTriggered.registerObserver([this](
+        unsigned prevRoomIndex, unsigned eid, GateMap  gate){
+        switch(gate.cmd)
+        {
+            case GateMap::CmdType::CHANGE_ROOM:
+                this->onRoomChanged(prevRoomIndex, eid, gate);
+                break;
+            case GateMap::CmdType::ENTER_MAP:
+                this->onFloorStart();
+                break;
+            case GateMap::CmdType::EXIT_MAP:
+                this->onFloorFinish();
+                break;
+            default:
+                Log("invalid comaand type in FloorSystemCtrl::registerEvents");
+                break;
+        }
+    }));
+}
+
+void FloorSystemCtrl::onFloorStart()
+{
+    GameCtrl::instance()->newSession();
+}
+
+void FloorSystemCtrl::onFloorFinish()
+{
+    GameCtrl::instance()->newSession();
 }
 
 void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,

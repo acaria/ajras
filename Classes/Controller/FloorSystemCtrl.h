@@ -29,6 +29,8 @@ public:
     
     void onHealthChanged(unsigned roomIndex, unsigned eid, int health);
     void onRoomChanged(unsigned nextRoomIndex, unsigned eid, GateMap   gate);
+    void onFloorStart();
+    void onFloorFinish();
     
 private:
     

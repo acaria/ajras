@@ -117,8 +117,8 @@ void TransitSystem::gateringEnter(unsigned eid,
         NULL
     ));
     render.runAction(cc::Sequence::create(
-        cc::TintTo::create(duration / 2, cc::Color3B::BLACK),
-        cc::FadeTo::create(duration / 4, 0),
+        cc::TintTo::create(duration / 4, cc::Color3B::BLACK),
+        cc::FadeTo::create(duration / 6, 0),
         NULL
     ));
 }

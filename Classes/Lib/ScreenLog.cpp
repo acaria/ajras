@@ -203,4 +203,3 @@ bool screenLogMessage::checkLabel()
     
     return false;
 }
-

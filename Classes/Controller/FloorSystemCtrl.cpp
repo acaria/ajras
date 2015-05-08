@@ -92,10 +92,10 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
 
     if (ecs::has<cp::Render>(eid))
     {
-        ecs::get<cp::Render>(eid).container->removeFromParentAndCleanup(false);
+        ecs::get<cp::Render>(eid).removeFromParentAndCleanup(false);
         auto layer = ecs::get<cp::Render>(eid).chooseLayer(
             this->roomViews[nextRoomIndex]);
-        layer->addChild(ecs::get<cp::Render>(eid).container);
+        layer->addChild(ecs::get<cp::Render>(eid).getContainer());
     }
     
     if (eid == this->focusEntity) //change room
@@ -128,7 +128,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
                                   /*out*/srcPos,
                                   /*out*/destPos);
     render.setPosition(srcPos);
-    render.container->runAction(cc::Sequence::create(
+    render.runAction(cc::Sequence::create(
         cc::MoveBy::create(duration, destPos - srcPos),
         cc::CallFunc::create([eid, destPos, nextRoomIndex](){
             ecs::get<cp::Input>(eid).forceEnable();
@@ -140,10 +140,14 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
         cc::TintTo::create(duration / 2, cc::Color3B::WHITE),
         NULL
     ));
-    render.runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
-        cc::FadeTo::create(duration / 2, 255),
-        NULL
-    ));
+    
+    if (eid == this->focusEntity) //change room
+    {
+        render.runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
+            cc::FadeTo::create(duration / 2, 255),
+            NULL
+        ));
+    }
 }
 
 void FloorSystemCtrl::onHealthChanged(unsigned int roomIndex, unsigned int eid, int health)
@@ -168,8 +172,6 @@ cc::Sprite* FloorSystemCtrl::displayMap(MapData *data)
                   data->floorMapping->getMappingSize().height / 4);
     pxl->setColor(cc::Color3B::ORANGE);
     result->addChild(pxl);
-
-     data->floorMapping->getMappingSize();
     
     for(auto pair : data->rooms)
     {
@@ -246,14 +248,14 @@ void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
                     pxl->setColor(cc::Color3B::YELLOW);
             }
             
-            view->frame->addChild(pxl);
+            view->getFrame()->addChild(pxl);
         }
         
         auto txt = cc::Label::createWithTTF(std::to_string(roomData->depth), "fonts/04b03.ttf", 8);
         txt->setColor(cc::Color3B::GREEN);
         txt->setPosition({bounds.getMidX() / 4,
                           bounds.getMidY() / 4});
-        view->frame->addChild(txt);
+        view->getFrame()->addChild(txt);
     }
 }
 
@@ -298,18 +300,18 @@ void FloorSystemCtrl::start()
             auto& cpRender = ecs::get<cp::Render>(eid);
             auto& cpCollision = ecs::get<cp::Collision>(eid);
                     
-            cpRender.container->runAction(cc::Sequence::create(
+            cpRender.runAction(cc::Sequence::create(
                 cc::MoveTo::create(duration, {
                     destPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
                     destPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
                 }),
                 cc::CallFunc::create([eid, roomIndex, cpRender](){
-                    ecs::add<cp::Position>(eid, roomIndex).set(cpRender.container->getPosition());
+                    ecs::add<cp::Position>(eid, roomIndex).set(cpRender.getPosition());
                     ecs::add<cp::Input>(eid, roomIndex);
                 }),
                 NULL
             ));
-            cpRender.container->runAction(cc::Sequence::create(
+            cpRender.runAction(cc::Sequence::create(
                 cc::DelayTime::create(duration / 2),
                 cc::FadeTo::create(duration / 4, 255),
                 NULL
@@ -339,11 +341,11 @@ void FloorSystemCtrl::start()
     auto& csHealth = ecs::add<cp::Health>(eid, roomIndex);
     csHealth.setProfile(profile);
     
-    cpRender.container->setPosition({
+    cpRender.setPosition({
         srcPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
         srcPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
     });
-    cpRender.container->setOpacity(0);
+    cpRender.setOpacity(0);
     
     this->focusEntity = eid;
     this->gView->interface->getHealthBar()->initProperties(csHealth.maxHp,
@@ -356,7 +358,7 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
     
     if (!lib::hasKey(this->roomPreviews, roomIndex))
     {
-        this->roomSystems[roomIndex]->showObjects(1);
+        this->roomSystems[roomIndex]->showObjects(0.5);
         if (after != nullptr)
             after();
     }
@@ -371,10 +373,10 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
         preview->getSprite()->runAction(cc::Sequence::create(
             cc::FadeTo::create(1, 255),
             cc::CallFunc::create([this, view, preview, roomIndex](){
-                this->gView->frame->removeChild(preview);
-                this->gView->frame->addChild(view);
+                this->gView->getFrame()->removeChild(preview);
+                this->gView->getFrame()->addChild(view);
                 view->release();
-                this->roomSystems[roomIndex]->showObjects(1);
+                this->roomSystems[roomIndex]->showObjects(0.5);
             }),
             cc::CallFunc::create(after),
             NULL
@@ -419,7 +421,7 @@ void FloorSystemCtrl::load(GameScene *gview,
         preview->setPosition(roomData->position);
         preview->getSprite()->setOpacity(0);
         
-        this->gView->frame->addChild(preview, 1);
+        this->gView->getFrame()->addChild(preview, 1);
         preview->setOpacity(0);
         
         bounds = bounds.unionWithRect(roomData->getBounds());

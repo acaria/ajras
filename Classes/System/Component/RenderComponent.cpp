@@ -9,6 +9,7 @@ RenderComponent::RenderComponent() : sprite(nullptr)
 {
     this->container = cocos2d::Sprite::create();
     this->container->setCascadeOpacityEnabled(true);
+    this->container->setCascadeColorEnabled(true);
     this->container->setAnchorPoint({0,0});
 }
 
@@ -158,6 +159,11 @@ void RenderComponent::setPosition(const cocos2d::Vec2 &position)
     this->container->setPosition(position);
 }
 
+const cc::Point& RenderComponent::getPosition() const
+{
+    return this->container->getPosition();
+}
+
 void RenderComponent::setFlippedX(bool value)
 {
     this->sprite->setFlippedX(value);
@@ -168,6 +174,21 @@ void RenderComponent::setFlippedY(bool value)
     this->sprite->setFlippedY(value);
 }
 
+cc::Sprite* RenderComponent::getContainer()
+{
+    return this->container;
+}
+
+void RenderComponent::removeFromParentAndCleanup(bool cleanup)
+{
+    this->container->removeFromParentAndCleanup(cleanup);
+}
+
+void RenderComponent::setOpacity(GLubyte opacity)
+{
+    this->container->setOpacity(opacity);
+}
+
 void RenderComponent::setSpriteFrame(const std::string &spriteFrameName)
 {
     this->sprite->setSpriteFrame(spriteFrameName);
@@ -175,7 +196,7 @@ void RenderComponent::setSpriteFrame(const std::string &spriteFrameName)
 
 cocos2d::Action* RenderComponent::runAction(cocos2d::Action *action)
 {
-    return this->sprite->runAction(action);
+    return this->container->runAction(action);
 }
 
 AnimationData* RenderComponent::getCurAnim()

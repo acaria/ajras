@@ -45,7 +45,7 @@ void ControlSystem::tick(double dt)
                     cpCol.rect.getMinY() + cpCol.rect.size.height / 2
                 );
                 
-                this->view->interface->setTargetID(tid, ecs::has<cp::Control>(tid), cpRender.container, pos);
+                this->view->interface->setTargetID(tid, ecs::has<cp::Control>(tid), cpRender.getContainer(), pos);
                 ecs.add<cp::Target>(eid) = tid;
             }
             
@@ -110,17 +110,17 @@ void ControlSystem::init(GameScene *gview, RoomData* data)
     mListener->onMouseScroll = std::bind(&ControlSystem::onMouseScroll, this, _1);
     
     //touch
-    auto tListener = cc::EventListenerTouchOneByOne::create();
-    tListener->onTouchBegan = std::bind(&ControlSystem::onTouchBegan, this, _1, _2);
-    tListener->onTouchEnded = std::bind(&ControlSystem::onTouchEnded, this, _1, _2);
-    tListener->onTouchMoved = std::bind(&ControlSystem::onTouchMoved, this, _1, _2);
-    tListener->onTouchCancelled = std::bind(&ControlSystem::onTouchCanceled, this, _1, _2);
+    auto tListener = cc::EventListenerTouchAllAtOnce::create();
+    tListener->onTouchesBegan = std::bind(&ControlSystem::onTouchBegan, this, _1, _2);
+    tListener->onTouchesEnded = std::bind(&ControlSystem::onTouchEnded, this, _1, _2);
+    tListener->onTouchesMoved = std::bind(&ControlSystem::onTouchMoved, this, _1, _2);
+    tListener->onTouchesCancelled = std::bind(&ControlSystem::onTouchCanceled, this, _1, _2);
     
-    gview->frame->getEventDispatcher()->addEventListenerWithSceneGraphPriority(
+    gview->getFrame()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(
         kListener, gview);
     //gview->frame->getEventDispatcher()->addEventListenerWithSceneGraphPriority(
     //    mListener, gview);
-    gview->frame->getEventDispatcher()->addEventListenerWithSceneGraphPriority(
+    gview->getFrame()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(
         tListener,gview);
 }
 
@@ -213,15 +213,14 @@ void ControlSystem::onMouseDown(cocos2d::Event *event)
     
     cc::EventMouse* e = (cc::EventMouse*)event;
     
+    auto cameraPos = this->view->getCameraOrigin();
     cc::Vec2 roomPos = {
-        data->getBounds().getMinX() + this->view->frame->getPositionX(),
-        data->getBounds().getMinY() + this->view->frame->getPositionY()
+        data->getBounds().getMinX() + cameraPos.x,
+        data->getBounds().getMinY() + cameraPos.y
     };
     
     cc::Vec2 pos = {e->getCursorX() - roomPos.x - kCanvasRect.origin.x,
         e->getCursorY() - roomPos.y - kCanvasRect.origin.y};
-    
-    Log("mouse pos=%f,%f", pos.x, pos.y);
 }
 
 void ControlSystem::onMouseScroll(cocos2d::Event *event)
@@ -229,91 +228,138 @@ void ControlSystem::onMouseScroll(cocos2d::Event *event)
     
 }
 
-bool ControlSystem::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event)
+void ControlSystem::onTouchBegan(const std::vector<cc::Touch*>& touches, cocos2d::Event* event)
 {
     unsigned index = INDEX_P1;
-    
-    cc::Vec2 minColSize = {20,20};
-    
-    auto touchPos = touch->getLocation();
-    
-    if (kCanvasRect.containsPoint(touchPos)) // frame zone
+ 
+    for(auto touch : touches)
     {
-        cc::Vec2 roomPos = {
-            data->getBounds().getMinX() + this->view->frame->getPositionX(),
-            data->getBounds().getMinY() + this->view->frame->getPositionY()
-        };
     
-        cc::Vec2 pos = {touchPos.x - roomPos.x - kCanvasRect.origin.x,
-                touchPos.y - roomPos.y - kCanvasRect.origin.y};
-
-        for(auto eid : ecs.join<cp::Position, cp::Collision, cp::Render>())
+        cc::Vec2 minColSize = {20,20};
+    
+        auto touchPos = touch->getLocation();
+    
+        if (kCanvasRect.containsPoint(touchPos)) // frame zone
         {
-            auto& cpPos = ecs::get<cp::Position>(eid);
-            auto& cpCol = ecs::get<cp::Collision>(eid);
-        
-            cc::Vec2 plus = {
-                MAX(0, (minColSize.x - cpCol.rect.size.width) / 2),
-                MAX(0, (minColSize.y - cpCol.rect.size.height) / 2)
-            };
-        
-            auto bound = cc::Rect(cpPos.pos.x + cpCol.rect.origin.x - plus.x,
-                                  cpPos.pos.y + cpCol.rect.origin.y - plus.y,
-                                  cpCol.rect.size.width + plus.x * 2,
-                                  cpCol.rect.size.height + plus.y * 2);
-            if (bound.containsPoint(pos))
+            if (this->cameraID.size() < 2)
             {
-                entitySelection[index] = eid;
-                break;
+                this->cameraID[touch->getID()] = touchPos;
+                if (this->cameraID.size() > 1)
+                {
+                    //multitouch on frame zone detected
+                    continue;
+                }
+            }
+            auto cameraPos = this->view->getCameraOrigin();
+            cc::Vec2 roomPos = {
+                data->getBounds().getMinX() + cameraPos.x,
+                data->getBounds().getMinY() + cameraPos.y
+            };
+    
+            cc::Vec2 pos = {touchPos.x - roomPos.x - kCanvasRect.origin.x,
+                    touchPos.y - roomPos.y - kCanvasRect.origin.y};
+
+            for(auto eid : ecs.join<cp::Position, cp::Collision, cp::Render>())
+            {
+                auto& cpPos = ecs::get<cp::Position>(eid);
+                auto& cpCol = ecs::get<cp::Collision>(eid);
+        
+                cc::Vec2 plus = {
+                    MAX(0, (minColSize.x - cpCol.rect.size.width) / 2),
+                    MAX(0, (minColSize.y - cpCol.rect.size.height) / 2)
+                };
+        
+                auto bound = cc::Rect(cpPos.pos.x + cpCol.rect.origin.x - plus.x,
+                                      cpPos.pos.y + cpCol.rect.origin.y - plus.y,
+                                      cpCol.rect.size.width + plus.x * 2,
+                                      cpCol.rect.size.height + plus.y * 2);
+                if (bound.containsPoint(pos))
+                {
+                    entitySelection[index] = eid;
+                    break;
+                }
             }
         }
-    }
-    else if (cc::Rect(0,0,190,190).containsPoint(touchPos)) //control zone
-    {
-        joyID[index] = touch->getID();
-        joyDir[index] = (touchPos - kCursorCenter) / 40.f;
-    }
-    
-    return true;
-}
-
-void ControlSystem::onTouchCanceled(cocos2d::Touch *touch, cocos2d::Event *event)
-{
-    
-}
-
-void ControlSystem::onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *event)
-{
-    unsigned index = INDEX_P1;
-    
-    if (lib::hasKey(joyID, index) && joyID[index] == touch->getID())
-    {
-        joyID.erase(index);
-        joyDir.erase(index);
-    }
-    
-    if (this->view->interface->getActionBounds().containsPoint(touch->getStartLocation()))
-    {
-        auto diff = touch->getLocation() - touch->getStartLocation();
-        ActionMode doAction = ActionMode::none;
-        if (diff.x < -40)
-            doAction = this->view->interface->getPrevAction();
-        else if (diff.x > 40)
-            doAction = this->view->interface->getNextAction();
-        
-        if (doAction != ActionMode::none)
+        else if (cc::Rect(0,0,190,190).containsPoint(touchPos)) //action buttons zone
         {
-            actionSelection = doAction;
+            joyID[index] = touch->getID();
+            joyDir[index] = (touchPos - kCursorCenter) / 40.f;
         }
     }
 }
 
-void ControlSystem::onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *event)
+void ControlSystem::onTouchCanceled(const std::vector<cc::Touch*>& touches, cocos2d::Event* event)
+{
+    
+}
+
+void ControlSystem::onTouchEnded(const std::vector<cc::Touch*>& touches, cocos2d::Event* event)
 {
     unsigned index = INDEX_P1;
     
-    if (lib::hasKey(joyID, index) && joyID[index] == touch->getID())
+    for(auto touch : touches)
     {
-        joyDir[index] = (touch->getLocation() - kCursorCenter) / 40.f;
+        //handle joystick
+        if (lib::hasKey(joyID, index) && joyID[index] == touch->getID())
+        {
+            joyID.erase(index);
+            joyDir.erase(index);
+        }
+    
+        //handle action buttons
+        if (this->view->interface->getActionBounds().containsPoint(touch->getStartLocation()))
+        {
+            auto diff = touch->getLocation() - touch->getStartLocation();
+            ActionMode doAction = ActionMode::none;
+            if (diff.x < -40)
+                doAction = this->view->interface->getPrevAction();
+            else if (diff.x > 40)
+                doAction = this->view->interface->getNextAction();
+        
+            if (doAction != ActionMode::none)
+            {
+                actionSelection = doAction;
+            }
+        }
+        
+        //handle camera
+        cameraID.erase(touch->getID());
+    }
+}
+
+void ControlSystem::onTouchMoved(const std::vector<cc::Touch*>& touches, cocos2d::Event* event)
+{
+    std::map<int, cc::Point> movedCameraID;
+    
+    for(auto touch : touches)
+    {
+        auto touchPos = touch->getLocation();
+        unsigned index = INDEX_P1;
+    
+        if (lib::hasKey(joyID, index) && joyID[index] == touch->getID()) //handle joystick
+        {
+            joyDir[index] = (touchPos - kCursorCenter) / 40.f;
+        }
+        
+        if (lib::hasKey(cameraID, touch->getID()) && cameraID.size() > 1)
+        {
+            movedCameraID[touch->getID()] = touchPos;
+        }
+    }
+    
+    //compute camera handler
+    if (movedCameraID.size() > 0)
+    {
+        cc::Point moveValue;
+        cc::Point scaleValue;
+        for(auto moved : movedCameraID)
+        {
+            moveValue.x += moved.second.x - cameraID[moved.first].x;
+            moveValue.y += moved.second.y - cameraID[moved.first].y;
+            cameraID[moved.first] = moved.second;
+        }
+        
+        Log("x:%f, y:%f", moveValue.x, moveValue.y);
+        this->view->translateCamera(moveValue * 0.5);
     }
 }

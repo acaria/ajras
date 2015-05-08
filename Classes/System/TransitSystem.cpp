@@ -109,7 +109,7 @@ void TransitSystem::gateringEnter(unsigned eid,
     ecs::get<cp::Input>(eid).forceDisable();
     ecs.del<cp::Position>(eid);
     ecs::get<cp::Velocity>(eid).reset();
-    render.container->runAction(cc::Sequence::create(
+    render.runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, targetPoint),
         cc::CallFunc::create([this, eid, &gateMap](){
             this->onGateTriggered(eid, gateMap);

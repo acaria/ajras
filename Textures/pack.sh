@@ -30,7 +30,6 @@ else
 		      --variant 1:hd \
 		      --variant 0.5:sd \
 		      --algorithm MaxRects \
-              --reduce-border-artifacts \
 		      --data ${PDIR}/Resources-iOS/{v}/ss-${d}.plist \
 		      --sheet ${PDIR}/Resources-iOS/{v}/ss-${d}.png \
 		      --opt RGBA8888 \
@@ -45,7 +44,6 @@ else
 		      --variant 1:hd \
 		      --variant 0.5:sd \
 		      --algorithm MaxRects \
-              --reduce-border-artifacts \
 		      --data ${PDIR}/Resources-android/{v}/ss-${d}.plist \
 		      --sheet ${PDIR}/Resources-android/{v}/ss-${d}.png \
 		      --opt RGBA8888 \

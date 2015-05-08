@@ -82,7 +82,7 @@
 		<key>start_nb_gates</key>
 		<string>2,2</string>
 		<key>max_depth</key>
-		<string>4</string>
+		<string>6</string>
 		<key>min_depth</key>
 		<string>4</string>
 		<key>width</key>

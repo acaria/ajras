@@ -43,17 +43,23 @@ private:
     void onMouseScroll(cocos2d::Event* event);
     
     //touch
-    bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
-    void onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event);
-    void onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event);
-    void onTouchCanceled(cocos2d::Touch* touch, cocos2d::Event* event);
+    void onTouchBegan(const std::vector<cc::Touch*>& touches, cocos2d::Event* event);
+    void onTouchMoved(const std::vector<cc::Touch*>& touches, cocos2d::Event* event);
+    void onTouchEnded(const std::vector<cc::Touch*>& touches, cocos2d::Event* event);
+    void onTouchCanceled(const std::vector<cc::Touch*>& touches, cocos2d::Event* event);
     
     void clearReleased(unsigned controlIndex);
+    
+    //internal methods
+    static cc::Rect computeRect(cc::Rect bounds, cc::Point pt);
     
     //control input
     std::map<unsigned, unsigned> curDirPressed;
     std::map<unsigned, unsigned> curDirReleased;
     std::map<unsigned, unsigned> preDirPressed;
+    
+    std::map<int, cc::Point>     cameraID;
+    
     std::map<unsigned, int>      joyID;
     std::map<unsigned, cc::Vec2> joyDir;
     //selection input

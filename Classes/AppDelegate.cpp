@@ -57,11 +57,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
     FileUtils::getInstance()->setSearchPaths(searchPaths);
     director->setContentScaleFactor(resourceSize.width / designSize.width);
     
-    glview->setDesignResolutionSize(
-                                    designSize.width,
+    glview->setDesignResolutionSize(designSize.width,
                                     designSize.height,
                                     ResolutionPolicy::SHOW_ALL);
-
 
     CCLOG("\n{\n\tscreenSize: %.1f %.1f\n\tresourceSize: %.1f %.1f\n\tdesignSize: %.1f %.1f\n\tscale factor: %.1f\n}\n",
           screenSize.width, screenSize.height,

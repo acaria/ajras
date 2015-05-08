@@ -11,10 +11,6 @@ public:
     
     lib::Subject<void()> onBack;
     
-    //layers
-    cc::ui::Layout* canvas = nullptr;
-    cc::Layer* frame = nullptr;
-    
     //background
     void setBgColor(cc::Color3B bgColor);
     
@@ -25,5 +21,15 @@ public:
     
     //frame camera
     void setCamera(cc::Vec2 pos);
+    void translateCamera(cc::Vec2 pos);
+    cc::Point getCameraOrigin() const;
     void moveCamera(cc::Vec2 pos, float duration);
+    
+    cc::Layer* getFrame();
+    
+private:
+    
+    //layers
+    cc::ui::Layout* canvas = nullptr;
+    cc::Layer* frame = nullptr;
 };

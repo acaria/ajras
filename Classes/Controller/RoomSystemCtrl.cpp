@@ -59,7 +59,7 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
                 auto coord = data->getPosFromCoord({i,j});
                 auto sprite = Sprite::createWithSpriteFrameName(properties[BlockInfo::bgTileName]);
                 sprite->setAnchorPoint({0, 0});
-                sprite->setPosition(coord);
+                sprite->setPosition(patchPos(coord));
                 rl->addChild(sprite, data->getZOrder(coord));
             }
         }
@@ -70,8 +70,8 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
         auto profile = GameCtrl::instance()->profileModel.get(obj.profileName);
         auto eid = cp::entity::genID();
         ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
-                                                        RenderComponent::chooseLayer(profile, view),
-                                                        data->getZOrder(obj.pos));
+            RenderComponent::chooseLayer(profile, view),
+            data->getZOrder(obj.pos));
         ecs::get<cp::Render>(eid).setPosition(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
         ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
         ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
@@ -154,10 +154,10 @@ void RoomSystemCtrl::hideObjects(float duration)
     for(auto eid : ecsGroup.join<cp::Render, cp::AI>())
     {
         if (duration == 0)
-            ecs::get<cp::Render>(eid).container->setOpacity(0);
+            ecs::get<cp::Render>(eid).setOpacity(0);
         else
         {
-            ecs::get<cp::Render>(eid).container->runAction(cc::FadeOut::create(duration));
+            ecs::get<cp::Render>(eid).runAction(cc::FadeOut::create(duration));
         }
     }
 }
@@ -167,10 +167,10 @@ void RoomSystemCtrl::showObjects(float duration)
     for(auto eid : ecsGroup.join<cp::Render, cp::AI>())
     {
         if (duration == 0)
-            ecs::get<cp::Render>(eid).container->setOpacity(255);
+            ecs::get<cp::Render>(eid).setOpacity(255);
         else
         {
-            ecs::get<cp::Render>(eid).container->runAction(cc::FadeIn::create(duration));
+            ecs::get<cp::Render>(eid).runAction(cc::FadeIn::create(duration));
         }
     }
 }

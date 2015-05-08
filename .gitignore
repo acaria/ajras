@@ -7,3 +7,5 @@ proj.linux/
 proj.win8.1-universal/
 proj.win32/
 proj.wp8-xaml/
+Resources-iOS/
+Resources-android/

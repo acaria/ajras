@@ -7,7 +7,7 @@ public:
                            const cc::Vec2& opacity,
                            const cc::Vec2& scaleX, const cc::Vec2& scaleY,
                            const cc::Color3B &minColor, const cc::Color3B &maxColor);
-
+    
     //
     // Overrides
     //
@@ -37,7 +37,7 @@ protected:
     cc::Color3B minColor, maxColor;
     double accumulator, lastUpdate;
     float interval;
-
+    
     
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Flicker);

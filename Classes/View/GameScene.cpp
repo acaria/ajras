@@ -15,7 +15,7 @@ bool GameScene::init()
     this->canvas->setBackGroundColor(back->getColor());
     this->canvas->setLayoutType(cc::ui::LayoutType::RELATIVE);
     this->canvas->setClippingEnabled(true);
-    this->canvas->setPosition(patchPos(kCanvasRect.origin));
+    this->canvas->setPosition(kCanvasRect.origin);
     this->canvas->setSize(kCanvasRect.size);
     this->addChild(canvas);
     

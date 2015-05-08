@@ -59,7 +59,7 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
                 auto coord = data->getPosFromCoord({i,j});
                 auto sprite = Sprite::createWithSpriteFrameName(properties[BlockInfo::bgTileName]);
                 sprite->setAnchorPoint({0, 0});
-                sprite->setPosition(patchPos(coord));
+                sprite->setPosition(coord);
                 rl->addChild(sprite, data->getZOrder(coord));
             }
         }

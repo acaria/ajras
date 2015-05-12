@@ -179,6 +179,11 @@ cc::Sprite* RenderComponent::getContainer()
     return this->container;
 }
 
+const cc::Size RenderComponent::getSize() const
+{
+    return this->sprite->getContentSize();
+}
+
 void RenderComponent::removeFromParentAndCleanup(bool cleanup)
 {
     this->container->removeFromParentAndCleanup(cleanup);

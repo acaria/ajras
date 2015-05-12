@@ -7,7 +7,7 @@
 class FloorMapping
 {
 public:
-    const float margin = 16;
+    const float margin = 6;
 
     //defines
     struct CrossingInfo

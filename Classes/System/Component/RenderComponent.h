@@ -51,6 +51,7 @@ struct RenderComponent
     void setLocalZOrder(int z);
     void setPosition(const cc::Vec2& position);
     const cc::Point& getPosition() const;
+    const cc::Size getSize() const;
     void setFlippedX(bool);
     void setFlippedY(bool);
     void setSpriteFrame(const std::string &spriteFrameName);

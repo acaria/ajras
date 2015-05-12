@@ -18,19 +18,19 @@ public:
     
     Randgine():randgine() {
         for(int i = 0; i < CAT::_SIZE; i++)
-            subEngines.push_back(lib::Random(randgine.interval(0, MAX)));
+            subEngines.push_back(lib::Random((std::mt19937::result_type)randgine.interval((long)0, MAX)));
     }
 
     void setMaster(long seed)
     {
         CCLOG("master seed: %ld", seed);
         masterSeed = seed;
-        randgine.getEngine().seed(seed);
+        randgine.getEngine().seed((std::mt19937::result_type)seed);
         
         for(int i = 0; i < CAT::_SIZE; i++)
         {
-            long subSeed = randgine.interval(0, MAX);
-            subEngines[i].getEngine().seed(subSeed);
+            long subSeed = randgine.interval((long)0, MAX);
+            subEngines[i].getEngine().seed((std::mt19937::result_type)subSeed);
             CCLOG("subseed n%d: %ld", i + 1, subSeed);
         }
     }

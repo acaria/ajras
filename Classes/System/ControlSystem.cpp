@@ -213,7 +213,7 @@ void ControlSystem::onMouseDown(cocos2d::Event *event)
     
     cc::EventMouse* e = (cc::EventMouse*)event;
     
-    auto cameraPos = this->view->getCameraOrigin();
+    auto cameraPos = this->view->getCam()->getOrigin();
     cc::Vec2 roomPos = {
         data->getBounds().getMinX() + cameraPos.x,
         data->getBounds().getMinY() + cameraPos.y
@@ -250,7 +250,7 @@ void ControlSystem::onTouchBegan(const std::vector<cc::Touch*>& touches, cocos2d
                     continue;
                 }
             }
-            auto cameraPos = this->view->getCameraOrigin();
+            auto cameraPos = this->view->getCam()->getOrigin();
             cc::Vec2 roomPos = {
                 data->getBounds().getMinX() + cameraPos.x,
                 data->getBounds().getMinY() + cameraPos.y
@@ -327,6 +327,16 @@ void ControlSystem::onTouchEnded(const std::vector<cc::Touch*>& touches, cocos2d
     }
 }
 
+cc::Rect ControlSystem::computeRect(cc::Point p1, cc::Point p2)
+{
+    cc::Rect result;
+    result.origin.x = (p1.x < p2.x) ? p1.x : p2.x;
+    result.size.width = (p1.x < p2.x) ? p2.x - p1.x : p1.x - p2.x;
+    result.origin.y = (p1.y < p2.y) ? p1.y : p2.y;
+    result.size.height = (p1.y < p2.y) ? p2.y - p1.y : p1.y - p2.y;
+    return result;
+}
+
 void ControlSystem::onTouchMoved(const std::vector<cc::Touch*>& touches, cocos2d::Event* event)
 {
     std::map<int, cc::Point> movedCameraID;
@@ -350,16 +360,26 @@ void ControlSystem::onTouchMoved(const std::vector<cc::Touch*>& touches, cocos2d
     //compute camera handler
     if (movedCameraID.size() > 0)
     {
-        cc::Point moveValue;
-        cc::Point scaleValue;
-        for(auto moved : movedCameraID)
+        auto firstEl = cameraID.begin();
+        auto secondEl = ++cameraID.begin();
+        auto oldRect = computeRect(firstEl->second, secondEl->second);
+        auto pt1 = lib::hasKey(movedCameraID, firstEl->first) ?
+            movedCameraID[firstEl->first]:firstEl->second;
+        auto pt2 = lib::hasKey(movedCameraID, secondEl->first) ?
+            movedCameraID[secondEl->first]:secondEl->second;
+        auto newRect = computeRect(pt1, pt2);
+        
+        if (newRect.size.width > 10 && newRect.size.height > 10)
         {
-            moveValue.x += moved.second.x - cameraID[moved.first].x;
-            moveValue.y += moved.second.y - cameraID[moved.first].y;
-            cameraID[moved.first] = moved.second;
+            auto translateValue = newRect.origin - oldRect.origin;
+            auto scaleValue =  (oldRect.size.width + oldRect.size.height) /
+                               (newRect.size.width + newRect.size.height);
+            Log("s=%f", scaleValue);
+            this->view->getCam()->addScale(1 - scaleValue);
+            this->view->getCam()->translate(translateValue);
         }
         
-        Log("x:%f, y:%f", moveValue.x, moveValue.y);
-        this->view->translateCamera(moveValue * 0.5);
+        for(auto moved : movedCameraID) //update pos
+            cameraID[moved.first] = moved.second;
     }
 }

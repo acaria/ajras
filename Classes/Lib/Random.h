@@ -30,7 +30,7 @@ public:
     {
         assert(list.size() > 0);
         auto it = list.begin();
-        int pos = interval(0, list.size() - 1);
+        auto pos = interval(0, list.size() - 1);
         for (int i = 0; i < pos; ++it, i++);
         return *(it);
     }
@@ -40,7 +40,7 @@ public:
     {
         assert(list.size() > 0);
         auto it = list.begin();
-        int pos = interval(0, list.size() - 1);
+        auto pos = interval(0, list.size() - 1);
         for (int i = 0; i < pos; ++it, i++);
         list.erase(it);
         return *(it);

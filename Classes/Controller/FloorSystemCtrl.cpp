@@ -41,6 +41,15 @@ void FloorSystemCtrl::tick(double dt)
 
 void FloorSystemCtrl::animate(double dt, double tickPercent)
 {
+    //focus entity
+    if (this->focusEntity != 0 && ecs::has<cp::Render>(this->focusEntity))
+    {
+        auto cpRender = ecs::get<cp::Render>(this->focusEntity);
+        auto pos = this->data->rooms[this->currentRoomIndex]->position +
+            cpRender.getPosition() + cpRender.getSize() / 2;
+        this->gView->getCam()->focusTarget(pos);
+    }
+
     controlSystem.animate(dt, tickPercent);
     
     //processing only current room
@@ -100,18 +109,6 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     
     if (eid == this->focusEntity) //change room
     {
-        this->roomSystems[prevRoomIndex]->hideObjects(1);
-        this->gView->interface->clearTarget();
-        this->currentRoomIndex = nextRoomIndex;
-        ecsGroup.setID(this->currentRoomIndex);
-        
-        auto dataRoom = data->getRoomAt(nextRoomIndex);
-        this->controlSystem.changeRoom(dataRoom);
-        
-        //move camera
-        auto bounds = dataRoom->getBounds();
-        this->gView->moveCamera({bounds.getMidX(), bounds.getMidY()}, 1);
-        this->showRoom(nextRoomIndex, nullptr);
     }
     
     auto nextRoom = data->getRoomAt(nextRoomIndex);
@@ -120,7 +117,6 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     float duration = 1.0f;
     
     auto& render = ecs::get<cp::Render>(eid);
-    auto colRect = ecs::get<cp::Collision>(eid).rect;
     cocos2d::Vec2 srcPos, destPos;
     
     nextRoom->extractGateAnimInfo(gate.destGateIndex,
@@ -143,6 +139,19 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     
     if (eid == this->focusEntity) //change room
     {
+        this->roomSystems[prevRoomIndex]->hideObjects(1);
+        this->gView->interface->clearTarget();
+        this->currentRoomIndex = nextRoomIndex;
+        ecsGroup.setID(this->currentRoomIndex);
+        
+        auto dataRoom = data->getRoomAt(nextRoomIndex);
+        this->controlSystem.changeRoom(dataRoom);
+        
+        //move camera
+        auto bounds = dataRoom->getBounds();
+        this->gView->getCam()->moveTarget(destPos + bounds.origin, 1);
+        this->showRoom(nextRoomIndex, nullptr);
+
         render.runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
             cc::FadeTo::create(duration / 2, 255),
             NULL
@@ -259,12 +268,10 @@ void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
     }
 }
 
-
-
 void FloorSystemCtrl::start()
 {
     auto camRect = data->rooms[this->currentRoomIndex]->getBounds();
-    this->gView->setCamera({camRect.getMidX(), camRect.getMidY()});
+    this->gView->getCam()->setTarget({camRect.getMidX(), camRect.getMidY()});
     
     auto roomIndex = this->currentRoomIndex;
     auto roomData = this->data->rooms[roomIndex];

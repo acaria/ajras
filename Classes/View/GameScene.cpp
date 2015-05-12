@@ -2,6 +2,12 @@
 #include "InterfaceLayer.h"
 #include "Defines.h"
 
+GameScene::~GameScene()
+{
+    if (this->camera != nullptr)
+        delete this->camera;
+}
+
 bool GameScene::init()
 {
     if (!Base::init())
@@ -20,10 +26,13 @@ bool GameScene::init()
     this->addChild(canvas);
     
     this->frame = cc::Layer::create();
+    this->frame->setAnchorPoint({0,0});
     this->canvas->addChild(this->frame);
     
     this->interface = InterfaceLayer::create();
     this->addChild(interface);
+    
+    this->camera = new GameCamera(this->frame, kCanvasRect);
     
     return true;
 }
@@ -38,33 +47,7 @@ cc::Layer* GameScene::getFrame()
     return this->frame;
 }
 
-void GameScene::setCamera(cocos2d::Vec2 pos)
+GameCamera* GameScene::getCam()
 {
-    auto wsize = kCanvasRect.size;
-    this->frame->setPosition(cc::Point(
-        floor(wsize.width / 2 - pos.x) + 0.04,
-        floor(wsize.height / 2 - pos.y) + 0.04));
-}
-
-void GameScene::translateCamera(cc::Vec2 translation)
-{
-    auto pos = this->frame->getPosition() + translation;
-    this->frame->setPosition(cc::Point(
-        floor(pos.x) + 0.04,
-        floor(pos.y) + 0.04));
-}
-
-cc::Point GameScene::getCameraOrigin() const
-{
-    return this->frame->getPosition();
-}
-
-void GameScene::moveCamera(cocos2d::Vec2 pos, float duration)
-{
-    auto wsize = kCanvasRect.size;
-    cc::Vec2 p = cc::Point(
-        floor(wsize.width / 2 - pos.x) + 0.04,
-        floor(wsize.height / 2 - pos.y) + 0.04);
-    
-    this->frame->runAction(cc::EaseInOut::create(cc::MoveTo::create(duration, p), 5));
+    return this->camera;
 }

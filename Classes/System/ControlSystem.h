@@ -51,7 +51,7 @@ private:
     void clearReleased(unsigned controlIndex);
     
     //internal methods
-    static cc::Rect computeRect(cc::Rect bounds, cc::Point pt);
+    static cc::Rect computeRect(cc::Point p1, cc::Point p2);
     
     //control input
     std::map<unsigned, unsigned> curDirPressed;
@@ -59,6 +59,7 @@ private:
     std::map<unsigned, unsigned> preDirPressed;
     
     std::map<int, cc::Point>     cameraID;
+    
     
     std::map<unsigned, int>      joyID;
     std::map<unsigned, cc::Vec2> joyDir;

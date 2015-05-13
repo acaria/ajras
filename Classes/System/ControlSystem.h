@@ -62,7 +62,7 @@ private:
     
     
     std::map<unsigned, int>      joyID;
-    std::map<unsigned, cc::Vec2> joyDir;
+    std::map<unsigned, cc::Vec2> joyPos;
     //selection input
     std::map<unsigned, unsigned> entitySelection;
     ActionMode                   actionSelection;

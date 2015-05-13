@@ -60,16 +60,31 @@ void InterfaceLayer::unsetTargetID(unsigned int eid)
     }
 }
 
-void InterfaceLayer::setJoystick(cc::Vec2 v)
+cc::Vec2 InterfaceLayer::setJoystick(cc::Point pos)
 {
+    cc::Vec2 result = {
+        (pos.x - kCursorCenter.x) / kCursorRegion.x,
+        (pos.y - kCursorCenter.y) / kCursorRegion.y};
+    
+    auto length = result.getLength();
+    if (length > 1.0)
+        result = result.getNormalized();
+    Log("angle=%f", result.getAngle());
+    this->cursor->setScaleX((1 - MIN(1.0, length)) * 0.3 + 0.7);
+    this->cursor->setRotation(-CC_RADIANS_TO_DEGREES(result.getAngle()));
+    
     this->cursor->setPosition(
-        kCursorCenter.x + kCursorCenter.x * lib::clamp(v.x, -1.0f, 1.0f) / 2,
-        kCursorCenter.y + kCursorCenter.y * lib::clamp(v.y, -1.0f, 1.0f) / 2
+        kCursorCenter.x + kCursorRegion.x * result.x,
+        kCursorCenter.y + kCursorRegion.y * result.y
     );
+    
+    return result;
 }
 
 void InterfaceLayer::clearJoystick()
 {
+    this->cursor->setRotation(0);
+    this->cursor->setScaleX(1.0);
     this->cursor->setPosition(kCursorCenter);
 }
 
@@ -204,6 +219,7 @@ bool InterfaceLayer::init()
     this->addChild(this->dArrow);
     
     this->cursor = cc::Sprite::createWithSpriteFrameName("joystick2.png");
+    this->cursor->getTexture()->setAntiAliasTexParameters();
     this->cursor->setPosition(kCursorCenter);
     this->addChild(this->cursor);
 

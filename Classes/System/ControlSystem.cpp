@@ -19,10 +19,10 @@ void ControlSystem::tick(double dt)
                 continue;
             auto& cpInput = ecs::get<cp::Input>(eid);
          
-            if (lib::hasKey(joyDir, index))
+            if (lib::hasKey(joyPos, index))
             {
-                this->view->interface->setJoystick(joyDir[index]);
-                cpInput.setDirection(joyDir[index]);
+                auto posRatio = this->view->interface->setJoystick(joyPos[index]);
+                cpInput.setDirection(posRatio);
             }
             else
             {
@@ -283,7 +283,7 @@ void ControlSystem::onTouchBegan(const std::vector<cc::Touch*>& touches, cocos2d
         else if (cc::Rect(0,0,190,190).containsPoint(touchPos)) //action buttons zone
         {
             joyID[index] = touch->getID();
-            joyDir[index] = (touchPos - kCursorCenter) / 40.f;
+            joyPos[index] = touchPos;
         }
     }
 }
@@ -303,7 +303,7 @@ void ControlSystem::onTouchEnded(const std::vector<cc::Touch*>& touches, cocos2d
         if (lib::hasKey(joyID, index) && joyID[index] == touch->getID())
         {
             joyID.erase(index);
-            joyDir.erase(index);
+            joyPos.erase(index);
         }
     
         //handle action buttons
@@ -348,7 +348,7 @@ void ControlSystem::onTouchMoved(const std::vector<cc::Touch*>& touches, cocos2d
     
         if (lib::hasKey(joyID, index) && joyID[index] == touch->getID()) //handle joystick
         {
-            joyDir[index] = (touchPos - kCursorCenter) / 40.f;
+            joyPos[index] = touchPos;
         }
         
         if (lib::hasKey(cameraID, touch->getID()) && cameraID.size() > 1)
@@ -374,7 +374,6 @@ void ControlSystem::onTouchMoved(const std::vector<cc::Touch*>& touches, cocos2d
             auto translateValue = newRect.origin - oldRect.origin;
             auto scaleValue =  (oldRect.size.width + oldRect.size.height) /
                                (newRect.size.width + newRect.size.height);
-            Log("s=%f", scaleValue);
             this->view->getCam()->addScale(1 - scaleValue);
             this->view->getCam()->translate(translateValue);
         }

@@ -230,7 +230,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                         cpInput.setDirection(Dir::None);
                         return state::SUCCESS;
                     }
-                    cpInput.setDirection(vdir.getNormalized());
+                    cpInput.setDirection(vdir);
                     return state::RUNNING;
                 }
                 default:

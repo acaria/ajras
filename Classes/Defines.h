@@ -14,7 +14,6 @@ const float kSecondsPerTick = 1.0f / kTicksPerSecond;
 const int   kBlockSize = 16;
 
 const cocos2d::Rect  kCanvasRect = {190.0f,15.0f,750.0f,600.0f};
-const cocos2d::Point kCursorCenter = {90.0f,90.0f};
 
 enum CollisionCategory
 {

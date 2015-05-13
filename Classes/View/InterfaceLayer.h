@@ -7,6 +7,7 @@ class HealthBar;
 class InterfaceLayer : public cocos2d::Layer
 {
 public:
+ 
     static InterfaceLayer* create();
 
     InterfaceLayer();
@@ -14,23 +15,27 @@ public:
     virtual ~InterfaceLayer();
     
     virtual bool init() override;
-    void setTargetID(unsigned eid,
-                     bool friendly,
+    void        setTargetID(unsigned eid,
+                    bool friendly,
                     cc::Sprite* container,
                     cc::Point pos);
-    void unsetTargetID(unsigned eid);
-    void clearTarget();
-    void setJoystick(cc::Vec2 v);
-    void clearJoystick();
-    void setAction(ActionMode action);
-    ActionMode getAction();
-    ActionMode getNextAction();
-    ActionMode getPrevAction();
-    cc::Rect getActionBounds();
+    void        unsetTargetID(unsigned eid);
+    void        clearTarget();
+    cc::Vec2    setJoystick(cc::Point pos);
+    void        clearJoystick();
+    void        setAction(ActionMode action);
+    ActionMode  getAction();
+    ActionMode  getNextAction();
+    ActionMode  getPrevAction();
+    cc::Rect    getActionBounds();
     
-    HealthBar* getHealthBar();
+    HealthBar*  getHealthBar();
     
 private:
+    //consts
+    const cc::Point kCursorCenter = {90.0f,90.0f};
+    const cc::Point kCursorRegion = {40.0f,40.0f};
+
     cc::ui::Scale9Sprite*   actionSelection;
     cc::Sprite*             actionRun;
     cc::Sprite*             actionSword;

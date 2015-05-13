@@ -64,10 +64,10 @@ struct InputComponent
     {
         this->lastOrientation = this->orientation;
         this->orientation = Dir::fromVec(direction);
-        this->direction = cc::Vec2(
-            lib::clamp(direction.x, -1.0f, 1.0f),
-            lib::clamp(direction.y, -1.0f, 1.0f)
-        );
+        if (direction.getLength() > 1.0)
+            this->direction = direction.getNormalized();
+        else
+            this->direction = direction;
     }
     
 private:

@@ -20,7 +20,7 @@ public:
     
     void start();
     void newSession();
-    void loadSession(GameScene* view);
+    void startSession(GameScene* view);
 
     ScreenLog       log;
 

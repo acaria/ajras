@@ -18,15 +18,16 @@ AnimationData* ProfileData::getDirAnimation(const Dir &orientation,
     {
         if (lib::hasKey(this->animationData, pre))
             return this->animationData[pre];
+        Log("getDirAnimation: bad key=%s", pre.c_str());
     }
     else
     {
         auto key = pre + getTagName(orientation);
         if (lib::hasKey(this->animationData, key))
             return this->animationData[key];
+        Log("getDirAnimation: bad key=%s", key.c_str());
     }
     
-    Log("getDirAnimation: bad key=%s", pre.c_str());
     return nullptr;
 }
 

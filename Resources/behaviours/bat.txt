@@ -1,6 +1,14 @@
 selector
+    sequence attack
+        action target mood friendly
+        until time 6.0
+            action movenear target 20.0
+            wait 1.0
     sequence wander
         selector
-            until time 5.0
-                action moveto rand
+            sequence random move
+                !check+ near mood friendly
+                until time 5.0
+                    action moveto rand
+                wait 2.0
             action movedir stop

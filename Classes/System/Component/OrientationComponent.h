@@ -7,8 +7,10 @@ struct OrientationComponent
     {
         this->curDir = Dir::Down;
         this->lastDir = Dir::Down;
+        this->visual = this->curDir.toVec();
     }
     
-    Dir curDir;
-    Dir lastDir;
+    Dir         curDir;
+    Dir         lastDir;
+    cc::Vec2    visual;
 };

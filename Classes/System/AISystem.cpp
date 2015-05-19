@@ -51,6 +51,42 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
     
     switch(this->checkMap[node->name])
     {
+        case CheckBType::NEAR: {
+            assert(node->values.size() > 0);
+            switch(CategoryComponent::mapType[node->values[0]])
+            {
+                case CategoryComponent::eType::MOOD: {
+                    assert(node->values.size() == 2); //params=[category,value]
+                    auto maxDist = cpAI.sightRange * cpAI.sightRange;
+                    auto targetMood = CategoryComponent::mapMood[node->values[1]];
+                    auto bounds = SysHelper::getBounds(eid);
+                    
+                    float nearest = maxDist;
+                    unsigned targetID = 0;
+                    for(auto tid : ecs.join<cp::Cat, cp::Position, cp::Collision>())
+                    {
+                        if (tid == eid)
+                            continue;
+                        if (targetMood != ecs::get<cp::Cat>(tid).mood)
+                            continue;
+                        auto bounds2 = SysHelper::getBounds(tid);
+                        float dist = cc::Vec2(
+                            bounds.getMidX() - bounds2.getMidX(),
+                            bounds.getMidY() - bounds2.getMidY()).lengthSquared();
+                        if (dist < maxDist && dist < nearest)
+                        {
+                            nearest = dist;
+                            targetID = tid;
+                        }
+                    }
+                    return (targetID != 0) ? state::SUCCESS : state::FAILURE;
+                }
+                default: {
+                    Log("unrecognised category type : %s", node->values[0].c_str());
+                    break;
+                }
+            }
+        }
         case CheckBType::TIME: {
             assert(node->values.size() == 1); //params=[timer]
             auto &properties = cpAI.board.getFields(nid);

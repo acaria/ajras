@@ -54,7 +54,7 @@ void GameCtrl::onAnimate(double dt, double tickPercent)
     }
 }
 
-void GameCtrl::loadSession(GameScene* view)
+void GameCtrl::startSession(GameScene* view)
 {
     /*auto map = floorSystemCtrl.displayMap(this->currentMap);
     auto currentRoom = this->currentMap->getRoomAt(this->currentMap->getCurIdxRoom());
@@ -66,9 +66,10 @@ void GameCtrl::loadSession(GameScene* view)
     return;
     */
     
+    tick.schedule(view);
+    
     floorSystemCtrl.load(view, this->currentMap);
     floorSystemCtrl.start();
-    tick.schedule(view);
     this->sessionEnabled = true;
 }
 

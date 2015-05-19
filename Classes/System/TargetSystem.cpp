@@ -24,6 +24,7 @@ void TargetSystem::tick(double dt)
             odir = pdir.y < 0 ? Dir::Down : Dir::Up;
         
         ecs::get<cp::Orientation>(eid).curDir = odir;
+        ecs::get<cp::Orientation>(eid).visual = odir.toVec();
     }
 }
 

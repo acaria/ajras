@@ -268,8 +268,11 @@ namespace behaviour
 
     struct CheckNode : public BaseNode
     {
-        CheckNode(unsigned id, BaseNode* parent, bool redo = false) : BaseNode(id, parent),
-                                                                      redo(redo) {}
+        CheckNode(unsigned id, BaseNode* parent, bool redo = false,
+                                                 bool inverse = false) : BaseNode(id, parent),
+                                                                         redo(redo),
+                                                                         inverse(inverse)
+        {}
     
         nState visit(BoardNode& board)
         {
@@ -280,6 +283,8 @@ namespace behaviour
                 return board.states[id];
         
             auto state = board.onCheck(this->id);
+            if (inverse && state != RUNNING)
+                state = (state == SUCCESS)?FAILURE:SUCCESS;
             if (!redo)
                 board.states[this->id] = state;
             return state;
@@ -287,6 +292,7 @@ namespace behaviour
         
     private:
         bool redo;
+        bool inverse;
     };
 
     struct ActionNode : public BaseNode
@@ -329,7 +335,9 @@ namespace behaviour
         {"wait", [](unsigned id, BaseNode* parent) { return new WaitNode(id, parent); }},
         {"until", [](unsigned id, BaseNode* parent) { return new UntilNode(id, parent); }},
         {"check", [](unsigned id, BaseNode* parent) { return new CheckNode(id, parent); }},
+        {"!check", [](unsigned id, BaseNode* parent) { return new CheckNode(id, parent, false, true); }},
         {"check+", [](unsigned id, BaseNode* parent) { return new CheckNode(id, parent, true); }},
+        {"!check+", [](unsigned id, BaseNode* parent) { return new CheckNode(id, parent, true, true); }},
         {"action", [](unsigned id, BaseNode* parent) { return new ActionNode(id, parent); }},
         {"action+", [](unsigned id, BaseNode* parent) { return new ActionNode(id, parent, true); }},
     };

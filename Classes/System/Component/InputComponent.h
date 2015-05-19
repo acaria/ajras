@@ -9,6 +9,7 @@ struct InputComponent
     bool        disabled = false;
     Dir         orientation;
     Dir         lastOrientation;
+    cc::Vec2    exactOrientation;
     cc::Vec2    direction;
     ActionMode  actionMode = ActionMode::walk;
     
@@ -57,17 +58,19 @@ struct InputComponent
     {
         this->lastOrientation = this->orientation;
         this->orientation = orientation;
-        this->direction = orientation.toVec();
+        this->exactOrientation = orientation.toVec();
+        this->direction = this->exactOrientation;
     }
     
     void setDirection(cc::Vec2 direction)
     {
         this->lastOrientation = this->orientation;
-        this->orientation = Dir::fromVec(direction);
         if (direction.getLength() > 1.0)
             this->direction = direction.getNormalized();
         else
             this->direction = direction;
+        this->exactOrientation = this->direction;
+        this->orientation = Dir::fromVec(this->direction);
     }
     
 private:

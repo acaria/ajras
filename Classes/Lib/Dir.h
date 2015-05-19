@@ -18,14 +18,10 @@ public:
     
     Dir& operator=(const Dir& rhs);
     Dir& operator=(const unsigned& rhs);
-    
-    Dir& opposite();
-    Dir& turnLeft();
-    Dir& turnRight();
-    
+        
     bool operator==(const Dir&rhs);
     bool operator!=(const Dir&rhs);
-
+    
     bool contains(const Dir& rhs) const;
     bool uncross(const Dir& rhs) const;
     
@@ -34,10 +30,12 @@ public:
     void reset();
     
     static Dir rand();
-    static Dir fromVec(cc::Vec2 v, bool cardinal = false);
-    
+    static Dir fromVec(cc::Vec2 v);
+    static Dir cardinalFromVec(cc::Vec2 r);
+
 private:
     unsigned value;
+
 };
 
 bool operator==(const Dir& lhs, const Dir& rhs);

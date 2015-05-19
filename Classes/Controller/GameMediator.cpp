@@ -4,10 +4,9 @@
 
 void GameMediator::onAddView(GameScene& scene)
 {
-    GameCtrl::instance()->loadSession(&scene);
-    
+    GameCtrl::instance()->startSession(&scene);
     this->eventRegs.push_back(scene.onEnterAfterTransition.registerObserver([](){
-        CCLOG("game transition finished");
+        Log("GameScene after");
     }));
 }
 

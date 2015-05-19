@@ -375,7 +375,6 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
         this->roomPreviews.erase(roomIndex);
         
         auto view = this->roomViews[roomIndex];
-        view->setPosition(preview->getPosition());
         
         preview->getSprite()->runAction(cc::Sequence::create(
             cc::FadeTo::create(1, 255),
@@ -425,6 +424,7 @@ void FloorSystemCtrl::load(GameScene *gview,
             roomData->getBounds().size.width, roomData->getBounds().size.height);
         this->roomPreviews[roomIndex] = preview;
         
+        roomLayer->setPosition(roomData->position);
         preview->setPosition(roomData->position);
         preview->getSprite()->setOpacity(0);
         

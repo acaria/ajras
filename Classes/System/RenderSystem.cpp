@@ -22,7 +22,12 @@ void RenderSystem::tick(double dt)
         {
             Dir orientation = Dir::None;
             if (ecs::has<cp::Orientation>(eid))
-                orientation = ecs::get<cp::Orientation>(eid).curDir;
+            {
+                auto& cpOrientation = ecs::get<cp::Orientation>(eid);
+                orientation = Dir::cardinalFromVec(cpOrientation.visual);
+                if (orientation == Dir::None)
+                    orientation = cpOrientation.curDir;
+            }
             cpRender.setMoveAnimation(orientation, !cpVel.direction.isZero());
         }
         

@@ -35,6 +35,6 @@ private:
     
     void updatePos();
     
-    bool moving;
+    bool moving = false;
 };
 

@@ -69,7 +69,7 @@ cc::Vec2 InterfaceLayer::setJoystick(cc::Point pos)
     auto length = result.getLength();
     if (length > 1.0)
         result = result.getNormalized();
-    Log("angle=%f", result.getAngle());
+
     this->cursor->setScaleX((1 - MIN(1.0, length)) * 0.3 + 0.7);
     this->cursor->setRotation(-CC_RADIANS_TO_DEGREES(result.getAngle()));
     

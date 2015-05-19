@@ -22,6 +22,7 @@ void InputSystem::tick(double dt)
         
             if (cpInput.orientation != Dir::None)
             {
+                cpOrientation.visual = cpInput.exactOrientation;
                 cpOrientation.lastDir = cpOrientation.curDir;
             
                 if (cpOrientation.lastDir != Dir::None && cpInput.orientation.contains(cpOrientation.lastDir))

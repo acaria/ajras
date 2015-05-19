@@ -3,7 +3,7 @@
 #define kDrawDebug 0
 #define kDrawInfo 0
 
-#define kTraceBehaviours 0
+#define kTraceBehaviours 1
 
 const bool  kShowFPS = true;
 const float kUpdatesPerSecond = 60.0f;

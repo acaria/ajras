@@ -31,6 +31,7 @@ private:
     };
     
     enum class CheckBType {
+        NEAR,
         TIME,
         COLLISION
     };
@@ -42,6 +43,7 @@ private:
     };
     
     std::map<std::string, CheckBType> checkMap = {
+        {"near", CheckBType::NEAR},
         {"time", CheckBType::TIME},
         {"collision", CheckBType::COLLISION},
     };

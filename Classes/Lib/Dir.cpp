@@ -32,51 +32,6 @@ cc::Vec2 Dir::toVec()
     return res.getNormalized();
 }
 
-Dir& Dir::opposite()
-{
-    unsigned newValue = None;
-    if ((this->value & Left) == Left)
-        newValue |= Right;
-    if ((this->value & Right) == Right)
-        newValue |= Left;
-    if ((this->value & Up) == Up)
-        newValue |= Down;
-    if ((this->value & Down) == Down)
-        newValue |= Up;
-    this->value = newValue;
-    return *this;
-}
-
-Dir& Dir::turnLeft()
-{
-    unsigned newValue = None;
-    if ((this->value & Left) == Left)
-        newValue |= Down;
-    if ((this->value & Right) == Right)
-        newValue |= Up;
-    if ((this->value & Up) == Up)
-        newValue |= Left;
-    if ((this->value & Down) == Down)
-        newValue |= Right;
-    this->value = newValue;
-    return *this;
-}
-
-Dir& Dir::turnRight()
-{
-    unsigned newValue = None;
-    if ((this->value & Left) == Left)
-        newValue |= Up;
-    if ((this->value & Right) == Right)
-        newValue |= Down;
-    if ((this->value & Up) == Up)
-        newValue |= Right;
-    if ((this->value & Down) == Down)
-        newValue |= Left;
-    this->value = newValue;
-    return *this;
-}
-
 bool Dir::operator!=(const Dir&rhs)
 {
     return !(*this == rhs);
@@ -122,7 +77,7 @@ Dir Dir::rand()
     return Dir::None;
 }
 
-Dir Dir::fromVec(cc::Vec2 r, bool cardinal)
+Dir Dir::fromVec(cc::Vec2 r)
 {
     cc::Vec2 v = {
         roundf(r.x * 10) / 10,
@@ -130,18 +85,33 @@ Dir Dir::fromVec(cc::Vec2 r, bool cardinal)
     };
     unsigned res = Dir::None;
     
-    if ((fabs(v.x) > fabs(v.y)) || !cardinal)
+    if (v.x < 0) res |= Dir::Left;
+    if (v.x > 0) res |= Dir::Right;
+    if (v.y < 0) res |= Dir::Down;
+    if (v.y > 0) res |= Dir::Up;
+    
+    return res;
+}
+
+Dir Dir::cardinalFromVec(cc::Vec2 r)
+{
+    cc::Vec2 v = {
+        roundf(r.x * 10) / 10,
+        roundf(r.y * 10) / 10
+    };
+    unsigned res = Dir::None;
+    
+    if (fabs(v.x) > fabs(v.y))
     {
         if (v.x < 0) res |= Dir::Left;
         if (v.x > 0) res |= Dir::Right;
     }
     
-    if ((fabs(v.y) > fabs(v.x)) || !cardinal)
+    if (fabs(v.y) > fabs(v.x))
     {
         if (v.y < 0) res |= Dir::Down;
         if (v.y > 0) res |= Dir::Up;
     }
-    
     return res;
 }
 

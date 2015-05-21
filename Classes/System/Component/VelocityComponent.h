@@ -29,7 +29,13 @@ struct VelocityComponent
         decelFactor = 1.0;
     }
     
+    double getSpeed()
+    {
+        return ratio * speed;
+    }
+    
     //input
+    float  ratio = 1.0;
     double speed;
     double accelDuration = 1.0;
     double decelDuration = 1.0;

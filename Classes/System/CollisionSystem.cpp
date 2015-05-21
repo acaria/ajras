@@ -115,7 +115,7 @@ void CollisionSystem::tick(double dt)
         auto& cpPosition = ecs::get<cp::Position>(eid);
         auto& cpCollision = ecs::get<cp::Collision>(eid);
      
-        cpCollision.collide = false;
+        cpCollision.current = CollisionComponent::CType::NONE;
         
 #if kDrawDebug
         auto& cpRender = ecs::get<cp::Render>(eid);
@@ -151,7 +151,7 @@ void CollisionSystem::tick(double dt)
         {
             for(auto rc : this->getRectGridCollisions(bounds, cpCollision.category))
             {
-                cpCollision.collide = true;
+                cpCollision.current = CollisionComponent::CType::DECOR;
                 cocos2d::Vec2 cv;
                 if (rc.size.width > rc.size.height) // ySlide
                 {
@@ -186,7 +186,7 @@ void CollisionSystem::tick(double dt)
                 cocos2d::Rect bounds2 = SysHelper::getBounds(cpPosition2, cpCollision2);
                 if (bounds2.intersectsRect(bounds))
                 {
-                    cpCollision.collide = true;
+                    cpCollision.current = CollisionComponent::CType::OBJECT;
 #if kDrawDebug
                     ecs::get<cp::Render>(eid).collision->setColor(cc::Color3B::RED);
 #endif

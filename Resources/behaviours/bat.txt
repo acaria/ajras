@@ -2,8 +2,8 @@ selector
     sequence attack
         action target mood friendly
         until time 6.0
-            action movenear target 20.0
-            wait 1.0
+            action movenear target 50.0
+        action charge target 0.5 1.5
     sequence wander
         selector
             sequence random move

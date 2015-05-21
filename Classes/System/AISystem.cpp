@@ -102,7 +102,8 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
         }
         case CheckBType::COLLISION:
             assert(node->values.size() == 0); //no params
-            if (!ecs::has<cp::Collision>(eid) || ecs::get<cp::Collision>(eid).collide)
+            if (!ecs::has<cp::Collision>(eid) ||
+                ecs::get<cp::Collision>(eid).current != CollisionComponent::CType::NONE)
                 return state::FAILURE;
             return state::SUCCESS;
         default:
@@ -270,7 +271,73 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                     return state::RUNNING;
                 }
                 default:
-                    Log("invalid sub parameter: %s", node->values[0].c_str());
+                    Log("invalid move near sub parameter: %s", node->values[0].c_str());
+                    break;
+            }
+        }
+        case ExecBType::CHARGE: {
+            assert(node->values.size() == 3); //params=[type, duration_load, duration_charge]
+            switch(actionMap[node->values[0]])
+            {
+                case ActionBType::TARGET: {
+                    if (!ecs::has<cp::Target, cp::Render, cp::Input, cp::Melee, cp::Collision>(eid))
+                        return state::FAILURE;
+                    
+                    auto &properties = cpAI.board.getFields(nid);
+                    
+                    if (!lib::hasKey(properties, "target"))
+                    {
+                        auto tid = ecs::get<cp::Target>(eid);
+                        if (!ecs::has<cp::Position, cp::Collision>(tid))
+                            return state::FAILURE;
+                        
+                        auto bounds = SysHelper::getBounds(eid);
+                        auto bounds2 = SysHelper::getBounds(tid);
+                        auto vdir = cc::Vec2(bounds2.getMidX() - bounds.getMidX(),
+                                             bounds2.getMidY() - bounds.getMidY());
+                        properties["target"] = cc::ValueMap{{"x", cc::Value((float)vdir.x)},
+                                                            {"y", cc::Value((float)vdir.y)}};
+                        properties["time_load"] = lib::now() + std::stod(node->values[1]);
+                        properties["time_charge"] = properties["time_load"].asDouble() + std::stod(node->values[2]);
+                        properties["save_ratio"] = ecs::has<cp::Velocity>(eid) ? ecs::get<cp::Velocity>(eid).ratio : 1.0;
+                        ecs::get<cp::Render>(eid).setAnimation("charge_load", -1);
+                    }
+                    
+                    if (lib::now() > properties["time_charge"].asDouble() ||
+                        ecs::get<cp::Collision>(eid).current == CollisionComponent::CType::DECOR)
+                    {
+                        if (ecs::has<cp::Velocity>(eid))
+                            ecs::get<cp::Velocity>(eid).ratio = properties["save_ratio"].asFloat();
+                        ecs::get<cp::Input>(eid).actionMode = ActionMode::walk;
+                        ecs::get<cp::Render>(eid).setAnimation("idle", -1);
+                        ecs::get<cp::Melee>(eid).launched = false;
+                        ecs::get<cp::Melee>(eid).processed = true;
+                        ecs::get<cp::Input>(eid).actionMode = ActionMode::walk;
+                        return state::SUCCESS;
+                    }
+                    if (lib::now() > properties["time_load"].asDouble())
+                    {
+                        if (!lib::hasKey(properties, "charging"))
+                        {
+                            properties["charging"] = true;
+                            if (ecs::has<cp::Velocity>(eid))
+                                ecs::get<cp::Velocity>(eid).ratio = 3.0;
+                            ecs::get<cp::Render>(eid).setAnimation("charge_atk", -1);
+                            ecs::get<cp::Input>(eid).actionMode = ActionMode::melee;
+                        }
+                        else
+                        {
+                            cc::Vec2 vdir = {
+                                properties["target"].asValueMap()["x"].asFloat(),
+                                properties["target"].asValueMap()["y"].asFloat()
+                            };
+                            ecs::get<cp::Input>(eid).setDirection(vdir);
+                        }
+                    }
+                    return state::RUNNING;
+                }
+                default:
+                    Log("invalid charge sub parameter: %s", node->values[0].c_str());
                     break;
             }
         }

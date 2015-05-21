@@ -42,7 +42,7 @@ struct MeleeComponent
     
     bool isCoolDown()
     {
-        return (lastTime == 0) || (lib::now() - lastTime > coolDownDuration);
+        return !launched && (lastTime == 0 || (lib::now() - lastTime > coolDownDuration));
     }
     
     void launch(Dir dir)

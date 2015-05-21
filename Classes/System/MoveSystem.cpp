@@ -8,12 +8,11 @@ void MoveSystem::tick(double dt)
         //shortcuts
         auto& cpPos = ecs::get<cp::Position>(eid);
         auto& cpVel = ecs::get<cp::Velocity>(eid);
-        auto& cpInput = ecs::get<cp::Input>(eid);
     
         //slowing target move
-        float speed = cpVel.speed;
-        if (cpInput.actionMode != ActionMode::walk)
-            speed *= 0.6;
+        float speed = cpVel.getSpeed();
+        //if (cpInput.actionMode != ActionMode::walk)
+        //    speed *= 0.6;
     
         //save previous pos
         cpPos.last = cpPos.pos;

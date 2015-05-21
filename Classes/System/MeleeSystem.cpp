@@ -89,10 +89,7 @@ void MeleeSystem::tick(double dt)
                     {
                         if (!cpMelee.processed)
                         {
-                            ///detect striking
-                            auto anim = cpRender.getCurAnim();
-                            auto p = cpRender.elapsedTime / anim->duration();
-                            if (p > 0.3 && p < 0.7)
+                            if (detectStriking(eid))
                             {
                                 //strike
                                 cpMelee.processed = true;
@@ -114,7 +111,9 @@ void MeleeSystem::tick(double dt)
                                 }
                                 
                                 cpHealth2.hp -= cpMelee.damage;
-                                this->onHealthChanged(oid, cpHealth2.hp);
+                                //this->onHealthChanged(oid, cpHealth2.hp);
+                                
+                                Log("hp%d=", cpHealth2.hp);
 
 #if kDrawInfo
                                 cpRender2.lInfo->setString(std::to_string(cpHealth2.hp));
@@ -132,20 +131,50 @@ void MeleeSystem::tick(double dt)
                     }
                     else
                     {
-                        if (cpMelee.isCoolDown() && !cpRender.busy)
+                        //if (cpMelee.isCoolDown() && !cpRender.busy)
+                        if (cpMelee.isCoolDown())
                         {
-                            //launch
-                            cpMelee.launch(atkDir);
-                            auto animName = cpMelee.name + ProfileData::getTagName(atkDir);
-                            cpRender.setAnimation(animName, 1, [&cpMelee](bool canceled){
-                                cpMelee.launched = false;
-                            });
+                            //launch melee attack
+                            switch(cpMelee.type)
+                            {
+                                case MeleeComponent::SELF:
+                                    cpMelee.launch(Dir::None);
+                                    break;
+                                case MeleeComponent::DIR: {
+                                    cpMelee.launch(atkDir);
+                                    auto animName = cpMelee.name + ProfileData::getTagName(atkDir);
+                                    cpRender.setAnimation(animName, 1, [&cpMelee](bool canceled){
+                                        cpMelee.launched = false;
+                                    });
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+bool MeleeSystem::detectStriking(unsigned int eid)
+{
+    switch(ecs::get<cp::Melee>(eid).type)
+    {
+        case MeleeComponent::SELF:
+            return true;
+        case MeleeComponent::DIR: {
+            auto& cpRender = ecs::get<cp::Render>(eid);
+            auto anim = cpRender.getCurAnim();
+            auto p = cpRender.elapsedTime / anim->duration();
+            if (p > 0.3 && p < 0.7)
+                return true;
+        }
+        default: return false;
+    }
+    return false;
 }
 
 cocos2d::Rect MeleeSystem::getAtkRectFromDir(const cocos2d::Rect& bounds, unsigned range, const Dir& dir)

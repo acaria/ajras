@@ -6,11 +6,17 @@ class ProfileData;
 
 struct CollisionComponent
 {
+    enum CType {
+        NONE,
+        DECOR,
+        OBJECT
+    };
+
     void set(cc::Rect rect);
     void setProfile(const std::string& profileName);
     void setProfile(ProfileData* profileData);
     
-    cc::Rect       rect;
+    cc::Rect            rect;
     CollisionCategory   category;
-    bool                collide = false;
+    CType               current = CType::NONE;
 };

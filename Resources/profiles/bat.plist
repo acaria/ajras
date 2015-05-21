@@ -18,12 +18,12 @@
 		<key>sight</key>
 		<dict>
 			<key>range</key>
-			<string>50</string>
+			<string>65</string>
 		</dict>
 		<key>melee</key>
 		<dict>
 			<key>type</key>
-			<string>dir</string>
+			<string>self</string>
 			<key>range</key>
 			<string>12</string>
 			<key>anim_key</key>
@@ -57,12 +57,23 @@
 			<key>frameCount</key>
 			<integer>7</integer>
 		</dict>
-		<key>atk</key>
+		<key>charge_load</key>
 		<dict>
 			<key>format</key>
 			<string>bat_atk%d.png</string>
 			<key>delay</key>
-			<string>0.01</string>
+			<string>0.06</string>
+			<key>frameCount</key>
+			<integer>4</integer>
+			<key>frameOrder</key>
+			<string>1,2,3,2</string>
+		</dict>
+		<key>charge_atk</key>
+		<dict>
+			<key>format</key>
+			<string>bat_atk%d.png</string>
+			<key>delay</key>
+			<string>0.1</string>
 			<key>frameCount</key>
 			<integer>4</integer>
 			<key>frameOrder</key>

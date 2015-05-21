@@ -179,5 +179,11 @@ namespace ecs
     bool has(unsigned id)
     {
         return has<T>(id) && has<U,V,W>(id);
-    }    
+    }
+    
+    template<class T, class U, class V, class W, class X>
+    bool has(unsigned id)
+    {
+        return has<T>(id) && has<U,V,W,X>(id);
+    }
 };

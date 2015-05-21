@@ -27,7 +27,8 @@ private:
         TARGET,
         MOVE_TO,
         MOVE_NEAR,
-        MOVE_DIR
+        MOVE_DIR,
+        CHARGE
     };
     
     enum class CheckBType {
@@ -53,6 +54,7 @@ private:
         {"moveto", ExecBType::MOVE_TO},
         {"movenear", ExecBType::MOVE_NEAR},
         {"movedir", ExecBType::MOVE_DIR},
+        {"charge", ExecBType::CHARGE}
     };
     
     std::map<std::string, ActionBType> actionMap = {

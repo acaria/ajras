@@ -27,6 +27,7 @@ private:
     cocos2d::Rect getAtkRectFromDir(const cocos2d::Rect& bounds,
                                     unsigned range,
                                     const Dir& dir);
+    bool detectStriking(unsigned eid);
     
     GameScene* gView;
 };

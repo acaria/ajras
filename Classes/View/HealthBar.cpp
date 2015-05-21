@@ -102,10 +102,7 @@ void HealthBar::updateProperties(unsigned health)
         
         full->setOpacity((i<health)?255:0);
         empty->setOpacity((i<health)?0:255);
-        
-        hearts.push_back({full, empty});
     }
-    this->setLength(length + contentSize.height);
 }
 
 const cc::Size& HealthBar::getContentSize()

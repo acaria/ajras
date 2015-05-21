@@ -111,7 +111,7 @@ void MeleeSystem::tick(double dt)
                                 }
                                 
                                 cpHealth2.hp -= cpMelee.damage;
-                                //this->onHealthChanged(oid, cpHealth2.hp);
+                                this->onHealthChanged(oid, cpHealth2.hp);
                                 
                                 Log("hp%d=", cpHealth2.hp);
 

@@ -1,6 +1,6 @@
 #include "TransitSystem.h"
 #include "GateInfo.h"
-#include "Misc.h"
+#include "CoreLib.h"
 #include "Components.h"
 #include "GameCtrl.h"
 #include "RoomData.h"

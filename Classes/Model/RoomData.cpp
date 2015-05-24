@@ -1,13 +1,60 @@
 #include "RoomData.h"
-#include "Misc.h"
+#include "CoreLib.h"
 
-RoomData::RoomData(unsigned roomIndex, RoomModel* model) : model(model),
-                        index(roomIndex),
-                        grid(model->grid)
+RoomData::RoomData(unsigned roomIndex, RoomModel* model) :
+    model(model), grid(model->grid),
+    index(roomIndex), type(RoomType::COMMON)
 {
-    this->crossAreas = std::list<GateInfo>(model->crossAreas);
-    this->type = RoomType::COMMON;
     this->depth = 0;
+    
+    //cross areas
+    this->crossAreas = std::list<GateInfo>(model->crossAreas);
+    
+    //sleep zones
+    sleepZones[CategoryComponent::eSleep::BIRD] = std::list<SleepZone>();
+    sleepZones[CategoryComponent::eSleep::HUMAN] = std::list<SleepZone>();
+    for(auto pair : model->sleepZones)
+    {
+        for(auto bounds : pair.second)
+        {
+            sleepZones[pair.first].push_back(SleepZone{
+                .bounds = bounds,
+                .taken = false
+            });
+        }
+    }
+}
+
+RoomData::SleepZone* RoomData::getSleepZone(CategoryComponent::eSleep cat,
+                                            const cc::Point& pos)
+{
+    SleepZone* result = nullptr;
+    float dist = 0;
+    for(SleepZone& sleepZone : this->sleepZones[cat])
+    {
+        if (sleepZone.taken)
+            continue;
+        auto newDist = (pos - cc::Point{sleepZone.bounds.getMidX(),
+                                        sleepZone.bounds.getMidY()}).getLength();
+        if (dist == 0 || newDist < dist)
+        {
+            dist = newDist;
+            result = &sleepZone;
+        }
+    }
+    return result;
+}
+
+void RoomData::freeSleepZone(CategoryComponent::eSleep cat, const cc::Point &pos)
+{
+    for(SleepZone& sleepZone : this->sleepZones[cat])
+    {
+        if (!sleepZone.taken)
+            continue;
+        
+        if (sleepZone.bounds.containsPoint(pos))
+            sleepZone.taken = false;
+    }
 }
 
 cc::Rect RoomData::getBounds()

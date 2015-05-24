@@ -96,7 +96,7 @@ std::string ProfileData::toString()
     return result.str();
 }
 
-ProfileData::ProfileData(const std::string &path) : behaviourMood("neutral")
+ProfileData::ProfileData(const std::string &path) : moodCategory("neutral")
 {
     this->path = path;
     auto rawData = cocos2d::FileUtils::getInstance()->getValueMapFromFile(path);
@@ -117,10 +117,10 @@ ProfileData::ProfileData(const std::string &path) : behaviourMood("neutral")
         {
             std::vector<std::string> split;
             lib::split(cData.at("rect").asString(), split, ", ");
-            this->collisionRect = cocos2d::Rect(lib::parseInt(split[0]),
-                                                lib::parseInt(split[1]),
-                                                lib::parseInt(split[2]),
-                                                lib::parseInt(split[3]));
+            this->collisionRect = cocos2d::Rect(std::stoi(split[0]),
+                                                std::stoi(split[1]),
+                                                std::stoi(split[2]),
+                                                std::stoi(split[3]));
         }
         
         if (cData.find("cat") != cData.end())
@@ -176,10 +176,15 @@ ProfileData::ProfileData(const std::string &path) : behaviourMood("neutral")
     if (rawData.find("behaviour") != rawData.end())
     {
         withBehaviour = true;
-        auto &bData = rawData.at("behaviour").asValueMap();
-        if (bData.find("key") != rawData.end())
-            this->behaviourKey = bData.at("key").asString();
-        if (bData.find("mood") != rawData.end())
-            this->behaviourMood = bData.at("mood").asString();
+        this->behaviourKey = rawData["behaviour"].asString();
+    }
+    
+    if (rawData.find("category") != rawData.end())
+    {
+        auto &cData = rawData.at("category").asValueMap();
+        if (cData.find("sleep") != rawData.end())
+            this->sleepCategory = cData.at("sleep").asString();
+        if (cData.find("mood") != rawData.end())
+            this->moodCategory = cData.at("mood").asString();
     }
 }

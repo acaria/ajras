@@ -2,7 +2,7 @@
 #include "GateInfo.h"
 #include "RoomData.h"
 #include "Randgine.h"
-#include "Misc.h"
+#include "CoreLib.h"
 
 class FloorMapping
 {

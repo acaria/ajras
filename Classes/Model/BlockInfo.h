@@ -4,7 +4,9 @@ struct BlockInfo {
     enum PType {
         bgTileName,
         fgTileName,
-        collision
+        collision,
+        sleepZone,
+        sleepCat
     };
 
     std::map<PType, std::string>  fields;

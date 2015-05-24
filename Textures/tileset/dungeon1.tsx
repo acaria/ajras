@@ -247,6 +247,10 @@
   <image width="32" height="48" source="../assets/dungeon1/wall/wall_top_06.png"/>
  </tile>
  <tile id="82">
+  <properties>
+   <property name="sleep_cat" value="bird"/>
+   <property name="sleep_zone" value="0,0,32,32"/>
+  </properties>
   <image width="32" height="48" source="../assets/dungeon1/decor/cauldron_large.png"/>
  </tile>
  <tile id="83">

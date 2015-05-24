@@ -1,6 +1,6 @@
 #pragma once
 #include "Dir.h"
-#include "Misc.h"
+#include "CoreLib.h"
 #include "Defines.h"
 
 struct InputComponent

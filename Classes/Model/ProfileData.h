@@ -20,7 +20,10 @@ public:
     
     //behaviour
     std::string     behaviourKey;
-    std::string     behaviourMood;
+    
+    //category
+    std::string     moodCategory;
+    std::string     sleepCategory;
     
     //stats - move
     double          speed;

@@ -11,16 +11,6 @@ namespace lib
         return (val > max ? max : (val < min ? min : val));
     }
     
-    inline int parseInt(const std::string& str)
-    {
-        return (int)strtol(str.c_str(), nullptr, 10);
-    }
-    
-    inline float parseFloat(const std::string& str)
-    {
-        return strtof(str.c_str(), nullptr);
-    }
-    
     template<typename T>
     const bool contains( std::vector<T>& v, const T& e)
     {
@@ -43,16 +33,6 @@ namespace lib
     inline bool hasKey(const std::map<std::string, U>& m, const std::string& k)
     {
         return m.find(k) != m.end();
-    }
-    
-    inline std::string lowercase(const std::string &str)
-    {
-        std::string lower = str;
-        transform(lower.begin(),
-                  lower.end(),
-                  lower.begin(),
-                  ::tolower);
-        return lower;
     }
     
     struct IntTime
@@ -123,41 +103,6 @@ namespace lib
         float getVec2X() {return (float)x * kDivisor;}
         float getVec2Y() {return (float)y * kDivisor;}
     };
-    
-    template<class ContainerT>
-    void split(const std::string& str,
-                  ContainerT& tokens,
-                  const std::string& delimiters = " ",
-                  bool trimEmpty = false)
-    {
-        std::string::size_type pos, lastPos = 0;
-        
-        using value_type = typename ContainerT::value_type;
-        using size_type  = typename ContainerT::size_type;
-        
-        while(true)
-        {
-            pos = str.find_first_of(delimiters, lastPos);
-            if(pos == std::string::npos)
-            {
-                pos = str.length();
-                
-                if(pos != lastPos || !trimEmpty)
-                    tokens.push_back(value_type(str.data()+lastPos,
-                                                (size_type)pos-lastPos ));
-                
-                break;
-            }
-            else
-            {
-                if(pos != lastPos || !trimEmpty)
-                    tokens.push_back(value_type(str.data()+lastPos,
-                                                (size_type)pos-lastPos ));
-            }
-            
-            lastPos = pos + 1;
-        }
-    }
     
     bool intersectRects(const std::vector<cocos2d::Rect> &rs1,
                         const std::vector<cocos2d::Rect> &rs2);

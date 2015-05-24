@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Misc.h"
+#include "CoreLib.h"
 
 struct AnimationData
 {
@@ -42,7 +42,7 @@ struct AnimationData
                     lib::split(data.at("frameOrder").asString(), orderList, " ,");
                     
                     for(auto order : orderList)
-                        this->frameNames.push_back(lib::format(format, lib::parseInt(order)));
+                        this->frameNames.push_back(lib::format(format, std::stoi(order)));
                 }
                 else
                 {

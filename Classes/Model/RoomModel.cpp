@@ -1,6 +1,6 @@
 #include "RoomModel.h"
 #include "Jsonxx.h"
-#include "Misc.h"
+#include "CoreLib.h"
 
 RoomModel* RoomModel::create(const std::string &fileName)
 {
@@ -81,21 +81,19 @@ RoomModel* RoomModel::create(const std::string &fileName)
                         result->grid.get({c, r}).fields[BlockInfo::bgTileName] = tileNames[tileIndex];
                     else if (name == "foreground")
                         result->grid.get({c, r}).fields[BlockInfo::fgTileName] = tileNames[tileIndex];
-                    else //filling properties
+                    
+                    if (tileProperties.find(tileIndex) != tileProperties.end())
                     {
-                        if (tileProperties.find(tileIndex) != tileProperties.end())
+                        for(const auto &prop : tileProperties[tileIndex])
                         {
-                            for(const auto &prop : tileProperties[tileIndex])
-                            {
-                                if (prop.first == "collision")
-                                {
-                                    result->grid.get({c, r}).fields[BlockInfo::collision] = prop.second;
-                                }
-                                else
-                                {
-                                    Log("invalid property name: %s", prop.first.c_str());
-                                }
-                            }
+                            if (prop.first == "collision")
+                                result->grid.get({c, r}).fields[BlockInfo::collision] = prop.second;
+                            else if (prop.first == "sleep_zone")
+                                result->grid.get({c, r}).fields[BlockInfo::sleepZone] = prop.second;
+                            else if (prop.first == "sleep_cat")
+                                result->grid.get({c, r}).fields[BlockInfo::sleepCat] = prop.second;
+                            else
+                                Log("invalid property name: %s", prop.first.c_str());
                         }
                     }
                 }
@@ -142,6 +140,20 @@ RoomModel* RoomModel::create(const std::string &fileName)
         {
             if (block.fields[BlockInfo::collision] == "crossing")
                 result->crossAreas.push_back(extractCrossArea(*result, {i, j}));
+        }
+        if (block.fields.find(BlockInfo::sleepZone) != block.fields.end() &&
+            block.fields.find(BlockInfo::sleepCat) != block.fields.end())
+        {
+            auto cat = CategoryComponent::mapSleep[block.fields[BlockInfo::sleepCat]];
+            auto blockPos = result->getPosFromCoord({i,j});
+            std::vector<std::string> coord;
+            lib::split(block.fields[BlockInfo::sleepZone], coord, ",", true);
+            result->sleepZones[cat].push_back(cc::Rect(
+                blockPos.x + std::stod(coord[0]),
+                blockPos.y + std::stod(coord[1]),
+                std::stod(coord[2]),
+                std::stod(coord[3])
+            ));
         }
     }
 

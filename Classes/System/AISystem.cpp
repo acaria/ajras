@@ -122,6 +122,25 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
 
     switch(this->execMap[node->name])
     {
+        case ExecBType::ANIM: {
+            if (!ecs::has<cp::Render>(eid))
+                return state::FAILURE;
+            auto &properties = cpAI.board.getFields(nid);
+            if (!lib::hasKey(properties, "done"))
+            {
+                properties["done"] = false;
+                assert(node->values.size() > 0); // params=[keyName, repeat]
+                std::string keyName = node->values[0];
+                int repeat = -1;
+                if (node->values.size() > 1)
+                    repeat = std::stoi(node->values[1]);
+                ecs::get<cp::Render>(eid).setAnimation(keyName, repeat, [eid, nid](bool){
+                    auto& cpAI = ecs::get<cp::AI>(eid);
+                    cpAI.board.getFields(nid)["done"] = true;
+                });
+            }
+            return properties["done"].asBool() ? state::SUCCESS : state::RUNNING;
+        }
         case ExecBType::TARGET: {
             assert(node->values.size() > 0);
             switch(CategoryComponent::mapType[node->values[0]])
@@ -221,6 +240,38 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                 case ActionBType::STOP: {
                     cpInput.setDirection(Dir::None);
                     return state::SUCCESS;
+                }
+                case ActionBType::SLEEPZONE: {
+                    if (!ecs::has<cp::Input>(eid))
+                        return state::FAILURE;
+                    auto &properties = cpAI.board.getFields(nid);
+                    if (!lib::hasKey(properties, "target"))
+                    {
+                        if (!ecs::has<cp::Cat, cp::Position, cp::Collision>(eid))
+                            return state::FAILURE;
+                        auto bounds = SysHelper::getBounds(eid);
+                        auto sleepZone = this->data->getSleepZone(ecs::get<cp::Cat>(eid).sleep, {bounds.getMidX(), bounds.getMidY()});
+                        if (sleepZone == nullptr)
+                            return state::FAILURE;
+                        sleepZone->taken = true;
+                        cc::Point pos = {
+                            (sleepZone->bounds.getMidX() - bounds.size.width / 2) - ecs::get<cp::Collision>(eid).rect.origin.x,
+                            (sleepZone->bounds.getMidY() - bounds.size.height / 2) - ecs::get<cp::Collision>(eid).rect.origin.y,
+                        };
+                        properties["target"] = cc::ValueMap{{"x", cc::Value((int)pos.x)}, {"y", cc::Value((int)pos.y)}};
+                    }
+                    
+                    auto& cpInput = ecs::get<cp::Input>(eid);
+                    auto currentPos = ecs::get<cp::Position>(eid).pos;
+                    auto vdir = cc::Vec2(properties["target"].asValueMap()["x"].asInt() - currentPos.x,
+                                         properties["target"].asValueMap()["y"].asInt() - currentPos.y);
+                    if (vdir.length() < 5.0)
+                    {
+                        cpInput.setDirection(Dir::None);
+                        return state::SUCCESS;
+                    }
+                    cpInput.setDirection(vdir);
+                    return state::RUNNING;
                 }
                 default:
                     Log("invalid sub parameter: %s", node->values[0].c_str());
@@ -338,6 +389,23 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                 }
                 default:
                     Log("invalid charge sub parameter: %s", node->values[0].c_str());
+                    break;
+            }
+        }
+        case ExecBType::STOP: {
+            assert(node->values.size() == 1); //params=[type]
+            switch(actionMap[node->values[0]])
+            {
+                case ActionBType::SLEEPZONE: {
+                    if (!ecs::has<cp::Cat, cp::Position, cp::Collision>(eid))
+                        return state::FAILURE;
+                    auto bounds = SysHelper::getBounds(eid);
+                    this->data->freeSleepZone(ecs::get<cp::Cat>(eid).sleep,
+                                              {bounds.getMidX(), bounds.getMidY()});
+                    return state::SUCCESS;
+                }
+                default:
+                    Log("invalid stop sub parameter: %s", node->values[0].c_str());
                     break;
             }
         }

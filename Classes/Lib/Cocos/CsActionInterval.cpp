@@ -1,5 +1,5 @@
 #include "CsActionInterval.h"
-#include "Misc.h"
+#include "CoreLib.h"
 
 Flicker* Flicker::create(float duration, float interval,
                          const cocos2d::Vec2& opacity,

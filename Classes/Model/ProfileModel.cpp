@@ -1,5 +1,5 @@
 #include "ProfileModel.h"
-#include "Misc.h"
+#include "CoreLib.h"
 #include "ProfileData.h"
 
 ProfileData *ProfileModel::get(const std::string &profileName)

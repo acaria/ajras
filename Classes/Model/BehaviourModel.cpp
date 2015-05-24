@@ -1,6 +1,6 @@
 #include "BehaviourModel.h"
 #include "BehaviourData.h"
-#include "Misc.h"
+#include "CoreLib.h"
 
 BehaviourData* BehaviourModel::get(const std::string &bName)
 {

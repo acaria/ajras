@@ -1,14 +1,22 @@
 selector
-    sequence attack
+    sequence "attack"
         action target mood friendly
         until time 6.0
             action movenear target 50.0
         action charge target 0.5 1.5
-    sequence wander
-        selector
-            sequence random move
+    sequence "sleeping"
+        selector "process"
+            sequence
                 !check+ near mood friendly
-                until time 5.0
-                    action moveto rand
-                wait 2.0
-            action movedir stop
+                action moveto sleep_zone
+                action anim sleep_intro 1
+                until time 10.0
+                    action anim sleep_during -1
+            sequence
+                action anim sleep_outro 1
+                action stop sleep_zone
+    sequence "wander"
+        !check+ near mood friendly
+        until time 5.0
+            action moveto rand
+        wait 1.0

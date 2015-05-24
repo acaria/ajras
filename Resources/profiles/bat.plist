@@ -2,6 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>behaviour</key>
+	<string>bat</string>
+	<key>category</key>
+	<dict>
+		<key>mood</key>
+		<string>hostile</string>
+		<key>sleep</key>
+		<string>bird</string>
+	</dict>
 	<key>stats</key>
 	<dict>
 		<key>move</key>
@@ -18,7 +27,7 @@
 		<key>sight</key>
 		<dict>
 			<key>range</key>
-			<string>65</string>
+			<string>80</string>
 		</dict>
 		<key>melee</key>
 		<dict>
@@ -32,13 +41,6 @@
 		<key>health</key>
 		<string>3</string>
 	</dict>
-	<key>behaviour</key>
-	<dict>
-		<key>key</key>
-		<string>bat</string>
-		<key>mood</key>
-		<string>hostile</string>
-	</dict>
 	<key>collision</key>
 	<dict>
 		<key>rect</key>
@@ -48,6 +50,36 @@
 	</dict>
 	<key>animations</key>
 	<dict>
+		<key>_sleep</key>
+		<dict>
+			<key>intro</key>
+			<dict>
+				<key>format</key>
+				<string>bat_sleep%d.png</string>
+				<key>delay</key>
+				<string>0.1</string>
+				<key>frameCount</key>
+				<integer>7</integer>
+			</dict>
+			<key>during</key>
+			<dict>
+				<key>format</key>
+				<string>bat_sleep7.png</string>
+				<key>frameCount</key>
+				<integer>1</integer>
+			</dict>
+			<key>outro</key>
+			<dict>
+				<key>format</key>
+				<string>bat_sleep%d.png</string>
+				<key>delay</key>
+				<string>0.1</string>
+				<key>frameCount</key>
+				<integer>7</integer>
+				<key>frameOrder</key>
+				<string>7,6,5,4,3,2,1</string>
+			</dict>
+		</dict>
 		<key>death</key>
 		<dict>
 			<key>format</key>
@@ -57,27 +89,30 @@
 			<key>frameCount</key>
 			<integer>7</integer>
 		</dict>
-		<key>charge_load</key>
+		<key>_charge</key>
 		<dict>
-			<key>format</key>
-			<string>bat_atk%d.png</string>
-			<key>delay</key>
-			<string>0.06</string>
-			<key>frameCount</key>
-			<integer>4</integer>
-			<key>frameOrder</key>
-			<string>1,2,3,2</string>
-		</dict>
-		<key>charge_atk</key>
-		<dict>
-			<key>format</key>
-			<string>bat_atk%d.png</string>
-			<key>delay</key>
-			<string>0.1</string>
-			<key>frameCount</key>
-			<integer>4</integer>
-			<key>frameOrder</key>
-			<string>1,2,3,2</string>
+			<key>load</key>
+			<dict>
+				<key>format</key>
+				<string>bat_atk%d.png</string>
+				<key>delay</key>
+				<string>0.06</string>
+				<key>frameCount</key>
+				<integer>4</integer>
+				<key>frameOrder</key>
+				<string>1,2,3,2</string>
+			</dict>
+			<key>atk</key>
+			<dict>
+				<key>format</key>
+				<string>bat_atk%d.png</string>
+				<key>delay</key>
+				<string>0.1</string>
+				<key>frameCount</key>
+				<integer>4</integer>
+				<key>frameOrder</key>
+				<string>1,2,3,2</string>
+			</dict>
 		</dict>
 		<key>move</key>
 		<dict>

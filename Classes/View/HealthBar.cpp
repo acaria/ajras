@@ -1,5 +1,5 @@
 #include "HealthBar.h"
-#include "Misc.h"
+#include "CoreLib.h"
 
 HealthBar* HealthBar::create(const std::string& bg, const std::string& full, const std::string& empty)
 {
@@ -94,7 +94,6 @@ void HealthBar::initProperties(unsigned int maxHealth, unsigned int current)
 
 void HealthBar::updateProperties(unsigned health)
 {
-    float length = 0;
     for(auto i = 0; i < hearts.size(); i++)
     {
         auto full = hearts[i].first;

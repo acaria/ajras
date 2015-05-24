@@ -18,7 +18,7 @@ if [ "$1" == "clean" ] || [ "${ACTION}" == "clean" ]; then
 	rm -fv ${PDIR}/Resources-android/sd/ss-*.*
 	rm -fv ${PDIR}/Resources-android/hd/ss-*.*
 else
-	echo "building..."
+	echo "building spritesheets..."
     for d in "${sheet[@]}"
     do
         ${TP} --smart-update \

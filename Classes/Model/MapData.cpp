@@ -19,17 +19,17 @@ void MapData::extractInfo(const std::string &name)
     
     auto minMaxStartNbGates = std::vector<std::string>();
     lib::split(layout.at("start_nb_gates").asString(), minMaxStartNbGates, ",", true);
-    this->startNbGates.first = lib::parseInt(minMaxStartNbGates[0]);
-    this->startNbGates.second = lib::parseInt(minMaxStartNbGates[1]);
+    this->startNbGates.first = std::stoi(minMaxStartNbGates[0]);
+    this->startNbGates.second = std::stoi(minMaxStartNbGates[1]);
     
     //design
     CCASSERT(rawData.find("design") != rawData.end(), "invalid map data");
     auto design = rawData.at("design").asValueMap();
     auto bgRawColor = std::vector<std::string>();
     lib::split(design.at("bg_color").asString(), bgRawColor, ",", true);
-    this->bgColor = cc::Color3B(lib::parseInt(bgRawColor[0]),
-                            lib::parseInt(bgRawColor[1]),
-                            lib::parseInt(bgRawColor[2]));
+    this->bgColor = cc::Color3B(std::stoi(bgRawColor[0]),
+                                std::stoi(bgRawColor[1]),
+                                std::stoi(bgRawColor[2]));
     for(auto tile : design.at("bg_tiles").asValueVector())
         this->bgTiles.push_back(tile.asString());
     CCASSERT(design.find("gate") != design.end(), "invalid gate data");
@@ -81,10 +81,10 @@ std::pair<std::string, cc::Rect> MapData::subExtractGateInfo(const cc::ValueMap&
     lib::split(el.at("bounds").asString(), tileBounds, ",", true);
 
     cc::Rect gateBounds = cc::Rect(
-        lib::parseFloat(tileBounds[0]),
-        lib::parseFloat(tileBounds[1]),
-        lib::parseFloat(tileBounds[2]),
-        lib::parseFloat(tileBounds[3])
+        std::stof(tileBounds[0]),
+        std::stof(tileBounds[1]),
+        std::stof(tileBounds[2]),
+        std::stof(tileBounds[3])
     );
     
     return {tileName, gateBounds};

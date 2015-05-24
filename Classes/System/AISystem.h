@@ -28,7 +28,9 @@ private:
         MOVE_TO,
         MOVE_NEAR,
         MOVE_DIR,
-        CHARGE
+        CHARGE,
+        STOP,
+        ANIM
     };
     
     enum class CheckBType {
@@ -39,6 +41,7 @@ private:
     
     enum class ActionBType {
         RAND,
+        SLEEPZONE,
         STOP,
         TARGET
     };
@@ -54,11 +57,14 @@ private:
         {"moveto", ExecBType::MOVE_TO},
         {"movenear", ExecBType::MOVE_NEAR},
         {"movedir", ExecBType::MOVE_DIR},
-        {"charge", ExecBType::CHARGE}
+        {"charge", ExecBType::CHARGE},
+        {"stop", ExecBType::STOP},
+        {"anim", ExecBType::ANIM}
     };
     
     std::map<std::string, ActionBType> actionMap = {
         {"rand", ActionBType::RAND},
+        {"sleep_zone", ActionBType::SLEEPZONE},
         {"target", ActionBType::TARGET},
         {"stop", ActionBType::STOP}
     };

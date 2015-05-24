@@ -1,5 +1,6 @@
 #include "BehaviourData.h"
 #include "BehaviourNodes.h"
+#include "CoreLib.h"
 
 BehaviourData::BehaviourData(const std::string& path)
 {
@@ -57,23 +58,26 @@ void BehaviourData::parsingNode(behaviour::BaseNode *node,
     while (lines.size() > 0 && curDepth == getLineDepth(line))
     {
         lines.pop_front();
-        std::vector<std::string> words;
-        lib::split(line, words, "\t ", true);
-        auto tagName = words[0];
+        if (lib::trimCopy(line)[0] != '#') //skip
+        {
+            std::vector<std::string> words;
+            lib::split(line, words, "\t ", true);
+            auto tagName = words[0];
     
-        auto subNode = behaviour::factory[tagName](this->curId++, node);
-        this->dict[subNode->id] = subNode;
-        if (words.size() > 1)
-            subNode->name = words[1];
-        if (words.size() > 2)
-            subNode->values = std::vector<std::string>(words.begin() + 2,
+            auto subNode = behaviour::factory[tagName](this->curId++, node);
+            this->dict[subNode->id] = subNode;
+            if (words.size() > 1)
+                subNode->name = words[1];
+            if (words.size() > 2)
+                subNode->values = std::vector<std::string>(words.begin() + 2,
                                                        words.end());
         
-        node->children.push_back(subNode);
+            node->children.push_back(subNode);
         
-        line = lines.front();
-        if (getLineDepth(line) == curDepth + 1)
-            this->parsingNode(subNode, lines);
+            line = lines.front();
+            if (getLineDepth(line) == curDepth + 1)
+                this->parsingNode(subNode, lines);
+        }
         if (lines.size() > 0)
             line = lines.front();
     }

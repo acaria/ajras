@@ -1,5 +1,5 @@
 #include "GameCamera.h"
-#include "Misc.h"
+#include "CoreLib.h"
 
 GameCamera::GameCamera(cc::Layer* playground, cc::Rect bounds):
     playground(playground),

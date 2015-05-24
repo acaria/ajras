@@ -1,6 +1,6 @@
 #include "TickCtrl.h"
 #include "TickScheduler.h"
-#include "Misc.h"
+#include "CoreLib.h"
 #include "Defines.h"
 
 TickCtrl::TickCtrl(std::function<void(double)> onTick,

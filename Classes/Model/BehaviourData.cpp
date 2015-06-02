@@ -71,8 +71,13 @@ void BehaviourData::parsingNode(behaviour::BaseNode *node,
             if (words.size() > 2)
                 subNode->values = std::vector<std::string>(words.begin() + 2,
                                                        words.end());
-        
-            node->children.push_back(subNode);
+            if (tagName == "finally")
+            {
+                assert(node->finally == nullptr);
+                node->finally = subNode;
+            }
+            else
+                node->children.push_back(subNode);
         
             line = lines.front();
             if (getLineDepth(line) == curDepth + 1)

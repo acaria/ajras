@@ -48,7 +48,7 @@ namespace behaviour
 
     struct BaseNode
     {
-        BaseNode(unsigned id, BaseNode* parent)
+        BaseNode(unsigned id, BaseNode* parent) : finally(nullptr)
         {
             this->id = id;
             this->parent = parent;
@@ -61,6 +61,9 @@ namespace behaviour
                 if (node != nullptr)
                     delete node;
             }
+            
+            if (finally != nullptr)
+                delete finally;
         }
     
         virtual nState visit(BoardNode& board) = 0;
@@ -70,6 +73,7 @@ namespace behaviour
         std::vector<std::string> values;
         std::vector<BaseNode*> children;
         BaseNode* parent;
+        BaseNode* finally;
         
         protected:
         virtual std::string toStr()
@@ -146,6 +150,29 @@ namespace behaviour
         }
     };
 
+    struct FinallyNode : public BaseNode
+    {
+        FinallyNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
+        
+        nState visit(BoardNode& board)
+        {
+#if kTraceBehaviours
+            Log("FinallyNode: %s", this->toStr().c_str());
+#endif
+            if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
+                return board.states[id];
+            
+            board.states[id] = RUNNING;
+            for(auto node : children)
+            {
+                if (node->visit(board) == RUNNING)
+                    return RUNNING;
+            }
+            board.states[id] = SUCCESS;
+            return SUCCESS;
+        }
+    };
+
     struct SequenceNode : public BaseNode
     {
         SequenceNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
@@ -155,8 +182,20 @@ namespace behaviour
 #if kTraceBehaviours
             Log("SequenceNode: %s", this->toStr().c_str());
 #endif
-            if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
+            if (board.states.find(id) != board.states.end() &&
+                board.states[id] != RUNNING)
+            {
+                //handle finally mode
+                if (finally != nullptr &&
+                    (board.states.find(finally->id) == board.states.end() ||
+                    board.states[finally->id] != SUCCESS))
+                {
+                    board.states[finally->id] = finally->visit(board);
+                    return RUNNING;
+                }
+                
                 return board.states[id];
+            }
             
             board.states[id] = RUNNING;
             for(auto node : children)
@@ -166,14 +205,14 @@ namespace behaviour
                 if (state == FAILURE)
                 {
                     board.states[id] = FAILURE;
-                    return FAILURE;
+                    return RUNNING;
                 }
             
                 if (state == RUNNING)
                     return RUNNING;
             }
             board.states[id] = SUCCESS;
-            return SUCCESS;
+            return RUNNING;
         }
     };
 
@@ -331,6 +370,7 @@ namespace behaviour
     static std::map<std::string, std::function<BaseNode*(unsigned id, BaseNode* parent)>> factory {
         {"selector", [](unsigned id, BaseNode* parent) { return new SelectorNode(id, parent); }},
         {"sequence", [](unsigned id, BaseNode* parent) { return new SequenceNode(id, parent); }},
+        {"finally", [](unsigned id, BaseNode* parent) { return new FinallyNode(id, parent); }},
         {"repeat", [](unsigned id, BaseNode* parent) { return new RepeatNode(id, parent); }},
         {"wait", [](unsigned id, BaseNode* parent) { return new WaitNode(id, parent); }},
         {"until", [](unsigned id, BaseNode* parent) { return new UntilNode(id, parent); }},

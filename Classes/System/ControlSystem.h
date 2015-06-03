@@ -22,6 +22,7 @@ public:
 
     void init(GameScene *gview, RoomData* data);
     void changeRoom(RoomData* data);
+    void computeFocusEntities();
     
     //overrides
     void tick(double dt) final;
@@ -65,6 +66,7 @@ private:
     std::map<unsigned, cc::Vec2> joyPos;
     //selection input
     std::map<unsigned, unsigned> entitySelection;
+    std::map<unsigned, unsigned> entityFocus;
     ActionMode                   actionSelection;
     
     RoomData *data = nullptr;

@@ -1,67 +1,85 @@
 #include "ControlSystem.h"
 #include "Components.h"
 #include "InputComponent.h"
+#include "CategoryComponent.h"
 #include "RoomData.h"
 #include "GameScene.h"
 #include "InterfaceLayer.h"
+#include "SysHelper.h"
 
 using namespace std::placeholders;
 using KeyCode = cocos2d::EventKeyboard::KeyCode;
+
+void ControlSystem::computeFocusEntities()
+{
+    for(unsigned index : {INDEX_P1})
+    {
+        for(auto eid : ecs.join<cp::Control, cp::Render>())
+        {
+            if (ecs::get<cp::Control>(eid) == index)
+            {
+                this->entityFocus[index] = eid;
+                break;
+            }
+        }
+    }
+}
 
 void ControlSystem::tick(double dt)
 {
     for(unsigned index : {INDEX_P1})
     {
-        for(auto eid : ecs.join<cp::Input, cp::Control, cp::Render>())
-        {
-            //direction
-            if (ecs::get<cp::Control>(eid) != index)
-                continue;
-            auto& cpInput = ecs::get<cp::Input>(eid);
+        auto eid = entityFocus[index];
+        if (eid == 0)
+            continue;
+        
+        //direction
+        if (ecs::get<cp::Control>(eid) != index)
+            continue;
+        auto& cpInput = ecs::get<cp::Input>(eid);
          
-            if (lib::hasKey(joyPos, index))
-            {
-                auto posRatio = this->view->interface->setJoystick(joyPos[index]);
-                cpInput.setDirection(posRatio);
-            }
-            else
-            {
-                this->view->interface->clearJoystick();
-                cpInput.setDirection(this->curDirPressed[index] |
-                    (this->curDirReleased[index] & ~this->preDirPressed[index]));
-            }
+        if (lib::hasKey(joyPos, index))
+        {
+            auto posRatio = this->view->interface->setJoystick(joyPos[index]);
+            cpInput.setDirection(posRatio);
+        }
+        else
+        {
+            this->view->interface->clearJoystick();
+            cpInput.setDirection(this->curDirPressed[index] |
+                (this->curDirReleased[index] & ~this->preDirPressed[index]));
+        }
             
-            //selection
-            if (this->entitySelection[index] != 0 &&
-                ecs::has<cp::Collision>(this->entitySelection[index]))
-            {
-                auto tid = this->entitySelection[index];
+        //selection
+        if (this->entitySelection[index] != 0 &&
+            ecs::has<cp::Collision>(this->entitySelection[index]))
+        {
+            auto tid = this->entitySelection[index];
                 
-                auto& cpRender = ecs::get<cp::Render>(tid);
-                auto& cpCol = ecs::get<cp::Collision>(tid);
+            auto& cpRender = ecs::get<cp::Render>(tid);
+            auto& cpCol = ecs::get<cp::Collision>(tid);
                 
-                auto pos = cc::Point(
-                    cpCol.rect.getMinX() + cpCol.rect.size.width / 2,
-                    cpCol.rect.getMinY() + cpCol.rect.size.height / 2
-                );
+            auto pos = cc::Point(
+                cpCol.rect.getMinX() + cpCol.rect.size.width / 2,
+                cpCol.rect.getMinY() + cpCol.rect.size.height / 2
+            );
                 
-                this->view->interface->setTargetID(tid, ecs::has<cp::Control>(tid), cpRender.getContainer(), pos);
-                ecs.add<cp::Target>(eid) = tid;
-            }
+            this->view->interface->setTargetID(tid, ecs::has<cp::Control>(tid), cpRender.getContainer(), pos);
+            ecs.add<cp::Target>(eid) = tid;
+        }
             
-            if (this->actionSelection != ActionMode::none)
+        if (this->actionSelection != ActionMode::none)
+        {
+            cpInput.actionMode = this->actionSelection;
+            //data driver, unselect requirements
+            if (this->actionSelection == ActionMode::walk)
             {
-                cpInput.actionMode = this->actionSelection;
-                //data driver, unselect requirements
-                if (this->actionSelection == ActionMode::walk)
-                {
-                    ecs.del<cp::Target>(eid);
-                    this->view->interface->clearTarget();
-                }
-                
-                //gui interface
-                this->view->interface->setAction(this->actionSelection);
+                ecs.del<cp::Target>(eid);
+                this->view->interface->clearTarget();
             }
+                
+            //gui interface
+            this->view->interface->setAction(this->actionSelection);
         }
         
         //clear inputs
@@ -74,6 +92,7 @@ void ControlSystem::initControl(unsigned int index)
     curDirPressed[index] = Dir::None;
     curDirReleased[index] = Dir::None;
     preDirPressed[index] = Dir::None;
+    entityFocus[index] = 0;
     entitySelection[index] = 0;
 }
 
@@ -145,6 +164,19 @@ void ControlSystem::onKeyPressed(KeyCode code, cocos2d::Event *event)
         case KeyCode::KEY_DOWN_ARROW:
         case KeyCode::KEY_S:
             toAdd = Dir::Down;
+            break;
+        case KeyCode::KEY_SPACE:
+            if (entityFocus[index] != 0)
+            {
+                auto tid = SysHelper::getNearest(ecs.getID(),
+                                                 entityFocus[index],
+                                                 CategoryComponent::eMood::HOSTILE,
+                                                 500.0);
+                if (tid != 0)
+                {
+                    entitySelection[index] = tid;
+                }
+            }
             break;
         case KeyCode::KEY_1:
             actionSelection = ActionMode::walk;
@@ -234,7 +266,6 @@ void ControlSystem::onTouchBegan(const std::vector<cc::Touch*>& touches, cocos2d
  
     for(auto touch : touches)
     {
-    
         cc::Vec2 minColSize = {20,20};
     
         auto touchPos = touch->getLocation();

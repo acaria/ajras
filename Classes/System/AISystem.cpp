@@ -147,29 +147,9 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
             {
                 case CategoryComponent::eType::MOOD: {
                     assert(node->values.size() == 2); //params=[category,value]
-                    auto maxDist = cpAI.sightRange * cpAI.sightRange;
-                    auto targetMood = CategoryComponent::mapMood[node->values[1]];
-                    auto bounds = SysHelper::getBounds(eid);
                     
-                    float nearest = maxDist;
-                    unsigned targetID = 0;
-                    for(auto tid : ecs.join<cp::Cat, cp::Position, cp::Collision>())
-                    {
-                        if (tid == eid)
-                            continue;
-                        if (targetMood != ecs::get<cp::Cat>(tid).mood)
-                            continue;
-                        auto bounds2 = SysHelper::getBounds(tid);
-                        float dist = cc::Vec2(
-                            bounds.getMidX() - bounds2.getMidX(),
-                            bounds.getMidY() - bounds2.getMidY()).lengthSquared();
-                        if (dist < maxDist && dist < nearest)
-                        {
-                            nearest = dist;
-                            targetID = tid;
-                        }
-                    }
-                    
+                    auto targetID = SysHelper::getNearest(ecs.getID(), eid,
+                        CategoryComponent::mapMood[node->values[1]], cpAI.sightRange);
                     if (targetID != 0)
                     {
                         ecs.add<cp::Target>(eid) = targetID;

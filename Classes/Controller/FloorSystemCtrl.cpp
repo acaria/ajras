@@ -107,10 +107,6 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
         layer->addChild(ecs::get<cp::Render>(eid).getContainer());
     }
     
-    if (eid == this->focusEntity) //change room
-    {
-    }
-    
     auto nextRoom = data->getRoomAt(nextRoomIndex);
     
     //gate introduction
@@ -357,6 +353,7 @@ void FloorSystemCtrl::start()
     this->focusEntity = eid;
     this->gView->interface->getHealthBar()->initProperties(csHealth.maxHp,
                                                            csHealth.hp);
+    this->controlSystem.computeFocusEntities();
 }
 
 void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> after)

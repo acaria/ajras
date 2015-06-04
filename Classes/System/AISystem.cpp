@@ -334,8 +334,10 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                         ecs::get<cp::Render>(eid).setAnimation("charge_load", -1);
                     }
                     
-                    if (lib::now() > properties["time_charge"].asDouble() ||
-                        ecs::get<cp::Collision>(eid).current == CollisionComponent::CType::DECOR)
+                    auto now = lib::now();
+                    
+                    if (now > properties["time_charge"].asDouble()/* ||
+                        ecs::get<cp::Collision>(eid).current == CollisionComponent::CType::DECOR*/)
                     {
                         if (ecs::has<cp::Velocity>(eid))
                             ecs::get<cp::Velocity>(eid).ratio = properties["save_ratio"].asFloat();
@@ -346,7 +348,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                         ecs::get<cp::Input>(eid).actionMode = ActionMode::walk;
                         return state::SUCCESS;
                     }
-                    if (lib::now() > properties["time_load"].asDouble())
+                    if (now > properties["time_load"].asDouble())
                     {
                         if (!lib::hasKey(properties, "charging"))
                         {

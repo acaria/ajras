@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>collision</key>
+	<dict>
+		<key>rect</key>
+		<string>9,1,13,12</string>
+		<key>cat</key>
+		<string>flyable</string>
+	</dict>
+	<key>animations</key>
+	<dict>
+		<key>move</key>
+		<dict>
+			<key>format</key>
+			<string>bat_walk%d.png</string>
+			<key>delay</key>
+			<string>0.1</string>
+			<key>frameCount</key>
+			<integer>4</integer>
+			<key>frameOrder</key>
+			<string>1,2,3,2</string>
+		</dict>
+		<key>open</key>
+		<dict>
+			<key>format</key>
+			<string>chest1_%d.png</string>
+			<key>delay</key>
+			<string>0.1</string>
+			<key>frameCount</key>
+			<integer>4</integer>
+			<key>frameOrder</key>
+			<string>1,2,3,2</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

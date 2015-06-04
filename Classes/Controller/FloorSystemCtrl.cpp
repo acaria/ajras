@@ -302,15 +302,20 @@ void FloorSystemCtrl::start()
             unsigned eid = this->focusEntity;
             auto& cpRender = ecs::get<cp::Render>(eid);
             auto& cpCollision = ecs::get<cp::Collision>(eid);
-                    
+            
+            cpRender.setMoveAnimation(enterGate.info.getDir(), true);
+            
             cpRender.runAction(cc::Sequence::create(
                 cc::MoveTo::create(duration, {
                     destPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
                     destPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
                 }),
-                cc::CallFunc::create([eid, roomIndex, cpRender](){
-                    ecs::add<cp::Position>(eid, roomIndex).set(cpRender.getPosition());
+                cc::CallFunc::create([eid, roomIndex](){
+                    auto& cpRender = ecs::get<cp::Render>(eid);
                     ecs::add<cp::Input>(eid, roomIndex);
+                    ecs::get<cp::Position>(eid).set(cpRender.getPosition());
+                    cpRender.manualPosMode = false;
+                    cpRender.cancelAnimation();
                 }),
                 NULL
             ));
@@ -349,6 +354,8 @@ void FloorSystemCtrl::start()
         srcPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
     });
     cpRender.setOpacity(0);
+    cpRender.manualPosMode = true;
+    ecs::add<cp::Position>(eid, roomIndex).set(cpRender.getPosition());
     
     this->focusEntity = eid;
     this->gView->interface->getHealthBar()->initProperties(csHealth.maxHp,

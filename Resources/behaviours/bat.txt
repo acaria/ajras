@@ -1,9 +1,9 @@
 selector
     sequence "attack"
         action target mood friendly
-        until time 6.0
+        until time 5.0
             action movenear target 50.0
-        action charge target 0.5 1.5
+        action charge target 0.5 1
     sequence "gotosleep"
         !check near mood friendly
         action moveto sleep_zone

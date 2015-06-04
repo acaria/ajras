@@ -58,10 +58,13 @@ void RenderSystem::animate(double dt, double tickPercent)
         auto &cpPos = ecs::get<cp::Position>(eid);
         
         //position
-        cocos2d::Vec2 pos(
-            cpPos.pos.x * tickPercent + cpPos.last.x * (1 - tickPercent),
-            cpPos.pos.y * tickPercent + cpPos.last.y * (1 - tickPercent));
-        cpRender.setPosition(pos);
+        if (!cpRender.manualPosMode)
+        {
+            cc::Vec2 pos(
+                cpPos.pos.x * tickPercent + cpPos.last.x * (1 - tickPercent),
+                cpPos.pos.y * tickPercent + cpPos.last.y * (1 - tickPercent));
+            cpRender.setPosition(pos);
+        }
         
         //animation
         auto animData = cpRender.getCurAnim();

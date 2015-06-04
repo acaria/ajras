@@ -34,7 +34,7 @@
 			<key>type</key>
 			<string>self</string>
 			<key>range</key>
-			<string>12</string>
+			<string>2</string>
 			<key>anim_key</key>
 			<string>atk</string>
 		</dict>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Dir.h"
+
 struct GateInfo
 {
     enum GateType
@@ -31,6 +33,18 @@ struct GateInfo
         if (str == "downStair")
             return GateType::DownStair;
         return GateType::Unknowm;
+    }
+    
+    Dir getDir() const
+    {
+        switch(type)
+        {
+            case Left: return Dir::Right;
+            case Right: return Dir::Left;
+            case Up: return Dir::Down;
+            case Down: return Dir::Up;
+            default: return Dir::None;
+        }
     }
     
     cc::Point getSrcPos() const

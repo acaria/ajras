@@ -46,6 +46,7 @@ struct RenderComponent
     std::string             curAnimKey;
     double                  elapsedTime;
     bool                    busy = false;
+    bool                    manualPosMode = false;
 
     //sprite commands
     void setLocalZOrder(int z);
@@ -56,6 +57,7 @@ struct RenderComponent
     void setFlippedY(bool);
     void setSpriteFrame(const std::string &spriteFrameName);
     cocos2d::Action* runAction(cc::Action* action);
+
 private:
     cocos2d::Sprite*    container;
     cocos2d::Sprite*    sprite;

@@ -121,6 +121,7 @@ void MeleeSystem::tick(double dt)
                                 if (cpHealth2.hp == 0)
                                 {
                                     ecs.del<cp::Target>(eid);
+                                    ecs::get<cp::Input>(oid).forceDisable();
                                     //ecs.del<cp::Input>(oid);
                                     cpRender2.setAnimation("death", 1, [oid, this](bool cancel){
                                         cp::entity::remove(oid, ecs.getID());

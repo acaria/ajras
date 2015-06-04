@@ -79,7 +79,7 @@ std::pair<float, cc::Vec2> TransitSystem::processing(GateInfo info,
 
 void TransitSystem::tick(double dt)
 {
-    for(auto eid2 : ecs.join<cp::Position, cp::Collision>())
+    for(auto eid2 : ecs.join<cp::Position, cp::Collision, cp::Input>())
     {
         auto& cpPos = ecs::get<cp::Position>(eid2);
         auto& cpCol = ecs::get<cp::Collision>(eid2);

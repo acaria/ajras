@@ -112,13 +112,16 @@ void CollisionSystem::tick(double dt)
 {
     for(auto eid : ecs.join<cp::Render, cp::Collision, cp::Position>())
     {
+        auto& cpRender = ecs::get<cp::Render>(eid);
+        
+        if (cpRender.manualPosMode) continue;
+        
         auto& cpPosition = ecs::get<cp::Position>(eid);
         auto& cpCollision = ecs::get<cp::Collision>(eid);
      
         cpCollision.current = CollisionComponent::CType::NONE;
         
 #if kDrawDebug
-        auto& cpRender = ecs::get<cp::Render>(eid);
         cpRender.collision->setVisible(true);
         cpRender.collision->setColor(cc::Color3B::GREEN);
         cpRender.collision->setPosition(cpCollision.rect.origin.x,

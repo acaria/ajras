@@ -5,23 +5,28 @@
 	<key>collision</key>
 	<dict>
 		<key>rect</key>
-		<string>9,1,13,12</string>
+		<string>0,0,28,16</string>
 		<key>cat</key>
-		<string>flyable</string>
+		<string>walkable</string>
+	</dict>
+	<key>category</key>
+	<dict>
+		<key>mood</key>
+		<string>neutral</string>
+	</dict>
+	<key>interaction</key>
+	<dict>
+		<key>actionName</key>
+		<string>reward</string>
+		<key>prerequisite</key>
+		<string>none</string>
+		<key>off</key>
+		<string>close</string>
+		<key>on</key>
+		<string>open</string>
 	</dict>
 	<key>animations</key>
 	<dict>
-		<key>move</key>
-		<dict>
-			<key>format</key>
-			<string>bat_walk%d.png</string>
-			<key>delay</key>
-			<string>0.1</string>
-			<key>frameCount</key>
-			<integer>4</integer>
-			<key>frameOrder</key>
-			<string>1,2,3,2</string>
-		</dict>
 		<key>open</key>
 		<dict>
 			<key>format</key>
@@ -29,9 +34,25 @@
 			<key>delay</key>
 			<string>0.1</string>
 			<key>frameCount</key>
-			<integer>4</integer>
+			<integer>8</integer>
+		</dict>
+		<key>close</key>
+		<dict>
+			<key>format</key>
+			<string>chest1_%d.png</string>
+			<key>delay</key>
+			<string>0.1</string>
+			<key>frameCount</key>
+			<integer>8</integer>
 			<key>frameOrder</key>
-			<string>1,2,3,2</string>
+			<string>8,7,6,5,4,3,2,1</string>
+		</dict>
+		<key>idle</key>
+		<dict>
+			<key>format</key>
+			<string>chest1_1.png</string>
+			<key>frameCount</key>
+			<integer>1</integer>
 		</dict>
 	</dict>
 </dict>

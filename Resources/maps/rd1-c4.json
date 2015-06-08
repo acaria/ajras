@@ -42,6 +42,22 @@
                  "width":30,
                  "x":209,
                  "y":97
+                }, 
+                {
+                 "gid":91,
+                 "height":35,
+                 "id":10,
+                 "name":"",
+                 "properties":
+                    {
+
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":24,
+                 "x":124,
+                 "y":65
                 }],
          "opacity":0.959999978542328,
          "type":"objectgroup",
@@ -50,7 +66,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":8,
+ "nextobjectid":12,
  "orientation":"orthogonal",
  "properties":
     {
@@ -481,12 +497,16 @@
 
             },
          "spacing":0,
-         "tileheight":21,
+         "tileheight":35,
          "tileproperties":
             {
              "0":
                 {
                  "profile":"bat"
+                },
+             "1":
+                {
+                 "profile":"chest1"
                 }
             },
          "tiles":
@@ -494,6 +514,10 @@
              "0":
                 {
                  "image":"..\/..\/Textures\/tileset\/char1\/bat_icon.png"
+                },
+             "1":
+                {
+                 "image":"..\/..\/Textures\/src\/special\/chest1_icon.png"
                 }
             },
          "tilewidth":30

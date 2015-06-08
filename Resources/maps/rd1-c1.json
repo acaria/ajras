@@ -465,12 +465,16 @@
 
             },
          "spacing":0,
-         "tileheight":21,
+         "tileheight":35,
          "tileproperties":
             {
              "0":
                 {
                  "profile":"bat"
+                },
+             "1":
+                {
+                 "profile":"chest1"
                 }
             },
          "tiles":
@@ -478,12 +482,16 @@
              "0":
                 {
                  "image":"..\/..\/Textures\/tileset\/char1\/bat_icon.png"
+                },
+             "1":
+                {
+                 "image":"..\/..\/Textures\/src\/special\/chest1_icon.png"
                 }
             },
          "tilewidth":30
         }, 
         {
-         "firstgid":91,
+         "firstgid":92,
          "margin":0,
          "name":"dungeon1",
          "properties":

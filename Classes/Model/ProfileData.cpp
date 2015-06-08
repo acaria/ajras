@@ -129,6 +129,21 @@ ProfileData::ProfileData(const std::string &path) : moodCategory("neutral")
         }
     }
     
+    if (rawData.find("interaction") != rawData.end())
+    {
+        withInteraction = true;
+        auto &iData = rawData.at("interaction").asValueMap();
+        
+        interPrereq = iData.at("prerequisite").asString();
+        interAnimKeys.first = iData.at("on").asString();
+        interAnimKeys.second = iData.at("off").asString();
+        interActionName = iData.at("actionName").asString();
+        if (iData.find("actionParams") != iData.end())
+            interActionParams = iData.at("actionParams").asString();
+        else
+            interActionParams = "";
+    }
+    
     if (rawData.find("stats") != rawData.end())
     {
         auto &sData = rawData.at("stats").asValueMap();

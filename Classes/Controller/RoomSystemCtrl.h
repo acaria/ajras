@@ -8,6 +8,7 @@
 #include "TargetSystem.h"
 #include "InputSystem.h"
 #include "MoveSystem.h"
+#include "InteractSystem.h"
 #include "Event.h"
 
 class RoomData;
@@ -25,7 +26,8 @@ public:
                       inputSystem(ecsGroup),
                       meleeSystem(ecsGroup),
                       targetSystem(ecsGroup),
-                      aiSystem(ecsGroup)
+                      aiSystem(ecsGroup),
+                      interactSystem(ecsGroup)
     {
         this->registerEvents();
     }
@@ -59,6 +61,7 @@ private:
     MeleeSystem     meleeSystem;
     TargetSystem    targetSystem;
     AISystem        aiSystem;
+    InteractSystem  interactSystem;
     
     //local ecs
     lib::EcsGroup   ecsGroup;

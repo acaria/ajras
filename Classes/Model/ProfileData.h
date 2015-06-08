@@ -22,8 +22,14 @@ public:
     std::string     behaviourKey;
     
     //category
-    std::string     moodCategory;
-    std::string     sleepCategory;
+    std::string     moodCategory = "neutral";
+    std::string     sleepCategory = "none";
+    
+    //interaction
+    std::string                         interPrereq;
+    std::pair<std::string, std::string> interAnimKeys;
+    std::string                         interActionName;
+    std::string                         interActionParams;
     
     //stats - move
     double          speed;
@@ -47,6 +53,7 @@ public:
     bool withSight = false;
     bool withMelee = false;
     bool withBehaviour = false;
+    bool withInteraction = false;
     
     static std::string getTagName(const Dir& orientation);
     bool animCategoryExists(const std::string& category);

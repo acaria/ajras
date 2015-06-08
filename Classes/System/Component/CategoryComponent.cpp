@@ -36,6 +36,6 @@ std::map<std::string, CategoryComponent::eSleep> CategoryComponent::mapSleep = {
 };
 
 std::map<std::string, CategoryComponent::eType> CategoryComponent::mapType = {
-    {"mood", eType::MOOD},
-    {"none", eType::NONE}
+    {"none", eType::NONE},
+    {"mood", eType::MOOD}
 };

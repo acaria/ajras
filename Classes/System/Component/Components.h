@@ -13,6 +13,7 @@
 #include "HealthComponent.h"
 #include "AIComponent.h"
 #include "CategoryComponent.h"
+#include "InteractComponent.h"
 #include "GateMap.h"
 
 namespace cp
@@ -25,6 +26,7 @@ namespace cp
     using Input = ecs::component<InputComponent,                6>;
     using Collision = ecs::component<CollisionComponent,        7>;
     using Gate = ecs::component<GateMap,                        8>;
+    using Interact = ecs::component<InteractComponent,          9>;
     using Control = ecs::component<unsigned,                    10>;
     using Melee = ecs::component<MeleeComponent,                11>;
     using Health = ecs::component<HealthComponent,              12>;
@@ -51,6 +53,7 @@ namespace cp
             ecs::move<Input>(id, g1, g2);
             ecs::move<Collision>(id, g1, g2);
             ecs::move<Gate>(id, g1, g2);
+            ecs::move<Interact>(id, g1, g2);
             ecs::move<Control>(id, g1, g2);
             ecs::move<Melee>(id, g1, g2);
             ecs::move<Health>(id, g1, g2);
@@ -69,6 +72,7 @@ namespace cp
             ecs::del<Input>(id, 1);
             ecs::del<Collision>(id, group);
             ecs::del<Gate>(id, group);
+            ecs::del<Interact>(id, group);
             ecs::del<Control>(id, group);
             ecs::del<Melee>(id, group);
             ecs::del<Health>(id, group);
@@ -87,6 +91,7 @@ namespace cp
             ecs::clearGroup<Input>(group);
             ecs::clearGroup<Collision>(group);
             ecs::clearGroup<Gate>(group);
+            ecs::clearGroup<Interact>(group);
             ecs::clearGroup<Control>(group);
             ecs::clearGroup<Melee>(group);
             ecs::clearGroup<Health>(group);

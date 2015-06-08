@@ -32,10 +32,8 @@ private:
     void initControl(unsigned index);
 
     //keyboard
-    void onKeyPressed(cocos2d::EventKeyboard::KeyCode code,
-                      cocos2d::Event* event);
-    void onKeyReleased(cocos2d::EventKeyboard::KeyCode code,
-                       cocos2d::Event* event);
+    void onKeyPressed(cocos2d::EventKeyboard::KeyCode code, cocos2d::Event* event);
+    void onKeyReleased(cocos2d::EventKeyboard::KeyCode code, cocos2d::Event* event);
     
     //mouse
     void onMouseMove(cocos2d::Event* event);

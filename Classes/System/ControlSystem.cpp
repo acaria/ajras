@@ -51,21 +51,38 @@ void ControlSystem::tick(double dt)
         }
             
         //selection
-        if (this->entitySelection[index] != 0 &&
-            ecs::has<cp::Collision>(this->entitySelection[index]))
+        if (this->entitySelection[index] != 0)
         {
             auto tid = this->entitySelection[index];
-                
-            auto& cpRender = ecs::get<cp::Render>(tid);
-            auto& cpCol = ecs::get<cp::Collision>(tid);
-                
-            auto pos = cc::Point(
-                cpCol.rect.getMinX() + cpCol.rect.size.width / 2,
-                cpCol.rect.getMinY() + cpCol.rect.size.height / 2
-            );
-                
-            this->view->interface->setTargetID(tid, ecs::has<cp::Control>(tid), cpRender.getContainer(), pos);
-            ecs.add<cp::Target>(eid) = tid;
+            switch(this->view->interface->getAction())
+            {
+                case ActionMode::none:
+                    Log("Action mode is missing");
+                    break;
+                case ActionMode::melee:
+                    if (ecs::has<cp::Collision>(tid))
+                    {
+                        auto& cpRender = ecs::get<cp::Render>(tid);
+                        auto& cpCol = ecs::get<cp::Collision>(tid);
+                        
+                        auto pos = cc::Point(
+                            cpCol.rect.getMinX() + cpCol.rect.size.width / 2,
+                            cpCol.rect.getMinY() + cpCol.rect.size.height / 2);
+                        
+                        this->view->interface->setTargetID(
+                            tid,
+                            ecs::has<cp::Control>(tid),
+                            cpRender.getContainer(), pos);
+                        ecs.add<cp::Target>(eid) = tid;
+                    }
+                    break;
+                case ActionMode::walk:
+                    if (ecs::has<cp::Interact>(tid))
+                    {
+                        ecs::get<cp::Interact>(tid).triggerActivation = true;
+                    }
+                    break;
+            }
         }
             
         if (this->actionSelection != ActionMode::none)

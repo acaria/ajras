@@ -18,6 +18,7 @@ void RoomSystemCtrl::tick(double dt)
     meleeSystem.tick(dt);
     transSystem.tick(dt);
     renderSystem.tick(dt);
+    interactSystem.tick(dt);
 }
 
 void RoomSystemCtrl::animate(double dt, double tickPercent)
@@ -30,6 +31,7 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
     meleeSystem.animate(dt, tickPercent);
     transSystem.animate(dt, tickPercent);
     renderSystem.animate(dt, tickPercent);
+    interactSystem.animate(dt, tickPercent);
 }
 
 void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
@@ -98,6 +100,11 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
         if (profile->withHealth)
         {
             ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
+        }
+        
+        if (profile->withInteraction)
+        {
+            ecs::add<cp::Interact>(eid, roomIndex).setProfile(profile);
         }
         
         if (obj.profileName == "torch")

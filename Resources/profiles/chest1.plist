@@ -32,7 +32,7 @@
 			<key>format</key>
 			<string>chest1_%d.png</string>
 			<key>delay</key>
-			<string>0.1</string>
+			<string>0.075</string>
 			<key>frameCount</key>
 			<integer>8</integer>
 		</dict>
@@ -41,7 +41,7 @@
 			<key>format</key>
 			<string>chest1_%d.png</string>
 			<key>delay</key>
-			<string>0.1</string>
+			<string>0.075</string>
 			<key>frameCount</key>
 			<integer>8</integer>
 			<key>frameOrder</key>

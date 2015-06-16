@@ -38,12 +38,12 @@ void RenderSystem::tick(double dt)
             if (cpPos.last != cpPos.pos)
             {
                 auto pos = SysHelper::getBounds(eid);
-                cpRender.setLocalZOrder(data->getZOrder(pos.origin));
+                cpRender.sprite->setLocalZOrder(data->getZOrder(pos.origin));
             }
         }
         
         //update target mode
-        if (cpInput.actionMode == ActionMode::melee)
+        if (cpInput.actionMode == ActionMode::attack)
             cpRender.setMoveCategory("melee");
         else
             cpRender.setMoveCategory("walk");
@@ -63,7 +63,7 @@ void RenderSystem::animate(double dt, double tickPercent)
             cc::Vec2 pos(
                 cpPos.pos.x * tickPercent + cpPos.last.x * (1 - tickPercent),
                 cpPos.pos.y * tickPercent + cpPos.last.y * (1 - tickPercent));
-            cpRender.setPosition(pos);
+            cpRender.sprite->setPosition(pos);
         }
         
         //animation
@@ -71,8 +71,8 @@ void RenderSystem::animate(double dt, double tickPercent)
         CCASSERT(animData != nullptr, cpRender.curAnimKey.c_str());
         if (animData != nullptr)
         {
-            cpRender.setFlippedX(animData->flipX);
-            cpRender.setFlippedY(animData->flipY);
+            cpRender.sprite->setFlippedX(animData->flipX);
+            cpRender.sprite->setFlippedY(animData->flipY);
             double elapsed = cpRender.elapsedTime + dt;
             auto duration = animData->duration();
             if (elapsed > duration)
@@ -81,9 +81,9 @@ void RenderSystem::animate(double dt, double tickPercent)
                     cpRender.repeat--;
                 if (cpRender.repeat == 0)
                 {
-                    cpRender.busy = false;
-                    if (cpRender.onComplete != nullptr)
+                    if (cpRender.busy && cpRender.onComplete != nullptr)
                         cpRender.onComplete(false);
+                    cpRender.busy = false;
                     continue;
                 }
                 elapsed -= duration;
@@ -92,7 +92,7 @@ void RenderSystem::animate(double dt, double tickPercent)
             auto frames = animData->frameNames;
             int n = elapsed / animData->delay;
             auto curFrame = frames.at(lib::clamp(n, 0, (int)frames.size() - 1));
-            cpRender.setSpriteFrame(curFrame);
+            cpRender.sprite->setSpriteFrame(curFrame);
         }
     }
 }

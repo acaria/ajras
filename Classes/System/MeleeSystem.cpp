@@ -12,7 +12,7 @@ void MeleeSystem::tick(double dt)
         auto& cpInput = ecs::get<cp::Input>(eid);
         if (cpInput.disabled)
             continue;
-        if (cpInput.actionMode != ActionMode::melee)
+        if (cpInput.actionMode != ActionMode::attack)
             continue;
         auto& cpPosition = ecs::get<cp::Position>(eid);
         auto& cpCollision = ecs::get<cp::Collision>(eid);
@@ -99,7 +99,7 @@ void MeleeSystem::tick(double dt)
                                 
                                 if (ecs::has<cp::Input>(oid))
                                     ecs::get<cp::Input>(oid).disable(duration);
-                                cpRender2.runAction(cc::Repeat::create(
+                                cpRender2.sprite->runAction(cc::Repeat::create(
                                     cc::Sequence::create(cc::TintTo::create(duration / freq / 2, 255, 50, 50),
                                     cc::TintTo::create(duration / freq / 2, 255, 255, 255),
                                     NULL), freq));

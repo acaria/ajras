@@ -30,11 +30,8 @@ void InteractSystem::tick(double dt)
                     [this, &cpInteract, eid](bool canceled){
                     if (!canceled)
                     {
-                        cpInteract.activated = true;
-                    }
-                    else
-                    {
                         this->triggerAction(eid, cpInteract);
+                        cpInteract.activated = true;
                     }
                     cpInteract.busy = false;
                 });
@@ -57,9 +54,18 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             auto nid = cp::entity::genID();
             
             auto& cpRender = ecs.add<cp::Render>(nid);
-            cpRender.setSpriteFrame("gold_6");
+            cpRender.setFrame("gold_6.png", ecs::get<cp::Render>(eid).sprite->getParent(), 1000000);
             cpRender.manualPosMode = true;
-            
+            auto size = cpRender.sprite->getContentSize();
+            cpRender.sprite->setAnchorPoint({0.5,0.5});
+            cpRender.sprite->setPosition(bounds.getMidX(), bounds.getMidY());
+            cpRender.sprite->setOpacity(0);
+            cpRender.sprite->runAction(cc::FadeIn::create(0.3));
+            cpRender.sprite->runAction(cc::Spawn::createWithTwoActions(
+                cc::RotateBy::create(0.8, std::rand() % 1000 - 500),
+                cc::JumpBy::create(0.8, {(float)(std::rand() % 60) - 30,
+                                         (float)(std::rand() % 60) - 30}, 10, 2))
+            );
             break;
     }
 }

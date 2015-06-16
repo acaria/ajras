@@ -18,15 +18,12 @@ struct RenderComponent
     void cancelAnimation();
     void setMoveAnimation(const Dir &orientation, bool moving);
     void setMoveCategory(const std::string& cat);
-    void setOpacity(GLubyte opacity);
-    void removeFromParentAndCleanup(bool);
     
     static cc::Layer* chooseLayer(ProfileData* profile, RoomLayer* layer);
     cc::Layer* chooseLayer(RoomLayer* roomLayer);
     
     AnimationData*      getCurAnim();
     std::string         moveAnimationKey = "";
-    cc::Sprite* getContainer();
 
 #if kDrawDebug
     cc::Sprite*    collision;
@@ -48,18 +45,9 @@ struct RenderComponent
     bool                    busy = false;
     bool                    manualPosMode = false;
 
-    //sprite commands
-    void setLocalZOrder(int z);
-    void setPosition(const cc::Vec2& position);
-    const cc::Point& getPosition() const;
-    const cc::Size getSize() const;
-    void setFlippedX(bool);
-    void setFlippedY(bool);
-    void setSpriteFrame(const std::string &spriteFrameName);
-    cocos2d::Action* runAction(cc::Action* action);
+    //output
+    cocos2d::Sprite*    sprite;
 
 private:
-    cocos2d::Sprite*    container;
-    cocos2d::Sprite*    sprite;
     cocos2d::Sprite* initSprite(const std::string &frameName);
 };

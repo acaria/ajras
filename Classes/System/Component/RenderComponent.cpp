@@ -7,10 +7,6 @@
 
 RenderComponent::RenderComponent() : sprite(nullptr)
 {
-    this->container = cocos2d::Sprite::create();
-    this->container->setCascadeOpacityEnabled(true);
-    this->container->setCascadeColorEnabled(true);
-    this->container->setAnchorPoint({0,0});
 }
 
 void RenderComponent::setFrame(const std::string &frameName, cc::Node *parent, int zOrder)
@@ -18,9 +14,7 @@ void RenderComponent::setFrame(const std::string &frameName, cc::Node *parent, i
     this->moveAnimationKey = "";
     this->profile = nullptr;
     this->sprite = this->initSprite(frameName);
-    this->container->addChild(this->sprite);
-    
-    parent->addChild(this->container, zOrder);
+    parent->addChild(this->sprite, zOrder);
 }
 
 void RenderComponent::setProfile(const std::string &profileName,
@@ -37,8 +31,7 @@ void RenderComponent::setProfile(ProfileData* profile, cc::Node *parent, int zOr
     //set default walk animation
     this->setMoveCategory("walk");
     this->sprite = this->initSprite(getCurAnim()->frameNames.at(0));
-    this->container->addChild(this->sprite);
-    parent->addChild(this->container, zOrder);
+    parent->addChild(this->sprite, zOrder);
     this->busy = false;
 }
 
@@ -54,14 +47,14 @@ cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
     this->collision->setColor(Color3B::GREEN);
     this->collision->setAnchorPoint({0,0});
     this->collision->setVisible(false);
-    this->container->addChild(this->collision);
+    this->sprite->addChild(this->collision);
 
     this->melee = Sprite::createWithSpriteFrameName("pixel.png");
     this->melee->setOpacity(100);
     this->melee->setColor(Color3B::YELLOW);
     this->melee->setAnchorPoint({0,0});
     this->melee->setVisible(false);
-    this->container->addChild(this->melee);
+    this->sprite->addChild(this->melee);
     
     this->sight = Sprite::createWithSpriteFrameName("circle.png");
     this->sight->setAnchorPoint({0.5,0.5});
@@ -69,13 +62,13 @@ cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
     this->sight->setOpacity(80);
     this->sight->setColor(Color3B::ORANGE);
     this->sight->setVisible(false);
-    this->container->addChild(this->sight);
+    this->sprite->addChild(this->sight);
 #endif
 
 #if kDrawInfo
     this->lInfo = Label::createWithTTF("", "fonts/04b03.ttf", 8);
     this->lInfo->setPosition(res->getContentSize().width / 2, res->getContentSize().height);
-    this->container->addChild(this->lInfo);
+    this->sprite->addChild(this->lInfo);
 #endif
 
 
@@ -147,61 +140,6 @@ cc::Layer* RenderComponent::chooseLayer(ProfileData* profile, RoomLayer *roomLay
 cc::Layer* RenderComponent::chooseLayer(RoomLayer *roomLayer)
 {
     return chooseLayer(this->profile, roomLayer);
-}
-
-void RenderComponent::setLocalZOrder(int z)
-{
-    this->container->setLocalZOrder(z);
-}
-
-void RenderComponent::setPosition(const cocos2d::Vec2 &position)
-{
-    this->container->setPosition(position);
-}
-
-const cc::Point& RenderComponent::getPosition() const
-{
-    return this->container->getPosition();
-}
-
-void RenderComponent::setFlippedX(bool value)
-{
-    this->sprite->setFlippedX(value);
-}
-
-void RenderComponent::setFlippedY(bool value)
-{
-    this->sprite->setFlippedY(value);
-}
-
-cc::Sprite* RenderComponent::getContainer()
-{
-    return this->container;
-}
-
-const cc::Size RenderComponent::getSize() const
-{
-    return this->sprite->getContentSize();
-}
-
-void RenderComponent::removeFromParentAndCleanup(bool cleanup)
-{
-    this->container->removeFromParentAndCleanup(cleanup);
-}
-
-void RenderComponent::setOpacity(GLubyte opacity)
-{
-    this->container->setOpacity(opacity);
-}
-
-void RenderComponent::setSpriteFrame(const std::string &spriteFrameName)
-{
-    this->sprite->setSpriteFrame(spriteFrameName);
-}
-
-cocos2d::Action* RenderComponent::runAction(cocos2d::Action *action)
-{
-    return this->container->runAction(action);
 }
 
 AnimationData* RenderComponent::getCurAnim()

@@ -46,7 +46,7 @@ void FloorSystemCtrl::animate(double dt, double tickPercent)
     {
         auto cpRender = ecs::get<cp::Render>(this->focusEntity);
         auto pos = this->data->rooms[this->currentRoomIndex]->position +
-            cpRender.getPosition() + cpRender.getSize() / 2;
+            cpRender.sprite->getPosition() + cpRender.sprite->getContentSize() / 2;
         this->gView->getCam()->focusTarget(pos);
     }
 
@@ -101,10 +101,10 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
 
     if (ecs::has<cp::Render>(eid))
     {
-        ecs::get<cp::Render>(eid).removeFromParentAndCleanup(false);
+        ecs::get<cp::Render>(eid).sprite->removeFromParentAndCleanup(false);
         auto layer = ecs::get<cp::Render>(eid).chooseLayer(
             this->roomViews[nextRoomIndex]);
-        layer->addChild(ecs::get<cp::Render>(eid).getContainer());
+        layer->addChild(ecs::get<cp::Render>(eid).sprite);
     }
     
     auto nextRoom = data->getRoomAt(nextRoomIndex);
@@ -119,8 +119,8 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
                                   ecs::get<cp::Collision>(eid).rect,
                                   /*out*/srcPos,
                                   /*out*/destPos);
-    render.setPosition(srcPos);
-    render.runAction(cc::Sequence::create(
+    render.sprite->setPosition(srcPos);
+    render.sprite->runAction(cc::Sequence::create(
         cc::MoveBy::create(duration, destPos - srcPos),
         cc::CallFunc::create([eid, destPos, nextRoomIndex](){
             ecs::get<cp::Input>(eid).forceEnable();
@@ -128,7 +128,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
         }),
         NULL
     ));
-    render.runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
+    render.sprite->runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
         cc::TintTo::create(duration / 2, cc::Color3B::WHITE),
         NULL
     ));
@@ -148,7 +148,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
         this->gView->getCam()->moveTarget(destPos + bounds.origin, 1);
         this->showRoom(nextRoomIndex, nullptr);
 
-        render.runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
+        render.sprite->runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
             cc::FadeTo::create(duration / 2, 255),
             NULL
         ));
@@ -305,7 +305,7 @@ void FloorSystemCtrl::start()
             
             cpRender.setMoveAnimation(enterGate.info.getDir(), true);
             
-            cpRender.runAction(cc::Sequence::create(
+            cpRender.sprite->runAction(cc::Sequence::create(
                 cc::MoveTo::create(duration, {
                     destPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
                     destPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
@@ -313,13 +313,13 @@ void FloorSystemCtrl::start()
                 cc::CallFunc::create([eid, roomIndex](){
                     auto& cpRender = ecs::get<cp::Render>(eid);
                     ecs::add<cp::Input>(eid, roomIndex);
-                    ecs::get<cp::Position>(eid).set(cpRender.getPosition());
+                    ecs::get<cp::Position>(eid).set(cpRender.sprite->getPosition());
                     cpRender.manualPosMode = false;
                     cpRender.cancelAnimation();
                 }),
                 NULL
             ));
-            cpRender.runAction(cc::Sequence::create(
+            cpRender.sprite->runAction(cc::Sequence::create(
                 cc::DelayTime::create(duration / 2),
                 cc::FadeTo::create(duration / 4, 255),
                 NULL
@@ -349,13 +349,13 @@ void FloorSystemCtrl::start()
     auto& csHealth = ecs::add<cp::Health>(eid, roomIndex);
     csHealth.setProfile(profile);
     
-    cpRender.setPosition({
+    cpRender.sprite->setPosition({
         srcPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
         srcPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
     });
-    cpRender.setOpacity(0);
+    cpRender.sprite->setOpacity(0);
     cpRender.manualPosMode = true;
-    ecs::add<cp::Position>(eid, roomIndex).set(cpRender.getPosition());
+    ecs::add<cp::Position>(eid, roomIndex).set(cpRender.sprite->getPosition());
     
     this->focusEntity = eid;
     this->gView->interface->getHealthBar()->initProperties(csHealth.maxHp,

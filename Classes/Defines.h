@@ -25,6 +25,7 @@ enum CollisionCategory
 enum class ActionMode
 {
     none,
-    walk,
-    melee,
+    explore,
+    attack,
+    inventorize
 };

@@ -3,8 +3,9 @@
 #include "Defines.h"
 
 class HealthBar;
+class InventoryPanel;
 
-class InterfaceLayer : public cocos2d::Layer
+class InterfaceLayer : public cc::Layer
 {
 public:
  
@@ -23,7 +24,8 @@ public:
     void        clearTarget();
     cc::Vec2    setJoystick(cc::Point pos);
     void        clearJoystick();
-    void        setAction(ActionMode action);
+    void        setActionMode(ActionMode action);
+    void        setActionPanel(ActionMode action);
     ActionMode  getAction();
     ActionMode  getNextAction();
     ActionMode  getPrevAction();
@@ -37,18 +39,27 @@ private:
     const cc::Point kCursorRegion = {40.0f,40.0f};
 
     cc::ui::Scale9Sprite*   actionSelection;
-    cc::Sprite*             actionRun;
-    cc::Sprite*             actionSword;
-    cc::Sprite*             actionTargetSword;
     
-    cc::Sprite* getSpriteAction(ActionMode action);
+    cc::Sprite*                     actionExplore;
+    cc::Sprite*                     actionExploreHi;
+    std::pair<cc::Point, cc::Point> actionExplorePos;
+    
+    cc::Sprite*                     actionAttack;
+    cc::Sprite*                     actionAttackHi;
+    std::pair<cc::Point, cc::Point> actionAttackPos;
+    
+    cc::Sprite*                     actionInventorize;
+    cc::Sprite*                     actionInventorizeHi;
+    std::pair<cc::Point, cc::Point> actionInventorizePos;
+    
+    //cc::Sprite*             actionTargetSword;
+    
+    InventoryPanel*                 inventoryPanel;
     
     unsigned curTargetEntityID = 0;
     cc::Sprite* targetEnemy;
     cc::Sprite* targetFriend;
     bool withTarget();
-    
-    void internalTransitionAction(cc::Sprite* prevSprite, cc::Sprite* nextSprite);
     
     cc::Sprite* cursor;
     cc::Sprite* lArrow;

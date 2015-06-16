@@ -74,7 +74,7 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
         ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
             RenderComponent::chooseLayer(profile, view),
             data->getZOrder(obj.pos));
-        ecs::get<cp::Render>(eid).setPosition(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
+        ecs::get<cp::Render>(eid).sprite->setPosition(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
         ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
         ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
         ecs::add<cp::Input>(eid, roomIndex);
@@ -161,10 +161,10 @@ void RoomSystemCtrl::hideObjects(float duration)
     for(auto eid : ecsGroup.join<cp::Render, cp::AI>())
     {
         if (duration == 0)
-            ecs::get<cp::Render>(eid).setOpacity(0);
+            ecs::get<cp::Render>(eid).sprite->setOpacity(0);
         else
         {
-            ecs::get<cp::Render>(eid).runAction(cc::FadeOut::create(duration));
+            ecs::get<cp::Render>(eid).sprite->runAction(cc::FadeOut::create(duration));
         }
     }
 }
@@ -174,10 +174,10 @@ void RoomSystemCtrl::showObjects(float duration)
     for(auto eid : ecsGroup.join<cp::Render, cp::AI>())
     {
         if (duration == 0)
-            ecs::get<cp::Render>(eid).setOpacity(255);
+            ecs::get<cp::Render>(eid).sprite->setOpacity(255);
         else
         {
-            ecs::get<cp::Render>(eid).runAction(cc::FadeIn::create(duration));
+            ecs::get<cp::Render>(eid).sprite->runAction(cc::FadeIn::create(duration));
         }
     }
 }

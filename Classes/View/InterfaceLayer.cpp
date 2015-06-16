@@ -1,6 +1,7 @@
 #include "InterfaceLayer.h"
 #include "Components.h"
 #include "HealthBar.h"
+#include "InventoryPanel.h"
 
 InterfaceLayer * InterfaceLayer::create()
 {
@@ -16,6 +17,21 @@ InterfaceLayer * InterfaceLayer::create()
 
 InterfaceLayer::InterfaceLayer()
 {
+    //init action positions
+    actionExplorePos = {
+        {50,    53},
+        {37,    53}
+    };
+    
+    actionAttackPos = {
+        {92,    53},
+        {104,   53}
+    };
+    
+    actionInventorizePos = {
+        {137,   53},
+        {147,   53}
+    };
 }
 
 InterfaceLayer::~InterfaceLayer()
@@ -42,11 +58,11 @@ void InterfaceLayer::setTargetID(unsigned eid, bool friendly, cc::Sprite* contai
         pos.y - targetEnemy->getTextureRect().size.height / 2
     });
     
-    if (this->currentAction == ActionMode::melee)
+    if (this->currentAction == ActionMode::attack)
     {
-        auto sprite = this->getSpriteAction(currentAction);
-        if (sprite != actionTargetSword)
-            this->internalTransitionAction(sprite, this->actionTargetSword);
+        //auto sprite = this->getSpriteAction(currentAction);
+        //if (sprite != actionTargetExplore)
+        //    this->internalTransitionAction(sprite, this->actionTargetSword);
     }
     
     this->curTargetEntityID = eid;
@@ -98,11 +114,11 @@ cc::Rect InterfaceLayer::getActionBounds()
 
 void InterfaceLayer::clearTarget()
 {
-    if (this->currentAction == ActionMode::melee)
+    if (this->currentAction == ActionMode::attack)
     {
-        auto sprite = this->getSpriteAction(currentAction);
-        if (sprite == actionTargetSword)
-            this->internalTransitionAction(sprite, this->actionSword);
+        //auto sprite = this->getSpriteAction(currentAction);
+        //if (sprite == actionTargetSword)
+        //    this->internalTransitionAction(sprite, this->actionSword);
     }
     this->targetEnemy->removeFromParentAndCleanup(false);
     this->targetFriend->removeFromParentAndCleanup(false);
@@ -114,24 +130,149 @@ bool InterfaceLayer::withTarget()
     return this->curTargetEntityID != 0;
 }
 
-void InterfaceLayer::setAction(ActionMode action)
+void InterfaceLayer::setActionPanel(ActionMode action)
+{
+    if (action == currentAction)
+        return; //same
+
+    this->inventoryPanel->stopAllActions();
+
+    switch(action)
+    {
+        case ActionMode::explore:
+            this->inventoryPanel->runAction(cc::FadeOut::create(0.5f));
+            break;
+        case ActionMode::attack:
+            this->inventoryPanel->runAction(cc::FadeOut::create(0.5f));
+            break;
+        case ActionMode::inventorize:
+            this->inventoryPanel->runAction(cc::FadeIn::create(0.5f));
+            break;
+        case ActionMode::none:
+        default:
+            Log("invalid action mode");
+    }
+}
+
+void InterfaceLayer::setActionMode(ActionMode action)
 {
     if (action == currentAction)
         return; //same
     
-    this->internalTransitionAction(this->getSpriteAction(this->currentAction),
-                                   this->getSpriteAction(action));
-    this->currentAction = action;
-}
-
-void InterfaceLayer::internalTransitionAction(cc::Sprite* prevSprite,
-                                              cc::Sprite* nextSprite)
-{
-    if (prevSprite != nextSprite)
+    this->setActionPanel(action);
+    
+    actionExplore->stopAllActions();
+    actionAttack->stopAllActions();
+    actionInventorize->stopAllActions();
+    actionExploreHi->stopAllActions();
+    actionAttackHi->stopAllActions();
+    actionInventorizeHi->stopAllActions();
+    
+    switch(action)
     {
-        prevSprite->setOpacity(0);
-        nextSprite->setOpacity(255);
+        case ActionMode::explore:
+            actionExplore->runAction(cc::Sequence::create(
+                cc::Spawn::create(
+                    cc::MoveTo::create(0.1, actionSelection->getPosition() + actionExplorePos.first),
+                    cc::ScaleTo::create(0.1, 1.0),
+                    NULL),
+                cc::CallFunc::create([this](){
+                    actionExploreHi->runAction(cc::FadeIn::create(0.5));
+                }),
+                NULL
+            ));
+            actionAttackHi->runAction(cc::Sequence::create(
+                cc::FadeOut::create(0.1),
+                cc::CallFunc::create([this](){
+                    actionAttack->runAction(cc::Spawn::create(
+                        cc::MoveTo::create(0.1, actionSelection->getPosition() + actionAttackPos.second),
+                        cc::ScaleTo::create(0.1, 0.7),
+                        NULL));
+                }),
+                NULL
+            ));
+            actionInventorizeHi->runAction(cc::Sequence::create(
+                cc::FadeOut::create(0.1),
+                cc::CallFunc::create([this](){
+                    actionInventorize->runAction(cc::Spawn::create(
+                        cc::MoveTo::create(0.1, actionSelection->getPosition() + actionInventorizePos.second),
+                        cc::ScaleTo::create(0.1, 0.7),
+                        NULL));
+                }),
+                NULL
+            ));
+            break;
+        case ActionMode::attack:
+            actionExploreHi->runAction(cc::Sequence::create(
+                cc::FadeOut::create(0.1),
+                cc::CallFunc::create([this](){
+                    actionExplore->runAction(cc::Spawn::create(
+                        cc::MoveTo::create(0.1, actionSelection->getPosition() + actionExplorePos.second),
+                        cc::ScaleTo::create(0.1, 0.7),
+                        NULL));
+                }),
+                NULL
+            ));
+            actionAttack->runAction(cc::Sequence::create(
+                cc::Spawn::create(
+                    cc::MoveTo::create(0.1, actionSelection->getPosition() + actionAttackPos.first),
+                    cc::ScaleTo::create(0.1, 1.0),
+                    NULL),
+                cc::CallFunc::create([this](){
+                    actionAttackHi->runAction(cc::FadeIn::create(0.5));
+                }),
+                NULL
+            ));
+            actionInventorizeHi->runAction(cc::Sequence::create(
+                cc::FadeOut::create(0.1),
+                cc::CallFunc::create([this](){
+                    actionInventorize->runAction(cc::Spawn::create(
+                        cc::MoveTo::create(0.1, actionSelection->getPosition() + actionInventorizePos.second),
+                        cc::ScaleTo::create(0.1, 0.7),
+                        NULL));
+                }),
+                NULL
+            ));
+            break;
+        case ActionMode::inventorize:
+            actionExploreHi->runAction(cc::Sequence::create(
+                cc::FadeOut::create(0.1),
+                cc::CallFunc::create([this](){
+                    actionExplore->runAction(cc::Spawn::create(
+                        cc::MoveTo::create(0.1, actionSelection->getPosition() + actionExplorePos.second),
+                        cc::ScaleTo::create(0.1, 0.7),
+                        NULL));
+                }),
+                NULL
+            ));
+            actionAttackHi->runAction(cc::Sequence::create(
+                cc::FadeOut::create(0.1),
+                cc::CallFunc::create([this](){
+                    actionAttack->runAction(cc::Spawn::create(
+                        cc::MoveTo::create(0.1, actionSelection->getPosition() +
+                                                actionAttackPos.second + cc::Point(-25., 0.)),
+                        cc::ScaleTo::create(0.1, 0.7),
+                        NULL));
+                }),
+                NULL
+            ));
+            actionInventorize->runAction(cc::Sequence::create(
+                cc::Spawn::create(
+                    cc::MoveTo::create(0.1, actionSelection->getPosition() + actionInventorizePos.first),
+                    cc::ScaleTo::create(0.1, 1.0),
+                    NULL),
+                cc::CallFunc::create([this](){
+                    actionInventorizeHi->runAction(cc::FadeIn::create(0.5));
+                }),
+                NULL
+            ));
+            break;
+        default:
+            Log("invalid action mode");
+            return;
     }
+
+    this->currentAction = action;
 }
 
 ActionMode InterfaceLayer::getAction()
@@ -141,14 +282,20 @@ ActionMode InterfaceLayer::getAction()
 
 ActionMode InterfaceLayer::getNextAction()
 {
-    return getPrevAction();
+    if (currentAction == ActionMode::attack)
+        return ActionMode::inventorize;
+    if (currentAction == ActionMode::explore)
+        return ActionMode::attack;
+    return ActionMode::inventorize;
 }
 
 ActionMode InterfaceLayer::getPrevAction()
 {
-    if (currentAction == ActionMode::melee)
-        return ActionMode::walk;
-    return ActionMode::melee;
+    if (currentAction == ActionMode::inventorize)
+        return ActionMode::attack;
+    if (currentAction == ActionMode::attack)
+        return ActionMode::explore;
+    return ActionMode::explore;
 }
 
 bool InterfaceLayer::init()
@@ -164,27 +311,44 @@ bool InterfaceLayer::init()
     
     this->actionSelection = cc::ui::Scale9Sprite::createWithSpriteFrameName("alt_frame.png");
     actionSelection->setAnchorPoint({0,0});
-    actionSelection->setPosition({11, 380});
+    actionSelection->setPosition({11, 190});
     actionSelection->setContentSize({180,100});
     this->addChild(actionSelection);
     
-    this->actionRun = cc::Sprite::createWithSpriteFrameName("ico_run.png");
-    this->actionRun->setAnchorPoint({0,0});
-    this->actionRun->setPosition(actionSelection->getPosition() + cc::Point({30.f,12.f}));
-    this->currentAction = ActionMode::walk;
-    this->addChild(actionRun);
+    this->actionExplore = cc::Sprite::createWithSpriteFrameName("mico_explore.png");
+    this->actionExplore->setPosition(actionSelection->getPosition() + actionExplorePos.first);
+    this->currentAction = ActionMode::explore;
+    this->addChild(actionExplore);
     
-    this->actionSword = cc::Sprite::createWithSpriteFrameName("ico_sword.png");
-    this->actionSword->setAnchorPoint({0,0});
-    this->actionSword->setPosition(actionRun->getPosition());
-    this->actionSword->setOpacity(0);
-    this->addChild(actionSword);
+    this->actionExploreHi = cc::Sprite::createWithSpriteFrameName("mico_explore_high.png");
+    this->actionExploreHi->setPosition(actionSelection->getPosition() + actionExplorePos.first);
+    this->addChild(actionExploreHi, actionExplore->getLocalZOrder() - 1);
+    
+    this->actionAttack = cc::Sprite::createWithSpriteFrameName("mico_attack.png");
+    this->actionAttack->setPosition(actionSelection->getPosition() + actionAttackPos.second);
+    this->actionAttack->setScale(0.7);
+    this->addChild(actionAttack);
+    
+    this->actionAttackHi = cc::Sprite::createWithSpriteFrameName("mico_attack_high.png");
+    this->actionAttackHi->setPosition(actionSelection->getPosition() + actionAttackPos.first);
+    this->actionAttackHi->setOpacity(0);
+    this->addChild(actionAttackHi, actionAttack->getLocalZOrder() - 1);
+    
+    this->actionInventorize = cc::Sprite::createWithSpriteFrameName("mico_inventorize.png");
+    this->actionInventorize->setPosition(actionSelection->getPosition() + actionInventorizePos.second);
+    this->actionInventorize->setScale(0.7);
+    this->addChild(actionInventorize);
+    
+    this->actionInventorizeHi = cc::Sprite::createWithSpriteFrameName("mico_inventorize_high.png");
+    this->actionInventorizeHi->setPosition(actionSelection->getPosition() + actionInventorizePos.first);
+    this->actionInventorizeHi->setOpacity(0);
+    this->addChild(actionInventorizeHi, actionInventorize->getLocalZOrder() - 1);
 
-    this->actionTargetSword = cc::Sprite::createWithSpriteFrameName("ico_target_sword.png");
-    this->actionTargetSword->setAnchorPoint({0,0});
-    this->actionTargetSword->setPosition(actionRun->getPosition());
-    this->actionTargetSword->setOpacity(0);
-    this->addChild(actionTargetSword);
+    //this->actionTargetSword = cc::Sprite::createWithSpriteFrameName("ico_target_sword.png");
+    //this->actionTargetSword->setAnchorPoint({0,0});
+    //this->actionTargetSword->setPosition(actionRun->getPosition());
+    //this->actionTargetSword->setOpacity(0);
+    //this->addChild(actionTargetSword);
 
     
     auto borders = cc::ui::Scale9Sprite::createWithSpriteFrameName("main_frame.png");
@@ -218,29 +382,16 @@ bool InterfaceLayer::init()
     this->addChild(this->uArrow);
     this->addChild(this->dArrow);
     
-    this->cursor = cc::Sprite::createWithSpriteFrameName("joystick2.png");
+    this->cursor = cc::Sprite::createWithSpriteFrameName("joystick.png");
     this->cursor->getTexture()->setAntiAliasTexParameters();
     this->cursor->setPosition(kCursorCenter);
     this->addChild(this->cursor);
 
+    this->inventoryPanel = InventoryPanel::create(7);
+    this->inventoryPanel->setAnchorPoint({0,0});
+    this->inventoryPanel->setPosition({22.f, 270.f});
+    this->inventoryPanel->setOpacity(0);
+    this->addChild(inventoryPanel);
     
     return true;
-}
-
-cc::Sprite* InterfaceLayer::getSpriteAction(ActionMode action)
-{
-    switch(action)
-    {
-        case ActionMode::walk:
-            return this->actionRun;
-        case ActionMode::melee:
-            if (withTarget())
-                return this->actionTargetSword;
-            return this->actionSword;
-        default:
-            CCAssert(false, "not implemented");
-            break;
-    }
-    
-    return nullptr;
 }

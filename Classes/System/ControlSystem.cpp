@@ -59,7 +59,7 @@ void ControlSystem::tick(double dt)
                 case ActionMode::none:
                     Log("Action mode is missing");
                     break;
-                case ActionMode::melee:
+                case ActionMode::attack:
                     if (ecs::has<cp::Collision>(tid))
                     {
                         auto& cpRender = ecs::get<cp::Render>(tid);
@@ -72,15 +72,17 @@ void ControlSystem::tick(double dt)
                         this->view->interface->setTargetID(
                             tid,
                             ecs::has<cp::Control>(tid),
-                            cpRender.getContainer(), pos);
+                            cpRender.sprite, pos);
                         ecs.add<cp::Target>(eid) = tid;
                     }
                     break;
-                case ActionMode::walk:
+                case ActionMode::explore:
                     if (ecs::has<cp::Interact>(tid))
                     {
                         ecs::get<cp::Interact>(tid).triggerActivation = true;
                     }
+                    break;
+                case ActionMode::inventorize:
                     break;
             }
         }
@@ -89,14 +91,14 @@ void ControlSystem::tick(double dt)
         {
             cpInput.actionMode = this->actionSelection;
             //data driver, unselect requirements
-            if (this->actionSelection == ActionMode::walk)
+            if (this->actionSelection == ActionMode::explore)
             {
                 ecs.del<cp::Target>(eid);
                 this->view->interface->clearTarget();
             }
                 
             //gui interface
-            this->view->interface->setAction(this->actionSelection);
+            this->view->interface->setActionMode(this->actionSelection);
         }
         
         //clear inputs
@@ -196,10 +198,13 @@ void ControlSystem::onKeyPressed(KeyCode code, cocos2d::Event *event)
             }
             break;
         case KeyCode::KEY_1:
-            actionSelection = ActionMode::walk;
+            actionSelection = ActionMode::explore;
             break;
         case KeyCode::KEY_2:
-            actionSelection = ActionMode::melee;
+            actionSelection = ActionMode::attack;
+            break;
+        case KeyCode::KEY_3:
+            actionSelection = ActionMode::inventorize;
             break;
         default:
             break;
@@ -232,10 +237,13 @@ void ControlSystem::onKeyReleased(KeyCode code, cocos2d::Event *event)
             toDel = Dir::Down;
             break;
         case KeyCode::KEY_1:
-            actionSelection = ActionMode::walk;
+            actionSelection = ActionMode::explore;
             break;
         case KeyCode::KEY_2:
-            actionSelection = ActionMode::melee;
+            actionSelection = ActionMode::attack;
+            break;
+        case KeyCode::KEY_3:
+            actionSelection = ActionMode::inventorize;
             break;
         default:
             break;
@@ -256,8 +264,6 @@ void ControlSystem::onMouseUp(cocos2d::Event *event)
 
 void ControlSystem::onMouseDown(cocos2d::Event *event)
 {
-    //unsigned index = INDEX_P1;
-    
     cc::Vec2 minColSize = {20,20};
     
     cc::EventMouse* e = (cc::EventMouse*)event;

@@ -31,7 +31,9 @@ public:
     ActionMode  getPrevAction();
     cc::Rect    getActionBounds();
     
-    HealthBar*  getHealthBar();
+    //accessors
+    HealthBar*      getHealthBar();
+    InventoryPanel* getInventoryPanel();
     
 private:
     //consts

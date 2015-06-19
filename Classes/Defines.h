@@ -29,3 +29,25 @@ enum class ActionMode
     attack,
     inventorize
 };
+
+enum class CtrlKeyType
+{
+    none,
+    left, right, up, down,
+    autoselect,
+    sel1, sel2, sel3
+};
+
+enum class ColCat
+{
+    //bag
+    object,
+    currency,
+    //equipemnt
+    head,
+    body,
+    arm,
+    leg,
+    feet,
+    ring
+};

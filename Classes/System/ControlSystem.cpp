@@ -1,3 +1,4 @@
+#include "GameCtrl.h"
 #include "ControlSystem.h"
 #include "Components.h"
 #include "InputComponent.h"
@@ -6,54 +7,44 @@
 #include "GameScene.h"
 #include "InterfaceLayer.h"
 #include "SysHelper.h"
+#include "Defines.h"
 
 using namespace std::placeholders;
 using KeyCode = cocos2d::EventKeyboard::KeyCode;
 
-void ControlSystem::computeFocusEntities()
-{
-    for(unsigned index : {INDEX_P1})
-    {
-        for(auto eid : ecs.join<cp::Control, cp::Render>())
-        {
-            if (ecs::get<cp::Control>(eid) == index)
-            {
-                this->entityFocus[index] = eid;
-                break;
-            }
-        }
-    }
+ControlSystem::ControlSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {
+    this->actionSelection = ActionMode::none;
 }
 
 void ControlSystem::tick(double dt)
 {
-    for(unsigned index : {INDEX_P1})
+    for(auto player : pList)
     {
-        auto eid = entityFocus[index];
+        auto eid = player->entityFocus;
         if (eid == 0)
             continue;
         
         //direction
-        if (ecs::get<cp::Control>(eid) != index)
+        if (ecs::get<cp::Control>(eid) != player->ctrlIndex)
             continue;
         auto& cpInput = ecs::get<cp::Input>(eid);
          
-        if (lib::hasKey(joyPos, index))
+        if (lib::hasKey(joyPos, player->ctrlIndex))
         {
-            auto posRatio = this->view->interface->setJoystick(joyPos[index]);
+            auto posRatio = this->view->interface->setJoystick(joyPos[player->ctrlIndex]);
             cpInput.setDirection(posRatio);
         }
         else
         {
             this->view->interface->clearJoystick();
-            cpInput.setDirection(this->curDirPressed[index] |
-                (this->curDirReleased[index] & ~this->preDirPressed[index]));
+            cpInput.setDirection(this->curDirPressed[player->ctrlIndex] |
+                (this->curDirReleased[player->ctrlIndex] & ~this->preDirPressed[player->ctrlIndex]));
         }
             
         //selection
-        if (this->entitySelection[index] != 0)
+        if (this->entitySelection[player->ctrlIndex] != 0)
         {
-            auto tid = this->entitySelection[index];
+            auto tid = this->entitySelection[player->ctrlIndex];
             switch(this->view->interface->getAction())
             {
                 case ActionMode::none:
@@ -102,7 +93,7 @@ void ControlSystem::tick(double dt)
         }
         
         //clear inputs
-        this->clearReleased(index);
+        this->clearReleased(player->ctrlIndex);
     }
 }
 
@@ -111,7 +102,6 @@ void ControlSystem::initControl(unsigned int index)
     curDirPressed[index] = Dir::None;
     curDirReleased[index] = Dir::None;
     preDirPressed[index] = Dir::None;
-    entityFocus[index] = 0;
     entitySelection[index] = 0;
 }
 
@@ -130,10 +120,16 @@ void ControlSystem::changeRoom(RoomData* data)
 
 void ControlSystem::init(GameScene *gview, RoomData* data)
 {
+    this->pList.push_back(GameCtrl::instance()->getP1());
+    
     this->data = data;
     this->view = gview;
     
-    this->initControl(INDEX_P1);
+    //reset ctrl
+    for(auto player : pList)
+    {
+        this->initControl(player->ctrlIndex);
+    }
     
     //keyboard
     auto kListener = cc::EventListenerKeyboard::create();
@@ -164,93 +160,83 @@ void ControlSystem::init(GameScene *gview, RoomData* data)
 
 void ControlSystem::onKeyPressed(KeyCode code, cocos2d::Event *event)
 {
-    unsigned index = INDEX_P1;
-    int toAdd = Dir::None;
-    switch(code)
+    for(auto player : pList)
     {
-        case KeyCode::KEY_LEFT_ARROW:
-        case KeyCode::KEY_A:
-            toAdd = Dir::Left;
-            break;
-        case KeyCode::KEY_RIGHT_ARROW:
-        case KeyCode::KEY_D:
-            toAdd = Dir::Right;
-            break;
-        case KeyCode::KEY_UP_ARROW:
-        case KeyCode::KEY_W:
-            toAdd = Dir::Up;
-            break;
-        case KeyCode::KEY_DOWN_ARROW:
-        case KeyCode::KEY_S:
-            toAdd = Dir::Down;
-            break;
-        case KeyCode::KEY_SPACE:
-            if (entityFocus[index] != 0)
-            {
-                auto tid = SysHelper::getNearest(ecs.getID(),
-                                                 entityFocus[index],
-                                                 CategoryComponent::eMood::HOSTILE,
-                                                 500.0);
-                if (tid != 0)
+        int toAdd = Dir::None;
+        
+        switch(player->KeyCode2KeyType(code))
+        {
+            case CtrlKeyType::none:
+                break;
+            case CtrlKeyType::left:
+                toAdd = Dir::Left;
+                break;
+            case CtrlKeyType::right:
+                toAdd = Dir::Right;
+                break;
+            case CtrlKeyType::up:
+                toAdd = Dir::Up;
+                break;
+            case CtrlKeyType::down:
+                toAdd = Dir::Down;
+                break;
+            case CtrlKeyType::autoselect:
+                if (player->entityFocus != 0)
                 {
-                    entitySelection[index] = tid;
+                    auto tid = SysHelper::getNearest(ecs.getID(),
+                                                     player->entityFocus,
+                                                     CategoryComponent::eMood::HOSTILE,
+                                                     500.0);
+                    if (tid != 0)
+                    {
+                        entitySelection[player->ctrlIndex] = tid;
+                    }
                 }
-            }
-            break;
-        case KeyCode::KEY_1:
-            actionSelection = ActionMode::explore;
-            break;
-        case KeyCode::KEY_2:
-            actionSelection = ActionMode::attack;
-            break;
-        case KeyCode::KEY_3:
-            actionSelection = ActionMode::inventorize;
-            break;
-        default:
-            break;
+                break;
+            case CtrlKeyType::sel1:
+                actionSelection = ActionMode::explore;
+                break;
+            case CtrlKeyType::sel2:
+                actionSelection = ActionMode::attack;
+                break;
+            case CtrlKeyType::sel3:
+                actionSelection = ActionMode::inventorize;
+                break;
+        }
+        
+        this->curDirPressed[player->ctrlIndex] |= toAdd;
+        this->curDirReleased[player->ctrlIndex] &= ~toAdd;
     }
     
-    this->curDirPressed[index] |= toAdd;
-    this->curDirReleased[index] &= ~toAdd;
 }
 
 void ControlSystem::onKeyReleased(KeyCode code, cocos2d::Event *event)
 {
-    unsigned index = INDEX_P1;
-    int toDel = Dir::None;
-    switch(code)
+    for(auto player : pList)
     {
-        case KeyCode::KEY_LEFT_ARROW:
-        case KeyCode::KEY_A:
-            toDel = Dir::Left;
-            break;
-        case KeyCode::KEY_RIGHT_ARROW:
-        case KeyCode::KEY_D:
-            toDel = Dir::Right;
-            break;
-        case KeyCode::KEY_UP_ARROW:
-        case KeyCode::KEY_W:
-            toDel = Dir::Up;
-            break;
-        case KeyCode::KEY_DOWN_ARROW:
-        case KeyCode::KEY_S:
-            toDel = Dir::Down;
-            break;
-        case KeyCode::KEY_1:
-            actionSelection = ActionMode::explore;
-            break;
-        case KeyCode::KEY_2:
-            actionSelection = ActionMode::attack;
-            break;
-        case KeyCode::KEY_3:
-            actionSelection = ActionMode::inventorize;
-            break;
-        default:
-            break;
-    }
+        int toDel = Dir::None;
+        
+        switch(player->KeyCode2KeyType(code))
+        {
+            default:
+                break;
+            case CtrlKeyType::left:
+                toDel = Dir::Left;
+                break;
+            case CtrlKeyType::right:
+                toDel = Dir::Right;
+                break;
+            case CtrlKeyType::up:
+                toDel = Dir::Up;
+                break;
+            case CtrlKeyType::down:
+                toDel = Dir::Down;
+                break;
+        }
     
-    this->curDirPressed[index] &= ~toDel;
-    this->curDirReleased[index] |= toDel;
+        this->curDirPressed[player->ctrlIndex] &= ~toDel;
+        this->curDirReleased[player->ctrlIndex] |= toDel;
+    }
 }
 
 void ControlSystem::onMouseMove(cocos2d::Event *event)
@@ -285,59 +271,60 @@ void ControlSystem::onMouseScroll(cocos2d::Event *event)
 
 void ControlSystem::onTouchBegan(const std::vector<cc::Touch*>& touches, cocos2d::Event* event)
 {
-    unsigned index = INDEX_P1;
- 
-    for(auto touch : touches)
+    for(auto player : pList)
     {
-        cc::Vec2 minColSize = {20,20};
-    
-        auto touchPos = touch->getLocation();
-    
-        if (kCanvasRect.containsPoint(touchPos)) // frame zone
+        for(auto touch : touches)
         {
-            if (this->cameraID.size() < 2)
-            {
-                this->cameraID[touch->getID()] = touchPos;
-                if (this->cameraID.size() > 1)
-                {
-                    //multitouch on frame zone detected
-                    continue;
-                }
-            }
-            auto cameraPos = this->view->getCam()->getOrigin();
-            cc::Vec2 roomPos = {
-                data->getBounds().getMinX() + cameraPos.x,
-                data->getBounds().getMinY() + cameraPos.y
-            };
-    
-            cc::Vec2 pos = {touchPos.x - roomPos.x - kCanvasRect.origin.x,
-                    touchPos.y - roomPos.y - kCanvasRect.origin.y};
-
-            for(auto eid : ecs.join<cp::Position, cp::Collision, cp::Render>())
-            {
-                auto& cpPos = ecs::get<cp::Position>(eid);
-                auto& cpCol = ecs::get<cp::Collision>(eid);
+            cc::Vec2 minColSize = {20,20};
         
-                cc::Vec2 plus = {
-                    MAX(0, (minColSize.x - cpCol.rect.size.width) / 2),
-                    MAX(0, (minColSize.y - cpCol.rect.size.height) / 2)
+            auto touchPos = touch->getLocation();
+        
+            if (kCanvasRect.containsPoint(touchPos)) // frame zone
+            {
+                if (this->cameraID.size() < 2)
+                {
+                    this->cameraID[touch->getID()] = touchPos;
+                    if (this->cameraID.size() > 1)
+                    {
+                        //multitouch on frame zone detected
+                        continue;
+                    }
+                }
+                auto cameraPos = this->view->getCam()->getOrigin();
+                cc::Vec2 roomPos = {
+                    data->getBounds().getMinX() + cameraPos.x,
+                    data->getBounds().getMinY() + cameraPos.y
                 };
         
-                auto bound = cc::Rect(cpPos.pos.x + cpCol.rect.origin.x - plus.x,
-                                      cpPos.pos.y + cpCol.rect.origin.y - plus.y,
-                                      cpCol.rect.size.width + plus.x * 2,
-                                      cpCol.rect.size.height + plus.y * 2);
-                if (bound.containsPoint(pos))
+                cc::Vec2 pos = {touchPos.x - roomPos.x - kCanvasRect.origin.x,
+                        touchPos.y - roomPos.y - kCanvasRect.origin.y};
+
+                for(auto eid : ecs.join<cp::Position, cp::Collision, cp::Render>())
                 {
-                    entitySelection[index] = eid;
-                    break;
+                    auto& cpPos = ecs::get<cp::Position>(eid);
+                    auto& cpCol = ecs::get<cp::Collision>(eid);
+            
+                    cc::Vec2 plus = {
+                        MAX(0, (minColSize.x - cpCol.rect.size.width) / 2),
+                        MAX(0, (minColSize.y - cpCol.rect.size.height) / 2)
+                    };
+            
+                    auto bound = cc::Rect(cpPos.pos.x + cpCol.rect.origin.x - plus.x,
+                                          cpPos.pos.y + cpCol.rect.origin.y - plus.y,
+                                          cpCol.rect.size.width + plus.x * 2,
+                                          cpCol.rect.size.height + plus.y * 2);
+                    if (bound.containsPoint(pos))
+                    {
+                        entitySelection[player->ctrlIndex] = eid;
+                        break;
+                    }
                 }
             }
-        }
-        else if (cc::Rect(0,0,190,190).containsPoint(touchPos)) //action buttons zone
-        {
-            joyID[index] = touch->getID();
-            joyPos[index] = touchPos;
+            else if (cc::Rect(0,0,190,190).containsPoint(touchPos)) //action buttons zone
+            {
+                joyID[player->ctrlIndex] = touch->getID();
+                joyPos[player->ctrlIndex] = touchPos;
+            }
         }
     }
 }
@@ -349,35 +336,36 @@ void ControlSystem::onTouchCanceled(const std::vector<cc::Touch*>& touches, coco
 
 void ControlSystem::onTouchEnded(const std::vector<cc::Touch*>& touches, cocos2d::Event* event)
 {
-    unsigned index = INDEX_P1;
-    
-    for(auto touch : touches)
+    for(auto player : pList)
     {
-        //handle joystick
-        if (lib::hasKey(joyID, index) && joyID[index] == touch->getID())
+        for(auto touch : touches)
         {
-            joyID.erase(index);
-            joyPos.erase(index);
-        }
-    
-        //handle action buttons
-        if (this->view->interface->getActionBounds().containsPoint(touch->getStartLocation()))
-        {
-            auto diff = touch->getLocation() - touch->getStartLocation();
-            ActionMode doAction = ActionMode::none;
-            if (diff.x < -40)
-                doAction = this->view->interface->getPrevAction();
-            else if (diff.x > 40)
-                doAction = this->view->interface->getNextAction();
-        
-            if (doAction != ActionMode::none)
+            //handle joystick
+            if (lib::hasKey(joyID, player->ctrlIndex) && joyID[player->ctrlIndex] == touch->getID())
             {
-                actionSelection = doAction;
+                joyID.erase(player->ctrlIndex);
+                joyPos.erase(player->ctrlIndex);
             }
-        }
         
-        //handle camera
-        cameraID.erase(touch->getID());
+            //handle action buttons
+            if (this->view->interface->getActionBounds().containsPoint(touch->getStartLocation()))
+            {
+                auto diff = touch->getLocation() - touch->getStartLocation();
+                ActionMode doAction = ActionMode::none;
+                if (diff.x < -40)
+                    doAction = this->view->interface->getPrevAction();
+                else if (diff.x > 40)
+                    doAction = this->view->interface->getNextAction();
+            
+                if (doAction != ActionMode::none)
+                {
+                    actionSelection = doAction;
+                }
+            }
+            
+            //handle camera
+            cameraID.erase(touch->getID());
+        }
     }
 }
 
@@ -394,20 +382,23 @@ cc::Rect ControlSystem::computeRect(cc::Point p1, cc::Point p2)
 void ControlSystem::onTouchMoved(const std::vector<cc::Touch*>& touches, cocos2d::Event* event)
 {
     std::map<int, cc::Point> movedCameraID;
-    
-    for(auto touch : touches)
+ 
+    for(auto player : pList)
     {
-        auto touchPos = touch->getLocation();
-        unsigned index = INDEX_P1;
-    
-        if (lib::hasKey(joyID, index) && joyID[index] == touch->getID()) //handle joystick
+        for(auto touch : touches)
         {
-            joyPos[index] = touchPos;
-        }
+            auto touchPos = touch->getLocation();
         
-        if (lib::hasKey(cameraID, touch->getID()) && cameraID.size() > 1)
-        {
-            movedCameraID[touch->getID()] = touchPos;
+            if (lib::hasKey(joyID, player->ctrlIndex) &&
+                joyID[player->ctrlIndex] == touch->getID()) //handle joystick
+            {
+                joyPos[player->ctrlIndex] = touchPos;
+            }
+            
+            if (lib::hasKey(cameraID, touch->getID()) && cameraID.size() > 1)
+            {
+                movedCameraID[touch->getID()] = touchPos;
+            }
         }
     }
     

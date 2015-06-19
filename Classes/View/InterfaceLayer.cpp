@@ -45,6 +45,11 @@ HealthBar* InterfaceLayer::getHealthBar()
     return this->healthBar;
 }
 
+InventoryPanel* InterfaceLayer::getInventoryPanel()
+{
+    return this->inventoryPanel;
+}
+
 void InterfaceLayer::setTargetID(unsigned eid, bool friendly, cc::Sprite* container, cc::Point pos)
 {
     this->targetEnemy->removeFromParentAndCleanup(false);
@@ -387,7 +392,7 @@ bool InterfaceLayer::init()
     this->cursor->setPosition(kCursorCenter);
     this->addChild(this->cursor);
 
-    this->inventoryPanel = InventoryPanel::create(7);
+    this->inventoryPanel = InventoryPanel::create();
     this->inventoryPanel->setAnchorPoint({0,0});
     this->inventoryPanel->setPosition({22.f, 270.f});
     this->inventoryPanel->setOpacity(0);

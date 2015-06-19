@@ -1,6 +1,7 @@
 #pragma once
 
 class MapData;
+class PlayerData;
 class NodeRenderer;
 class GateMap;
 
@@ -12,11 +13,7 @@ class GateMap;
 class FloorSystemCtrl
 {
 public:
-    FloorSystemCtrl() : controlSystem(ecsGroup),
-                        random(Randgine::instance()->get(Randgine::MAP))
-    {
-    }
-    
+    FloorSystemCtrl();
     ~FloorSystemCtrl();
     
     void load(GameScene* view, MapData* data);
@@ -58,9 +55,9 @@ private:
     //event
     std::vector<lib::Registration> eventRegs;
     
-    //mainEntity
-    unsigned focusEntity = 0;
-    
     unsigned currentRoomIndex;
     lib::Random& random;
+    
+    //focus player
+    PlayerData* playerFocus;
 };

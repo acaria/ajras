@@ -2,13 +2,14 @@
 #include "MapData.h"
 #include "GameScene.h"
 #include "Randgine.h"
+#include "PlayerData.h"
 
 using namespace std::placeholders;
 
 GameCtrl::GameCtrl():log(), scene(log),
                      tick(std::bind(&GameCtrl::onTick, this, _1),
                           std::bind(&GameCtrl::onAnimate, this, _1, _2)),
-                     currentMap(nullptr)
+                     currentMap(nullptr), P1(nullptr)
 {
     log.setLevelMask(LL_DEBUG | LL_INFO | LL_TRACE | LL_WARNING | LL_ERROR | LL_FATAL);
     log.setTimeoutSeconds(15);
@@ -17,7 +18,7 @@ GameCtrl::GameCtrl():log(), scene(log),
 
 GameCtrl::~GameCtrl()
 {
-    this->destroyMap();
+    this->cleanSession();
 }
 
 void GameCtrl::start()
@@ -73,7 +74,7 @@ void GameCtrl::startSession(GameScene* view)
     this->sessionEnabled = true;
 }
 
-void GameCtrl::destroyMap()
+void GameCtrl::cleanSession()
 {
     if (this->currentMap != nullptr)
     {
@@ -81,16 +82,41 @@ void GameCtrl::destroyMap()
         this->currentMap = nullptr;
     }
     
+    if (P1 != nullptr)
+    {
+        delete this->P1;
+        this->P1 = nullptr;
+    }
+    
     profileModel.clear();
+}
+
+PlayerData* GameCtrl::getP1()
+{
+    return this->P1;
 }
 
 void GameCtrl::newSession()
 {
     this->sessionEnabled = false;
-    this->destroyMap();
+    this->cleanSession();
     
+    //engine ---
     Randgine::instance()->setMaster(1);
     
+    //player --
+    this->P1 = new PlayerData();
+    this->P1->ctrlIndex = 1;
+    this->P1->keysDefList[CtrlKeyType::left] = {KeyCode::KEY_LEFT_ARROW, KeyCode::KEY_A};
+    this->P1->keysDefList[CtrlKeyType::right] = {KeyCode::KEY_RIGHT_ARROW, KeyCode::KEY_D};
+    this->P1->keysDefList[CtrlKeyType::up] = {KeyCode::KEY_UP_ARROW, KeyCode::KEY_W};
+    this->P1->keysDefList[CtrlKeyType::down] = {KeyCode::KEY_DOWN_ARROW, KeyCode::KEY_S};
+    this->P1->keysDefList[CtrlKeyType::autoselect] = {KeyCode::KEY_SPACE};
+    this->P1->keysDefList[CtrlKeyType::sel1] = {KeyCode::KEY_1};
+    this->P1->keysDefList[CtrlKeyType::sel2] = {KeyCode::KEY_2};
+    this->P1->keysDefList[CtrlKeyType::sel3] = {KeyCode::KEY_3};
+    
+    //map ---
     this->currentMap = MapData::generate("md1-1");
     assert(currentMap);
     

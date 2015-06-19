@@ -10,6 +10,7 @@
 
 class RoomData;
 class MapData;
+class PlayerData;
 class GameScene;
 
 class GameCtrl : public Singleton<GameCtrl>
@@ -32,6 +33,8 @@ public:
 
     void tickUpdate(float dt);
     void scheduleUpdate(cocos2d::Node* parent);
+    
+    PlayerData* getP1();
 
 protected:
     SceneManager    scene;
@@ -39,9 +42,10 @@ protected:
 private:
     void onTick(double dt);
     void onAnimate(double dt, double tickPercent);
-    void destroyMap();
+    void cleanSession();
     
     MapData*        currentMap;
+    PlayerData*     P1;
     
     FloorSystemCtrl  floorSystemCtrl;
     bool sessionEnabled;

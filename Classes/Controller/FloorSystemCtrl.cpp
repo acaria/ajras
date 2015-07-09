@@ -136,7 +136,8 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
         }),
         NULL
     ));
-    render.sprite->runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
+    render.sprite->runAction(cc::Sequence::create(
+        cc::DelayTime::create(duration / 2),
         cc::TintTo::create(duration / 2, cc::Color3B::WHITE),
         NULL
     ));
@@ -314,6 +315,7 @@ void FloorSystemCtrl::start()
             
             cpRender.setMoveAnimation(enterGate.info.getDir(), true);
             
+            cpRender.sprite->stopAllActions();
             cpRender.sprite->runAction(cc::Sequence::create(
                 cc::MoveTo::create(duration, {
                     destPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
@@ -338,7 +340,7 @@ void FloorSystemCtrl::start()
     
     //create player
     auto eid = cp::entity::genID();
-    auto profile = GameCtrl::instance()->profileModel.get("boy");
+    auto profile = GameCtrl::instance()->model.profile.get("boy");
     auto srcPos = enterGate.info.getSrcPos();
     
     auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
@@ -349,7 +351,7 @@ void FloorSystemCtrl::start()
                         roomData->getZOrder(srcPos));
     cpCollision.setProfile(profile);
     
-    ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Orientation>(eid, roomIndex);

@@ -17,6 +17,8 @@ void AISystem::tick(double dt)
     
     for(auto eid : ecs.join<cp::Input, cp::AI>())
     {
+        if (ecs::has<cp::Control>(eid))
+            continue; //manual
         if (ecs::get<cp::Input>(eid).disabled)
             continue; //skip disabled entities
         
@@ -53,21 +55,21 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
     {
         case CheckBType::NEAR: {
             assert(node->values.size() > 0);
-            switch(CategoryComponent::mapType[node->values[0]])
+            switch(AIComponent::mapType[node->values[0]])
             {
-                case CategoryComponent::eType::MOOD: {
+                case AIComponent::eType::MOOD: {
                     assert(node->values.size() == 2); //params=[category,value]
                     auto maxDist = cpAI.sightRange * cpAI.sightRange;
-                    auto targetMood = CategoryComponent::mapMood[node->values[1]];
+                    auto targetMood = AIComponent::mapMood[node->values[1]];
                     auto bounds = SysHelper::getBounds(eid);
                     
                     float nearest = maxDist;
                     unsigned targetID = 0;
-                    for(auto tid : ecs.join<cp::Cat, cp::Position, cp::Collision>())
+                    for(auto tid : ecs.join<cp::AI, cp::Position, cp::Collision>())
                     {
                         if (tid == eid)
                             continue;
-                        if (targetMood != ecs::get<cp::Cat>(tid).mood)
+                        if (targetMood != ecs::get<cp::AI>(tid).mood)
                             continue;
                         auto bounds2 = SysHelper::getBounds(tid);
                         float dist = cc::Vec2(
@@ -143,13 +145,13 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
         }
         case ExecBType::TARGET: {
             assert(node->values.size() > 0);
-            switch(CategoryComponent::mapType[node->values[0]])
+            switch(AIComponent::mapType[node->values[0]])
             {
-                case CategoryComponent::eType::MOOD: {
+                case AIComponent::eType::MOOD: {
                     assert(node->values.size() == 2); //params=[category,value]
                     
                     auto targetID = SysHelper::getNearest(ecs.getID(), eid,
-                        CategoryComponent::mapMood[node->values[1]], cpAI.sightRange);
+                        AIComponent::mapMood[node->values[1]], cpAI.sightRange);
                     if (targetID != 0)
                     {
                         ecs.add<cp::Target>(eid) = targetID;
@@ -157,7 +159,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                     }
                     return state::FAILURE;
                 }
-                case CategoryComponent::eType::NONE: {
+                case AIComponent::eType::NONE: {
                     assert(node->values.size() == 1); //params=[category]
                     ecs.del<cp::Target>(eid);
                     return state::SUCCESS;
@@ -227,10 +229,10 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                     auto &properties = cpAI.board.getFields(nid);
                     if (!lib::hasKey(properties, "target"))
                     {
-                        if (!ecs::has<cp::Cat, cp::Position, cp::Collision>(eid))
+                        if (!ecs::has<cp::AI, cp::Position, cp::Collision>(eid))
                             return state::FAILURE;
                         auto bounds = SysHelper::getBounds(eid);
-                        auto sleepZone = this->data->getSleepZone(ecs::get<cp::Cat>(eid).sleep, {bounds.getMidX(), bounds.getMidY()});
+                        auto sleepZone = this->data->getSleepZone(ecs::get<cp::AI>(eid).sleep, {bounds.getMidX(), bounds.getMidY()});
                         if (sleepZone == nullptr)
                             return state::FAILURE;
                         sleepZone->taken = true;
@@ -378,10 +380,10 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
             switch(actionMap[node->values[0]])
             {
                 case ActionBType::SLEEPZONE: {
-                    if (!ecs::has<cp::Cat, cp::Position, cp::Collision>(eid))
+                    if (!ecs::has<cp::Position, cp::Collision>(eid))
                         return state::FAILURE;
                     auto bounds = SysHelper::getBounds(eid);
-                    this->data->freeSleepZone(ecs::get<cp::Cat>(eid).sleep,
+                    this->data->freeSleepZone(cpAI.sleep,
                                               {bounds.getMidX(), bounds.getMidY()});
                     return state::SUCCESS;
                 }

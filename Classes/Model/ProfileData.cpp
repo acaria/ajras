@@ -190,16 +190,12 @@ ProfileData::ProfileData(const std::string &path) : moodCategory("neutral")
     
     if (rawData.find("behaviour") != rawData.end())
     {
+        auto &bData = rawData.at("behaviour").asValueMap();
         withBehaviour = true;
-        this->behaviourKey = rawData["behaviour"].asString();
-    }
-    
-    if (rawData.find("category") != rawData.end())
-    {
-        auto &cData = rawData.at("category").asValueMap();
-        if (cData.find("sleep") != rawData.end())
-            this->sleepCategory = cData.at("sleep").asString();
-        if (cData.find("mood") != rawData.end())
-            this->moodCategory = cData.at("mood").asString();
+        this->behaviourKey = bData["key"].asString();
+        if (bData.find("sleep") != bData.end())
+            this->sleepCategory = bData.at("sleep").asString();
+        if (bData.find("mood") != bData.end())
+            this->moodCategory = bData.at("mood").asString();
     }
 }

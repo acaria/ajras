@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>behaviour</key>
-	<string>bat</string>
-	<key>category</key>
 	<dict>
+		<key>key</key>
+		<string>bat</string>
 		<key>mood</key>
 		<string>hostile</string>
 		<key>sleep</key>

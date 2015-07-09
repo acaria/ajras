@@ -2,7 +2,7 @@
 #include "ControlSystem.h"
 #include "Components.h"
 #include "InputComponent.h"
-#include "CategoryComponent.h"
+#include "AIComponent.h"
 #include "RoomData.h"
 #include "GameScene.h"
 #include "InterfaceLayer.h"
@@ -185,7 +185,7 @@ void ControlSystem::onKeyPressed(KeyCode code, cocos2d::Event *event)
                 {
                     auto tid = SysHelper::getNearest(ecs.getID(),
                                                      player->entityFocus,
-                                                     CategoryComponent::eMood::HOSTILE,
+                                                     AIComponent::eMood::HOSTILE,
                                                      500.0);
                     if (tid != 0)
                     {

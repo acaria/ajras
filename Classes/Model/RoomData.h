@@ -4,7 +4,7 @@
 #include "GateMap.h"
 #include "DataGrid.h"
 #include "V2.h"
-#include "CategoryComponent.h"
+#include "AIComponent.h"
 
 class RoomData
 {
@@ -44,9 +44,9 @@ public:
     lib::v2u                    getCoordFromPos(const cc::Vec2& pos);
     cc::Rect                    getBlockBound(lib::v2u coord);
     std::list<cc::Rect>         getWalls();
-    SleepZone*                  getSleepZone(CategoryComponent::eSleep cat,
+    SleepZone*                  getSleepZone(AIComponent::eSleep cat,
                                              const cc::Point& pos);
-    void freeSleepZone(CategoryComponent::eSleep cat, const cc::Point& pos);
+    void freeSleepZone(AIComponent::eSleep cat, const cc::Point& pos);
     
     void extractGateAnimInfo(unsigned gateIndex, cc::Rect colRect,
                              cc::Point& srcPos, cc::Point& destPos);
@@ -65,6 +65,5 @@ public:
 private:
     RoomModel*                            model;
     lib::DataGrid<BlockInfo>              grid;
-    std::map<CategoryComponent::eSleep,
-             std::list<SleepZone>>        sleepZones;
+    std::map<AIComponent::eSleep, std::list<SleepZone>> sleepZones;
 };

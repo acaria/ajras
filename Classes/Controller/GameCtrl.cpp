@@ -88,7 +88,7 @@ void GameCtrl::cleanSession()
         this->P1 = nullptr;
     }
     
-    profileModel.clear();
+    model.profile.clear();
 }
 
 PlayerData* GameCtrl::getP1()

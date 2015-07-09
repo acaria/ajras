@@ -12,8 +12,8 @@
 #include "MeleeComponent.h"
 #include "HealthComponent.h"
 #include "AIComponent.h"
-#include "CategoryComponent.h"
 #include "InteractComponent.h"
+#include "GearComponent.h"
 #include "CollectibleData.h"
 #include "GateMap.h"
 
@@ -33,8 +33,8 @@ namespace cp
     using Health = ecs::component<HealthComponent,              12>;
     using Target = ecs::component<unsigned,                     13>;
     using AI = ecs::component<AIComponent,                      14>;
-    using Cat = ecs::component<CategoryComponent,               15>;
-    using Col = ecs::component<std::string,                     16>;
+    using Gear = ecs::component<GearComponent,                  15>;
+    using Collec = ecs::component<std::string,                  16>;
     
     struct entity
     {
@@ -61,8 +61,8 @@ namespace cp
             ecs::move<Health>(id, g1, g2);
             ecs::move<Target>(id, g1, g2);
             ecs::move<AI>(id, g1, g2);
-            ecs::move<Cat>(id, g1, g2);
-            ecs::move<Col>(id, g1, g2);
+            ecs::move<Gear>(id, g1, g2);
+            ecs::move<Collec>(id, g1, g2);
         }
         
         static void remove(unsigned id, unsigned group)
@@ -81,8 +81,8 @@ namespace cp
             ecs::del<Health>(id, group);
             ecs::del<Target>(id, group);
             ecs::del<AI>(id, group);
-            ecs::del<Cat>(id, group);
-            ecs::del<Col>(id, group);
+            ecs::del<Gear>(id, group);
+            ecs::del<Collec>(id, group);
         }
         
         static void clear(unsigned group)
@@ -101,8 +101,8 @@ namespace cp
             ecs::clearGroup<Health>(group);
             ecs::clearGroup<Target>(group);
             ecs::clearGroup<AI>(group);
-            ecs::clearGroup<Cat>(group);
-            ecs::clearGroup<Col>(group);
+            ecs::clearGroup<Gear>(group);
+            ecs::clearGroup<Collec>(group);
             
             genID(true);
         }

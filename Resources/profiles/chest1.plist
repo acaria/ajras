@@ -5,14 +5,9 @@
 	<key>collision</key>
 	<dict>
 		<key>rect</key>
-		<string>0,0,28,16</string>
+		<string>1,0,22,16</string>
 		<key>cat</key>
 		<string>walkable</string>
-	</dict>
-	<key>category</key>
-	<dict>
-		<key>mood</key>
-		<string>neutral</string>
 	</dict>
 	<key>interaction</key>
 	<dict>

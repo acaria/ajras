@@ -4,7 +4,7 @@
 #include "GateInfo.h"
 #include "V2.h"
 #include "ObjectInfo.h"
-#include "CategoryComponent.h"
+#include "AIComponent.h"
 
 class RoomModel
 {
@@ -15,8 +15,8 @@ public:
         tileSize(tileSize),
         totalSize{dim.x * tileSize.x, dim.y * tileSize.y},
         grid(dim.x, dim.y) {
-            sleepZones[CategoryComponent::eSleep::BIRD] = std::list<cc::Rect>();
-            sleepZones[CategoryComponent::eSleep::HUMAN] = std::list<cc::Rect>();
+            sleepZones[AIComponent::eSleep::BIRD] = std::list<cc::Rect>();
+            sleepZones[AIComponent::eSleep::HUMAN] = std::list<cc::Rect>();
     }
 
     std::vector<ObjectInfo>      objs;
@@ -38,7 +38,7 @@ public:
     std::list<cc::Rect>                                         walls;
     
     //additional infos
-    std::map<CategoryComponent::eSleep, std::list<cc::Rect>>    sleepZones;
+    std::map<AIComponent::eSleep, std::list<cc::Rect>>    sleepZones;
     
 private:
     static GateInfo::GateType gessGateType(lib::v2u pos,

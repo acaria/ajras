@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>behaviour</key>
-	<string>humanoid</string>
-	<key>category</key>
 	<dict>
+		<key>key</key>
+		<string>humanoid</string>
 		<key>mood</key>
 		<string>hostile</string>
 		<key>sleep</key>

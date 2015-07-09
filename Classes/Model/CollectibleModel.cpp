@@ -1,5 +1,10 @@
 #include "CollectibleModel.h"
 
+CollectibleModel::CollectibleModel()
+{
+    this->load();
+}
+
 CollectibleData CollectibleModel::get(std::string key)
 {
     assert(this->models.find(key) != this->models.end());

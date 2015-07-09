@@ -5,6 +5,7 @@
 class CollectibleModel
 {
 public:
+    CollectibleModel();
     CollectibleData get(std::string key);
 private:
     void load();

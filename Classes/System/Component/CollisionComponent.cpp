@@ -16,7 +16,7 @@ void CollisionComponent::setProfile(ProfileData* profile)
 
 void CollisionComponent::setProfile(const std::string& profileName)
 {
-    this->setProfile(GameCtrl::instance()->profileModel.get(profileName));
+    this->setProfile(GameCtrl::instance()->model.profile.get(profileName));
 }
 
 void CollisionComponent::set(cocos2d::Rect rect)

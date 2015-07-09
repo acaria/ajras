@@ -69,14 +69,13 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
     //objects
     for(auto obj : data->getModelObjs())
     {
-        auto profile = GameCtrl::instance()->profileModel.get(obj.profileName);
+        auto profile = GameCtrl::instance()->model.profile.get(obj.profileName);
         auto eid = cp::entity::genID();
         ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
             RenderComponent::chooseLayer(profile, view),
             data->getZOrder(obj.pos));
         ecs::get<cp::Render>(eid).sprite->setPosition(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
         ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
-        ecs::add<cp::Cat>(eid, roomIndex).setProfile(profile);
         ecs::add<cp::Input>(eid, roomIndex);
         ecs::add<cp::Position>(eid, roomIndex).set(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
         

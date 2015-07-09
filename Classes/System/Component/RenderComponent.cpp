@@ -21,7 +21,7 @@ void RenderComponent::setProfile(const std::string &profileName,
                                  cc::Node *parent,
                                  int zOrder)
 {
-    this->setProfile(GameCtrl::instance()->profileModel.get(profileName), parent, zOrder);
+    this->setProfile(GameCtrl::instance()->model.profile.get(profileName), parent, zOrder);
 }
 
 void RenderComponent::setProfile(ProfileData* profile, cc::Node *parent, int zOrder)
@@ -47,14 +47,14 @@ cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
     this->collision->setColor(Color3B::GREEN);
     this->collision->setAnchorPoint({0,0});
     this->collision->setVisible(false);
-    this->sprite->addChild(this->collision);
+    res->addChild(this->collision);
 
     this->melee = Sprite::createWithSpriteFrameName("pixel.png");
     this->melee->setOpacity(100);
     this->melee->setColor(Color3B::YELLOW);
     this->melee->setAnchorPoint({0,0});
     this->melee->setVisible(false);
-    this->sprite->addChild(this->melee);
+    res->addChild(this->melee);
     
     this->sight = Sprite::createWithSpriteFrameName("circle.png");
     this->sight->setAnchorPoint({0.5,0.5});
@@ -62,13 +62,13 @@ cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
     this->sight->setOpacity(80);
     this->sight->setColor(Color3B::ORANGE);
     this->sight->setVisible(false);
-    this->sprite->addChild(this->sight);
+    res->addChild(this->sight);
 #endif
 
 #if kDrawInfo
     this->lInfo = Label::createWithTTF("", "fonts/04b03.ttf", 8);
     this->lInfo->setPosition(res->getContentSize().width / 2, res->getContentSize().height);
-    this->sprite->addChild(this->lInfo);
+    res->addChild(this->lInfo);
 #endif
 
 

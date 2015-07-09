@@ -9,7 +9,12 @@ struct CollisionComponent
     enum CType {
         NONE,
         DECOR,
-        OBJECT
+        CHAR,
+        COLLECT
+    };
+    
+    enum CGroup {
+        
     };
 
     void set(cc::Rect rect);

@@ -18,18 +18,18 @@ cc::Rect SysHelper::getBounds(unsigned eid)
     return SysHelper::getBounds(ecs::get<cp::Position>(eid), ecs::get<cp::Collision>(eid));
 }
 
-unsigned SysHelper::getNearest(unsigned gid, unsigned int eid, CategoryComponent::eMood mood, float maxLength)
+unsigned SysHelper::getNearest(unsigned gid, unsigned int eid, AIComponent::eMood mood, float maxLength)
 {
     auto maxDist = maxLength * maxLength;
     auto bounds = SysHelper::getBounds(eid);
     
     float nearest = maxDist;
     unsigned targetID = 0;
-    for(auto tid : ecs::join<cp::Cat, cp::Position, cp::Collision>(gid))
+    for(auto tid : ecs::join<cp::AI, cp::Position, cp::Collision>(gid))
     {
         if (tid == eid)
             continue;
-        if (mood != ecs::get<cp::Cat>(tid).mood)
+        if (mood != ecs::get<cp::AI>(tid).mood)
             continue;
         auto bounds2 = SysHelper::getBounds(tid);
         float dist = cc::Vec2(bounds.getMidX() - bounds2.getMidX(),

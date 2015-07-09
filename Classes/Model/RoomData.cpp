@@ -11,8 +11,8 @@ RoomData::RoomData(unsigned roomIndex, RoomModel* model) :
     this->crossAreas = std::list<GateInfo>(model->crossAreas);
     
     //sleep zones
-    sleepZones[CategoryComponent::eSleep::BIRD] = std::list<SleepZone>();
-    sleepZones[CategoryComponent::eSleep::HUMAN] = std::list<SleepZone>();
+    sleepZones[AIComponent::eSleep::BIRD] = std::list<SleepZone>();
+    sleepZones[AIComponent::eSleep::HUMAN] = std::list<SleepZone>();
     for(auto pair : model->sleepZones)
     {
         for(auto bounds : pair.second)
@@ -25,7 +25,7 @@ RoomData::RoomData(unsigned roomIndex, RoomModel* model) :
     }
 }
 
-RoomData::SleepZone* RoomData::getSleepZone(CategoryComponent::eSleep cat,
+RoomData::SleepZone* RoomData::getSleepZone(AIComponent::eSleep cat,
                                             const cc::Point& pos)
 {
     SleepZone* result = nullptr;
@@ -45,7 +45,7 @@ RoomData::SleepZone* RoomData::getSleepZone(CategoryComponent::eSleep cat,
     return result;
 }
 
-void RoomData::freeSleepZone(CategoryComponent::eSleep cat, const cc::Point &pos)
+void RoomData::freeSleepZone(AIComponent::eSleep cat, const cc::Point &pos)
 {
     for(SleepZone& sleepZone : this->sleepZones[cat])
     {

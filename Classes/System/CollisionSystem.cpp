@@ -110,7 +110,7 @@ void CollisionSystem::init(RoomData* room)
 
 void CollisionSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Render, cp::Collision, cp::Position>())
+    for(auto eid : ecs.join<cp::Render, cp::Collision, cp::Position, cp::AI>())
     {
         auto& cpRender = ecs::get<cp::Render>(eid);
         
@@ -189,7 +189,7 @@ void CollisionSystem::tick(double dt)
                 cocos2d::Rect bounds2 = SysHelper::getBounds(cpPosition2, cpCollision2);
                 if (bounds2.intersectsRect(bounds))
                 {
-                    cpCollision.current = CollisionComponent::CType::OBJECT;
+                    cpCollision.current = CollisionComponent::CType::CHAR;
 #if kDrawDebug
                     ecs::get<cp::Render>(eid).collision->setColor(cc::Color3B::RED);
 #endif

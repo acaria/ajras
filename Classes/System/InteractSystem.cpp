@@ -1,5 +1,6 @@
 #include "InteractSystem.h"
 #include "SysHelper.h"
+#include "GameCtrl.h"
 
 void InteractSystem::tick(double dt)
 {
@@ -53,19 +54,38 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             //gen rewards
             auto nid = cp::entity::genID();
             
+            auto& cpCollec = ecs.add<cp::Collec>(nid);
+            cpCollec = "treasure_cup";
+            
+            auto collectable = GameCtrl::instance()->model.collectible.get(cpCollec);
+            
             auto& cpRender = ecs.add<cp::Render>(nid);
-            cpRender.setFrame("gold_6.png", ecs::get<cp::Render>(eid).sprite->getParent(), 1000000);
+            cpRender.setFrame(collectable.spriteFrameName,
+                              ecs::get<cp::Render>(eid).sprite->getParent(),
+                              1000000);
             cpRender.manualPosMode = true;
             auto size = cpRender.sprite->getContentSize();
             cpRender.sprite->setAnchorPoint({0.5,0.5});
             cpRender.sprite->setPosition(bounds.getMidX(), bounds.getMidY());
             cpRender.sprite->setOpacity(0);
-            cpRender.sprite->runAction(cc::FadeIn::create(0.3));
-            cpRender.sprite->runAction(cc::Spawn::createWithTwoActions(
+            cpRender.sprite->runAction(cc::Spawn::create(
+                cc::FadeIn::create(0.3),
                 cc::RotateBy::create(0.8, std::rand() % 1000 - 500),
                 cc::JumpBy::create(0.8, {(float)(std::rand() % 60) - 30,
-                                         (float)(std::rand() % 60) - 30}, 10, 2))
-            );
+                                         (float)(std::rand() % 60) - 30}, 10, 2),
+                NULL
+            ));
+            cpRender.sprite->runAction(cc::Sequence::create(
+                cc::DelayTime::create(0.8),
+                cc::CallFunc::create([nid](){
+                
+                }),
+                NULL
+            ));
+            
+            auto& cpCol = ecs.add<cp::Collision>(nid);
+            cpCol.set({0,0,size.width,size.height});
+            
             break;
     }
 }

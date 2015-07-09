@@ -3,8 +3,7 @@
 #include "Singleton.h"
 #include "ScreenLog.h"
 #include "TickCtrl.h"
-#include "ProfileModel.h"
-#include "BehaviourModel.h"
+#include "ModelCtrl.h"
 #include "SceneManager.h"
 #include "FloorSystemCtrl.h"
 
@@ -28,8 +27,7 @@ public:
     TickCtrl        tick;
     
     //models
-    ProfileModel    profileModel;
-    BehaviourModel  behaviourModel;
+    ModelCtrl       model;
 
     void tickUpdate(float dt);
     void scheduleUpdate(cocos2d::Node* parent);

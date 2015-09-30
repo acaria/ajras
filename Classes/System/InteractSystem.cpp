@@ -64,7 +64,6 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                               ecs::get<cp::Render>(eid).sprite->getParent(),
                               1000000);
             cpRender.manualPosMode = true;
-            auto size = cpRender.sprite->getContentSize();
             cpRender.sprite->setAnchorPoint({0.5,0.5});
             cpRender.sprite->setPosition(bounds.getMidX(), bounds.getMidY());
             cpRender.sprite->setOpacity(0);
@@ -77,14 +76,15 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             ));
             cpRender.sprite->runAction(cc::Sequence::create(
                 cc::DelayTime::create(0.8),
-                cc::CallFunc::create([nid](){
-                
+                cc::CallFunc::create([nid, this](){
+                    auto& cpRender = ecs::get<cp::Render>(nid);
+                    auto size = cpRender.sprite->getContentSize();
+                    ecs.add<cp::Collision>(nid).set({0, 0, size.width, size.height},
+                                                    CollisionCategory::collectible);
+                    ecs.add<cp::Position>(nid).set(cpRender.sprite->getPosition() - (size / 2));
                 }),
                 NULL
             ));
-            
-            auto& cpCol = ecs.add<cp::Collision>(nid);
-            cpCol.set({0,0,size.width,size.height});
             
             break;
     }

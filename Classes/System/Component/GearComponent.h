@@ -5,11 +5,11 @@
 
 struct GearComponent
 {
-    void set(std::list<ColCat> list);
+    void set(const std::list<SlotData*>& list);
 
-    std::list<SlotData> slots;
+    std::list<SlotData*> slots;
     
-    bool checkFreeSlot(CollectibleData* data);
+    bool checkFreeSlot(const CollectibleData* data);
     void addCollectible(CollectibleData* data);
 };
 

@@ -1,13 +1,16 @@
 #pragma once
 
 #include "Defines.h"
+#include "SlotData.h"
 
 using KeyCode = cocos2d::EventKeyboard::KeyCode;
 
 struct PlayerData
 {
+    ~PlayerData();
+    
     //inventory
-    unsigned nbSlots = 7;
+    std::list<SlotData*> inventory;
     
     //entity binding
     unsigned entityFocus = 0;

@@ -68,7 +68,7 @@ void RenderSystem::animate(double dt, double tickPercent)
         
         //animation
         auto animData = cpRender.getCurAnim();
-        CCASSERT(animData != nullptr, cpRender.curAnimKey.c_str());
+        //CCASSERT(animData != nullptr, cpRender.curAnimKey.c_str());
         if (animData != nullptr)
         {
             cpRender.sprite->setFlippedX(animData->flipX);

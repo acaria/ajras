@@ -9,15 +9,11 @@ struct CollisionComponent
     enum CType {
         NONE,
         DECOR,
-        CHAR,
+        OBJECT,
         COLLECT
     };
-    
-    enum CGroup {
-        
-    };
 
-    void set(cc::Rect rect);
+    void set(cc::Rect rect, CollisionCategory cat = CollisionCategory::walkable);
     void setProfile(const std::string& profileName);
     void setProfile(ProfileData* profileData);
     

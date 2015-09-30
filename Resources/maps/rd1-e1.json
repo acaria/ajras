@@ -26,15 +26,31 @@
          "draworder":"topdown",
          "height":0,
          "name":"objects",
-         "objects":[],
-         "opacity":0.300000011920929,
+         "objects":[
+                {
+                 "gid":91,
+                 "height":35,
+                 "id":1,
+                 "name":"",
+                 "properties":
+                    {
+
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":24,
+                 "x":94,
+                 "y":146
+                }],
+         "opacity":0.910000026226044,
          "type":"objectgroup",
          "visible":true,
          "width":0,
          "x":0,
          "y":0
         }],
- "nextobjectid":1,
+ "nextobjectid":3,
  "orientation":"orthogonal",
  "properties":
     {

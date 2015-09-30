@@ -9,3 +9,15 @@ CtrlKeyType PlayerData::KeyCode2KeyType(KeyCode code)
     }
     return CtrlKeyType::none;
 }
+
+PlayerData::~PlayerData()
+{
+    for(auto& slot : inventory)
+    {
+        if (slot != nullptr)
+        {
+            delete slot;
+            slot = nullptr;
+        }
+    }
+}

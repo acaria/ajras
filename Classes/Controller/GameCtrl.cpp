@@ -116,6 +116,34 @@ void GameCtrl::newSession()
     this->P1->keysDefList[CtrlKeyType::sel2] = {KeyCode::KEY_2};
     this->P1->keysDefList[CtrlKeyType::sel3] = {KeyCode::KEY_3};
     
+    //player inventory
+    unsigned invCounter = 1;
+    this->P1->inventory.push_back(new SlotData {
+        .category = ColCat::head,
+        .order = invCounter++,
+        .content = nullptr
+    });
+    this->P1->inventory.push_back(new SlotData {
+        .category = ColCat::object,
+        .order = invCounter++,
+        .content = nullptr
+    });
+    this->P1->inventory.push_back(new SlotData {
+        .category = ColCat::object,
+        .order = invCounter++,
+        .content = nullptr
+    });
+    this->P1->inventory.push_back(new SlotData {
+        .category = ColCat::object,
+        .order = invCounter++,
+        .content = nullptr
+    });
+    this->P1->inventory.push_back(new SlotData {
+        .category = ColCat::object,
+        .order = invCounter++,
+        .content = nullptr
+    });
+    
     //map ---
     this->currentMap = MapData::generate("md1-1");
     assert(currentMap);

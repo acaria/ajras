@@ -2,6 +2,7 @@
 #include "Components.h"
 #include "SysHelper.h"
 #include "RoomData.h"
+#include "GameCtrl.h"
 
 CollisionSystem::~CollisionSystem()
 {
@@ -110,6 +111,20 @@ void CollisionSystem::init(RoomData* room)
 
 void CollisionSystem::tick(double dt)
 {
+#if kDrawDebug
+    for(auto eid : ecs.join<cp::Render, cp::Collision, cp::Position>())
+    {
+        auto& cpRender = ecs::get<cp::Render>(eid);
+        auto& cpCollision = ecs::get<cp::Collision>(eid);
+        cpRender.collision->setVisible(true);
+        cpRender.collision->setColor(cc::Color3B::GREEN);
+        cpRender.collision->setPosition(cpCollision.rect.origin.x,
+                                        cpCollision.rect.origin.y);
+        cpRender.collision->setScale(cpCollision.rect.size.width,
+                                     cpCollision.rect.size.height);
+    }
+#endif
+    
     for(auto eid : ecs.join<cp::Render, cp::Collision, cp::Position, cp::AI>())
     {
         auto& cpRender = ecs::get<cp::Render>(eid);
@@ -120,15 +135,6 @@ void CollisionSystem::tick(double dt)
         auto& cpCollision = ecs::get<cp::Collision>(eid);
      
         cpCollision.current = CollisionComponent::CType::NONE;
-        
-#if kDrawDebug
-        cpRender.collision->setVisible(true);
-        cpRender.collision->setColor(cc::Color3B::GREEN);
-        cpRender.collision->setPosition(cpCollision.rect.origin.x,
-                                        cpCollision.rect.origin.y);
-        cpRender.collision->setScale(cpCollision.rect.size.width,
-                                     cpCollision.rect.size.height);
-#endif
         
         if (!ecs::has<cp::Velocity>(eid))
             continue;
@@ -189,17 +195,37 @@ void CollisionSystem::tick(double dt)
                 cocos2d::Rect bounds2 = SysHelper::getBounds(cpPosition2, cpCollision2);
                 if (bounds2.intersectsRect(bounds))
                 {
-                    cpCollision.current = CollisionComponent::CType::CHAR;
-#if kDrawDebug
-                    ecs::get<cp::Render>(eid).collision->setColor(cc::Color3B::RED);
-#endif
-
-                    auto diff = slide(bounds, bounds2);
-                    cpPosition.pos += diff;
-                    
-                    if (ecs::has<cp::Velocity>(oid))
+                    if (cpCollision2.category == CollisionCategory::collectible) //collectible
                     {
-                        cpPosition2.pos -= diff;
+                        if (ecs::has<cp::Gear>(eid) && ecs::has<cp::Collec>(oid))
+                        {
+                            auto collectible = GameCtrl::instance()->model.collectible.get(ecs::get<cp::Collec>(oid));
+                            auto& cpGear = ecs::get<cp::Gear>(eid);
+                            if (cpGear.checkFreeSlot(&collectible))
+                            {
+                                cpGear.addCollectible(new CollectibleData(collectible));
+                                
+                                
+                                ecs::get<cp::Render>(oid).sprite->removeFromParent();
+                                cp::entity::remove(oid, ecs.getID());
+                            }
+                        }
+                    }
+                    else //obstacle
+                    {
+                        cpCollision.current = CollisionComponent::CType::OBJECT;
+#if kDrawDebug
+                        ecs::get<cp::Render>(eid).collision->setColor(cc::Color3B::RED);
+#endif
+                        
+                        auto diff = slide(bounds, bounds2);
+                        cpPosition.pos += diff;
+                        
+                        if (ecs::has<cp::Velocity>(oid))
+                        {
+                            cpPosition2.pos -= diff;
+                        }
+
                     }
                 }
             }

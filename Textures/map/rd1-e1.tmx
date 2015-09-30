@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-down" width="12" height="12" tilewidth="16" tileheight="16" nextobjectid="1">
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="12" height="12" tilewidth="16" tileheight="16" nextobjectid="3">
  <tileset firstgid="1" source="../tileset/dungeon1.tsx"/>
  <tileset firstgid="87" source="../tileset/collision.tsx"/>
  <tileset firstgid="90" source="../tileset/char1.tsx"/>
@@ -299,5 +299,7 @@
    <tile gid="0"/>
   </data>
  </layer>
- <objectgroup name="objects" opacity="0.3"/>
+ <objectgroup name="objects" opacity="0.91">
+  <object id="1" gid="91" x="94" y="146" width="24" height="35"/>
+ </objectgroup>
 </map>

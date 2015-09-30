@@ -19,8 +19,8 @@ void CollisionComponent::setProfile(const std::string& profileName)
     this->setProfile(GameCtrl::instance()->model.profile.get(profileName));
 }
 
-void CollisionComponent::set(cocos2d::Rect rect)
+void CollisionComponent::set(cocos2d::Rect rect, CollisionCategory cat)
 {
     this->rect = rect;
-    this->category = CollisionCategory::walkable;
+    this->category = cat;
 }

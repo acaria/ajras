@@ -52,7 +52,7 @@ void FloorSystemCtrl::animate(double dt, double tickPercent)
     //focus entity
     if (playerFocus->entityFocus != 0 && ecs::has<cp::Render>(playerFocus->entityFocus))
     {
-        auto cpRender = ecs::get<cp::Render>(playerFocus->entityFocus);
+        auto& cpRender = ecs::get<cp::Render>(playerFocus->entityFocus);
         auto pos = this->data->rooms[this->currentRoomIndex]->position +
             cpRender.sprite->getPosition() + cpRender.sprite->getContentSize() / 2;
         this->gView->getCam()->focusTarget(pos);
@@ -356,6 +356,7 @@ void FloorSystemCtrl::start()
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Orientation>(eid, roomIndex);
     ecs::add<cp::Control>(eid, roomIndex) = playerFocus->ctrlIndex;
+    ecs::add<cp::Gear>(eid, roomIndex).set(playerFocus->inventory);
     
     auto& csHealth = ecs::add<cp::Health>(eid, roomIndex);
     csHealth.setProfile(profile);

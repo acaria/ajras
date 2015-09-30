@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 #include "CCActionTimeline.h"
 
+#include "cocostudio/CCComExtensionData.h"
+
 USING_NS_CC;
 
 NS_TIMELINE_BEGIN
@@ -197,22 +199,32 @@ void ActionTimeline::step(float delta)
     }
 
     _time += delta * _timeSpeed;
-    _currentFrame = (int)(_time / _frameInternal);
+    const float endtoffset = _time - _endFrame * _frameInternal;
 
-    stepToFrame(_currentFrame);
-
-    if(_time > _endFrame * _frameInternal)
+    if (endtoffset < _frameInternal)
     {
-        if(_lastFrameListener != nullptr)
+        _currentFrame = (int)(_time / _frameInternal);
+        stepToFrame(_currentFrame);
+        if (endtoffset >= 0 && _lastFrameListener != nullptr) // last frame 
             _lastFrameListener();
-
+    }
+    else
+    {
         _playing = _loop;
-        if(!_playing)
+        if (!_playing)
+        {
             _time = _endFrame * _frameInternal;
-        else           
+            if (_currentFrame != _endFrame)
+            {
+                _currentFrame = _endFrame;
+                stepToFrame(_currentFrame);
+                if (_lastFrameListener != nullptr)  // last frame 
+                    _lastFrameListener();
+            }
+        }
+        else
             gotoFrameAndPlay(_startFrame, _endFrame, _loop);
     }
-
 }
 
 typedef std::function<void(Node*)> tCallBack;
@@ -235,7 +247,7 @@ void ActionTimeline::startWithTarget(Node *target)
     foreachNodeDescendant(target, 
         [this, target](Node* child)
     {
-        ActionTimelineData* data = dynamic_cast<ActionTimelineData*>(child->getUserObject());
+        ComExtensionData* data = dynamic_cast<ComExtensionData*>(child->getComponent("ComExtensionData"));
 
         if(data)
         {

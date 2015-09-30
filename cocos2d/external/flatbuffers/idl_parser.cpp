@@ -1105,10 +1105,10 @@ bool Parser::Parse(const char *source, const char **include_paths,
     for (auto it = enums_.vec.begin(); it != enums_.vec.end(); ++it) {
       auto &enum_def = **it;
       if (enum_def.is_union) {
-        for (auto it2 = enum_def.vals.vec.begin();
-             it2 != enum_def.vals.vec.end();
-             ++it2) {
-          auto &val = **it2;
+        for (auto it = enum_def.vals.vec.begin();
+             it != enum_def.vals.vec.end();
+             ++it) {
+          auto &val = **it;
           if (val.struct_def && val.struct_def->fixed)
             Error("only tables can be union elements: " + val.name);
         }

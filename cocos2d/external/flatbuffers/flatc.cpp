@@ -152,9 +152,9 @@ int main(int argc, const char *argv[]) {
         proto_mode = true;
         any_generator = true;
       } else {
-        for (size_t si = 0; si < num_generators; ++si) {
-          if(opt == generators[si].opt) {
-            generator_enabled[si] = true;
+        for (size_t i = 0; i < num_generators; ++i) {
+          if(opt == generators[i].opt) {
+            generator_enabled[i] = true;
             any_generator = true;
             goto found;
           }

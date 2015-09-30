@@ -418,7 +418,7 @@ local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
     ZPOS64_T uSizeFile;
     ZPOS64_T uBackRead;
     ZPOS64_T uMaxBack=0xffff; /* maximum size of global comment */
-    ZPOS64_T v2uFound=0;
+    ZPOS64_T uPosFound=0;
 
     if (ZSEEK64(*pzlib_filefunc_def,filestream,0,ZLIB_FILEFUNC_SEEK_END) != 0)
         return 0;
@@ -457,15 +457,15 @@ local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
             if (((*(buf+i))==0x50) && ((*(buf+i+1))==0x4b) &&
                 ((*(buf+i+2))==0x05) && ((*(buf+i+3))==0x06))
             {
-                v2uFound = uReadPos+i;
+                uPosFound = uReadPos+i;
                 break;
             }
 
-        if (v2uFound!=0)
+        if (uPosFound!=0)
             break;
     }
     TRYFREE(buf);
-    return v2uFound;
+    return uPosFound;
 }
 
 
@@ -484,7 +484,7 @@ local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib
     ZPOS64_T uSizeFile;
     ZPOS64_T uBackRead;
     ZPOS64_T uMaxBack=0xffff; /* maximum size of global comment */
-    ZPOS64_T v2uFound=0;
+    ZPOS64_T uPosFound=0;
     uLong uL;
                 ZPOS64_T relativeOffset;
 
@@ -525,19 +525,19 @@ local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib
             if (((*(buf+i))==0x50) && ((*(buf+i+1))==0x4b) &&
                 ((*(buf+i+2))==0x06) && ((*(buf+i+3))==0x07))
             {
-                v2uFound = uReadPos+i;
+                uPosFound = uReadPos+i;
                 break;
             }
 
-        if (v2uFound!=0)
+        if (uPosFound!=0)
             break;
     }
     TRYFREE(buf);
-    if (v2uFound == 0)
+    if (uPosFound == 0)
         return 0;
 
     /* Zip64 end of central directory locator */
-    if (ZSEEK64(*pzlib_filefunc_def,filestream, v2uFound,ZLIB_FILEFUNC_SEEK_SET)!=0)
+    if (ZSEEK64(*pzlib_filefunc_def,filestream, uPosFound,ZLIB_FILEFUNC_SEEK_SET)!=0)
         return 0;
 
     /* the signature, already checked */

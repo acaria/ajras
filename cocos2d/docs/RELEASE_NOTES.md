@@ -1,48 +1,39 @@
-# cocos2d-x v3.4 Release Notes #
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
+- [Cocos2d-x v3.8.1 Release Notes](#cocos2d-x-v381-release-notes)
 - [Misc Information](#misc-information)
 - [Requirements](#requirements)
   - [Runtime Requirements](#runtime-requirements)
   - [Compiler Requirements](#compiler-requirements)
   - [How to run tests](#how-to-run-tests)
+    - [Cocos Console](#cocos-console)
     - [Mac OSX & iOS](#mac-osx-&-ios)
     - [Android](#android)
     - [Windows](#windows)
     - [Linux](#linux)
   - [How to start a new game](#how-to-start-a-new-game)
-- [v3.4](#v34)
-  - [Bugs fixed in v3.4](#bugs-fixed-in-v34)
-- [v3.4rc1](#v34rc1)
-  - [Highlights of v3.4rc1](#highlights-of-v34rc1)
-  - [Features in detail](#features-in-detail)
-    - [3D rendering support for 2D objects](#3d-rendering-support-for-2d-objects)
-    - [Culling is now an options by CC_USE_CULLING macro](#culling-is-now-an-options-by-cc_use_culling-macro)
-  - [Bugs fixed in v3.4rc1](#bugs-fixed-in-v34rc1)
-- [v3.4rc0](#v34rc0)
-  - [Bugs fixed in v3.4rc0](#bugs-fixed-in-v34rc0)
-- [v3.4beta0](#v34beta0)
-  - [Highlights of v3.4beta0](#highlights-of-v34beta0)
-  - [Features in detail](#features-in-detail-1)
-    - [Create Sprite3D asynchronously](#create-sprite3d-asynchronously)
-    - [Frustum culling](#frustum-culling)
-    - [Use less resources to create  ui::CheckBox and ui::Slider](#use-less-resources-to-create--uicheckbox-and-uislider)
-    - [Custom Allocators](#custom-allocators)
-      - [Default Allocator](#default-allocator)
-      - [General Allocator](#general-allocator)
-      - [Fixed Block Allocator](#fixed-block-allocator)
-      - [Pool Allocator](#pool-allocator)
-    - [Implementing Custom Allocators for Objects](#implementing-custom-allocators-for-objects)
-    - [Console (allocator command, tags, counts etc)](#console-allocator-command-tags-counts-etc)
+- [v3.8.1](#v38)
+  - [Highlights and API changes of v3.8.1](#highlights-and-api-changes-of-v381)
+  - [Download](#download)
+  - [The main features in detail:](#the-main-features-in-detail)
+    - [3D Module](#3d-module)
+    - [UI System](#ui-system)
+    - [AudioEngine](#audioengine)
+    - [FileUtils](#fileutils)
+    - [Others](#others)
+  - [Other changes](#other-changes)
+  - [New APIs](#new-apis)
+- [The Next Step](#the-next-step)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+# Cocos2d-x v3.8.1 Release Notes #
+
 # Misc Information
 
-* [Full Changelog](https://github.com/cocos2d/cocos2d-x/blob/cocos2d-x-3.4/CHANGELOG)
-* v3.0 Release Notes can be found here: [v3.0 Release Notes](https://github.com/cocos2d/cocos2d-x/blob/cocos2d-x-3.0/docs/RELEASE_NOTES.md)
+* [Full Changelog](https://github.com/cocos2d/cocos2d-x/blob/v3/CHANGELOG)
 
 # Requirements
 
@@ -52,23 +43,50 @@
 * iOS 5.0 or newer
 * OS X 10.7 or newer
 * Windows 7 or newer
-* Windows Phone 8 or newer
+* Windows Phone 8.1
+* Windows 10 UWP
 * Linux Ubuntu 14.04 or newer
+* Mordern browsers and IE 9+ (On mobile platforms, only iOS and Android 5 activated WebGL support)
 
 ## Compiler Requirements
 
 * Xcode 5.1 or newer for iOS or Mac
 * gcc 4.9 or newer for Linux
 * ndk-r10c for Android
-* Visual Studio 2012  or newer for Windows (win32)
-* Visual Studio 2012  or newer for Windows Phone 8
+* Visual Studio 2013 or newer for Windows (win32)
+* Visual Studio 2013 update4 or newer for Windows 8.1 universal Apps
+* Visual Studio 2015 RC or newer and Windows 10.0 (build 10074 or higher) for Windows 10.0 UWP Apps
 
 ## How to run tests
+
+### Cocos Console
+
+You can use [Cocos Console](www.cocos2d-x.org/wiki/Cocos2d-console) command line tool to run the test cases on almost all supported platforms.
+
+In console application:
+```
+// Enter cpp test folder
+cd tests/cpp-tests
+// Or enter js test folder
+cd tests/js-tests
+// Or enter lua test folder
+cd tests/lua-tests
+
+// Compile or run test case
+cocos compile -p ios|mac|android|win32|win8_1|metro|web -m debug|release
+cocos run -p ios|mac|android|win32|win8_1|metro|web -m debug|release
+```
+
+For example, if you want to run cpp test in release mode on Android, you can use the following command:
+
+```
+cocos run -p android -m release
+```
 
 ### Mac OSX & iOS
 
 * Enter `cocos2d-x/build` folder, open `cocos2d_test.xcodeproj`
-* Select `iOS` or `OS X` target in scheme toolbar
+* Select `cpp-tests`, `lua-tests`, `js-tests` for `iOS` or `OS X` target in scheme toolbar
 * Click `run` button
 
 ### Android
@@ -100,10 +118,11 @@ Then
 
 ### Windows
 
-* Enter `cocos2d-x/build`, and open `cocos2d-win32.vs2012.sln`
-* Select `cpp-empty-test` as running target
+* For win32 project, enter `cocos2d-x/build`, and open `cocos2d-win32.sln`
+* For win 8.1 project, enter `cocos2d-x/build`, and open `cocos2d-win8.1-universal.sln`
+* For win 10 project, enter `cocos2d-x/build`, and open `cocos2d-win10.sln`
+* Select running target
 * Click run button
-
 
 ### Linux
 
@@ -125,173 +144,386 @@ Run
 
 ## How to start a new game
 
-Please refer to this document: [ReadMe](../README.md)
-# v3.4
-##Bugs fixed in v3.4
-* C++: crash on armeabi-v7a arch device which do not support NEON instructions
-* GLProgram: crash on low end device with no more than 8 attributes support
-* New audio: game freeze if audio played two many times on android
-* Node: anchor point has no effects on rotation
-* More bugs fixed
+Use Cocos Console to create a new game:
 
-# v3.4rc1
-
-##Highlights of v3.4rc1
-* C++: added CC_USE_CULLING macro to control if enable auto culling or not
-* FileUtils::fullPathForFilename will return empty string when file can not be found
-* VertexBuffer&IndexBuffer: allow setting usage(GL_STATIC_DRAW or GL_DYNAMIC_DRAW) in create method
-* Renderer: 3D rendering support for 2d objects
-
-##Features in detail
-###3D rendering support for 2D objects
-This feature enables Sprite, Label, Particle to be rendered in 3D space by adding them as children of Sprite3D or Billboard. You can achieve effects like blob shadow, 3D particle, Visual damage number popups
-```c++
-auto billboard = Billboard::create();
-auto label = Label::create();
-label->setString("+100");
-billboard->addChild(label);
 ```
-###Culling is now an options by CC_USE_CULLING macro
-Culling is an important features in cocos2d-x v3.x, but some developer may not want to use culling when all of the scene exist in one screen. A macro `CC_USE_CULLING` in `CCConfig.h` can be used to enable or disable culling.
-
-##Bugs fixed in v3.4rc1
-* DrawNode: fix random crash because of init opengl buffer wrongly
-* DrawNode: drawPoints() can not set ponit size
-* EventDispatcher: crash if adding/removing event listeners and dispatching event in event callback function
-* GLProgramState: may cause GL_INVALID_VALUE error at start up on Android
-* LUA: 0x80000000 can not be converted by lua_tonumber correctly on some devices
-* PhysicsBody: can't get correct position in the same frame of adding PhysicsBody to PhysicsWorld
-* UI: fix crash when navigation controller is null
-
-# v3.4rc0
-##Bugs fixed in v3.4rc0
-* FileUtils::GetData() can not get data on windows
-* FileUtils::GetData() memory leaks when file size is 0 on windows
-* Crash if GLProgram log compile or link error info on windows
-* Assert error exist because of outdated uniforms and attributes in GLProgramState when app come to foreground on android
-* GL_INVALID_OPERATION error because VAO and VBO is not reset when app come to foreground on android
-* Update Luajit to v2.0.3, it fix some crash problems on windows
-* Update libcurl to new version v7.39.0
-* More bugs fixed
-
-# v3.4beta0
-
-## Highlights of v3.4beta0
-## Features in detail
-
-### Create Sprite3D asynchronously
-
-It allows to load Sprite3D in another thread so that you can process more logic in the main thread. And it notifies you using a custom callback after creating is finished.
-
-`modelPath` is the file to be loaded, `AsyncLoadSprite3DTest::asyncLoad_Callback` is the user's callback function, `userParam` is the parameter that the callback function is wanted.
-
-```c++
-Sprite3D::createAsync(modelPath, CC_CALLBACK_2(AsyncLoadSprite3DTest::asyncLoad_Callback, this), (void*)userParam);
+cocos new -l cpp|js|lua MyNewGame
 ```
 
-The callback function is called after loading Sprite3D, the callback function can be something like this,
+# v3.8.1
 
-```c++
-void AsyncLoadSprite3DTest::asyncLoad_Callback(Sprite3D* sprite, void* param)
-{
-    //sprite is the loaded sprite
-    sprite->setPosition(point);
-    addChild(sprite);
-}
-```
+## Highlights and API changes of v3.8.1
 
-### Frustum culling
+As promised, Cocos2d-x v3.8 have greatly improved the stability and API friendliness. On one side, we continue to improve 3D capacity by providing 3D physics collider, skybox background brush and key frame event callback in Animate3D. On another side, we have refined several core modules, including UI system, AudioEngine, FileUtils, Bindings Generator, etc.
 
-Frustum culling means only the stuff that is inside the frustum is sent to the graphics hardware. To find out more information, please visit [Wikipedia](http://en.wikipedia.org/wiki/Frustum). It can potentially improve the performance of the application since only the vertices that are part of the visible part of the 3D world are kept on the graphics card memory.
+Here is some highlighted improvments and API changes:
 
-Frustum culling is a property of camera, it is enabled by default. And you can use the following to enable or disable the frustum culling,
+1. Xcode 7 support
+2. 3D Module
+    - Added 3D physics collider
+    - Supported setting camera background brushes with color/depth/skybox 
+    - Added key frame event Callback in Animate3D
+    - Added light map support in Terrain
+3. UI System
+    - Reimplemented and enhanced EditBox on Android
+    - Added ScrollViewBar for displaying a scroll bar at the side of ScrollView (JSB/Lua ready)
+    - Added RadioButton widget (JSB/Lua ready)
+    - Added HANYI FullType font support
+4. AudioEngine
+    - AudioEngine supported audio preloading
+    - Bound new AudioEngine in JSB
+5. FileUtils
+    - Added a set of file writing APIs: writeStringToFile, writeDataToFile, writeValueMapToFile, writeValueVectorToFile
+6. Others
+    - Improved Bindings Generator tool
+    - Merged JSB test project into cocos2d test project
+    - framework: Support generate prebuilt libs of engine with debug mode
+    - console: Supported new portrait projects from templates
 
-```c++
-//the first parameter is enable frustum culling or not, the second means that frustum culling using near and far plan or not.
-camera->enableFrustumCulling(true, true);
-```
+## Download
 
-Note that when you can make sure that all the stuff is inside the frustum you can turn off the frustum culling.
+[Cocos2d-x v3.8.1](http://www.cocos2d-x.org/filedown/cocos2d-x-3.8.1.zip) including : C++, Lua & JS
 
-For more infomation please reffer to the cpptests/CameraTest
+## The main features in detail:
 
-### Use less resources to create  ui::CheckBox and ui::Slider
+### 3D Module
 
-Now we could use less resources to create  ui::CheckBox and ui::Slider.
+1. 3D physics collider
 
-To create an ui::CheckBox, we could simply pass the normal state box and active texture.
+    3D physics collider is a new type of physics object. It can be used as both trigger and collider. 
 
-```cpp
-CheckBox* checkBox2 = CheckBox::create("cocosui/check_box_normal.png",
-                                              "cocosui/check_box_active.png");
-```
+    Trigger is a region defined by physics shapes and  can get callback when other physics objects enter or leave. Its usage is described in the following code:
+    
+    ```cpp
+    //create a collider using colliderDes
+    Physics3DColliderDes colliderDes;
+    colliderDes.shape = Physics3DShape::createSphere(10.0f);
+    colliderDes.isTrigger = true;
+    auto collider = Physics3DCollider::create(&colliderDes);
+    auto component = Physics3DComponent::create(collider);
+    auto node = Node::create();
+    addChild(node);
+    node->addComponent(component);
 
-To create an ui::Slider, we could only pass the slider bar texture and normal ball texture.
-
-```cpp
-Slider* sliderScale9 = Slider::create("cocosui/slidbar.png", "cocosui/sliderballnormal.png");
-```
-
-If the selected state texture is missing, when user press the widget, the normal texture will scale.
-
-If the disable state texture is missing, when the widget is in disable state, we use gray shader to turn the normal state texture to gray.
-
-The original ui::Button also support the gray shader enhancement.
-
-### Custom Allocators
-
-in ccConfig.h you can control the custom allocator system with the following defines.
-
-```c++
-#define CC_ENABLE_ALLOCATOR 1
-#define CC_ENABLE_ALLOCATOR_DIAGNOSTICS CC_ENABLE_ALLOCATOR
-#define CC_ENABLE_ALLOCATOR_GLOBAL_NEW_DELETE 0
-
-#define CC_ALLOCATOR_GLOBAL cocos2d::allocator::AllocatorStrategyDefault
-#define CC_ALLOCATOR_GLOBAL_NEW_DELETE cocos2d::allocator::AllocatorStrategyGlobalSmallBlock
-```
-
-__CC_ENABLE_ALLOCATOR__ turns everything on or off. When set to 0, everything should still build, but all custom allocator code is disabled or removed. This is handled mainly through macros, but if you implement new allocator strategies, you should be aware of, and respect this preprocessor directive.
-
-__CC_ENABLE_ALLOCATOR_DIAGNOSTICS__ defaults to the same value as __CC_ENABLE_ALLOCATOR__, but setting this to 0 will disable allocator diagnostics via the control panel. Diagnostics have significant overhead, so you definitely want to disable them for production builds.
-
-__CC_ENABLE_ALLOCATOR_GLOBAL_NEW_DELETE__ enables overriding of the global __new__ and __delete__ operators. The allocator strategy used can be selected by setting the __CC_ALLOCATOR_GLOBAL_NEW_DELETE__ define.
-
-__CC_ALLOCATOR_GLOBAL__ defines the allocator strategy to use for global allocations. All memory needed by other allocators will use this global allocator, as well as the macros __CC_MALLOC__, __CC_FREE__ etc.
-
-Third party libraries that use malloc/free will continue to use the original malloc/free so their memory usage will not be tracked.
-
-Calls to new/delete from shared libraries should work ok provided the library is loaded after the allocator has initialized, which should be the case, unless you load a shared library from a static variable initialization.
-
-#### Default Allocator
-
-The default allocator wraps malloc and free and provides an allocator interface that anyone can use to allocate blocks of memory. Tracking is not currently enabled here, but can be added in the future.
-
-#### General Allocator
-
-The general allocator provides a series of fixed sized allocators from the smallest allocation size of 4 bytes up to some threshold which currently defaults to 8 Kbytes. Anything larger than this threshold will fallback to the default allocator. See fixed allocators for more details.
-
-#### Fixed Block Allocator
-
-Fixed block allocators provide a memory pool of blocks of fixed size. They are extremely fast since no searching for best fit is required, they can simply pop the first block off a list and return that. Similarly, freeing memory is also extremely fast since they just push the block on the front of the list. Memory is not actually freed, it is kept allocated and track on a free list. It will be possible to reduce the allocated memory by freeing up unused pages of memory from the list.
-
-#### Pool Allocator
-
-Implements a custom fixed block allocator for a specific type. You can override local new/delete for types that are classes or structs using __CC_USE_ALLOCATOR_POOL(pool)__. Additionally, these allocators are configurable in terms of the initial size.
-
-### Implementing Custom Allocators for Objects
-Simply add a static instance of the pool allocator to your class, and use the __CC_USE_ALLOCATOR_POOL__ macro to implement operators __new__ and __delete__ for your class.
-
-```c++
-    class SomeClass
-    {
-    public:
-
-        cocos2d::allocator::AllocatorStrategyPool<SomeClass> _allocator;
-        CC_USE_ALLOCATOR_POOL(SomeClass, _allocator);
+    collider->onTriggerEnter = [=](Physics3DObject *otherObject){
+      //some body entering
     };
-```
+    collider->onTriggerExit = [=](Physics3DObject *otherObject){
+      //some one leaving
+    }; 
+    ```
 
-### Console (allocator command, tags, counts etc)
+    Collider is similar to rigid body, it can give force to the rigid body that collides with it. However, it is static and has better performance than rigid body. It is proper to represent a static scene or objects using collider and dynamic part using rigid body. You can set colliderDes.isTrigger to false when you want to make it collider.
 
-You can connect to the running app using the console. I.e. __telnet localhost 5678__ and issue the __allocator__ command to dump out all allocator diagnostic information. One of the useful pieces of information is the highest count for pool allocators. You can plug this value back into the initial size for the allocator to preallocate this number of objects when starting, improving startup speed significantly.
+2. Camera background brushes
+
+    Different with previous versions, in v3.8, developers can choose to erase the camera’s background with 4 types of brush: none, color, depth, skybox. None brush means do nothing; Color brush erases background using given color and depth; depth brush erases background using given depth; skybox brush erases background using given skybox with 6 texture faces. The default brush is depth brush. The usage of brushes is showing below:
+
+    ```cpp
+    // Using none brush
+    _camera->setBackgroundBrush(CameraBackgroundBrush::createNoneBrush());
+    // Using depth brush, clear depth with 1.0
+    _camera->setBackgroundBrush(CameraBackgroundBrush::createDepthBrush(1.f));
+    // Using color brush, clear color is (1,0,0,1), depth is 1
+    _camera->setBackgroundBrush(CameraBackgroundBrush::createColorBrush(Color4F(1.f, 0.f, 0.f, 1.f), 1.f));
+    // SkyBox brush
+    _camera->setBackgroundBrush(CameraBackgroundBrush::createSkyboxBrush("Sprite3DTest/skybox/left.jpg", "Sprite3DTest/skybox/right.jpg","Sprite3DTest/skybox/top.jpg", "Sprite3DTest/skybox/bottom.jpg","Sprite3DTest/skybox/front.jpg", "Sprite3DTest/skybox/back.jpg"));
+    ```
+
+3. Animate3D key frame event callback
+
+    Similar to 2d AnimationFrame callback, frame event callback is supported in Animated3D now. It allows developer to set a callback to be invoked when specific frame is played. Sample code:
+
+    ```cpp
+    auto animation = Animation3D::create(“XX.c3b”);
+    auto animate = Animate3D::create(animation);
+    ValueMap valuemap0;//you can add some user data here, it can be used in the frame event callback
+    //add a callback when frame 275 is played
+    animate->setKeyFrameUserInfo(275, valuemap0);
+            
+    auto listener = EventListenerCustom::create(Animate3DDisplayedNotification, [&](EventCustom* event)
+    {
+        auto info = (Animate3D::Animate3DDisplayedEventInfo*)event->getUserData();
+        
+        //frame 275 is played, you can add some code here
+        cocos2d::log(“frame %d”, info->frame);
+    });
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(listener, -1);
+    ```
+
+4. Light map support in Terrain
+
+    Terrain with light map is supported in v3.8, which means you can add a light map texture baked from other tools to the terrain. The light map texture contains light info, so that the terrain seems to be lighted with several lights. Terrain with light map can be created like this,
+
+    ```cpp
+    //create a normal terrain as before
+    Terrain::DetailMap r(“TerrainTest/dirt.jpg”),g(“TerrainTest/Grass2.jpg”),b(“TerrainTest/road.jpg”),a(“TerrainTest/GreenSkin.jpg”);
+    Terrain::TerrainData data(“TerrainTest/heightmap16.jpg”,”TerrainTest/alphamap.png”,r,g,b,a);
+    _terrain = Terrain::create(data,Terrain::CrackFixedType::SKIRT);
+    _terrain->setLODDistance(3.2f,6.4f,9.6f);
+    _terrain->setMaxDetailMapAmount(4);
+    _terrain->setDrawWire(false);
+    //set light map for the terrain
+    _terrain->setLightMap(“TerrainTest/Lightmap.png”);
+    ```
+
+### UI System
+
+1. Reimplemented EditBox
+
+    The usage of EditBox is the same as before, but we have reimplemented it for Android platform. The use experience is highly improved, important improvements are: 
+
+    - Display cursor in EditBox
+    - Support copy, cut, paste and select actions in EditBox
+    - Support multi-line input, you should set InputMode to `ANY` to enable multi-line input
+    - EditBox won't be masked by the keyboard UI anymore
+
+2. ScrollViewBar
+    
+    In the previous versions, the ScrollView doesn't have any visual notification for the current location in view. In v3.8, we have added a scroll bar attached to the ScrollView. You could tweak the the opacity, color, width and the duration for auto hiding the scroll bar. Speical thanks to @neokim.
+
+    Usage:
+
+    ```cpp
+    ui::ScrollView* scrollView = ui::ScrollView::create();
+    scrollView->setScrollBarWidth(4);
+    scrollView->setScrollBarPositionFromCorner(Vec2(2, 2));
+    scrollView->setScrollBarColor(Color3B::WHITE);
+    this->addChild(scrollView);
+    ```
+
+3. RadioButton widget
+
+    RadioButton is a specific type of two-states button that is similar to CheckBox.
+
+    Additionally, it can be used together with RadioButtonGroup to interact with other radio buttons.
+
+    There is only one RadioButton in checked state at the same time within a RadioButtonGroup. Special thanks to @neokim who have contributed the implementation of this new widget.
+
+    Usage: 
+
+    ```cpp
+    //create a RadioButtonGroup
+    auto radioButtonGroup = RadioButtonGroup::create();
+    this->addChild(radioButtonGroup);
+
+    //create a RadioButton
+    RadioButton* radioButton1 = RadioButton::create("radio_button_off.png", "radio_button_on.png");
+    radioButton1->setPosition(Vec2(100,100);
+    this->addChild(radioButton1);
+
+    //create another RadioButton
+    RadioButton* radioButton2 = RadioButton::create("radio_button_off.png", "radio_button_on.png");
+    radioButton2->setPosition(Vec2(100,100);
+    this->addChild(radioButton2);
+
+    //add the RadioButtons into RadioButtonGroup
+    radioButtonGroup->addRadioButton(radioButton1);
+    radioButtonGroup->addRadioButton(radioButton2);
+    ```
+
+### AudioEngine
+
+1. Audio preloading
+
+    AudioEngine now supports preload audio files before playing it. For some large audio file, this feature can smooth the audio playing experience in user's games. Sample code: 
+
+    ```cpp
+    //Use it with callback
+    AudioEngine::preload("audio1.mp3",[](bool isSuccess){
+        //...
+    });
+    //Use it without callback
+    AudioEngine::preload("audio2.mp3");
+    ```
+
+2. JSB new AudioEngine
+
+    In JSB, the default audio engine was SimpleAudioEngine (renamed to cc.audioEngine). It was the old audio engine provided since v2, and it have some inconvenience like delay time, no event support, etc. So we decided to provide new AudioEngine in JSB, the API remains the same as C++ API, and its usage can be found in [its test case](https://github.com/cocos2d/cocos2d-x/blob/v3/tests/js-tests/src/NativeTest/AudioEngineTest.js).
+
+### FileUtils
+
+1. New file writing APIs
+
+    In v3.8, we have provided a bunch of file writing APIs in FileUtils. Now you can use very simple APIs to write string, binary data, value map, and value vector into a file in user's file system. Each API is demonstrated in the following sample code:
+
+    ```cpp
+    std::string writablePath = FileUtils::getInstance()->getWritablePath();
+
+    // FileUtils::writeStringToFile
+    std::string writeDataStr = "the string data will be write into a file";
+    std::string fullPath = writablePath + "writeStringTest.txt";
+    FileUtils::getInstance()->writeStringToFile(writeDataStr, fullPath.c_str());
+
+    // FileUtils::writeDataToFile
+    std::string writeDataStr = "the binary data will be write into a file";
+    Data writeData;
+    writeData.copy((unsigned char *)writeDataStr.c_str(), writeDataStr.size());
+    std::string fullPath = writablePath + "writeDataTest.txt";
+    FileUtils::getInstance()->writeDataToFile(writeData, fullPath.c_str()));
+
+    // FileUtils::writeValueMapToFile
+    std::string fullPath = writablePath + "testWriteValueMap.plist";
+    FileUtils::getInstance()->writeValueMapToFile(valueMap, fullPath.c_str());
+
+    // FileUtils::writeValueVectorToFile
+    std::string fullPath = writablePath + "testWriteValueVector.plist";
+    FileUtils::getInstance()->writeValueVectorToFile(valueVector, fullPath.c_str());
+    ```
+
+    Besides, you can retrieve the extension (in lower case) of a file with `FileUtils::getFileExtension` API.
+
+### Others
+
+1. Bindings Generator
+
+    In v3.8, we also improved our bindings generator tool, now it's even more powerful and be able to bind almost all kind of C++ APIs to script. Here is a detailed list about improvement in bindings generator.
+
+    - Supported generating auto bindings code for public member variables
+    - Avoid memory leak of non-Ref classes instance by controlling C++ object memory with JS object
+    - Made JSB classes automatically extendable if configured in classes_need_extend list
+    - Improved support for Lambda functions in JS auto bindings
+
+2. JSB test project
+
+    In v3.8, JSB test project have been merged into C++ test project. That means cocos2d_js_tests.xcodeproj, cocos2d-js-win32.sln, cocos2d-js-win8.1-universal.sln have been removed. You can find jsb test targets in cocos2d_test.xcodeproj, cocos2d-win32.sln and cocos2d-win8.1-universal.sln.
+
+3. Compile custom framework in debug mode
+
+    From v3.7, you was able to generate customized Cocos Framework from cocos2d-x. We have improved this ability in v3.8, now  you will be able to generate framework in debug mode. Here is the some documentation about it:
+
+    - [Framework compile documentation](http://www.cocos2d-x.org/wiki/Cocos_gen-libs).
+    - [How to customize Cocos Framework](http://www.cocos2d-x.org/docs/manual/studio/v4/chapter3/HowToCode/CustomizeFramework-v3.8/en)
+    - [How to generate Cocos Simulator](http://www.cocos2d-x.org/wiki/Cocos_gen-simulator)
+
+4. Portrait projects support
+
+    From v3.8, you can generate portrait oriented games with Cocos Console:
+
+    ```
+    cocos new -l cpp|lua|js --portrait MyPortraitGame
+    ```
+
+    More details can be found in [Cocos new command](http://www.cocos2d-x.org/wiki/Cocos_new) and [Cocos Console general documentation](http://www.cocos2d-x.org/wiki/Cocos2d-console)
+
+## Other changes
+
+- [NEW]           UI: Enhanced ScrollView with easing out scrolling
+- [NEW]           UI: Added PageView vertical scroll support
+- [NEW]           UI: Added PageView::JumpToPage API
+- [NEW]           UI: Added a setter for line width in DrawNode
+- [NEW]           Action: Permitted setting bitwise flags to action
+- [NEW]           Animate: Added Animate's getCurrentFrameIndex function
+- [NEW]           FileUtils: Added FileUtils::getFileExtension for getting file's extension name
+- [NEW]           Device: Added vibrate support to enable vibration for a duration
+- [NEW]           UserDefault: Supported removing key pairs from UserDefault
+- [NEW]           spine: Supported Spine runtime 2.3 (Both native and web engine)
+- [NEW]           console: Moved the framework-compile tools into cocos2d-console
+- [NEW]           network: Upgrade SocketIO support to v1.x
+
+- [REFINE]        3D: Supported composite 2D/3D scene by moving UI and camera far away
+- [REFINE]        3D: Improved Particle3D performance
+- [REFINE]        Label: Supported adding child nodes in Label
+- [REFINE]        UI: Improved Slider's precision
+- [REFINE]        UI: Refined scroll event dispatching for ScrollView
+- [REFINE]        UI: Improved event handling in TextField
+- [REFINE]        Label: Supported auto batch with bitmap font or char map
+- [REFINE]        studio: Added BlendFrame support to Skeleton Animation
+- [REFINE]        studio: Enabled blendfunc cascade to the skin of BoneNode
+- [REFINE]        utils: Made utils::captureScreen saving file in another thread to improve the performance
+- [REFINE]        3rd party: Update Nibiru SDK to 2.6
+- [REFINE]        JS: Supported new construction for 3d classes in JS
+- [REFINE]        JS: Refine performance for Cocos Studio JSON parser for 2.x
+- [REFINE]        web: Avoid re-bake the content when the parent node's position get changed
+- [REFINE]        web: Solved repeat loading same resource issue when parsing cocos studio project
+- [REFINE]        web: Optimized resources automatic loading in JSON parser
+- [REFINE]        web: Avoid cc.loader resource loading being terminated while encounter errors
+- [REFINE]        web: Suspended the video player when the browser is minimized
+
+You can also take a look at [the full changelog](https://github.com/cocos2d/cocos2d-x/blob/v3/CHANGELOG)
+
+## New APIs
+
+In the above changes, there are some new APIs introduced in v3.8, they are listed here:
+
+1. PageView vertical scroll support
+
+    ```
+    PageView* pageView = PageView::create();
+    pageView->setContentSize(Size(240.0f, 130.0f));
+    pageView->setDirection(ui::PageView::Direction::VERTICAL);
+    ```
+
+2. Setter for line width in DrawNode
+
+    ```
+    DrawNode* drawNode = DrawNode::create();
+    drawNode->setLineWidth(5.0f);
+    ```
+
+3. Bitwise flags of action
+
+    ```
+    enum Flags {
+        FRAME = 1,
+        COLOR = 2,
+        OPACITY = 4,
+        POSITION = 8,
+        SCALE = 16,
+        ROTATION = 32,
+        SKEW = 64
+    };
+
+    auto action = RepeatForever::create(Sequence::create(FadeTo::create( 0.1f, 155), TintTo::create(0.1f, 255,0,0), nullptr));
+    // Since opacity and color will be modified in this action, it can be flagged as opacity and color action
+    action->setFlags(Flags::OPACITY|Flags::COLOR);
+
+    auto action2 = RepeatForever::create(Sequence::create(MoveBy::create(0.3f, Vec2(5, 0)), nullptr));
+    // Since position will be modified in this action, it can be flagged as position action
+    action->setFlags(Flags::POSITION);
+    ```
+
+4. Get current frame index in animation
+
+    ```
+    auto action = RepeatForever::create( Animate::create(animation);
+    sprite->runAction(action);
+    sprite->scheduleOnce([=](float){
+        int index = action->getCurrentFrameIndex();
+        // ...
+    }, 1.0f, "get-current-frame");
+    
+    ```
+
+5. File's extension name getter
+
+    ```
+    std::string extension = FileUtils::getInstance()->getFileExtension("grossini.png");
+    ```
+
+6. Vibration support
+
+    ```
+    // Virate the device for 0.5 second
+    Device::vibrate(0.5f);
+    ```
+
+7. Remove key pairs from UserDefault
+
+    ```
+    // Remove value referenced by "some key"
+    UserDefault::getInstance()->deleteValueForKey("some key");
+    ```
+
+# The Next Step
+
+In v3.9, we will continue to improve our framework, several important tasks are: 
+
+1. We are about to provide a script based component system.
+2. Improve ScrollView, ListView performance in both native and web engine.
+3. Improve 2D particle system performance.
+4. Improve web engine renderer logic and performance.
+5. Support Action inheritance in JSB.
+6. Remove libcurl dependency on iOS and Android.
+
+[The v3.9 milestone tasks](https://github.com/cocos2d/cocos2d-x/milestones/v3.9) (It's still being reviewing and will be updated)

@@ -582,7 +582,7 @@ static void PVRDecompress(AMTC_BLOCK_STRUCT *pCompressedData,
     
 	int Mod, DoPT;
     
-	unsigned int v2uition;
+	unsigned int uPosition;
     
 	// local neighbourhood of blocks
 	AMTC_BLOCK_STRUCT *pBlocks[2][2];
@@ -699,11 +699,11 @@ static void PVRDecompress(AMTC_BLOCK_STRUCT *pCompressedData,
 				Result[3] = 0;
             
 			// Store the result in the output image
-			v2uition = (x+y*XDim)<<2;
-			pResultImage[v2uition+0] = (U8)Result[0];
-			pResultImage[v2uition+1] = (U8)Result[1];
-			pResultImage[v2uition+2] = (U8)Result[2];
-			pResultImage[v2uition+3] = (U8)Result[3];
+			uPosition = (x+y*XDim)<<2;
+			pResultImage[uPosition+0] = (U8)Result[0];
+			pResultImage[uPosition+1] = (U8)Result[1];
+			pResultImage[uPosition+2] = (U8)Result[2];
+			pResultImage[uPosition+3] = (U8)Result[3];
 		}
 	}
 }

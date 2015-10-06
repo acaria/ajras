@@ -42,7 +42,7 @@ void ControlSystem::tick(double dt)
         }
             
         //selection
-        if (this->entitySelection[player->ctrlIndex] != 0)
+        /*if (this->entitySelection[player->ctrlIndex] != 0)
         {
             auto tid = this->entitySelection[player->ctrlIndex];
             switch(this->view->interface->getAction())
@@ -76,17 +76,17 @@ void ControlSystem::tick(double dt)
                 case ActionMode::inventorize:
                     break;
             }
-        }
+        }*/
             
         if (this->actionSelection != ActionMode::none)
         {
             cpInput.actionMode = this->actionSelection;
             //data driver, unselect requirements
-            if (this->actionSelection == ActionMode::explore)
+            /*if (this->actionSelection == ActionMode::explore)
             {
                 ecs.del<cp::Target>(eid);
                 this->view->interface->clearTarget();
-            }
+            }*/
                 
             //gui interface
             this->view->interface->setActionMode(this->actionSelection);
@@ -194,13 +194,13 @@ void ControlSystem::onKeyPressed(KeyCode code, cocos2d::Event *event)
                 }
                 break;
             case CtrlKeyType::sel1:
-                actionSelection = ActionMode::explore;
+                actionSelection = ActionMode::team;
                 break;
             case CtrlKeyType::sel2:
-                actionSelection = ActionMode::attack;
+                actionSelection = ActionMode::inventorize;
                 break;
             case CtrlKeyType::sel3:
-                actionSelection = ActionMode::inventorize;
+                actionSelection = ActionMode::map;
                 break;
         }
         

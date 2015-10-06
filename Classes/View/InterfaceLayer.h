@@ -38,17 +38,17 @@ public:
 private:
     //consts
     const cc::Point kCursorCenter = {90.0f,90.0f};
-    const cc::Point kCursorRegion = {40.0f,40.0f};
+    const cc::Point kCursorRegion = {30.0f,30.0f};
 
     cc::ui::Scale9Sprite*   actionSelection;
     
-    cc::Sprite*                     actionExplore;
-    cc::Sprite*                     actionExploreHi;
-    std::pair<cc::Point, cc::Point> actionExplorePos;
+    cc::Sprite*                     actionTeam;
+    cc::Sprite*                     actionTeamHi;
+    std::pair<cc::Point, cc::Point> actionTeamPos;
     
-    cc::Sprite*                     actionAttack;
-    cc::Sprite*                     actionAttackHi;
-    std::pair<cc::Point, cc::Point> actionAttackPos;
+    cc::Sprite*                     actionMap;
+    cc::Sprite*                     actionMapHi;
+    std::pair<cc::Point, cc::Point> actionMapPos;
     
     cc::Sprite*                     actionInventorize;
     cc::Sprite*                     actionInventorizeHi;
@@ -63,11 +63,14 @@ private:
     cc::Sprite* targetFriend;
     bool withTarget();
     
-    cc::Sprite* cursor;
+    /*cc::Sprite* cursor;
     cc::Sprite* lArrow;
     cc::Sprite* rArrow;
     cc::Sprite* uArrow;
-    cc::Sprite* dArrow;
+    cc::Sprite* dArrow;*/
+    
+    cc::Sprite* joyStick;
+    cc::Sprite* joyBase;
     
     HealthBar* healthBar;
     

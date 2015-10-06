@@ -5,9 +5,12 @@
 void MainMenuMediator::onAddView(MainMenuScene& scene)
 {
     this->eventRegs.push_back(scene.onMenuSelect.registerObserver(
-        [](MainMenuScene::ItemTag tag) {
+        [&scene](MainMenuScene::ItemTag tag) {
             switch(tag)
             {
+                case MainMenuScene::ItemTag::INTRO:
+                    scene.goIntro();
+                    break;
                 case MainMenuScene::ItemTag::START:
                     GameCtrl::instance()->newSession();
                     break;

@@ -19,7 +19,7 @@ bool GameScene::init()
     this->canvas = cc::ui::Layout::create();
     this->canvas->setBackGroundColorType(cc::ui::HBox::BackGroundColorType::SOLID);
     this->canvas->setBackGroundColor(back->getColor());
-    this->canvas->setLayoutType(cc::ui::LayoutType::RELATIVE);
+    this->canvas->setLayoutType(cc::ui::Layout::Type::RELATIVE);
     this->canvas->setClippingEnabled(true);
     this->canvas->setPosition(kCanvasRect.origin);
     this->canvas->setSize(kCanvasRect.size);

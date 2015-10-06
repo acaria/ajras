@@ -6,15 +6,16 @@ class MainMenuScene : public BaseScene<MainMenuScene>
 public:
     virtual bool init() override;
     
+    void goIntro();
+    
     enum class ItemTag : int {
-        START = 1,
-        OPTIONS = 2,
-        CREDITS = 3,
-        QUIT = 4,
+        INTRO = 1,
+        START = 2,
+        QUIT = 3,
     };
         
     lib::Subject<void(ItemTag tag)> onMenuSelect;
         
 private:
-        void touchEvent(Ref *pSender, cc::ui::Widget::TouchEventType type);
+    void touchEvent(Ref *pSender, cc::ui::Widget::TouchEventType type);
 };

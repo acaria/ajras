@@ -11,7 +11,7 @@ struct InputComponent
     Dir         lastOrientation;
     cc::Vec2    exactOrientation;
     cc::Vec2    direction;
-    ActionMode  actionMode = ActionMode::explore;
+    ActionMode  actionMode = ActionMode::team;
     
     void disable(float duration)
     {

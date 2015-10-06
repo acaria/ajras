@@ -1,21 +1,61 @@
 #include "MainMenuScene.h"
 
+void MainMenuScene::goIntro()
+{
+    this->getEventDispatcher()->removeAllEventListeners();
+    this->onMenuSelect(ItemTag::START);
+}
+
 bool MainMenuScene::init()
 {
     if (!Base::init())
         return false;
     
-    auto bg = cc::LayerGradient::create(cc::Color4B(100, 100, 255, 255),
-                                        cc::Color4B(200, 200, 250, 255),
-                                        cc::Point(0, 1));
-    this->addChild(bg);
+    this->setColor(cc::Color3B::BLACK);
     
     cc::Size visibleSize = cc::Director::getInstance()->getVisibleSize();
     cc::Point origin = cc::Director::getInstance()->getVisibleOrigin();
     
-    auto bStart = cc::ui::Button::create();
+    auto imgLogo = cc::Sprite::createWithSpriteFrameName("logo.png");
+    imgLogo->setPosition({
+        origin.x + visibleSize.width / 2 - 20,
+        origin.y + visibleSize.height / 2 + 100
+    });
+    this->addChild(imgLogo);
+    
+    auto imgLogo2 = cc::Sprite::createWithSpriteFrameName("line.png");
+    imgLogo2->setPosition({
+        origin.x + visibleSize.width / 2 + 20,
+        origin.y + visibleSize.height / 2 - 20
+    });
+    this->addChild(imgLogo2);
+    
+    auto imgTap = cc::Sprite::createWithSpriteFrameName("taptostart.png");
+    imgTap->setPosition({
+        origin.x + visibleSize.width / 2 + 20,
+        origin.y + visibleSize.height / 2 + 20
+    });
+    this->addChild(imgTap);
+    
+    auto listener = cc::EventListenerTouchOneByOne::create();
+    listener->setSwallowTouches(true);
+    
+    listener->onTouchBegan = [](cc::Touch* touch, cc::Event* event){
+        return true;
+    };
+    
+    listener->onTouchEnded = [this](cc::Touch* touch, cc::Event* event){
+        this->onMenuSelect(ItemTag::INTRO);
+        return true;
+    };
+    
+    this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
+    
+    
+    //this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
+
+    /*auto bStart = cc::ui::Button::create();
     bStart->setTouchEnabled(true);
-    //bStart->setTitleColor(Color3B(100, 0, 0));
     bStart->setTitleFontName("fonts/NeutraText-BoldSC.otf");
     bStart->setTitleFontSize(32);
     bStart->setTitleText("Start");
@@ -83,21 +123,7 @@ bool MainMenuScene::init()
                                                origin.y + 5));
     
     this->addChild(copyInfo);
+    */
     
     return true;
-}
-
-void MainMenuScene::touchEvent(Ref *pSender, cc::ui::Widget::TouchEventType type)
-{
-    auto currentItem = static_cast<cc::ui::Button*>(pSender);
-    if (!currentItem)
-        return;
-    switch (type)
-    {
-        case cc::ui::Widget::TouchEventType::ENDED:
-            onMenuSelect(static_cast<ItemTag>(currentItem->getTag()));
-            break;
-        default:
-            break;
-    }
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#define kDrawDebug 1
-#define kDrawInfo 1
+#define kDrawDebug 0
+#define kDrawInfo 0
 
 #define kTraceBehaviours 0
 
@@ -12,6 +12,11 @@ const float kTicksPerSecond = 20;
 const float kSecondsPerTick = 1.0f / kTicksPerSecond;
 
 const int   kBlockSize = 16;
+
+static cocos2d::Size designResolutionSize = cocos2d::Size(960, 640);
+static cocos2d::Size smallResolutionSize = cocos2d::Size(480, 320);
+static cocos2d::Size mediumResolutionSize = cocos2d::Size(1024, 768);
+static cocos2d::Size largeResolutionSize = cocos2d::Size(2048, 1536);
 
 const cocos2d::Rect  kCanvasRect = {190.0f,15.0f,750.0f,600.0f};
 
@@ -26,8 +31,8 @@ enum CollisionCategory
 enum class ActionMode
 {
     none,
-    explore,
-    attack,
+    team,
+    map,
     inventorize
 };
 

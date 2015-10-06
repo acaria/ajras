@@ -343,7 +343,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                     {
                         if (ecs::has<cp::Velocity>(eid))
                             ecs::get<cp::Velocity>(eid).ratio = properties["save_ratio"].asFloat();
-                        ecs::get<cp::Input>(eid).actionMode = ActionMode::explore;
+                        //ecs::get<cp::Input>(eid).actionMode = ActionMode::explore;
                         ecs::get<cp::Render>(eid).setAnimation("idle", -1);
                         ecs::get<cp::Melee>(eid).launched = false;
                         ecs::get<cp::Melee>(eid).processed = true;
@@ -357,7 +357,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                             if (ecs::has<cp::Velocity>(eid))
                                 ecs::get<cp::Velocity>(eid).ratio = 3.0;
                             ecs::get<cp::Render>(eid).setAnimation("charge_atk", -1);
-                            ecs::get<cp::Input>(eid).actionMode = ActionMode::attack;
+                            //ecs::get<cp::Input>(eid).actionMode = ActionMode::attack;
                         }
                         else
                         {

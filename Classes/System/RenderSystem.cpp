@@ -43,10 +43,10 @@ void RenderSystem::tick(double dt)
         }
         
         //update target mode
-        if (cpInput.actionMode == ActionMode::attack)
-            cpRender.setMoveCategory("melee");
-        else
-            cpRender.setMoveCategory("walk");
+        //if (cpInput.actionMode == ActionMode::attack)
+        //    cpRender.setMoveCategory("melee");
+        //else
+        cpRender.setMoveCategory("walk");
     }
 }
 

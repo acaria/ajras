@@ -12,8 +12,9 @@ void MeleeSystem::tick(double dt)
         auto& cpInput = ecs::get<cp::Input>(eid);
         if (cpInput.disabled)
             continue;
-        if (cpInput.actionMode != ActionMode::attack)
-            continue;
+        //if (cpInput.actionMode != ActionMode::attack)
+        //    continue;
+        
         auto& cpPosition = ecs::get<cp::Position>(eid);
         auto& cpCollision = ecs::get<cp::Collision>(eid);
         auto& cpRender = ecs::get<cp::Render>(eid);

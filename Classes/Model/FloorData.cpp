@@ -1,11 +1,11 @@
-#include "MapData.h"
+#include "FloorData.h"
 #include "FloorMapping.h"
 #include "RoomModel.h"
 #include "RoomData.h"
 #include "GateMap.h"
 #include "Randgine.h"
 
-void MapData::extractInfo(const std::string &name)
+void FloorData::extractInfo(const std::string &name)
 {
     auto path = cc::FileUtils::getInstance()->fullPathForFilename(
         "maps/" + name + ".plist");
@@ -71,7 +71,7 @@ void MapData::extractInfo(const std::string &name)
         this->gateConfig);
 }
 
-std::pair<std::string, cc::Rect> MapData::subExtractGateInfo(const cc::ValueMap& el)
+std::pair<std::string, cc::Rect> FloorData::subExtractGateInfo(const cc::ValueMap& el)
 {
     CCASSERT(el.find("tile") != el.end(), "invalid gate info");
     CCASSERT(el.find("bounds") != el.end(), "invalid gate info");
@@ -90,23 +90,23 @@ std::pair<std::string, cc::Rect> MapData::subExtractGateInfo(const cc::ValueMap&
     return {tileName, gateBounds};
 }
 
-MapData::MapData(const std::string& fileName) :
+FloorData::FloorData(const std::string& fileName) :
     random(Randgine::instance()->get(Randgine::MAP))
 {
     this->floorMapping = nullptr;
     this->extractInfo(fileName);
 }
 
-const ModelVector MapData::getModels(const std::string& category)
+const ModelVector FloorData::getModels(const std::string& category)
 {
     if (!lib::hasKey(this->modelCategory, category))
         return ModelVector();
     return this->modelCategory[category];
 }
 
-MapData* MapData::generate(const std::string& filename)
+FloorData* FloorData::generate(const std::string& filename)
 {
-    MapData* map = new MapData(filename);
+    FloorData* map = new FloorData(filename);
     
     std::map<std::string, ModelVector>  modelList;
     
@@ -119,7 +119,7 @@ MapData* MapData::generate(const std::string& filename)
     }
 
     //starter
-    auto firstModel = MapData::pickModel(modelList["empty"]);
+    auto firstModel = FloorData::pickModel(modelList["empty"]);
     auto firstRoom = map->addRoom(firstModel, {
         .pos = map->floorMapping->getStartPosition(firstModel),
         .nbGates = map->startNbGates,
@@ -234,7 +234,7 @@ MapData* MapData::generate(const std::string& filename)
     return map;
 }
 
-RoomModel* MapData::pickModel(ModelVector& modelList)
+RoomModel* FloorData::pickModel(ModelVector& modelList)
 {
     auto model = modelList.front();
     modelList.erase(std::remove(modelList.begin(), modelList.end(), model),
@@ -243,7 +243,7 @@ RoomModel* MapData::pickModel(ModelVector& modelList)
     return model;
 }
 
-void MapData::computeDepth(RoomData *room)
+void FloorData::computeDepth(RoomData *room)
 {
     if (room == nullptr)
         return;
@@ -261,7 +261,7 @@ void MapData::computeDepth(RoomData *room)
     room->depth = minDepth + 1;
 }
 
-MapData::~MapData()
+FloorData::~FloorData()
 {
     //map shape
     if (this->floorMapping != nullptr)
@@ -282,7 +282,7 @@ MapData::~MapData()
     }
 }
 
-RoomData* MapData::addRoom(RoomModel* model, const RoomData::Config& config)
+RoomData* FloorData::addRoom(RoomModel* model, const RoomData::Config& config)
 {
     static unsigned roomIndex = 1;
     auto room = new RoomData(roomIndex++, model);
@@ -344,34 +344,34 @@ RoomData* MapData::addRoom(RoomModel* model, const RoomData::Config& config)
     return room;
 }
 
-void MapData::setCurIdxRoom(unsigned int roomIndex)
+void FloorData::setCurIdxRoom(unsigned int roomIndex)
 {
     CCASSERT(lib::hasKey(rooms, roomIndex), "room is missing");
     this->curIdxRoom = roomIndex;
 }
 
-unsigned MapData::getCurIdxRoom()
+unsigned FloorData::getCurIdxRoom()
 {
     return this->curIdxRoom;
 }
 
-RoomData* MapData::getRoomAt(unsigned int idx)
+RoomData* FloorData::getRoomAt(unsigned int idx)
 {
     CCASSERT(lib::hasKey(rooms, idx), "room is missing");
     return this->rooms[idx];
 }
 
-cc::Color3B MapData::getBgColor()
+cc::Color3B FloorData::getBgColor()
 {
     return this->bgColor;
 }
 
-std::vector<std::string>& MapData::getBgTiles()
+std::vector<std::string>& FloorData::getBgTiles()
 {
     return this->bgTiles;
 }
 
-const std::set<std::string>& MapData::getSriteSheets()
+const std::set<std::string>& FloorData::getSriteSheets()
 {
     return this->spriteSheets;
 }

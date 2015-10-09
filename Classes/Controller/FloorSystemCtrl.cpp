@@ -1,7 +1,7 @@
 #include "FloorSystemCtrl.h"
 #include "Components.h"
 #include "BlockInfo.h"
-#include "MapData.h"
+#include "FloorData.h"
 #include "RoomData.h"
 #include "MissionScene.h"
 #include "InterfaceLayer.h"
@@ -91,12 +91,12 @@ void FloorSystemCtrl::registerEvents(RoomSystemCtrl *ctrl)
 
 void FloorSystemCtrl::onFloorStart()
 {
-    GameCtrl::instance()->newSession();
+    GameCtrl::instance()->goToMainMenu();
 }
 
 void FloorSystemCtrl::onFloorFinish()
 {
-    GameCtrl::instance()->newSession();
+    GameCtrl::instance()->goToMainMenu();
 }
 
 void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
@@ -176,7 +176,7 @@ void FloorSystemCtrl::onHealthChanged(unsigned int roomIndex, unsigned int eid, 
     }
 }
 
-cc::Sprite* FloorSystemCtrl::displayMap(MapData *data)
+cc::Sprite* FloorSystemCtrl::displayMap(FloorData *data)
 {
     auto result = Sprite::create();
     
@@ -229,7 +229,7 @@ cc::Sprite* FloorSystemCtrl::displayMap(MapData *data)
     return result;
 }
 
-void FloorSystemCtrl::displayDebug(MissionScene *view, MapData *data)
+void FloorSystemCtrl::displayDebug(MissionScene *view, FloorData *data)
 {
     for(auto pair : data->rooms)
     {
@@ -275,7 +275,7 @@ void FloorSystemCtrl::displayDebug(MissionScene *view, MapData *data)
 
 void FloorSystemCtrl::start()
 {
-    this->playerFocus = GameCtrl::instance()->getP1();
+    this->playerFocus = GameCtrl::instance()->getData().curPlayer();
     auto camRect = data->rooms[this->currentRoomIndex]->getBounds();
     this->gView->getCam()->setTarget({camRect.getMidX(), camRect.getMidY()});
     
@@ -340,7 +340,7 @@ void FloorSystemCtrl::start()
     
     //create player
     auto eid = cp::entity::genID();
-    auto profile = GameCtrl::instance()->model.profile.get("boy");
+    auto profile = GameCtrl::instance()->getData().model.profile.get("boy");
     auto srcPos = enterGate.info.getSrcPos();
     
     auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
@@ -406,7 +406,7 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
 }
 
 void FloorSystemCtrl::load(MissionScene *gview,
-                           MapData *data)
+                           FloorData *data)
 {
     this->clear();
     this->currentRoomIndex = data->getCurIdxRoom();

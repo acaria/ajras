@@ -4,7 +4,7 @@
 #include "BehaviourModel.h"
 #include "CollectibleModel.h"
 
-struct ModelCtrl
+struct ModelFacade
 {
     ProfileModel        profile;
     BehaviourModel      behaviour;

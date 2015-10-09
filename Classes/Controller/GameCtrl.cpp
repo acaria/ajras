@@ -1,5 +1,5 @@
 #include "GameCtrl.h"
-#include "MapData.h"
+#include "FloorData.h"
 #include "MissionScene.h"
 #include "Randgine.h"
 #include "PlayerData.h"
@@ -8,7 +8,6 @@ using namespace std::placeholders;
 
 GameCtrl::GameCtrl():tick(std::bind(&GameCtrl::onTick, this, _1),
                           std::bind(&GameCtrl::onAnimate, this, _1, _2)),
-                     currentMap(nullptr), P1(nullptr),
                      scene(tick)
 
 {
@@ -18,23 +17,35 @@ GameCtrl::GameCtrl():tick(std::bind(&GameCtrl::onTick, this, _1),
 
 GameCtrl::~GameCtrl()
 {
-    this->cleanSession();
 }
 
 void GameCtrl::start()
 {
-    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-main.plist");
-    this->scene.go2MainMenu();
+    this->goToMainMenu();
 }
 
 void GameCtrl::goToMainMenu()
 {
+    this->gameData.reset();
+    
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-main.plist");
     this->scene.go2MainMenu();
 }
 
 void GameCtrl::goToMission()
 {
+    //engine ---
+    Randgine::instance()->setMaster(1);
+    
+    this->gameData.loadPlayer();
+    this->gameData.loadMission();
+    
+    for(auto ss : this->gameData.curFloor()->getSriteSheets())
+    {
+        cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-" + ss + ".plist");
+    }
+    cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-gui.plist");
+    
     this->scene.go2Mission();
 }
 
@@ -58,9 +69,9 @@ void GameCtrl::onAnimate(double dt, double tickPercent)
     scene.onAnimate(dt, tickPercent);
 }
 
-void GameCtrl::startSession(MissionScene* view)
+/*void GameCtrl::startSession(MissionScene* view)
 {
-    /*auto map = floorSystemCtrl.displayMap(this->currentMap);
+    auto map = floorSystemCtrl.displayMap(this->currentMap);
     auto currentRoom = this->currentMap->getRoomAt(this->currentMap->getCurIdxRoom());
     auto startPos = currentRoom->position * -0.1;
     map->setAnchorPoint({0,0});
@@ -68,94 +79,9 @@ void GameCtrl::startSession(MissionScene* view)
     map->setPosition(80,0);
     view->frame->addChild(map);
     return;
-    */
-}
+}*/
 
-void GameCtrl::cleanSession()
+GameData& GameCtrl::getData()
 {
-    if (this->currentMap != nullptr)
-    {
-        delete this->currentMap;
-        this->currentMap = nullptr;
-    }
-    
-    if (P1 != nullptr)
-    {
-        delete this->P1;
-        this->P1 = nullptr;
-    }
-    
-    model.profile.clear();
-}
-
-PlayerData* GameCtrl::getP1()
-{
-    return this->P1;
-}
-
-MapData* GameCtrl::getMap()
-{
-    return this->currentMap;
-}
-
-void GameCtrl::newSession()
-{
-    this->cleanSession();
-    
-    //engine ---
-    Randgine::instance()->setMaster(1);
-    
-    //player --
-    this->P1 = new PlayerData();
-    this->P1->ctrlIndex = 1;
-    this->P1->keysDefList[CtrlKeyType::left] = {KeyCode::KEY_LEFT_ARROW, KeyCode::KEY_A};
-    this->P1->keysDefList[CtrlKeyType::right] = {KeyCode::KEY_RIGHT_ARROW, KeyCode::KEY_D};
-    this->P1->keysDefList[CtrlKeyType::up] = {KeyCode::KEY_UP_ARROW, KeyCode::KEY_W};
-    this->P1->keysDefList[CtrlKeyType::down] = {KeyCode::KEY_DOWN_ARROW, KeyCode::KEY_S};
-    this->P1->keysDefList[CtrlKeyType::autoselect] = {KeyCode::KEY_SPACE};
-    this->P1->keysDefList[CtrlKeyType::sel1] = {KeyCode::KEY_1};
-    this->P1->keysDefList[CtrlKeyType::sel2] = {KeyCode::KEY_2};
-    this->P1->keysDefList[CtrlKeyType::sel3] = {KeyCode::KEY_3};
-    
-    //player inventory
-    unsigned invCounter = 1;
-    this->P1->inventory.push_back(new SlotData {
-        .category = ColCat::head,
-        .order = invCounter++,
-        .content = nullptr
-    });
-    this->P1->inventory.push_back(new SlotData {
-        .category = ColCat::object,
-        .order = invCounter++,
-        .content = nullptr
-    });
-    this->P1->inventory.push_back(new SlotData {
-        .category = ColCat::object,
-        .order = invCounter++,
-        .content = nullptr
-    });
-    this->P1->inventory.push_back(new SlotData {
-        .category = ColCat::object,
-        .order = invCounter++,
-        .content = nullptr
-    });
-    this->P1->inventory.push_back(new SlotData {
-        .category = ColCat::object,
-        .order = invCounter++,
-        .content = nullptr
-    });
-    
-    //map ---
-    this->currentMap = MapData::generate("md1-1");
-    assert(currentMap);
-    
-    //todo: loader
-    for(auto ss : this->currentMap->getSriteSheets())
-    {
-        SpriteFrameCache::getInstance()->addSpriteFramesWithFile(
-            "ss-" + ss + ".plist");
-    }
-    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-gui.plist");
-    
-    this->scene.go2Mission();
+    return this->gameData;
 }

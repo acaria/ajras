@@ -43,5 +43,5 @@ public:
 private:
     static GateInfo::GateType gessGateType(lib::v2u pos,
                                            const RoomModel& roomModel);
-    static GateInfo extractCrossArea(RoomModel& mapData, lib::v2u coord);
+    static GateInfo extractCrossArea(RoomModel& roomData, lib::v2u coord);
 };

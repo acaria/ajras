@@ -57,7 +57,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             auto& cpCollec = ecs.add<cp::Collec>(nid);
             cpCollec = "treasure_cup";
             
-            auto collectable = GameCtrl::instance()->model.collectible.get(cpCollec);
+            auto collectable = GameCtrl::instance()->getData().model.collectible.get(cpCollec);
             
             auto& cpRender = ecs.add<cp::Render>(nid);
             cpRender.setFrame(collectable.spriteFrameName,

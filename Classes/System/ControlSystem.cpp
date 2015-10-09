@@ -120,7 +120,7 @@ void ControlSystem::changeRoom(RoomData* data)
 
 void ControlSystem::init(MissionScene *gview, RoomData* data)
 {
-    this->pList.push_back(GameCtrl::instance()->getP1());
+    this->pList.push_back(GameCtrl::instance()->getData().curPlayer());
     
     this->data = data;
     this->view = gview;

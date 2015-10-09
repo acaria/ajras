@@ -1,6 +1,6 @@
 #pragma once
 
-class MapData;
+class FloorData;
 class PlayerData;
 class NodeRenderer;
 class GateMap;
@@ -16,10 +16,10 @@ public:
     FloorSystemCtrl();
     ~FloorSystemCtrl();
     
-    void load(MissionScene* view, MapData* data);
+    void load(MissionScene* view, FloorData* data);
     void start();
-    void displayDebug(MissionScene* view, MapData* data);
-    cc::Sprite* displayMap(MapData* data);
+    void displayDebug(MissionScene* view, FloorData* data);
+    cc::Sprite* displayMap(FloorData* data);
     
     void tick(double dt);
     void animate(double dt, double tickPercent);
@@ -45,7 +45,7 @@ private:
     std::map<unsigned, RoomSystemCtrl*> roomSystems;
     
     //data
-    MapData*    data;
+    FloorData*    data;
     std::map<unsigned, RoomLayer*>      roomViews;
     std::map<unsigned, NodeRenderer*>   roomPreviews;
     

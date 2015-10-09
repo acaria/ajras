@@ -11,13 +11,13 @@ using GateConfig = std::map<GateInfo::GateType, std::pair<std::string, cc::Rect>
 using ModelMap = std::map<std::string, RoomModel*>;
 using ModelVector = std::vector<RoomModel*>;
 
-class MapData
+class FloorData
 {
 public:
-    static MapData* generate(const std::string& fileName);
+    static FloorData* generate(const std::string& fileName);
 
-    MapData(const std::string& fileName);
-    ~MapData();
+    FloorData(const std::string& fileName);
+    ~FloorData();
     
     RoomData* addRoom(RoomModel* data,
                       const RoomData::Config& config);

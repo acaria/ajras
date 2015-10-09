@@ -4,7 +4,7 @@
 
 void MissionMediator::onAddView(MissionScene &scene)
 {
-    floorSystemCtrl.load(&scene, GameCtrl::instance()->getMap());
+    floorSystemCtrl.load(&scene, GameCtrl::instance()->getData().curFloor());
     floorSystemCtrl.start();
     
     this->eventRegs.push_back(scene.onEnterAfterTransition.registerObserver([](){

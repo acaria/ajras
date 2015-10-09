@@ -21,7 +21,7 @@ void RenderComponent::setProfile(const std::string &profileName,
                                  cc::Node *parent,
                                  int zOrder)
 {
-    this->setProfile(GameCtrl::instance()->model.profile.get(profileName), parent, zOrder);
+    this->setProfile(GameCtrl::instance()->getData().model.profile.get(profileName), parent, zOrder);
 }
 
 void RenderComponent::setProfile(ProfileData* profile, cc::Node *parent, int zOrder)

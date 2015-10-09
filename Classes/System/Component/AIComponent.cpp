@@ -4,14 +4,14 @@
 
 void AIComponent::setProfile(const std::string &profileName)
 {
-    this->setProfile(GameCtrl::instance()->model.profile.get(profileName));
+    this->setProfile(GameCtrl::instance()->getData().model.profile.get(profileName));
 }
 
 void AIComponent::setProfile(ProfileData* profile)
 {
     if (!profile->behaviourKey.empty())
     {
-        this->bref = GameCtrl::instance()->model.behaviour.get(profile->behaviourKey);
+        this->bref = GameCtrl::instance()->getData().model.behaviour.get(profile->behaviourKey);
     }
     
     this->mood = this->mapMood[profile->moodCategory];

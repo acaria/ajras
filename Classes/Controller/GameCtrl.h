@@ -3,12 +3,10 @@
 #include "Singleton.h"
 #include "ScreenLog.h"
 #include "TickCtrl.h"
-#include "ModelCtrl.h"
 #include "SceneManager.h"
-#include "FloorSystemCtrl.h"
-
+#include "GameData.h"
 class RoomData;
-class MapData;
+class FloorData;
 class PlayerData;
 class GameScene;
 
@@ -19,24 +17,19 @@ public:
     ~GameCtrl();
     
     void start();
-    void newSession();
-    void startSession(MissionScene* view);
 
     void goToMainMenu();
+    void goToCamp();
     void goToMission();
 
     ScreenLog       log;
 
     TickCtrl        tick;
     
-    //models
-    ModelCtrl       model;
-
     void tickUpdate(float dt);
     void scheduleUpdate(cocos2d::Node* parent);
     
-    PlayerData* getP1();
-    MapData*    getMap();
+    GameData& getData();
 
 protected:
     SceneManager    scene;
@@ -44,8 +37,6 @@ protected:
 private:
     void onTick(double dt);
     void onAnimate(double dt, double tickPercent);
-    void cleanSession();
     
-    MapData*        currentMap;
-    PlayerData*     P1;
+    GameData gameData;
 };

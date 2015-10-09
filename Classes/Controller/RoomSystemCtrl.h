@@ -13,7 +13,7 @@
 
 class RoomData;
 class RoomLayer;
-class GameScene;
+class MissionScene;
 class GateMap;
 
 class RoomSystemCtrl

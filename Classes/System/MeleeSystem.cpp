@@ -2,7 +2,7 @@
 #include "Components.h"
 #include "AnimationData.h"
 #include "GameCtrl.h"
-#include "GameScene.h"
+#include "MissionScene.h"
 #include "ControlSystem.h"
 
 void MeleeSystem::tick(double dt)

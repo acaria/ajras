@@ -1,6 +1,6 @@
 #include "SceneManager.h"
 #include "MainMenuMediator.h"
-#include "GameMediator.h"
+#include "MissionMediator.h"
 
 SceneManager::SceneManager(ScreenLog &screenLog) : screenLog(&screenLog)
 {
@@ -17,5 +17,5 @@ void SceneManager::go2MainMenu()
 
 void SceneManager::go2Game()
 {
-    this->launch<GameMediator>();
+    this->launch<MissionMediator>();
 }

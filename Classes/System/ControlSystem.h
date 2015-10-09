@@ -4,7 +4,7 @@
 #include "InterfaceLayer.h"
 #include "PlayerData.h"
 
-class GameScene;
+class MissionScene;
 class RoomData;
 
 class ControlSystem : public BaseTickSystem
@@ -14,7 +14,7 @@ public:
     ControlSystem(lib::EcsGroup& ecs);
     virtual ~ControlSystem() {}
 
-    void init(GameScene *gview, RoomData* data);
+    void init(MissionScene *gview, RoomData* data);
     void changeRoom(RoomData* data);
     
     //overrides
@@ -60,7 +60,7 @@ private:
     ActionMode                   actionSelection;
     
     RoomData *data = nullptr;
-    GameScene *view = nullptr;
+    MissionScene *view = nullptr;
     
     std::list<PlayerData*> pList;
 };

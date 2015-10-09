@@ -16,9 +16,9 @@ public:
     FloorSystemCtrl();
     ~FloorSystemCtrl();
     
-    void load(GameScene* view, MapData* data);
+    void load(MissionScene* view, MapData* data);
     void start();
-    void displayDebug(GameScene* view, MapData* data);
+    void displayDebug(MissionScene* view, MapData* data);
     cc::Sprite* displayMap(MapData* data);
     
     void tick(double dt);
@@ -50,7 +50,7 @@ private:
     std::map<unsigned, NodeRenderer*>   roomPreviews;
     
     //view
-    GameScene* gView = nullptr;
+    MissionScene* gView = nullptr;
     
     //event
     std::vector<lib::Registration> eventRegs;

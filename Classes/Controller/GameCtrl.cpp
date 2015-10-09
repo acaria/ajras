@@ -1,6 +1,6 @@
 #include "GameCtrl.h"
 #include "MapData.h"
-#include "GameScene.h"
+#include "MissionScene.h"
 #include "Randgine.h"
 #include "PlayerData.h"
 
@@ -55,7 +55,7 @@ void GameCtrl::onAnimate(double dt, double tickPercent)
     }
 }
 
-void GameCtrl::startSession(GameScene* view)
+void GameCtrl::startSession(MissionScene* view)
 {
     /*auto map = floorSystemCtrl.displayMap(this->currentMap);
     auto currentRoom = this->currentMap->getRoomAt(this->currentMap->getCurIdxRoom());

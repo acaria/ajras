@@ -4,7 +4,7 @@
 #include "Components.h"
 #include "GameCtrl.h"
 #include "CsActionInterval.h"
-#include "GameScene.h"
+#include "MissionScene.h"
 #include "HealthBar.h"
 #include "GateMap.h"
 

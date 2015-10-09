@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset name="dungeon1" tilewidth="48" tileheight="48">
+<tileset name="dungeon1" tilewidth="48" tileheight="48" tilecount="86">
  <tile id="0">
   <image width="16" height="16" source="../assets/dungeon1/floor/floor_tile_01_dark.png"/>
  </tile>

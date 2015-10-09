@@ -68,6 +68,7 @@
 
             },
          "spacing":0,
+         "tilecount":86,
          "tileheight":48,
          "tileproperties":
             {
@@ -439,6 +440,7 @@
 
             },
          "spacing":0,
+         "tilecount":3,
          "tileheight":16,
          "tileproperties":
             {
@@ -481,6 +483,7 @@
 
             },
          "spacing":0,
+         "tilecount":2,
          "tileheight":35,
          "tileproperties":
             {

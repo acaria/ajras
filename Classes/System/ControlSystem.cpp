@@ -4,7 +4,7 @@
 #include "InputComponent.h"
 #include "AIComponent.h"
 #include "RoomData.h"
-#include "GameScene.h"
+#include "MissionScene.h"
 #include "InterfaceLayer.h"
 #include "SysHelper.h"
 #include "Defines.h"
@@ -118,7 +118,7 @@ void ControlSystem::changeRoom(RoomData* data)
     this->data = data;
 }
 
-void ControlSystem::init(GameScene *gview, RoomData* data)
+void ControlSystem::init(MissionScene *gview, RoomData* data)
 {
     this->pList.push_back(GameCtrl::instance()->getP1());
     

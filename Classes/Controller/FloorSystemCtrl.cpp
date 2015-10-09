@@ -3,7 +3,7 @@
 #include "BlockInfo.h"
 #include "MapData.h"
 #include "RoomData.h"
-#include "GameScene.h"
+#include "MissionScene.h"
 #include "InterfaceLayer.h"
 #include "NodeRenderer.h"
 #include "HealthBar.h"
@@ -229,7 +229,7 @@ cc::Sprite* FloorSystemCtrl::displayMap(MapData *data)
     return result;
 }
 
-void FloorSystemCtrl::displayDebug(GameScene *view, MapData *data)
+void FloorSystemCtrl::displayDebug(MissionScene *view, MapData *data)
 {
     for(auto pair : data->rooms)
     {
@@ -405,7 +405,7 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
     }
 }
 
-void FloorSystemCtrl::load(GameScene *gview,
+void FloorSystemCtrl::load(MissionScene *gview,
                            MapData *data)
 {
     this->clear();

@@ -4,17 +4,17 @@
 
 void MainMenuMediator::onAddView(MainMenuScene& scene)
 {
-    this->eventRegs.push_back(scene.onMenuSelect.registerObserver(
-        [&scene](MainMenuScene::ItemTag tag) {
+    this->eventRegs.push_back(scene.onMenuCmd.registerObserver(
+        [&scene](MainMenuScene::CmdTag tag) {
             switch(tag)
             {
-                case MainMenuScene::ItemTag::INTRO:
+                case MainMenuScene::CmdTag::INTRO:
                     scene.goIntro();
                     break;
-                case MainMenuScene::ItemTag::START:
+                case MainMenuScene::CmdTag::START:
                     GameCtrl::instance()->newSession();
                     break;
-                case MainMenuScene::ItemTag::QUIT:
+                case MainMenuScene::CmdTag::QUIT:
                     Director::getInstance()->end();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
                     exit(0);

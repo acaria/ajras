@@ -6,14 +6,14 @@
 
 using namespace std::placeholders;
 
-GameCtrl::GameCtrl():log(), scene(log),
-                     tick(std::bind(&GameCtrl::onTick, this, _1),
+GameCtrl::GameCtrl():tick(std::bind(&GameCtrl::onTick, this, _1),
                           std::bind(&GameCtrl::onAnimate, this, _1, _2)),
-                     currentMap(nullptr), P1(nullptr)
+                     currentMap(nullptr), P1(nullptr),
+                     scene(tick)
+
 {
     log.setLevelMask(LL_DEBUG | LL_INFO | LL_TRACE | LL_WARNING | LL_ERROR | LL_FATAL);
     log.setTimeoutSeconds(15);
-    this->sessionEnabled = false;
 }
 
 GameCtrl::~GameCtrl()
@@ -23,10 +23,19 @@ GameCtrl::~GameCtrl()
 
 void GameCtrl::start()
 {
-    //todo: loader
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-main.plist");
-    
     this->scene.go2MainMenu();
+}
+
+void GameCtrl::goToMainMenu()
+{
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-main.plist");
+    this->scene.go2MainMenu();
+}
+
+void GameCtrl::goToMission()
+{
+    this->scene.go2Mission();
 }
 
 void GameCtrl::scheduleUpdate(cocos2d::Node* parent)
@@ -41,18 +50,12 @@ void GameCtrl::tickUpdate(float dt)
 
 void GameCtrl::onTick(double dt)
 {
-    if (sessionEnabled)
-    {
-        floorSystemCtrl.tick(dt);
-    }
+    scene.onTick(dt);
 }
 
 void GameCtrl::onAnimate(double dt, double tickPercent)
 {
-    if (sessionEnabled)
-    {
-        floorSystemCtrl.animate(dt, tickPercent);
-    }
+    scene.onAnimate(dt, tickPercent);
 }
 
 void GameCtrl::startSession(MissionScene* view)
@@ -66,12 +69,6 @@ void GameCtrl::startSession(MissionScene* view)
     view->frame->addChild(map);
     return;
     */
-    
-    tick.schedule(view);
-    
-    floorSystemCtrl.load(view, this->currentMap);
-    floorSystemCtrl.start();
-    this->sessionEnabled = true;
 }
 
 void GameCtrl::cleanSession()
@@ -96,9 +93,13 @@ PlayerData* GameCtrl::getP1()
     return this->P1;
 }
 
+MapData* GameCtrl::getMap()
+{
+    return this->currentMap;
+}
+
 void GameCtrl::newSession()
 {
-    this->sessionEnabled = false;
     this->cleanSession();
     
     //engine ---
@@ -156,5 +157,5 @@ void GameCtrl::newSession()
     }
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-gui.plist");
     
-    this->scene.go2Game();
+    this->scene.go2Mission();
 }

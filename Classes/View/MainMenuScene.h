@@ -8,13 +8,13 @@ public:
     
     void goIntro();
     
-    enum class ItemTag : int {
-        INTRO = 1,
-        START = 2,
-        QUIT = 3,
+    enum class CmdTag : int {
+        INTRO,
+        START,
+        QUIT,
     };
         
-    lib::Subject<void(ItemTag tag)> onMenuSelect;
+    lib::Subject<void(CmdTag tag)> onMenuCmd;
         
 private:
     void touchEvent(Ref *pSender, cc::ui::Widget::TouchEventType type);

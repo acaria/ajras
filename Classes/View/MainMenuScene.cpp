@@ -3,7 +3,7 @@
 void MainMenuScene::goIntro()
 {
     this->getEventDispatcher()->removeAllEventListeners();
-    this->onMenuSelect(ItemTag::START);
+    this->onMenuCmd(CmdTag::START);
 }
 
 bool MainMenuScene::init()
@@ -45,7 +45,7 @@ bool MainMenuScene::init()
     };
     
     listener->onTouchEnded = [this](cc::Touch* touch, cc::Event* event){
-        this->onMenuSelect(ItemTag::INTRO);
+        this->onMenuCmd(CmdTag::INTRO);
         return true;
     };
     

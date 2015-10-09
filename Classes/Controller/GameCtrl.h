@@ -22,6 +22,9 @@ public:
     void newSession();
     void startSession(MissionScene* view);
 
+    void goToMainMenu();
+    void goToMission();
+
     ScreenLog       log;
 
     TickCtrl        tick;
@@ -33,6 +36,7 @@ public:
     void scheduleUpdate(cocos2d::Node* parent);
     
     PlayerData* getP1();
+    MapData*    getMap();
 
 protected:
     SceneManager    scene;
@@ -44,7 +48,4 @@ private:
     
     MapData*        currentMap;
     PlayerData*     P1;
-    
-    FloorSystemCtrl  floorSystemCtrl;
-    bool sessionEnabled;
 };

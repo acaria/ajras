@@ -1,5 +1,6 @@
 #pragma once
 #include "ScreenLog.h"
+#include "TickCtrl.h"
 #include "BaseMediator.h"
 #include "EventScene.h"
 
@@ -8,10 +9,13 @@ USING_NS_CC;
 class SceneManager
 {
 public:
-    SceneManager(ScreenLog &log);
+    SceneManager(const TickCtrl &tickCtrl);
     ~SceneManager();
     void go2MainMenu();
-    void go2Game();
+    void go2Mission();
+    
+    void onTick(double dt);
+    void onAnimate(double dt, double tickPercent);
 
 protected:
 
@@ -23,9 +27,8 @@ protected:
         
         if (mediators.find(Mediator::ID()) == mediators.end())
             mediators[Mediator::ID()] = new Mediator();
-        auto currentMediator = static_cast<Mediator*>(mediators[Mediator::ID()]);
-        
-        auto scene = currentMediator->createView();
+        auto cMediator = static_cast<Mediator*>(mediators[Mediator::ID()]);
+        auto scene = cMediator->createView();
         assert(scene);
         
         if (currentScene)
@@ -37,15 +40,18 @@ protected:
         currentScene = scene;
         currentScene->retain();
         
-        eventRegs.push_back(scene->onEnterBeforeTransition.registerObserver([currentMediator, scene](){
-            currentMediator->triggerAddView(*scene);
+        eventRegs.push_back(scene->onEnterBeforeTransition.registerObserver([cMediator, scene, this](){
+            cMediator->triggerAddView(*scene);
+            this->tickCtrl.schedule(scene);
+            this->currentMediator = cMediator;
         }));
 
-        eventRegs.push_back(scene->onLeaveBeforeTransition.registerObserver([currentMediator, scene](){
-            currentMediator->triggerRemoveView(*scene);
+        eventRegs.push_back(scene->onLeaveBeforeTransition.registerObserver([cMediator, scene, this](){
+            cMediator->triggerRemoveView(*scene);
+            this->currentMediator = nullptr;
         }));
         
-        this->screenLog->attachToScene(scene);
+        //this->screenLog->attachToScene(scene);
         
         if (firstTime)
         {
@@ -62,8 +68,10 @@ protected:
 private:
     bool                            firstTime = true;
     std::map<size_t, BaseMediator*> mediators;
-    std::vector<lib::Registration> eventRegs;
-    EventScene*                     currentScene;
+    std::vector<lib::Registration>  eventRegs;
+    
+    EventScene*                     currentScene = nullptr;
+    BaseMediator*                   currentMediator = nullptr;
 
-    ScreenLog*                      screenLog;
+    TickCtrl                        tickCtrl;
 };

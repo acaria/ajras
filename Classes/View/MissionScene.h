@@ -11,7 +11,11 @@ public:
     virtual bool init() override;
     virtual ~MissionScene();
     
-    lib::Subject<void()> onBack;
+    enum class CmdTag : int {
+        QUIT
+    };
+    
+    lib::Subject<void(CmdTag tag)> onMenuCmd;
     
     //background
     void setBgColor(cc::Color3B bgColor);

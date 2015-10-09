@@ -14,6 +14,15 @@ public:
         this->eventRegs.clear();
     }
     
+    virtual void onTick(double dt)
+    {
+    }
+    
+    virtual void onAnimate(double dt, double tickPercent)
+    {
+    }
+
+    
 protected:
     std::vector<lib::Registration> eventRegs;
 };

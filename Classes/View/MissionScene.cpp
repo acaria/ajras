@@ -34,6 +34,24 @@ bool MissionScene::init()
     
     this->camera = new GameCamera(this->frame, kCanvasRect);
     
+    auto listener = cc::EventListenerTouchOneByOne::create();
+    //listener->setSwallowTouches(true);
+    
+    listener->onTouchBegan = [](cc::Touch* touch, cc::Event* event){
+        return true;
+    };
+    
+    listener->onTouchEnded = [this](cc::Touch* touch, cc::Event* event){
+        if (touch->getLocation().x < 15 && touch->getLocation().y > 625)
+        {
+            this->onMenuCmd(CmdTag::QUIT);
+            return true;
+        }
+        return false;
+    };
+    
+    this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
+    
     return true;
 }
 

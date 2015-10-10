@@ -3,7 +3,8 @@
 //ctors
 FloorMapping::FloorMapping(unsigned width, unsigned height, std::map<GateInfo::GateType,
              std::pair<std::string, cc::Rect>> gateConfig):
-size(width, height), random(Randgine::instance()->get(Randgine::MAP)) {
+        size(width, height),
+        random(Randgine::instance()->get(Randgine::FLOOR)) {
     this->gateConfig = gateConfig;
 }
 

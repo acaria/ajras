@@ -1,6 +1,7 @@
 #include "SceneManager.h"
 #include "MainMenuMediator.h"
 #include "MissionMediator.h"
+#include "CampMediator.h"
 
 SceneManager::SceneManager(const TickCtrl& tickCtrl) : tickCtrl(tickCtrl)
 {
@@ -18,6 +19,11 @@ void SceneManager::go2MainMenu()
 void SceneManager::go2Mission()
 {
     this->launch<MissionMediator>();
+}
+
+void SceneManager::go2Camp()
+{
+    this->launch<CampMediator>();
 }
 
 void SceneManager::onTick(double dt)

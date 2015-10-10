@@ -18,7 +18,8 @@ static cocos2d::Size smallResolutionSize = cocos2d::Size(480, 320);
 static cocos2d::Size mediumResolutionSize = cocos2d::Size(1024, 768);
 static cocos2d::Size largeResolutionSize = cocos2d::Size(2048, 1536);
 
-const cocos2d::Rect  kCanvasRect = {190.0f,15.0f,750.0f,600.0f};
+const cocos2d::Rect  kCanvasMissionRect = {190.0f,15.0f,750.0f,600.0f};
+const cocos2d::Rect  kCanvasCampRect = {190.0f,15.0f,750.0f,600.0f};
 
 enum CollisionCategory
 {

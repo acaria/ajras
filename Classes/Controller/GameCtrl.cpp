@@ -2,7 +2,6 @@
 #include "FloorData.h"
 #include "MissionScene.h"
 #include "Randgine.h"
-#include "PlayerData.h"
 
 using namespace std::placeholders;
 
@@ -22,6 +21,9 @@ GameCtrl::~GameCtrl()
 void GameCtrl::start()
 {
     this->goToMainMenu();
+    
+    Randgine::instance()->setMaster(1);
+    this->gameData.loadPlayer();
 }
 
 void GameCtrl::goToMainMenu()
@@ -32,19 +34,27 @@ void GameCtrl::goToMainMenu()
     this->scene.go2MainMenu();
 }
 
-void GameCtrl::goToMission()
+void GameCtrl::goToCamp()
 {
-    //engine ---
-    Randgine::instance()->setMaster(1);
+    this->gameData.loadCamp();
     
-    this->gameData.loadPlayer();
-    this->gameData.loadMission();
-    
-    for(auto ss : this->gameData.curFloor()->getSriteSheets())
+    for(auto ss : this->gameData.curCamp()->getSpriteSheets())
     {
         cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-" + ss + ".plist");
     }
-    cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-gui.plist");
+    
+    this->scene.go2Camp();
+}
+
+void GameCtrl::goToMission()
+{
+    this->gameData.loadMission();
+    
+    for(auto ss : this->gameData.curFloor()->getSpriteSheets())
+    {
+        cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-" + ss + ".plist");
+    }
+    cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-gui_mission.plist");
     
     this->scene.go2Mission();
 }

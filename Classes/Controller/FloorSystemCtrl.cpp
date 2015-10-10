@@ -4,7 +4,7 @@
 #include "FloorData.h"
 #include "RoomData.h"
 #include "MissionScene.h"
-#include "InterfaceLayer.h"
+#include "MissionInterfaceLayer.h"
 #include "NodeRenderer.h"
 #include "HealthBar.h"
 #include "GateMap.h"
@@ -15,7 +15,7 @@
 using namespace std::placeholders;
 
 FloorSystemCtrl::FloorSystemCtrl() : controlSystem(ecsGroup),
-                                     random(Randgine::instance()->get(Randgine::MAP)),
+                                     random(Randgine::instance()->get(Randgine::FLOOR)),
                                      playerFocus(nullptr)
 {
     

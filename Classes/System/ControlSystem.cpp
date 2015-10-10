@@ -5,7 +5,7 @@
 #include "AIComponent.h"
 #include "RoomData.h"
 #include "MissionScene.h"
-#include "InterfaceLayer.h"
+#include "MissionInterfaceLayer.h"
 #include "SysHelper.h"
 #include "Defines.h"
 
@@ -260,8 +260,8 @@ void ControlSystem::onMouseDown(cocos2d::Event *event)
         data->getBounds().getMinY() + cameraPos.y
     };
     
-    cc::Vec2 pos = {e->getCursorX() - roomPos.x - kCanvasRect.origin.x,
-        e->getCursorY() - roomPos.y - kCanvasRect.origin.y};
+    cc::Vec2 pos = {e->getCursorX() - roomPos.x - kCanvasMissionRect.origin.x,
+        e->getCursorY() - roomPos.y - kCanvasMissionRect.origin.y};
 }
 
 void ControlSystem::onMouseScroll(cocos2d::Event *event)
@@ -279,7 +279,7 @@ void ControlSystem::onTouchBegan(const std::vector<cc::Touch*>& touches, cocos2d
         
             auto touchPos = touch->getLocation();
         
-            if (kCanvasRect.containsPoint(touchPos)) // frame zone
+            if (kCanvasMissionRect.containsPoint(touchPos)) // frame zone
             {
                 if (this->cameraID.size() < 2)
                 {
@@ -296,8 +296,8 @@ void ControlSystem::onTouchBegan(const std::vector<cc::Touch*>& touches, cocos2d
                     data->getBounds().getMinY() + cameraPos.y
                 };
         
-                cc::Vec2 pos = {touchPos.x - roomPos.x - kCanvasRect.origin.x,
-                        touchPos.y - roomPos.y - kCanvasRect.origin.y};
+                cc::Vec2 pos = {touchPos.x - roomPos.x - kCanvasMissionRect.origin.x,
+                        touchPos.y - roomPos.y - kCanvasMissionRect.origin.y};
 
                 for(auto eid : ecs.join<cp::Position, cp::Collision, cp::Render>())
                 {

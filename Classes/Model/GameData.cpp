@@ -1,7 +1,5 @@
 #include "GameData.h"
 #include "Defines.h"
-#include "PlayerData.h"
-#include "FloorData.h"
 
 void GameData::loadPlayer()
 {
@@ -51,7 +49,11 @@ void GameData::loadPlayer()
 
 void GameData::loadCamp()
 {
+    if (this->camp != nullptr)
+        delete this->camp;
     
+    this->camp = CampData::load("camp1");
+    assert(camp);
 }
 
 void GameData::loadMission()
@@ -59,7 +61,6 @@ void GameData::loadMission()
     if (this->floor != nullptr)
         delete this->floor;
 
-    //map ---
     this->floor = FloorData::generate("fd1-1");
     assert(floor);
 }
@@ -83,6 +84,12 @@ void GameData::reset()
         delete player;
         player = nullptr;
     }
+    
+    if(this->camp != nullptr)
+    {
+        delete camp;
+        camp = nullptr;
+    }
 }
 
 GameData::~GameData()
@@ -98,4 +105,9 @@ PlayerData* GameData::curPlayer()
 FloorData* GameData::curFloor()
 {
     return floor;
+}
+
+CampData* GameData::curCamp()
+{
+    return camp;
 }

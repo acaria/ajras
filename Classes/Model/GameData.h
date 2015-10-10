@@ -1,9 +1,9 @@
 #pragma once
 
 #include "ModelFacade.h"
-
-class PlayerData;
-class FloorData;
+#include "CampData.h"
+#include "PlayerData.h"
+#include "FloorData.h"
 
 class GameData
 {
@@ -16,12 +16,14 @@ public:
     void reset();
     
     PlayerData* curPlayer();
-    FloorData* curFloor();
+    FloorData*  curFloor();
+    CampData*   curCamp();
     
     ModelFacade model;
     
 private:
 //dynamics
     PlayerData* player = nullptr;
-    FloorData* floor = nullptr;
+    FloorData*  floor = nullptr;
+    CampData*   camp = nullptr;
 };

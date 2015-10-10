@@ -91,7 +91,7 @@ std::pair<std::string, cc::Rect> FloorData::subExtractGateInfo(const cc::ValueMa
 }
 
 FloorData::FloorData(const std::string& fileName) :
-    random(Randgine::instance()->get(Randgine::MAP))
+    random(Randgine::instance()->get(Randgine::FLOOR))
 {
     this->floorMapping = nullptr;
     this->extractInfo(fileName);
@@ -371,7 +371,7 @@ std::vector<std::string>& FloorData::getBgTiles()
     return this->bgTiles;
 }
 
-const std::set<std::string>& FloorData::getSriteSheets()
+const std::set<std::string>& FloorData::getSpriteSheets()
 {
     return this->spriteSheets;
 }

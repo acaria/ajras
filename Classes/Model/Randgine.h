@@ -10,9 +10,9 @@ public:
     
     enum CAT
     {
-        MAP,
+        FLOOR,
+        CAMP,
         AI,
-        
         _SIZE
     };
     

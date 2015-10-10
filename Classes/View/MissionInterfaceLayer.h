@@ -5,15 +5,14 @@
 class HealthBar;
 class InventoryPanel;
 
-class InterfaceLayer : public cc::Layer
+class MissionInterfaceLayer : public cc::Layer
 {
 public:
  
-    static InterfaceLayer* create();
+    static MissionInterfaceLayer* create();
 
-    InterfaceLayer();
-    
-    virtual ~InterfaceLayer();
+    MissionInterfaceLayer();
+    virtual ~MissionInterfaceLayer();
     
     virtual bool init() override;
     void        setTargetID(unsigned eid,
@@ -62,12 +61,6 @@ private:
     cc::Sprite* targetEnemy;
     cc::Sprite* targetFriend;
     bool withTarget();
-    
-    /*cc::Sprite* cursor;
-    cc::Sprite* lArrow;
-    cc::Sprite* rArrow;
-    cc::Sprite* uArrow;
-    cc::Sprite* dArrow;*/
     
     cc::Sprite* joyStick;
     cc::Sprite* joyBase;

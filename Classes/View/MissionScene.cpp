@@ -1,5 +1,5 @@
 #include "MissionScene.h"
-#include "InterfaceLayer.h"
+#include "MissionInterfaceLayer.h"
 #include "Defines.h"
 
 MissionScene::~MissionScene()
@@ -21,18 +21,18 @@ bool MissionScene::init()
     this->canvas->setBackGroundColor(back->getColor());
     this->canvas->setLayoutType(cc::ui::Layout::Type::RELATIVE);
     this->canvas->setClippingEnabled(true);
-    this->canvas->setPosition(kCanvasRect.origin);
-    this->canvas->setSize(kCanvasRect.size);
+    this->canvas->setPosition(kCanvasMissionRect.origin);
+    this->canvas->setSize(kCanvasMissionRect.size);
     this->addChild(canvas);
     
     this->frame = cc::Layer::create();
     this->frame->setAnchorPoint({0,0});
     this->canvas->addChild(this->frame);
     
-    this->interface = InterfaceLayer::create();
+    this->interface = MissionInterfaceLayer::create();
     this->addChild(interface);
     
-    this->camera = new GameCamera(this->frame, kCanvasRect);
+    this->camera = new GameCamera(this->frame, kCanvasMissionRect);
     
     auto listener = cc::EventListenerTouchOneByOne::create();
     //listener->setSwallowTouches(true);

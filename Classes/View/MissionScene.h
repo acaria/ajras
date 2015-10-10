@@ -1,6 +1,6 @@
 #pragma once
 
-#include "InterfaceLayer.h"
+#include "MissionInterfaceLayer.h"
 #include "BaseScene.h"
 #include "Event.h"
 #include "GameCamera.h"
@@ -20,10 +20,7 @@ public:
     //background
     void setBgColor(cc::Color3B bgColor);
     
-    InterfaceLayer* interface = nullptr;
-    
-    //touch event?
-    void touchEvent(Ref *pSender, cc::ui::TouchEventType type);
+    MissionInterfaceLayer* interface = nullptr;
     
     cc::Layer* getFrame();
     GameCamera* getCam();

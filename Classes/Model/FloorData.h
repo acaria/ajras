@@ -24,7 +24,7 @@ public:
     void setCurIdxRoom(unsigned roomIndex);
     
     RoomData*                       getRoomAt(unsigned idx);
-    const std::set<std::string>&    getSriteSheets();
+    const std::set<std::string>&    getSpriteSheets();
     std::map<unsigned, RoomData*>   rooms;
     
     FloorMapping*                   floorMapping;
@@ -33,7 +33,6 @@ public:
     unsigned                        getCurIdxRoom();
     cc::Color3B                     getBgColor();
     std::vector<std::string>&       getBgTiles();
-    lib::Random&                    getRand();
     
 private:
     void                            extractInfo(const std::string& name);

@@ -1,11 +1,11 @@
-#include "InterfaceLayer.h"
+#include "MissionInterfaceLayer.h"
 #include "Components.h"
 #include "HealthBar.h"
 #include "InventoryPanel.h"
 
-InterfaceLayer * InterfaceLayer::create()
+MissionInterfaceLayer * MissionInterfaceLayer::create()
 {
-    InterfaceLayer * layer = new (std::nothrow) InterfaceLayer();
+    MissionInterfaceLayer * layer = new (std::nothrow) MissionInterfaceLayer();
     if(layer && layer->init())
     {
         layer->autorelease();
@@ -15,7 +15,7 @@ InterfaceLayer * InterfaceLayer::create()
     return nullptr;
 }
 
-InterfaceLayer::InterfaceLayer()
+MissionInterfaceLayer::MissionInterfaceLayer()
 {
     //init action positions
     actionTeamPos = {
@@ -34,23 +34,23 @@ InterfaceLayer::InterfaceLayer()
     };
 }
 
-InterfaceLayer::~InterfaceLayer()
+MissionInterfaceLayer::~MissionInterfaceLayer()
 {
     this->targetEnemy->release();
     this->targetFriend->release();
 }
 
-HealthBar* InterfaceLayer::getHealthBar()
+HealthBar* MissionInterfaceLayer::getHealthBar()
 {
     return this->healthBar;
 }
 
-InventoryPanel* InterfaceLayer::getInventoryPanel()
+InventoryPanel* MissionInterfaceLayer::getInventoryPanel()
 {
     return this->inventoryPanel;
 }
 
-void InterfaceLayer::setTargetID(unsigned eid, bool friendly, cc::Sprite* container, cc::Point pos)
+void MissionInterfaceLayer::setTargetID(unsigned eid, bool friendly, cc::Sprite* container, cc::Point pos)
 {
     this->targetEnemy->removeFromParentAndCleanup(false);
     this->targetFriend->removeFromParentAndCleanup(false);
@@ -66,7 +66,7 @@ void InterfaceLayer::setTargetID(unsigned eid, bool friendly, cc::Sprite* contai
     this->curTargetEntityID = eid;
 }
 
-void InterfaceLayer::unsetTargetID(unsigned int eid)
+void MissionInterfaceLayer::unsetTargetID(unsigned int eid)
 {
     if (eid == this->curTargetEntityID)
     {
@@ -74,7 +74,7 @@ void InterfaceLayer::unsetTargetID(unsigned int eid)
     }
 }
 
-cc::Vec2 InterfaceLayer::setJoystick(cc::Point pos)
+cc::Vec2 MissionInterfaceLayer::setJoystick(cc::Point pos)
 {
     cc::Vec2 result = {
         (pos.x - kCursorCenter.x) / kCursorRegion.x,
@@ -95,14 +95,14 @@ cc::Vec2 InterfaceLayer::setJoystick(cc::Point pos)
     return result;
 }
 
-void InterfaceLayer::clearJoystick()
+void MissionInterfaceLayer::clearJoystick()
 {
     this->joyStick->setRotation(0);
     this->joyStick->setScaleX(1.0);
     this->joyStick->setPosition(kCursorCenter);
 }
 
-cc::Rect InterfaceLayer::getActionBounds()
+cc::Rect MissionInterfaceLayer::getActionBounds()
 {
     return cc::Rect(this->actionSelection->getPosition().x,
                     this->actionSelection->getPosition().y,
@@ -110,19 +110,19 @@ cc::Rect InterfaceLayer::getActionBounds()
                     this->actionSelection->getContentSize().height);
 }
 
-void InterfaceLayer::clearTarget()
+void MissionInterfaceLayer::clearTarget()
 {
     this->targetEnemy->removeFromParentAndCleanup(false);
     this->targetFriend->removeFromParentAndCleanup(false);
     this->curTargetEntityID = 0;
 }
 
-bool InterfaceLayer::withTarget()
+bool MissionInterfaceLayer::withTarget()
 {
     return this->curTargetEntityID != 0;
 }
 
-void InterfaceLayer::setActionPanel(ActionMode action)
+void MissionInterfaceLayer::setActionPanel(ActionMode action)
 {
     if (action == currentAction)
         return; //same
@@ -146,7 +146,7 @@ void InterfaceLayer::setActionPanel(ActionMode action)
     }
 }
 
-void InterfaceLayer::setActionMode(ActionMode action)
+void MissionInterfaceLayer::setActionMode(ActionMode action)
 {
     if (action == currentAction)
         return; //same
@@ -270,12 +270,12 @@ void InterfaceLayer::setActionMode(ActionMode action)
     this->currentAction = action;
 }
 
-ActionMode InterfaceLayer::getAction()
+ActionMode MissionInterfaceLayer::getAction()
 {
     return currentAction;
 }
 
-ActionMode InterfaceLayer::getNextAction()
+ActionMode MissionInterfaceLayer::getNextAction()
 {
     if (currentAction == ActionMode::map)
         return ActionMode::team;
@@ -284,7 +284,7 @@ ActionMode InterfaceLayer::getNextAction()
     return ActionMode::map;
 }
 
-ActionMode InterfaceLayer::getPrevAction()
+ActionMode MissionInterfaceLayer::getPrevAction()
 {
     if (currentAction == ActionMode::inventorize)
         return ActionMode::team;
@@ -293,7 +293,7 @@ ActionMode InterfaceLayer::getPrevAction()
     return ActionMode::map;
 }
 
-bool InterfaceLayer::init()
+bool MissionInterfaceLayer::init()
 {
     if (!Layer::init())
         return false;
@@ -342,8 +342,8 @@ bool InterfaceLayer::init()
 
     auto borders = cc::ui::Scale9Sprite::createWithSpriteFrameName("main_frame.png");
     borders->setAnchorPoint({0,0});
-    borders->setPosition(kCanvasRect.origin - cc::Point(10.0f,10.0f));
-    borders->setContentSize(kCanvasRect.size + cc::Size(20.0f,20.0f));
+    borders->setPosition(kCanvasMissionRect.origin - cc::Point(10.0f,10.0f));
+    borders->setContentSize(kCanvasMissionRect.size + cc::Size(20.0f,20.0f));
     this->addChild(borders);
     
     this->healthBar = HealthBar::create("bar", "health_full", "health_empty");

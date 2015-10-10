@@ -13,6 +13,7 @@ public:
     ~SceneManager();
     void go2MainMenu();
     void go2Mission();
+    void go2Camp();
     
     void onTick(double dt);
     void onAnimate(double dt, double tickPercent);

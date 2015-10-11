@@ -1,11 +1,11 @@
-#include "MissionInterfaceLayer.h"
+#include "MissionInterface.h"
 #include "Dir.h"
 
 using KeyCode = cocos2d::EventKeyboard::KeyCode;
 
-MissionInterfaceLayer * MissionInterfaceLayer::create()
+MissionInterface * MissionInterface::create()
 {
-    MissionInterfaceLayer * layer = new (std::nothrow) MissionInterfaceLayer();
+    MissionInterface * layer = new (std::nothrow) MissionInterface();
     if(layer && layer->init())
     {
         layer->autorelease();
@@ -15,7 +15,7 @@ MissionInterfaceLayer * MissionInterfaceLayer::create()
     return nullptr;
 }
 
-MissionInterfaceLayer::MissionInterfaceLayer()
+MissionInterface::MissionInterface()
 {
     //init action positions
     actionTeamPos = {
@@ -34,35 +34,35 @@ MissionInterfaceLayer::MissionInterfaceLayer()
     };
 }
 
-MissionInterfaceLayer::~MissionInterfaceLayer()
+MissionInterface::~MissionInterface()
 {
     this->targetEnemy->release();
     this->targetFriend->release();
 }
 
-void MissionInterfaceLayer::registerPlayer(unsigned playerIndex,
+void MissionInterface::registerPlayer(unsigned playerIndex,
     std::function<CtrlKeyType(KeyCode)> onKeyCode2KeyType)
 {
     this->playerIndex = playerIndex;
     this->onKeyCode2KeyType = onKeyCode2KeyType;
 }
 
-HealthBar* MissionInterfaceLayer::getHealthBar()
+HealthBar* MissionInterface::getHealthBar()
 {
     return this->healthBar;
 }
 
-StickControl* MissionInterfaceLayer::getStick()
+StickControl* MissionInterface::getStick()
 {
     return this->stick;
 }
 
-InventoryPanel* MissionInterfaceLayer::getInventoryPanel()
+InventoryPanel* MissionInterface::getInventoryPanel()
 {
     return this->inventoryPanel;
 }
 
-void MissionInterfaceLayer::setTargetID(unsigned eid, bool friendly, cc::Sprite* container, cc::Point pos)
+void MissionInterface::setTargetID(unsigned eid, bool friendly, cc::Sprite* container, cc::Point pos)
 {
     this->targetEnemy->removeFromParentAndCleanup(false);
     this->targetFriend->removeFromParentAndCleanup(false);
@@ -78,7 +78,7 @@ void MissionInterfaceLayer::setTargetID(unsigned eid, bool friendly, cc::Sprite*
     this->curTargetEntityID = eid;
 }
 
-void MissionInterfaceLayer::unsetTargetID(unsigned int eid)
+void MissionInterface::unsetTargetID(unsigned int eid)
 {
     if (eid == this->curTargetEntityID)
     {
@@ -86,7 +86,7 @@ void MissionInterfaceLayer::unsetTargetID(unsigned int eid)
     }
 }
 
-cc::Rect MissionInterfaceLayer::getActionBounds()
+cc::Rect MissionInterface::getActionBounds()
 {
     return cc::Rect(this->actionSelection->getPosition().x,
                     this->actionSelection->getPosition().y,
@@ -94,19 +94,19 @@ cc::Rect MissionInterfaceLayer::getActionBounds()
                     this->actionSelection->getContentSize().height);
 }
 
-void MissionInterfaceLayer::clearTarget()
+void MissionInterface::clearTarget()
 {
     this->targetEnemy->removeFromParentAndCleanup(false);
     this->targetFriend->removeFromParentAndCleanup(false);
     this->curTargetEntityID = 0;
 }
 
-bool MissionInterfaceLayer::withTarget()
+bool MissionInterface::withTarget()
 {
     return this->curTargetEntityID != 0;
 }
 
-void MissionInterfaceLayer::setActionPanel(ActionMode action)
+void MissionInterface::setActionPanel(ActionMode action)
 {
     if (action == currentAction)
         return; //same
@@ -130,7 +130,7 @@ void MissionInterfaceLayer::setActionPanel(ActionMode action)
     }
 }
 
-void MissionInterfaceLayer::setActionMode(ActionMode action)
+void MissionInterface::setActionMode(ActionMode action)
 {
     if (action == currentAction)
         return; //same
@@ -255,12 +255,12 @@ void MissionInterfaceLayer::setActionMode(ActionMode action)
     this->currentAction = action;
 }
 
-ActionMode MissionInterfaceLayer::getAction()
+ActionMode MissionInterface::getAction()
 {
     return currentAction;
 }
 
-ActionMode MissionInterfaceLayer::getNextAction()
+ActionMode MissionInterface::getNextAction()
 {
     if (currentAction == ActionMode::map)
         return ActionMode::team;
@@ -269,7 +269,7 @@ ActionMode MissionInterfaceLayer::getNextAction()
     return ActionMode::map;
 }
 
-ActionMode MissionInterfaceLayer::getPrevAction()
+ActionMode MissionInterface::getPrevAction()
 {
     if (currentAction == ActionMode::inventorize)
         return ActionMode::team;
@@ -278,9 +278,9 @@ ActionMode MissionInterfaceLayer::getPrevAction()
     return ActionMode::map;
 }
 
-bool MissionInterfaceLayer::init()
+bool MissionInterface::init()
 {
-    if (!Layer::init())
+    if (!Node::init())
         return false;
     this->targetEnemy = cc::Sprite::createWithSpriteFrameName("target_e.png");
     this->targetEnemy->setAnchorPoint({0,0});
@@ -421,7 +421,26 @@ bool MissionInterfaceLayer::init()
         this->onKeyReleaseAction(this->playerIndex, toDel);
     };
     
+    auto tListener = cc::EventListenerTouchOneByOne::create();
+    tListener->setSwallowTouches(false);
+    
+    tListener->onTouchBegan = [this](cc::Touch* touch, cc::Event* event) {
+        if (this->getActionBounds().containsPoint(touch->getLocation()))
+            return true;
+        return false;
+    };
+    
+    tListener->onTouchEnded = [this](cc::Touch* touch, cc::Event* event) {
+        auto diff = touch->getLocation() - touch->getStartLocation();
+
+        if (diff.x < - 40)
+            this->setActionMode(this->getPrevAction());
+        else if (diff.x > 40)
+            this->setActionMode(this->getNextAction());
+    };
+    
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(kListener, this);
+    this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(tListener, this);
     
     return true;
 }

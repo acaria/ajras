@@ -4,7 +4,7 @@
 #include "FloorData.h"
 #include "RoomData.h"
 #include "MissionScene.h"
-#include "MissionInterfaceLayer.h"
+#include "MissionInterface.h"
 #include "NodeRenderer.h"
 #include "HealthBar.h"
 #include "GateMap.h"

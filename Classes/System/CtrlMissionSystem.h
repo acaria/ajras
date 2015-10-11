@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseTickSystem.h"
 #include "ECSGroup.h"
-#include "MissionInterfaceLayer.h"
+#include "MissionInterface.h"
 #include "PlayerData.h"
 
 class RoomData;
@@ -34,16 +34,10 @@ private:
     
     void clearReleased(unsigned controlIndex);
     
-    //internal methods
-    static cc::Rect computeRect(cc::Point p1, cc::Point p2);
-    
     //control input
     std::map<unsigned, unsigned> curDirPressed;
     std::map<unsigned, unsigned> curDirReleased;
     std::map<unsigned, unsigned> preDirPressed;
-    
-    //std::map<int, cc::Point>     cameraID;
-    
     
     std::map<unsigned, int>      joyID;
     std::map<unsigned, cc::Vec2> joyPos;

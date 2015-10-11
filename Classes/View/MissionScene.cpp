@@ -1,5 +1,5 @@
 #include "MissionScene.h"
-#include "MissionInterfaceLayer.h"
+#include "MissionInterface.h"
 #include "Defines.h"
 
 MissionScene::~MissionScene()
@@ -29,7 +29,7 @@ bool MissionScene::init()
     this->frame->setAnchorPoint({0,0});
     this->canvas->addChild(this->frame);
     
-    this->interface = MissionInterfaceLayer::create();
+    this->interface = MissionInterface::create();
     this->addChild(interface);
     
     this->camera = new GameCamera(this->frame, kCanvasMissionRect);

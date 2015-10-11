@@ -2,7 +2,7 @@
 
 #include "NodeRenderer.h"
 
-struct RoomLayer : public cc::Layer
+struct RoomLayer : public cc::Node
 {
     static RoomLayer* create()
     {
@@ -18,7 +18,7 @@ struct RoomLayer : public cc::Layer
     
     virtual bool init() override
     {
-        if (!Layer::init())
+        if (!Node::init())
             return false;
     
         this->bg = cc::Layer::create();

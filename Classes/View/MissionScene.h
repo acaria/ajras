@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MissionInterfaceLayer.h"
+#include "MissionInterface.h"
 #include "BaseScene.h"
 #include "Event.h"
 #include "GameCamera.h"
@@ -20,7 +20,7 @@ public:
     //background
     void setBgColor(cc::Color3B bgColor);
     
-    MissionInterfaceLayer* interface = nullptr;
+    MissionInterface* interface = nullptr;
     
     cc::Layer* getFrame();
     GameCamera* getCam();

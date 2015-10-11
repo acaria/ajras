@@ -8,14 +8,14 @@
 
 using KeyCode = cocos2d::EventKeyboard::KeyCode;
 
-class MissionInterfaceLayer : public cc::Layer
+class MissionInterface : public cc::Node
 {
 public:
  
-    static MissionInterfaceLayer* create();
+    static MissionInterface* create();
 
-    MissionInterfaceLayer();
-    virtual ~MissionInterfaceLayer();
+    MissionInterface();
+    virtual ~MissionInterface();
     
     virtual bool init() override;
     

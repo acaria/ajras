@@ -17,5 +17,6 @@ public:
     virtual void onAnimate(double dt, double tickPercent) override;
     
 private:
-    FloorSystemCtrl  floorSystemCtrl;
+    FloorSystemCtrl             floorSystemCtrl;
+    std::map<int, cc::Point>    cameraID;
 };

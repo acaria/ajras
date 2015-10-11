@@ -5,7 +5,7 @@ class PlayerData;
 class NodeRenderer;
 class GateMap;
 
-#include "ControlSystem.h"
+#include "CtrlMissionSystem.h"
 #include "RoomSystemCtrl.h"
 #include "RoomLayer.h"
 #include "Randgine.h"
@@ -29,7 +29,11 @@ public:
     void onFloorStart();
     void onFloorFinish();
     
+    CtrlMissionSystem* getCtrlSystem();
+    
 private:
+    
+    CtrlMissionSystem ctrlMissionSystem;
     
     void clear();
     void showRoom(unsigned roomIndex,
@@ -38,8 +42,6 @@ private:
     //local ecs
     lib::EcsGroup   ecsGroup;
     
-    //floor systems
-    ControlSystem   controlSystem;
     
     //room systems
     std::map<unsigned, RoomSystemCtrl*> roomSystems;

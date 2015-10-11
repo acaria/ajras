@@ -1,7 +1,7 @@
 #include "MissionInterfaceLayer.h"
-#include "Components.h"
-#include "HealthBar.h"
-#include "InventoryPanel.h"
+#include "Dir.h"
+
+using KeyCode = cocos2d::EventKeyboard::KeyCode;
 
 MissionInterfaceLayer * MissionInterfaceLayer::create()
 {
@@ -40,9 +40,21 @@ MissionInterfaceLayer::~MissionInterfaceLayer()
     this->targetFriend->release();
 }
 
+void MissionInterfaceLayer::registerPlayer(unsigned playerIndex,
+    std::function<CtrlKeyType(KeyCode)> onKeyCode2KeyType)
+{
+    this->playerIndex = playerIndex;
+    this->onKeyCode2KeyType = onKeyCode2KeyType;
+}
+
 HealthBar* MissionInterfaceLayer::getHealthBar()
 {
     return this->healthBar;
+}
+
+StickControl* MissionInterfaceLayer::getStick()
+{
+    return this->stick;
 }
 
 InventoryPanel* MissionInterfaceLayer::getInventoryPanel()
@@ -72,34 +84,6 @@ void MissionInterfaceLayer::unsetTargetID(unsigned int eid)
     {
         this->clearTarget();
     }
-}
-
-cc::Vec2 MissionInterfaceLayer::setJoystick(cc::Point pos)
-{
-    cc::Vec2 result = {
-        (pos.x - kCursorCenter.x) / kCursorRegion.x,
-        (pos.y - kCursorCenter.y) / kCursorRegion.y};
-    
-    auto length = result.getLength();
-    if (length > 1.0)
-        result = result.getNormalized();
-
-    this->joyStick->setScaleX((1 - MIN(1.0, length)) * 0.3 + 0.7);
-    this->joyStick->setRotation(-CC_RADIANS_TO_DEGREES(result.getAngle()));
-    
-    this->joyStick->setPosition(
-        kCursorCenter.x + kCursorRegion.x * result.x,
-        kCursorCenter.y + kCursorRegion.y * result.y
-    );
-    
-    return result;
-}
-
-void MissionInterfaceLayer::clearJoystick()
-{
-    this->joyStick->setRotation(0);
-    this->joyStick->setScaleX(1.0);
-    this->joyStick->setPosition(kCursorCenter);
 }
 
 cc::Rect MissionInterfaceLayer::getActionBounds()
@@ -267,6 +251,7 @@ void MissionInterfaceLayer::setActionMode(ActionMode action)
             return;
     }
 
+    this->onSetActionMode(action);
     this->currentAction = action;
 }
 
@@ -351,14 +336,6 @@ bool MissionInterfaceLayer::init()
     this->healthBar->setPosition({15,600});
     
     this->addChild(this->healthBar);
-    
-    this->joyBase = cc::Sprite::createWithSpriteFrameName("joy2.png");
-    this->joyBase->setPosition(kCursorCenter);
-    this->addChild(this->joyBase);
-    
-    this->joyStick = cc::Sprite::createWithSpriteFrameName("joy1.png");
-    this->joyStick->setPosition(kCursorCenter);
-    this->addChild(this->joyStick);
 
     this->inventoryPanel = InventoryPanel::create();
     this->inventoryPanel->setAnchorPoint({0,0});
@@ -366,5 +343,86 @@ bool MissionInterfaceLayer::init()
     this->inventoryPanel->setOpacity(0);
     this->addChild(inventoryPanel);
     
+    this->stick = StickControl::create("joy2.png", "joy1.png", 90, 30);
+    this->stick->setPosition(300, 300);
+    this->addChild(this->stick);
+    
+    //keyboard
+    auto kListener = cc::EventListenerKeyboard::create();
+    kListener->onKeyPressed = [this](KeyCode code, cocos2d::Event *event) {
+        assert(this->onKeyCode2KeyType);
+        int toAdd = Dir::None;
+        
+        switch(this->onKeyCode2KeyType(code))
+        {
+            case CtrlKeyType::none:
+                break;
+            case CtrlKeyType::left:
+                toAdd = Dir::Left;
+                break;
+            case CtrlKeyType::right:
+                toAdd = Dir::Right;
+                break;
+            case CtrlKeyType::up:
+                toAdd = Dir::Up;
+                break;
+            case CtrlKeyType::down:
+                toAdd = Dir::Down;
+                break;
+            case CtrlKeyType::autoselect:
+                //todo
+                /*
+                 if (player->entityFocus != 0)
+                 {
+                 auto tid = SysHelper::getNearest(ecs.getID(),
+                 player->entityFocus,
+                 AIComponent::eMood::HOSTILE,
+                 500.0);
+                 if (tid != 0)
+                 {
+                 entitySelection[player->ctrlIndex] = tid;
+                 }
+                 }
+                 */
+                break;
+            case CtrlKeyType::sel1:
+                this->setActionMode(ActionMode::team);
+                break;
+            case CtrlKeyType::sel2:
+                this->setActionMode(ActionMode::inventorize);
+                break;
+            case CtrlKeyType::sel3:
+                this->setActionMode(ActionMode::map);
+                break;
+        }
+        
+        this->onKeyPressAction(this->playerIndex, toAdd);
+    };
+    
+    kListener->onKeyReleased = [this](KeyCode code, cocos2d::Event *event) {
+        assert(this->onKeyCode2KeyType);
+        int toDel = Dir::None;
+        
+        switch(this->onKeyCode2KeyType(code))
+        {
+            default:
+                break;
+            case CtrlKeyType::left: toDel = Dir::Left;
+                break;
+            case CtrlKeyType::right: toDel = Dir::Right;
+                break;
+            case CtrlKeyType::up: toDel = Dir::Up;
+                break;
+            case CtrlKeyType::down: toDel = Dir::Down;
+                break;
+                
+        }
+        
+        this->onKeyReleaseAction(this->playerIndex, toDel);
+    };
+    
+    this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(kListener, this);
+    
     return true;
 }
+

@@ -14,7 +14,7 @@
 
 using namespace std::placeholders;
 
-FloorSystemCtrl::FloorSystemCtrl() : controlSystem(ecsGroup),
+FloorSystemCtrl::FloorSystemCtrl() : ctrlMissionSystem(ecsGroup),
                                      random(Randgine::instance()->get(Randgine::FLOOR)),
                                      playerFocus(nullptr)
 {
@@ -41,7 +41,7 @@ FloorSystemCtrl::~FloorSystemCtrl()
 
 void FloorSystemCtrl::tick(double dt)
 {
-    controlSystem.tick(dt);
+    ctrlMissionSystem.tick(dt);
     
     //processing only current room
     roomSystems[currentRoomIndex]->tick(dt);
@@ -58,7 +58,7 @@ void FloorSystemCtrl::animate(double dt, double tickPercent)
         this->gView->getCam()->focusTarget(pos);
     }
 
-    controlSystem.animate(dt, tickPercent);
+    ctrlMissionSystem.animate(dt, tickPercent);
     
     //processing only current room
     roomSystems[currentRoomIndex]->animate(dt, tickPercent);
@@ -150,7 +150,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
         ecsGroup.setID(this->currentRoomIndex);
         
         auto dataRoom = data->getRoomAt(nextRoomIndex);
-        this->controlSystem.changeRoom(dataRoom);
+        this->ctrlMissionSystem.changeRoom(dataRoom);
         
         //move camera
         auto bounds = dataRoom->getBounds();
@@ -405,6 +405,11 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
     }
 }
 
+CtrlMissionSystem* FloorSystemCtrl::getCtrlSystem()
+{
+    return &this->ctrlMissionSystem;
+}
+
 void FloorSystemCtrl::load(MissionScene *gview,
                            FloorData *data)
 {
@@ -414,8 +419,7 @@ void FloorSystemCtrl::load(MissionScene *gview,
     this->gView->setBgColor(data->getBgColor());
     this->data = data;
     this->ecsGroup.setID(this->currentRoomIndex);
-    this->controlSystem.init(gview,
-                             data->rooms[this->currentRoomIndex]);
+    this->ctrlMissionSystem.init(data->rooms[this->currentRoomIndex]);
     
     cc::Rect bounds = cc::Rect::ZERO;
     for(auto pair : data->rooms)

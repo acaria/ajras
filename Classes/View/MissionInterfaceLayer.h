@@ -1,9 +1,12 @@
 #pragma once
 
 #include "Defines.h"
+#include "StickControl.h"
+#include "HealthBar.h"
+#include "InventoryPanel.h"
+#include "Event.h"
 
-class HealthBar;
-class InventoryPanel;
+using KeyCode = cocos2d::EventKeyboard::KeyCode;
 
 class MissionInterfaceLayer : public cc::Layer
 {
@@ -15,16 +18,17 @@ public:
     virtual ~MissionInterfaceLayer();
     
     virtual bool init() override;
+    
+    void registerPlayer(unsigned playerIndex,
+            std::function<CtrlKeyType(KeyCode)> onKeyCode2KeyType);
+    
     void        setTargetID(unsigned eid,
                     bool friendly,
                     cc::Sprite* container,
                     cc::Point pos);
     void        unsetTargetID(unsigned eid);
     void        clearTarget();
-    cc::Vec2    setJoystick(cc::Point pos);
-    void        clearJoystick();
-    void        setActionMode(ActionMode action);
-    void        setActionPanel(ActionMode action);
+    
     ActionMode  getAction();
     ActionMode  getNextAction();
     ActionMode  getPrevAction();
@@ -33,13 +37,17 @@ public:
     //accessors
     HealthBar*      getHealthBar();
     InventoryPanel* getInventoryPanel();
+    StickControl*   getStick();
+    
+    //events
+    lib::Subject<void(unsigned, int)> onKeyPressAction;
+    lib::Subject<void(unsigned, int)> onKeyReleaseAction;
+    lib::Subject<void(ActionMode)>    onSetActionMode;
     
 private:
-    //consts
-    const cc::Point kCursorCenter = {90.0f,90.0f};
-    const cc::Point kCursorRegion = {30.0f,30.0f};
-
-    cc::ui::Scale9Sprite*   actionSelection;
+    std::function<CtrlKeyType(KeyCode)> onKeyCode2KeyType = nullptr;
+    
+    cc::ui::Scale9Sprite*           actionSelection;
     
     cc::Sprite*                     actionTeam;
     cc::Sprite*                     actionTeamHi;
@@ -53,19 +61,20 @@ private:
     cc::Sprite*                     actionInventorizeHi;
     std::pair<cc::Point, cc::Point> actionInventorizePos;
     
-    //cc::Sprite*             actionTargetSword;
-    
     InventoryPanel*                 inventoryPanel;
+    
+    void                            setActionMode(ActionMode action);
+    void                            setActionPanel(ActionMode action);
     
     unsigned curTargetEntityID = 0;
     cc::Sprite* targetEnemy;
     cc::Sprite* targetFriend;
     bool withTarget();
     
-    cc::Sprite* joyStick;
-    cc::Sprite* joyBase;
-    
+    StickControl* stick;
     HealthBar* healthBar;
     
     ActionMode currentAction;
+    
+    unsigned playerIndex = 0;
 };

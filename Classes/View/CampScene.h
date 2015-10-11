@@ -2,6 +2,7 @@
 
 #include "BaseScene.h"
 #include "GameCamera.h"
+#include "CampInterfaceLayer.h"
 
 class CampScene : public BaseScene<CampScene>
 {
@@ -15,8 +16,9 @@ public:
     
     lib::Subject<void(CmdTag tag)> onMenuCmd;
     
-    //background
     void setBgColor(cc::Color3B bgColor);
+    
+    CampInterfaceLayer* interface = nullptr;
     
     cc::Layer* getFrame();
     GameCamera* getCam();

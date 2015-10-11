@@ -24,6 +24,9 @@ bool CampScene::init()
     this->canvas->setSize(kCanvasCampRect.size);
     this->addChild(canvas);
     
+    this->interface = CampInterfaceLayer::create();
+    this->addChild(interface);
+    
     this->frame = cc::Layer::create();
     this->frame->setAnchorPoint({0,0});
     this->canvas->addChild(this->frame);

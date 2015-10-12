@@ -327,8 +327,8 @@ bool MissionInterface::init()
 
     auto borders = cc::ui::Scale9Sprite::createWithSpriteFrameName("main_frame.png");
     borders->setAnchorPoint({0,0});
-    borders->setPosition(kCanvasMissionRect.origin - cc::Point(10.0f,10.0f));
-    borders->setContentSize(kCanvasMissionRect.size + cc::Size(20.0f,20.0f));
+    borders->setPosition(def::canvasMissionRect.origin - cc::Point(10.0f,10.0f));
+    borders->setContentSize(def::canvasMissionRect.size + cc::Size(20.0f,20.0f));
     this->addChild(borders);
     
     this->healthBar = HealthBar::create("bar", "health_full", "health_empty");
@@ -344,7 +344,7 @@ bool MissionInterface::init()
     this->addChild(inventoryPanel);
     
     this->stick = StickControl::create("joy2.png", "joy1.png", 90, 30);
-    this->stick->setPosition(300, 300);
+    this->stick->setPosition(90, 90);
     this->addChild(this->stick);
     
     //keyboard

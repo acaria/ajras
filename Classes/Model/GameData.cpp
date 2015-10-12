@@ -1,4 +1,5 @@
 #include "GameData.h"
+#include "ModelProvider.h"
 #include "Defines.h"
 
 void GameData::loadPlayer()
@@ -71,7 +72,7 @@ void GameData::save()
 
 void GameData::reset()
 {
-    model.profile.clear();
+    ModelProvider::instance()->profile.clear();
     
     if (this->floor != nullptr)
     {

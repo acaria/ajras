@@ -5,7 +5,7 @@
 #include "AIComponent.h"
 #include "CampData.h"
 #include "CampScene.h"
-#include "CampInterfaceLayer.h"
+#include "CampInterface.h"
 #include "SysHelper.h"
 #include "Defines.h"
 
@@ -17,32 +17,6 @@ CtrlCampSystem::CtrlCampSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {
 
 void CtrlCampSystem::tick(double dt)
 {
-    for(auto player : pList)
-    {
-        auto eid = player->entityFocus;
-        if (eid == 0)
-            continue;
-        
-        //direction
-        if (ecs::get<cp::Control>(eid) != player->ctrlIndex)
-            continue;
-        auto& cpInput = ecs::get<cp::Input>(eid);
-        
-        if (lib::hasKey(joyPos, player->ctrlIndex))
-        {
-            auto posRatio = this->view->interface->setJoystick(joyPos[player->ctrlIndex]);
-            cpInput.setDirection(posRatio);
-        }
-        else
-        {
-            this->view->interface->clearJoystick();
-            cpInput.setDirection(this->curDirPressed[player->ctrlIndex] |
-                                 (this->curDirReleased[player->ctrlIndex] & ~this->preDirPressed[player->ctrlIndex]));
-        }
-        
-        //clear inputs
-        this->clearReleased(player->ctrlIndex);
-    }
 }
 
 void CtrlCampSystem::initControl(unsigned int index)

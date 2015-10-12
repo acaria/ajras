@@ -18,7 +18,8 @@ public:
     FloorSystemCtrl();
     ~FloorSystemCtrl();
     
-    void load(GameCamera* cam, cc::Node* view, FloorData* data);
+    void load(GameCamera* cam, cc::Node* view,
+              PlayerData *player, FloorData* data);
     void start();
     void displayDebug(cc::Node* view, FloorData* data);
     cc::Sprite* displayMap(FloorData* data);
@@ -64,6 +65,5 @@ private:
     unsigned currentRoomIndex;
     lib::Random& random;
     
-    //focus player
-    PlayerData* playerFocus;
+    PlayerData* playerData = nullptr;
 };

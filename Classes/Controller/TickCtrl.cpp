@@ -26,20 +26,20 @@ void TickCtrl::update(float dt)
     cc::Director::getInstance()->getScheduler()->setTimeScale(timeScale);
     
     int tickCount = 0;
-    while (this->accumulator > kSecondsPerTick)
+    while (this->accumulator > def::secondsPerTick)
     {
-        accumulator -= kSecondsPerTick;
+        accumulator -= def::secondsPerTick;
         tickCount++;
         this->currentTick++;
         
         //tick process
-        if (onTick) this->onTick(kSecondsPerTick);
+        if (onTick) this->onTick(def::secondsPerTick);
     }
     
     this->lastUpdateTime = currentTime;
     
     double tickPercent = cc::clampf(this->accumulator,
-        0.0, kSecondsPerTick) / (double) kSecondsPerTick;
+                                    0.0, def::secondsPerTick) / (double) def::secondsPerTick;
     
     //animate process
     if (onAnimate) this->onAnimate(frameTime, tickPercent);

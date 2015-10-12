@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseTickSystem.h"
 #include "ECSGroup.h"
-#include "CampInterfaceLayer.h"
+#include "CampInterface.h"
 
 class CampScene;
 class CampData;

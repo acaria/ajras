@@ -10,6 +10,8 @@ using KeyCode = cocos2d::EventKeyboard::KeyCode;
 
 class MissionInterface : public cc::Node
 {
+private:
+    
 public:
  
     static MissionInterface* create();
@@ -20,7 +22,7 @@ public:
     virtual bool init() override;
     
     void registerPlayer(unsigned playerIndex,
-            std::function<CtrlKeyType(KeyCode)> onKeyCode2KeyType);
+                        std::function<CtrlKeyType(KeyCode)> onKeyCode2KeyType);
     
     void        setTargetID(unsigned eid,
                     bool friendly,

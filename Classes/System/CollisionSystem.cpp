@@ -2,7 +2,7 @@
 #include "Components.h"
 #include "SysHelper.h"
 #include "RoomData.h"
-#include "GameCtrl.h"
+#include "ModelProvider.h"
 
 CollisionSystem::~CollisionSystem()
 {
@@ -199,7 +199,7 @@ void CollisionSystem::tick(double dt)
                     {
                         if (ecs::has<cp::Gear>(eid) && ecs::has<cp::Collec>(oid))
                         {
-                            auto collectible = GameCtrl::instance()->getData().model.collectible.get(ecs::get<cp::Collec>(oid));
+                            auto collectible = ModelProvider::instance()->collectible.get(ecs::get<cp::Collec>(oid));
                             auto& cpGear = ecs::get<cp::Gear>(eid);
                             if (cpGear.checkFreeSlot(&collectible))
                             {

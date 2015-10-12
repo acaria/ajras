@@ -1,17 +1,17 @@
 #include "AIComponent.h"
-#include "GameCtrl.h"
+#include "ModelProvider.h"
 #include "ProfileData.h"
 
 void AIComponent::setProfile(const std::string &profileName)
 {
-    this->setProfile(GameCtrl::instance()->getData().model.profile.get(profileName));
+    this->setProfile(ModelProvider::instance()->profile.get(profileName));
 }
 
 void AIComponent::setProfile(ProfileData* profile)
 {
     if (!profile->behaviourKey.empty())
     {
-        this->bref = GameCtrl::instance()->getData().model.behaviour.get(profile->behaviourKey);
+        this->bref = ModelProvider::instance()->behaviour.get(profile->behaviourKey);
     }
     
     this->mood = this->mapMood[profile->moodCategory];

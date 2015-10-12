@@ -4,8 +4,6 @@
 #include "BaseMediator.h"
 #include "EventScene.h"
 
-USING_NS_CC;
-
 class SceneManager
 {
 public:
@@ -57,12 +55,12 @@ protected:
         if (firstTime)
         {
             firstTime = false;
-            Director::getInstance()->runWithScene(scene);
+            cc::Director::getInstance()->runWithScene(scene);
         }
         else
         {
-            auto transition = TransitionFade::create(1.0f, scene, Color3B::BLACK);
-            Director::getInstance()->replaceScene(transition);
+            auto transition = cc::TransitionFade::create(1.0f, scene, cc::Color3B::BLACK);
+            cc::Director::getInstance()->replaceScene(transition);
         }
     }
 

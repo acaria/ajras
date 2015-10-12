@@ -6,10 +6,15 @@
 class CampMediator : public BaseSceneMediator<CampScene>
 {
 public:
-    virtual void onAddView(CampScene&);
-    virtual void onRemoveView(CampScene&);
+    virtual void onAddView(CampScene&) override;
+    virtual void onRemoveView(CampScene&) override;
     
     static const size_t ID() {
         return std::hash<std::string>()(STRINGIFY(CampMediator));
     };
+    
+    virtual void onTick(double dt) override;
+    virtual void onAnimate(double dt, double tickPercent) override;
+    
+
 };

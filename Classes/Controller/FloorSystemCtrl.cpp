@@ -7,15 +7,14 @@
 #include "MissionInterface.h"
 #include "NodeRenderer.h"
 #include "HealthBar.h"
-#include "GameCtrl.h"
+#include "ModelProvider.h"
 #include "RenderComponent.h"
 #include "PlayerData.h"
 
 using namespace std::placeholders;
 
 FloorSystemCtrl::FloorSystemCtrl() : ctrlMissionSystem(ecsGroup),
-                                     random(Randgine::instance()->get(Randgine::FLOOR)),
-                                     playerFocus(nullptr)
+                                     random(Randgine::instance()->get(Randgine::FLOOR))
 {
     
 }
@@ -49,9 +48,9 @@ void FloorSystemCtrl::tick(double dt)
 void FloorSystemCtrl::animate(double dt, double tickPercent)
 {
     //focus entity
-    if (playerFocus->entityFocus != 0 && ecs::has<cp::Render>(playerFocus->entityFocus))
+    if (playerData->entityFocus != 0 && ecs::has<cp::Render>(playerData->entityFocus))
     {
-        auto& cpRender = ecs::get<cp::Render>(playerFocus->entityFocus);
+        auto& cpRender = ecs::get<cp::Render>(playerData->entityFocus);
         auto pos = this->data->rooms[this->currentRoomIndex]->position +
             cpRender.sprite->getPosition() + cpRender.sprite->getContentSize() / 2;
         this->cam->focusTarget(pos);
@@ -125,7 +124,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
         NULL
     ));
     
-    if (eid == playerFocus->entityFocus) //change room
+    if (eid == playerData->entityFocus) //change room
     {
         this->roomSystems[prevRoomIndex]->hideObjects(1);
         //this->gView->interface->clearTarget();
@@ -154,7 +153,7 @@ void FloorSystemCtrl::healthChanged(unsigned int roomIndex, unsigned int eid, in
 
 cc::Sprite* FloorSystemCtrl::displayMap(FloorData *data)
 {
-    auto result = Sprite::create();
+    auto result = cc::Sprite::create();
     
     auto pxl = cc::Sprite::createWithSpriteFrameName("pixel.png");
     pxl->setAnchorPoint({0,0});
@@ -251,7 +250,6 @@ void FloorSystemCtrl::displayDebug(cc::Node* view, FloorData *data)
 
 void FloorSystemCtrl::start()
 {
-    this->playerFocus = GameCtrl::instance()->getData().curPlayer();
     auto camRect = data->rooms[this->currentRoomIndex]->getBounds();
     this->cam->setTarget({camRect.getMidX(), camRect.getMidY()});
     
@@ -282,10 +280,10 @@ void FloorSystemCtrl::start()
         auto srcPos = enterGate.info.getSrcPos();
         auto destPos = enterGate.info.getDestPos();
                 
-        if (playerFocus->entityFocus != 0 &&
-            ecs::has<cp::Render, cp::Collision>(playerFocus->entityFocus))
+        if (playerData->entityFocus != 0 &&
+            ecs::has<cp::Render, cp::Collision>(playerData->entityFocus))
         {
-            unsigned eid = playerFocus->entityFocus;
+            unsigned eid = playerData->entityFocus;
             auto& cpRender = ecs::get<cp::Render>(eid);
             auto& cpCollision = ecs::get<cp::Collision>(eid);
             
@@ -316,7 +314,7 @@ void FloorSystemCtrl::start()
     
     //create player
     auto eid = cp::entity::genID();
-    auto profile = GameCtrl::instance()->getData().model.profile.get("boy");
+    auto profile = ModelProvider::instance()->profile.get("boy");
     auto srcPos = enterGate.info.getSrcPos();
     
     auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
@@ -331,8 +329,8 @@ void FloorSystemCtrl::start()
     ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Orientation>(eid, roomIndex);
-    ecs::add<cp::Control>(eid, roomIndex) = playerFocus->ctrlIndex;
-    ecs::add<cp::Gear>(eid, roomIndex).set(playerFocus->inventory);
+    ecs::add<cp::Control>(eid, roomIndex) = playerData->ctrlIndex;
+    ecs::add<cp::Gear>(eid, roomIndex).set(playerData->inventory);
     
     auto& csHealth = ecs::add<cp::Health>(eid, roomIndex);
     csHealth.setProfile(profile);
@@ -345,7 +343,7 @@ void FloorSystemCtrl::start()
     cpRender.manualPosMode = true;
     ecs::add<cp::Position>(eid, roomIndex).set(cpRender.sprite->getPosition());
     
-    playerFocus->entityFocus = eid;
+    playerData->entityFocus = eid;
 }
 
 void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> after)
@@ -384,13 +382,15 @@ CtrlMissionSystem* FloorSystemCtrl::getCtrlSystem()
     return &this->ctrlMissionSystem;
 }
 
-void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view, FloorData *data)
+void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
+                           PlayerData *player, FloorData *data)
 {
     this->clear();
     this->currentRoomIndex = data->getCurIdxRoom();
     this->view = view;
     this->cam = cam;
     this->data = data;
+    this->playerData = player;
     this->ecsGroup.setID(this->currentRoomIndex);
     this->ctrlMissionSystem.init(data->rooms[this->currentRoomIndex]);
     

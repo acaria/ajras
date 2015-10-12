@@ -1,24 +1,21 @@
 #include "MissionMediator.h"
-#include "MissionScene.h"
 #include "GameCtrl.h"
-
-using KeyCode = cocos2d::EventKeyboard::KeyCode;
 
 void MissionMediator::onAddView(MissionScene &scene)
 {
     auto floorData = GameCtrl::instance()->getData().curFloor();
+    auto playerData = GameCtrl::instance()->getData().curPlayer();
+    
     scene.setBgColor(floorData->getBgColor());
     
-    floorSystemCtrl.load(scene.getCam(), scene.getFrame(), floorData);
+    floorSystemCtrl.load(scene.getCam(), scene.getFrame(), playerData, floorData);
     floorSystemCtrl.start();
     
     //this->gView->interface->getHealthBar()->initProperties(csHealth.maxHp,
     //                                                       csHealth.hp);
     
-    auto player = GameCtrl::instance()->getData().curPlayer();
-    
-    scene.interface->registerPlayer(player->ctrlIndex, [player](KeyCode code) {
-        return player->KeyCode2KeyType(code);
+    scene.interface->registerPlayer(playerData->ctrlIndex, [playerData](KeyCode code) {
+        return playerData->KeyCode2KeyType(code);
     });
     
     //mediator events

@@ -1,8 +1,9 @@
 #pragma once
 
+#include "CampInterface.h"
 #include "BaseScene.h"
+#include "Event.h"
 #include "GameCamera.h"
-#include "CampInterfaceLayer.h"
 
 class CampScene : public BaseScene<CampScene>
 {
@@ -18,7 +19,7 @@ public:
     
     void setBgColor(cc::Color3B bgColor);
     
-    CampInterfaceLayer* interface = nullptr;
+    CampInterface* interface = nullptr;
     
     cc::Layer* getFrame();
     GameCamera* getCam();

@@ -1,6 +1,6 @@
 #include "CollisionComponent.h"
 #include "ProfileData.h"
-#include "GameCtrl.h"
+#include "ModelProvider.h"
 
 void CollisionComponent::setProfile(ProfileData* profile)
 {
@@ -16,7 +16,7 @@ void CollisionComponent::setProfile(ProfileData* profile)
 
 void CollisionComponent::setProfile(const std::string& profileName)
 {
-    this->setProfile(GameCtrl::instance()->getData().model.profile.get(profileName));
+    this->setProfile(ModelProvider::instance()->profile.get(profileName));
 }
 
 void CollisionComponent::set(cocos2d::Rect rect, CollisionCategory cat)

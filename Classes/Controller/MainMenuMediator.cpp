@@ -16,7 +16,7 @@ void MainMenuMediator::onAddView(MainMenuScene& scene)
                     //GameCtrl::instance()->goToCamp();
                     break;
                 case MainMenuScene::CmdTag::QUIT:
-                    Director::getInstance()->end();
+                    cc::Director::getInstance()->end();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
                     exit(0);
 #endif

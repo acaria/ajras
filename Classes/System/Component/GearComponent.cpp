@@ -1,5 +1,4 @@
 #include "GearComponent.h"
-#include "GameCtrl.h"
 
 void GearComponent::set(const std::list<SlotData*>& list)
 {

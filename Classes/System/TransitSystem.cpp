@@ -2,7 +2,6 @@
 #include "GateInfo.h"
 #include "CoreLib.h"
 #include "Components.h"
-#include "GameCtrl.h"
 #include "RoomData.h"
 
 std::pair<float, cc::Vec2> TransitSystem::processing(GateInfo info,

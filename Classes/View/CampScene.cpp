@@ -20,21 +20,18 @@ bool CampScene::init()
     this->canvas->setBackGroundColor(back->getColor());
     this->canvas->setLayoutType(cc::ui::Layout::Type::RELATIVE);
     this->canvas->setClippingEnabled(true);
-    this->canvas->setPosition(kCanvasCampRect.origin);
-    this->canvas->setSize(kCanvasCampRect.size);
+    this->canvas->setPosition(def::canvasCampRect.origin);
+    this->canvas->setSize(def::canvasCampRect.size);
     this->addChild(canvas);
-    
-    this->interface = CampInterfaceLayer::create();
-    this->addChild(interface);
     
     this->frame = cc::Layer::create();
     this->frame->setAnchorPoint({0,0});
     this->canvas->addChild(this->frame);
     
-    //this->interface = CampInterfaceLayer::create();
-    //this->addChild(interface);
-    
-    this->camera = new GameCamera(this->frame, kCanvasCampRect);
+    this->interface = CampInterface::create();
+    this->addChild(interface);
+
+    this->camera = new GameCamera(this->frame, def::canvasCampRect);
     
     auto listener = cc::EventListenerTouchOneByOne::create();
     listener->onTouchBegan = [](cc::Touch* touch, cc::Event* event){

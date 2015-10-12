@@ -107,7 +107,7 @@ ProfileData::ProfileData(const std::string &path) : moodCategory("neutral")
     }
     
     collisionCat = "walkable";
-    collisionRect = {0, 0, kBlockSize, kBlockSize};
+    collisionRect = {0, 0, def::blockSize, def::blockSize};
     
     if (rawData.find("collision") != rawData.end())
     {

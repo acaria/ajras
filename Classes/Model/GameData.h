@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ModelFacade.h"
 #include "CampData.h"
 #include "PlayerData.h"
 #include "FloorData.h"
@@ -18,8 +17,6 @@ public:
     PlayerData* curPlayer();
     FloorData*  curFloor();
     CampData*   curCamp();
-    
-    ModelFacade model;
     
 private:
 //dynamics

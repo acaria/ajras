@@ -1,7 +1,6 @@
 #include "MeleeSystem.h"
 #include "Components.h"
 #include "AnimationData.h"
-#include "GameCtrl.h"
 #include "MissionScene.h"
 #include "CtrlMissionSystem.h"
 

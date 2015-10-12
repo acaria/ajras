@@ -18,5 +18,4 @@ public:
     
 private:
     FloorSystemCtrl             floorSystemCtrl;
-    std::map<int, cc::Point>    cameraID;
 };

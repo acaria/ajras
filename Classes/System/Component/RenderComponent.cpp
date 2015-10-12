@@ -1,5 +1,5 @@
 #include "RenderComponent.h"
-#include "GameCtrl.h"
+#include "ModelProvider.h"
 #include "AnimationData.h"
 #include "ProfileData.h"
 #include "RoomLayer.h"
@@ -21,7 +21,7 @@ void RenderComponent::setProfile(const std::string &profileName,
                                  cc::Node *parent,
                                  int zOrder)
 {
-    this->setProfile(GameCtrl::instance()->getData().model.profile.get(profileName), parent, zOrder);
+    this->setProfile(ModelProvider::instance()->profile.get(profileName), parent, zOrder);
 }
 
 void RenderComponent::setProfile(ProfileData* profile, cc::Node *parent, int zOrder)

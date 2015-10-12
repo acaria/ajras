@@ -2,7 +2,7 @@
 #include "RoomData.h"
 #include "RoomLayer.h"
 #include "Components.h"
-#include "GameCtrl.h"
+#include "ModelProvider.h"
 #include "CsActionInterval.h"
 #include "MissionScene.h"
 #include "HealthBar.h"
@@ -59,7 +59,7 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
                 }
                 
                 auto coord = data->getPosFromCoord({i,j});
-                auto sprite = Sprite::createWithSpriteFrameName(properties[BlockInfo::bgTileName]);
+                auto sprite = cc::Sprite::createWithSpriteFrameName(properties[BlockInfo::bgTileName]);
                 sprite->getTexture()->setAntiAliasTexParameters();
                 sprite->setAnchorPoint({0, 0});
                 sprite->setPosition(coord);
@@ -70,7 +70,7 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
     //objects
     for(auto obj : data->getModelObjs())
     {
-        auto profile = GameCtrl::instance()->getData().model.profile.get(obj.profileName);
+        auto profile = ModelProvider::instance()->profile.get(obj.profileName);
         auto eid = cp::entity::genID();
         ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
             RenderComponent::chooseLayer(profile, view),
@@ -111,13 +111,14 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
         {
             ecs::get<cp::Render>(eid).setAnimation("activated", -1);
             
-            auto light = Sprite::createWithSpriteFrameName("grad_ellipse.png");
+            auto light = cc::Sprite::createWithSpriteFrameName("grad_ellipse.png");
             //light->setOpacity(120);
-            light->setColor(Color3B(252, 195, 159));
-            light->setBlendFunc(BlendFunc::ADDITIVE);
-            light->setPosition(obj.pos + Vec2(8, 8));
-            light->runAction(RepeatForever::create(Flicker::create(80.0f, 0.1f,
-                {150, 200}, {0.98, 1.2}, {0.9,1.1}, Color3B(252, 168, 50), Color3B(252, 168, 50))));
+            light->setColor(cc::Color3B(252, 195, 159));
+            light->setBlendFunc(cc::BlendFunc::ADDITIVE);
+            light->setPosition(obj.pos + cc::Vec2(8, 8));
+            light->runAction(cc::RepeatForever::create(Flicker::create(
+                80.0f, 0.1f, {150, 200}, {0.98, 1.2}, {0.9,1.1},
+                cc::Color3B(252, 168, 50), cc::Color3B(252, 168, 50))));
             view->fg->addChild(light, 1);
         }
     }
@@ -131,7 +132,7 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
         
         //view
         cc::Point pos = {gateMap.info.rect.origin.x, gateMap.info.rect.origin.y};
-        auto sprite = Sprite::createWithSpriteFrameName(gateMap.tileName + ".png");
+        auto sprite = cc::Sprite::createWithSpriteFrameName(gateMap.tileName + ".png");
         sprite->getTexture()->setAntiAliasTexParameters();
         sprite->setAnchorPoint({0, 0});
         sprite->setPosition(pos);

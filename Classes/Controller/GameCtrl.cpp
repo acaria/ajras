@@ -30,7 +30,7 @@ void GameCtrl::goToMainMenu()
 {
     this->gameData.reset();
     
-    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-main.plist");
+    cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-main.plist");
     this->scene.go2MainMenu();
 }
 

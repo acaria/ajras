@@ -5,21 +5,24 @@
 
 #define kTraceBehaviours 0
 
-const bool  kShowFPS = true;
-const float kUpdatesPerSecond = 60.0f;
-const float kIdealInterval = 1.0f / kUpdatesPerSecond;
-const float kTicksPerSecond = 20;
-const float kSecondsPerTick = 1.0f / kTicksPerSecond;
-
-const int   kBlockSize = 16;
+namespace def {
+    //config
+    const bool showFPS = true;
+    const float updatesPerSecond = 60.0f;
+    const float idealInterval = 1.0f / updatesPerSecond;
+    const float ticksPerSecond = 20;
+    const float secondsPerTick = 1.0f / ticksPerSecond;
+    const int   blockSize = 16;
+    
+    //design
+    const cc::Rect  canvasMissionRect = {190.0f,15.0f,750.0f,600.0f};
+    const cc::Rect  canvasCampRect = {190.0f,15.0f,750.0f,600.0f};
+}
 
 static cocos2d::Size designResolutionSize = cocos2d::Size(960, 640);
 static cocos2d::Size smallResolutionSize = cocos2d::Size(480, 320);
 static cocos2d::Size mediumResolutionSize = cocos2d::Size(1024, 768);
 static cocos2d::Size largeResolutionSize = cocos2d::Size(2048, 1536);
-
-const cocos2d::Rect  kCanvasMissionRect = {190.0f,15.0f,750.0f,600.0f};
-const cocos2d::Rect  kCanvasCampRect = {190.0f,15.0f,750.0f,600.0f};
 
 enum CollisionCategory
 {

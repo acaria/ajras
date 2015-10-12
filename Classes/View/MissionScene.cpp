@@ -21,8 +21,8 @@ bool MissionScene::init()
     this->canvas->setBackGroundColor(back->getColor());
     this->canvas->setLayoutType(cc::ui::Layout::Type::RELATIVE);
     this->canvas->setClippingEnabled(true);
-    this->canvas->setPosition(kCanvasMissionRect.origin);
-    this->canvas->setSize(kCanvasMissionRect.size);
+    this->canvas->setPosition(def::canvasMissionRect.origin);
+    this->canvas->setSize(def::canvasMissionRect.size);
     this->addChild(canvas);
     
     this->frame = cc::Layer::create();
@@ -32,7 +32,7 @@ bool MissionScene::init()
     this->interface = MissionInterface::create();
     this->addChild(interface);
     
-    this->camera = new GameCamera(this->frame, kCanvasMissionRect);
+    this->camera = new GameCamera(this->frame, def::canvasMissionRect);
     
     auto listener = cc::EventListenerTouchOneByOne::create();
     //listener->setSwallowTouches(true);

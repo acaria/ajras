@@ -9,6 +9,8 @@ class GateMap;
 #include "RoomSystemCtrl.h"
 #include "RoomLayer.h"
 #include "Randgine.h"
+#include "Event.h"
+#include "GameCamera.h"
 
 class FloorSystemCtrl
 {
@@ -16,20 +18,21 @@ public:
     FloorSystemCtrl();
     ~FloorSystemCtrl();
     
-    void load(MissionScene* view, FloorData* data);
+    void load(GameCamera* cam, cc::Node* view, FloorData* data);
     void start();
-    void displayDebug(MissionScene* view, FloorData* data);
+    void displayDebug(cc::Node* view, FloorData* data);
     cc::Sprite* displayMap(FloorData* data);
     
     void tick(double dt);
     void animate(double dt, double tickPercent);
     
-    void onHealthChanged(unsigned roomIndex, unsigned eid, int health);
+    void healthChanged(unsigned roomIndex, unsigned eid, int health);
     void onRoomChanged(unsigned nextRoomIndex, unsigned eid, GateMap   gate);
-    void onFloorStart();
-    void onFloorFinish();
     
     CtrlMissionSystem* getCtrlSystem();
+    
+    lib::Subject<void(unsigned, unsigned, int)>     onHealthChanged;
+    lib::Subject<void(unsigned, unsigned, GateMap)> onGateTriggered;
     
 private:
     
@@ -52,7 +55,8 @@ private:
     std::map<unsigned, NodeRenderer*>   roomPreviews;
     
     //view
-    MissionScene* gView = nullptr;
+    cc::Node* view = nullptr;
+    GameCamera* cam = nullptr;
     
     //event
     std::vector<lib::Registration> eventRegs;

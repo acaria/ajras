@@ -6,8 +6,14 @@ using KeyCode = cocos2d::EventKeyboard::KeyCode;
 
 void MissionMediator::onAddView(MissionScene &scene)
 {
-    floorSystemCtrl.load(&scene, GameCtrl::instance()->getData().curFloor());
+    auto floorData = GameCtrl::instance()->getData().curFloor();
+    scene.setBgColor(floorData->getBgColor());
+    
+    floorSystemCtrl.load(scene.getCam(), scene.getFrame(), floorData);
     floorSystemCtrl.start();
+    
+    //this->gView->interface->getHealthBar()->initProperties(csHealth.maxHp,
+    //                                                       csHealth.hp);
     
     auto player = GameCtrl::instance()->getData().curPlayer();
     
@@ -33,7 +39,7 @@ void MissionMediator::onAddView(MissionScene &scene)
             }
     }));
     
-    //view events
+    //interface events
     this->eventRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
         [this](cc::Vec2 pos){
             auto player = GameCtrl::instance()->getData().curPlayer();
@@ -59,6 +65,32 @@ void MissionMediator::onAddView(MissionScene &scene)
     this->eventRegs.push_back(scene.interface->onSetActionMode.registerObserver(
         [this](ActionMode mode){
             this->floorSystemCtrl.getCtrlSystem()->setSelectionAction(mode);
+    }));
+    
+    //system events
+    this->eventRegs.push_back(floorSystemCtrl.onHealthChanged.registerObserver(
+            [this, &scene](unsigned int roomIndex, unsigned int eid, int health) {
+        if (health == 0)
+        {
+            scene.interface->unsetTargetID(eid);
+        }
+        //if (eid == playerFocus->entityFocus)
+        //{
+        //    this->gView->interface->getHealthBar()->updateProperties(health);
+        //}
+    }));
+    
+    this->eventRegs.push_back(floorSystemCtrl.onGateTriggered.registerObserver(
+            [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate) {
+        switch(gate.cmd)
+        {
+            case GateMap::CmdType::ENTER_MAP:
+                break;
+            case GateMap::CmdType::EXIT_MAP:
+                break;
+            default:
+                break;
+        }
     }));
 }
 

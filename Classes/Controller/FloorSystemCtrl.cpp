@@ -7,7 +7,6 @@
 #include "MissionInterface.h"
 #include "NodeRenderer.h"
 #include "HealthBar.h"
-#include "GateMap.h"
 #include "GameCtrl.h"
 #include "RenderComponent.h"
 #include "PlayerData.h"
@@ -55,7 +54,7 @@ void FloorSystemCtrl::animate(double dt, double tickPercent)
         auto& cpRender = ecs::get<cp::Render>(playerFocus->entityFocus);
         auto pos = this->data->rooms[this->currentRoomIndex]->position +
             cpRender.sprite->getPosition() + cpRender.sprite->getContentSize() / 2;
-        this->gView->getCam()->focusTarget(pos);
+        this->cam->focusTarget(pos);
     }
 
     ctrlMissionSystem.animate(dt, tickPercent);
@@ -67,7 +66,7 @@ void FloorSystemCtrl::animate(double dt, double tickPercent)
 void FloorSystemCtrl::registerEvents(RoomSystemCtrl *ctrl)
 {
     this->eventRegs.push_back(ctrl->onHealthChanged.registerObserver(
-        std::bind(&FloorSystemCtrl::onHealthChanged, this, _1, _2, _3)));
+        std::bind(&FloorSystemCtrl::healthChanged, this, _1, _2, _3)));
     
     this->eventRegs.push_back(ctrl->onGateTriggered.registerObserver([this](
         unsigned prevRoomIndex, unsigned eid, GateMap  gate){
@@ -76,32 +75,16 @@ void FloorSystemCtrl::registerEvents(RoomSystemCtrl *ctrl)
             case GateMap::CmdType::CHANGE_ROOM:
                 this->onRoomChanged(prevRoomIndex, eid, gate);
                 break;
-            case GateMap::CmdType::ENTER_MAP:
-                this->onFloorStart();
-                break;
-            case GateMap::CmdType::EXIT_MAP:
-                this->onFloorFinish();
-                break;
             default:
-                Log("invalid comaand type in FloorSystemCtrl::registerEvents");
                 break;
         }
+        this->onGateTriggered(prevRoomIndex, eid, gate);
     }));
 }
 
-void FloorSystemCtrl::onFloorStart()
-{
-    GameCtrl::instance()->goToMainMenu();
-}
-
-void FloorSystemCtrl::onFloorFinish()
-{
-    GameCtrl::instance()->goToMainMenu();
-}
-
 void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
-                                      unsigned eid,
-                                      GateMap  gate)
+                                    unsigned eid,
+                                    GateMap  gate)
 {
     unsigned nextRoomIndex = gate.destRoomIndex;
 
@@ -145,7 +128,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     if (eid == playerFocus->entityFocus) //change room
     {
         this->roomSystems[prevRoomIndex]->hideObjects(1);
-        this->gView->interface->clearTarget();
+        //this->gView->interface->clearTarget();
         this->currentRoomIndex = nextRoomIndex;
         ecsGroup.setID(this->currentRoomIndex);
         
@@ -154,7 +137,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
         
         //move camera
         auto bounds = dataRoom->getBounds();
-        this->gView->getCam()->moveTarget(destPos + bounds.origin, 1);
+        this->cam->moveTarget(destPos + bounds.origin, 1);
         this->showRoom(nextRoomIndex, nullptr);
 
         render.sprite->runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
@@ -164,16 +147,9 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     }
 }
 
-void FloorSystemCtrl::onHealthChanged(unsigned int roomIndex, unsigned int eid, int health)
+void FloorSystemCtrl::healthChanged(unsigned int roomIndex, unsigned int eid, int health)
 {
-    if (health == 0)
-    {
-        this->gView->interface->unsetTargetID(eid);
-    }
-    if (eid == playerFocus->entityFocus)
-    {
-        this->gView->interface->getHealthBar()->updateProperties(health);
-    }
+    this->onHealthChanged(roomIndex, eid, health);
 }
 
 cc::Sprite* FloorSystemCtrl::displayMap(FloorData *data)
@@ -229,7 +205,7 @@ cc::Sprite* FloorSystemCtrl::displayMap(FloorData *data)
     return result;
 }
 
-void FloorSystemCtrl::displayDebug(MissionScene *view, FloorData *data)
+void FloorSystemCtrl::displayDebug(cc::Node* view, FloorData *data)
 {
     for(auto pair : data->rooms)
     {
@@ -262,14 +238,14 @@ void FloorSystemCtrl::displayDebug(MissionScene *view, FloorData *data)
                     pxl->setColor(cc::Color3B::YELLOW);
             }
             
-            view->getFrame()->addChild(pxl);
+            view->addChild(pxl);
         }
         
         auto txt = cc::Label::createWithTTF(std::to_string(roomData->depth), "fonts/04b03.ttf", 8);
         txt->setColor(cc::Color3B::GREEN);
         txt->setPosition({bounds.getMidX() / 4,
                           bounds.getMidY() / 4});
-        view->getFrame()->addChild(txt);
+        view->addChild(txt);
     }
 }
 
@@ -277,7 +253,7 @@ void FloorSystemCtrl::start()
 {
     this->playerFocus = GameCtrl::instance()->getData().curPlayer();
     auto camRect = data->rooms[this->currentRoomIndex]->getBounds();
-    this->gView->getCam()->setTarget({camRect.getMidX(), camRect.getMidY()});
+    this->cam->setTarget({camRect.getMidX(), camRect.getMidY()});
     
     auto roomIndex = this->currentRoomIndex;
     auto roomData = this->data->rooms[roomIndex];
@@ -370,8 +346,6 @@ void FloorSystemCtrl::start()
     ecs::add<cp::Position>(eid, roomIndex).set(cpRender.sprite->getPosition());
     
     playerFocus->entityFocus = eid;
-    this->gView->interface->getHealthBar()->initProperties(csHealth.maxHp,
-                                                           csHealth.hp);
 }
 
 void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> after)
@@ -394,8 +368,8 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
         preview->getSprite()->runAction(cc::Sequence::create(
             cc::FadeTo::create(1, 255),
             cc::CallFunc::create([this, view, preview, roomIndex](){
-                this->gView->getFrame()->removeChild(preview);
-                this->gView->getFrame()->addChild(view);
+                this->view->removeChild(preview);
+                this->view->addChild(view);
                 view->release();
                 this->roomSystems[roomIndex]->showObjects(0.5);
             }),
@@ -410,13 +384,12 @@ CtrlMissionSystem* FloorSystemCtrl::getCtrlSystem()
     return &this->ctrlMissionSystem;
 }
 
-void FloorSystemCtrl::load(MissionScene *gview,
-                           FloorData *data)
+void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view, FloorData *data)
 {
     this->clear();
     this->currentRoomIndex = data->getCurIdxRoom();
-    this->gView = gview;
-    this->gView->setBgColor(data->getBgColor());
+    this->view = view;
+    this->cam = cam;
     this->data = data;
     this->ecsGroup.setID(this->currentRoomIndex);
     this->ctrlMissionSystem.init(data->rooms[this->currentRoomIndex]);
@@ -447,7 +420,7 @@ void FloorSystemCtrl::load(MissionScene *gview,
         preview->setPosition(roomData->position);
         preview->getSprite()->setOpacity(0);
         
-        this->gView->getFrame()->addChild(preview, 1);
+        this->view->addChild(preview, 1);
         preview->setOpacity(0);
         
         bounds = bounds.unionWithRect(roomData->getBounds());

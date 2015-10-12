@@ -60,6 +60,7 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
                 
                 auto coord = data->getPosFromCoord({i,j});
                 auto sprite = Sprite::createWithSpriteFrameName(properties[BlockInfo::bgTileName]);
+                sprite->getTexture()->setAntiAliasTexParameters();
                 sprite->setAnchorPoint({0, 0});
                 sprite->setPosition(coord);
                 rl->addChild(sprite, data->getZOrder(coord));
@@ -131,6 +132,7 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
         //view
         cc::Point pos = {gateMap.info.rect.origin.x, gateMap.info.rect.origin.y};
         auto sprite = Sprite::createWithSpriteFrameName(gateMap.tileName + ".png");
+        sprite->getTexture()->setAntiAliasTexParameters();
         sprite->setAnchorPoint({0, 0});
         sprite->setPosition(pos);
         view->bg->addChild(sprite, data->getZOrder(pos));

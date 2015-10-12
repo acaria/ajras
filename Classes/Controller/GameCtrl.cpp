@@ -79,18 +79,6 @@ void GameCtrl::onAnimate(double dt, double tickPercent)
     scene.onAnimate(dt, tickPercent);
 }
 
-/*void GameCtrl::startSession(MissionScene* view)
-{
-    auto map = floorSystemCtrl.displayMap(this->currentMap);
-    auto currentRoom = this->currentMap->getRoomAt(this->currentMap->getCurIdxRoom());
-    auto startPos = currentRoom->position * -0.1;
-    map->setAnchorPoint({0,0});
-    map->setScale(0.2);
-    map->setPosition(80,0);
-    view->frame->addChild(map);
-    return;
-}*/
-
 GameData& GameCtrl::getData()
 {
     return this->gameData;

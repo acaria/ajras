@@ -44,5 +44,6 @@ private:
     bool moving = false;
     std::map<int, cc::Point> cameraID;
     cc::Rect computeRect(cc::Point p1, cc::Point p2);
+    cc::Vec2 prevBRMouseLocation;
 };
 

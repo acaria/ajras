@@ -11,7 +11,7 @@ GameCamera::GameCamera(cc::Node* playground, cc::Rect bounds):
     auto mListener = cc::EventListenerMouse::create();
     mListener->onMouseDown = [this](cc::Event *event) {
         cc::Vec2 minColSize = {20,20};
-        cc::EventMouse* e = (cc::EventMouse*)event;
+        cc::EventMouse* e = static_cast<cc::EventMouse*>(event);
         
         auto cameraPos = centerPos - curPosition;
         cc::Vec2 roomPos = {
@@ -21,6 +21,27 @@ GameCamera::GameCamera(cc::Node* playground, cc::Rect bounds):
         
         cc::Vec2 pos = {e->getCursorX() - roomPos.x - canvasRect.origin.x,
                         e->getCursorY() - roomPos.y - canvasRect.origin.y};
+        
+        if (e->getMouseButton() == MOUSE_BUTTON_RIGHT)
+        {
+            this->prevBRMouseLocation = e->getLocation();
+        }
+    };
+    
+    mListener->onMouseMove = [this](cc::Event *event) {
+        cc::EventMouse* e = static_cast<cc::EventMouse*>(event);
+        if (e->getMouseButton() == MOUSE_BUTTON_RIGHT)
+        {
+            auto translateValue = e->getLocation() - this->prevBRMouseLocation;
+         
+            this->translate({translateValue.x / 2, -translateValue.y / 2});
+            this->prevBRMouseLocation = e->getLocation();
+        }
+    };
+    
+    mListener->onMouseScroll = [this](cc::Event *event) {
+        cc::EventMouse* e = static_cast<cc::EventMouse*>(event);
+        this->addScale(e->getScrollY() / 200.0f);
     };
     
     auto tListener = cc::EventListenerTouchAllAtOnce::create();

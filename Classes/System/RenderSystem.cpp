@@ -15,7 +15,7 @@ void RenderSystem::tick(double dt)
     {
         auto &cpRender = ecs::get<cp::Render>(eid);
         auto &cpVel = ecs::get<cp::Velocity>(eid);
-        auto &cpInput = ecs::get<cp::Input>(eid);
+        //auto &cpInput = ecs::get<cp::Input>(eid);
  
         //processing velocity animations
         if (!cpRender.busy && cpRender.profile != nullptr)

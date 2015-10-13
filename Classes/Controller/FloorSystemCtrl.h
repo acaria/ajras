@@ -5,7 +5,7 @@ class PlayerData;
 class NodeRenderer;
 class GateMap;
 
-#include "CtrlMissionSystem.h"
+#include "ControlSystem.h"
 #include "RoomSystemCtrl.h"
 #include "RoomLayer.h"
 #include "Randgine.h"
@@ -30,14 +30,14 @@ public:
     void healthChanged(unsigned roomIndex, unsigned eid, int health);
     void onRoomChanged(unsigned nextRoomIndex, unsigned eid, GateMap   gate);
     
-    CtrlMissionSystem* getCtrlSystem();
+    ControlSystem* getCtrlSystem();
     
     lib::Subject<void(unsigned, unsigned, int)>     onHealthChanged;
     lib::Subject<void(unsigned, unsigned, GateMap)> onGateTriggered;
     
 private:
     
-    CtrlMissionSystem ctrlMissionSystem;
+    ControlSystem ControlSystem;
     
     void clear();
     void showRoom(unsigned roomIndex,

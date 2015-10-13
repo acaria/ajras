@@ -13,7 +13,7 @@
 
 using namespace std::placeholders;
 
-FloorSystemCtrl::FloorSystemCtrl() : ctrlMissionSystem(ecsGroup),
+FloorSystemCtrl::FloorSystemCtrl() : ControlSystem(ecsGroup),
                                      random(Randgine::instance()->get(Randgine::FLOOR))
 {
     
@@ -39,7 +39,7 @@ FloorSystemCtrl::~FloorSystemCtrl()
 
 void FloorSystemCtrl::tick(double dt)
 {
-    ctrlMissionSystem.tick(dt);
+    ControlSystem.tick(dt);
     
     //processing only current room
     roomSystems[currentRoomIndex]->tick(dt);
@@ -56,7 +56,7 @@ void FloorSystemCtrl::animate(double dt, double tickPercent)
         this->cam->focusTarget(pos);
     }
 
-    ctrlMissionSystem.animate(dt, tickPercent);
+    ControlSystem.animate(dt, tickPercent);
     
     //processing only current room
     roomSystems[currentRoomIndex]->animate(dt, tickPercent);
@@ -132,7 +132,6 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
         ecsGroup.setID(this->currentRoomIndex);
         
         auto dataRoom = data->getRoomAt(nextRoomIndex);
-        this->ctrlMissionSystem.changeRoom(dataRoom);
         
         //move camera
         auto bounds = dataRoom->getBounds();
@@ -377,9 +376,9 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
     }
 }
 
-CtrlMissionSystem* FloorSystemCtrl::getCtrlSystem()
+ControlSystem* FloorSystemCtrl::getCtrlSystem()
 {
-    return &this->ctrlMissionSystem;
+    return &this->ControlSystem;
 }
 
 void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
@@ -392,7 +391,7 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
     this->data = data;
     this->playerData = player;
     this->ecsGroup.setID(this->currentRoomIndex);
-    this->ctrlMissionSystem.init(data->rooms[this->currentRoomIndex]);
+    this->ControlSystem.init(player);
     
     cc::Rect bounds = cc::Rect::ZERO;
     for(auto pair : data->rooms)

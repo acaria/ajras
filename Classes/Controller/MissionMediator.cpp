@@ -39,24 +39,22 @@ void MissionMediator::onAddView(MissionScene &scene)
     //interface events
     this->eventRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
         [this](cc::Vec2 pos){
-            auto player = GameCtrl::instance()->getData().curPlayer();
-            this->floorSystemCtrl.getCtrlSystem()->setStickDirection(player->ctrlIndex, pos);
+            this->floorSystemCtrl.getCtrlSystem()->setStickDirection(pos);
     }));
     
     this->eventRegs.push_back(scene.interface->getStick()->onRelease.registerObserver(
         [this](){
-            auto player = GameCtrl::instance()->getData().curPlayer();
-            this->floorSystemCtrl.getCtrlSystem()->releaseStick(player->ctrlIndex);
+            this->floorSystemCtrl.getCtrlSystem()->releaseStick();
     }));
     
     this->eventRegs.push_back(scene.interface->onKeyPressAction.registerObserver(
         [this](unsigned playerIndex, int flag){
-            this->floorSystemCtrl.getCtrlSystem()->setKeyPressAction(playerIndex, flag);
+            this->floorSystemCtrl.getCtrlSystem()->setKeyPressAction(flag);
     }));
     
     this->eventRegs.push_back(scene.interface->onKeyReleaseAction.registerObserver(
         [this](unsigned playerIndex, int flag){
-            this->floorSystemCtrl.getCtrlSystem()->setKeyReleaseAction(playerIndex, flag);
+            this->floorSystemCtrl.getCtrlSystem()->setKeyReleaseAction(flag);
     }));
     
     this->eventRegs.push_back(scene.interface->onSetActionMode.registerObserver(

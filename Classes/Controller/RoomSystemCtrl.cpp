@@ -1,12 +1,13 @@
 #include "RoomSystemCtrl.h"
 #include "RoomData.h"
-#include "RoomLayer.h"
+#include "LayeredNode.h"
 #include "Components.h"
 #include "ModelProvider.h"
 #include "CsActionInterval.h"
 #include "MissionScene.h"
 #include "HealthBar.h"
 #include "GateMap.h"
+#include "Defines.h"
 
 void RoomSystemCtrl::tick(double dt)
 {
@@ -34,7 +35,7 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
     interactSystem.animate(dt, tickPercent);
 }
 
-void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
+void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
 {
     ecsGroup.setID(data->index);
     
@@ -59,18 +60,32 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
                 }
                 
                 auto coord = data->getPosFromCoord({i,j});
-                auto sprite = cc::Sprite::createWithSpriteFrameName(properties[BlockInfo::bgTileName]);
+                auto sprite = cc::Sprite::createWithSpriteFrameName(
+                        properties[BlockInfo::bgTileName]);
                 sprite->getTexture()->setAntiAliasTexParameters();
                 sprite->setAnchorPoint({0, 0});
                 sprite->setPosition(coord);
                 rl->addChild(sprite, data->getZOrder(coord));
+            }
+            
+            if (properties.find(BlockInfo::fgTileName) != properties.end())
+            {
+                auto coord = data->getPosFromCoord({i,j});
+                auto sprite = cc::Sprite::createWithSpriteFrameName(
+                        properties[BlockInfo::fgTileName]);
+                sprite->getTexture()->setAntiAliasTexParameters();
+                sprite->setAnchorPoint({0, 0});
+                sprite->setPosition(coord);
+                view->fg->addChild(sprite, data->getZOrder(coord));
             }
         }
     
     //objects
     for(auto obj : data->getModelObjs())
     {
-        auto profile = ModelProvider::instance()->profile.get(obj.profileName);
+        if (!lib::hasKey(obj.properties, "profile"))
+            continue;
+        auto profile = ModelProvider::instance()->profile.get(obj.properties["profile"]);
         auto eid = cp::entity::genID();
         ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
             RenderComponent::chooseLayer(profile, view),
@@ -107,7 +122,7 @@ void RoomSystemCtrl::loadRoom(RoomLayer *view, RoomData *data)
             ecs::add<cp::Interact>(eid, roomIndex).setProfile(profile);
         }
         
-        if (obj.profileName == "torch")
+        if (obj.properties["profile"] == "torch")
         {
             ecs::get<cp::Render>(eid).setAnimation("activated", -1);
             

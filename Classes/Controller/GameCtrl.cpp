@@ -20,10 +20,13 @@ GameCtrl::~GameCtrl()
 
 void GameCtrl::start()
 {
-    this->goToMainMenu();
+    //this->goToMainMenu();
     
     Randgine::instance()->setMaster(1);
     this->gameData.loadPlayer();
+
+    this->goToMission();
+    //this->goToCamp();
 }
 
 void GameCtrl::goToMainMenu()

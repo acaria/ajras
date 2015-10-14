@@ -2,7 +2,7 @@
 #include "ModelProvider.h"
 #include "AnimationData.h"
 #include "ProfileData.h"
-#include "RoomLayer.h"
+#include "LayeredNode.h"
 #include "Defines.h"
 
 RenderComponent::RenderComponent() : sprite(nullptr)
@@ -125,22 +125,22 @@ void RenderComponent::setMoveAnimation(const Dir &orientation, bool moving)
     this->onComplete = nullptr;
 }
 
-cc::Layer* RenderComponent::chooseLayer(ProfileData* profile, RoomLayer *roomLayer)
+cc::Layer* RenderComponent::chooseLayer(ProfileData* profile, LayeredNode *LayeredNode)
 {
     if (profile != nullptr && profile->withCollision)
     {
         if (profile->collisionCat == "walkable")
-            return roomLayer->main;
+            return LayeredNode->main;
         if (profile->collisionCat == "flyable")
-            return roomLayer->main2;
-        return roomLayer->bg;
+            return LayeredNode->main2;
+        return LayeredNode->bg;
     }
-    return roomLayer->bg;
+    return LayeredNode->bg;
 }
 
-cc::Layer* RenderComponent::chooseLayer(RoomLayer *roomLayer)
+cc::Layer* RenderComponent::chooseLayer(LayeredNode *LayeredNode)
 {
-    return chooseLayer(this->profile, roomLayer);
+    return chooseLayer(this->profile, LayeredNode);
 }
 
 AnimationData* RenderComponent::getCurAnim()

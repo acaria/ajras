@@ -7,7 +7,7 @@ class GateMap;
 
 #include "ControlSystem.h"
 #include "RoomSystemCtrl.h"
-#include "RoomLayer.h"
+#include "LayeredNode.h"
 #include "Randgine.h"
 #include "Event.h"
 #include "GameCamera.h"
@@ -37,7 +37,7 @@ public:
     
 private:
     
-    ControlSystem ControlSystem;
+    ControlSystem controlSystem;
     
     void clear();
     void showRoom(unsigned roomIndex,
@@ -52,7 +52,7 @@ private:
     
     //data
     FloorData*    data;
-    std::map<unsigned, RoomLayer*>      roomViews;
+    std::map<unsigned, LayeredNode*>      roomViews;
     std::map<unsigned, NodeRenderer*>   roomPreviews;
     
     //view

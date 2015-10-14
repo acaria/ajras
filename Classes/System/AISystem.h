@@ -1,7 +1,7 @@
 #pragma once
 
 class EcsGroup;
-class RoomData;
+class IMapData;
 
 #include "BaseTickSystem.h"
 #include "BehaviourNodes.h"
@@ -14,7 +14,7 @@ public:
         random(Randgine::instance()->get(Randgine::AI))
     {}
     
-    void init(RoomData* data);
+    void init(IMapData* data);
     
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
@@ -69,6 +69,6 @@ private:
         {"stop", ActionBType::STOP}
     };
     
-    RoomData* data;
+    IMapData* data;
     lib::Random random;
 };

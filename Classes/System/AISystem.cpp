@@ -6,7 +6,7 @@
 #include "BlockInfo.h"
 #include "RoomData.h"
 
-void AISystem::init(RoomData *data)
+void AISystem::init(IMapData *data)
 {
     this->data = data;
 }
@@ -184,7 +184,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                     auto &properties = cpAI.board.getFields(nid);
                     if (!lib::hasKey(properties, "target"))
                     {
-                        auto grid = this->data->getContent();
+                        auto grid = this->data->getGrid();
                         lib::v2u pos = {
                             random.interval((unsigned)0, grid.width),
                             random.interval((unsigned)0, grid.height - 1)
@@ -224,36 +224,40 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                     return state::SUCCESS;
                 }
                 case ActionBType::SLEEPZONE: {
-                    if (!ecs::has<cp::Input>(eid))
-                        return state::FAILURE;
-                    auto &properties = cpAI.board.getFields(nid);
-                    if (!lib::hasKey(properties, "target"))
+                    RoomData* roomData = dynamic_cast<RoomData*>(data);
+                    if (roomData)
                     {
-                        if (!ecs::has<cp::AI, cp::Position, cp::Collision>(eid))
+                        if (!ecs::has<cp::Input>(eid))
                             return state::FAILURE;
-                        auto bounds = SysHelper::getBounds(eid);
-                        auto sleepZone = this->data->getSleepZone(ecs::get<cp::AI>(eid).sleep, {bounds.getMidX(), bounds.getMidY()});
-                        if (sleepZone == nullptr)
-                            return state::FAILURE;
-                        sleepZone->taken = true;
-                        cc::Point pos = {
-                            (sleepZone->bounds.getMidX() - bounds.size.width / 2) - ecs::get<cp::Collision>(eid).rect.origin.x,
-                            (sleepZone->bounds.getMidY() - bounds.size.height / 2) - ecs::get<cp::Collision>(eid).rect.origin.y,
-                        };
-                        properties["target"] = cc::ValueMap{{"x", cc::Value((int)pos.x)}, {"y", cc::Value((int)pos.y)}};
-                    }
+                        auto &properties = cpAI.board.getFields(nid);
+                        if (!lib::hasKey(properties, "target"))
+                        {
+                            if (!ecs::has<cp::AI, cp::Position, cp::Collision>(eid))
+                                return state::FAILURE;
+                            auto bounds = SysHelper::getBounds(eid);
+                            auto sleepZone = roomData->getSleepZone(ecs::get<cp::AI>(eid).sleep, {bounds.getMidX(), bounds.getMidY()});
+                            if (sleepZone == nullptr)
+                                return state::FAILURE;
+                            sleepZone->taken = true;
+                            cc::Point pos = {
+                                (sleepZone->bounds.getMidX() - bounds.size.width / 2) - ecs::get<cp::Collision>(eid).rect.origin.x,
+                                (sleepZone->bounds.getMidY() - bounds.size.height / 2) - ecs::get<cp::Collision>(eid).rect.origin.y
+                            };
+                            properties["target"] = cc::ValueMap{{"x", cc::Value((int)pos.x)}, {"y", cc::Value((int)pos.y)}};
+                        }
                     
-                    auto& cpInput = ecs::get<cp::Input>(eid);
-                    auto currentPos = ecs::get<cp::Position>(eid).pos;
-                    auto vdir = cc::Vec2(properties["target"].asValueMap()["x"].asInt() - currentPos.x,
-                                         properties["target"].asValueMap()["y"].asInt() - currentPos.y);
-                    if (vdir.length() < 5.0)
-                    {
-                        cpInput.setDirection(Dir::None);
-                        return state::SUCCESS;
+                        auto& cpInput = ecs::get<cp::Input>(eid);
+                        auto currentPos = ecs::get<cp::Position>(eid).pos;
+                        auto vdir = cc::Vec2(properties["target"].asValueMap()["x"].asInt() - currentPos.x,
+                                             properties["target"].asValueMap()["y"].asInt() - currentPos.y);
+                        if (vdir.length() < 5.0)
+                        {
+                            cpInput.setDirection(Dir::None);
+                            return state::SUCCESS;
+                        }
+                        cpInput.setDirection(vdir);
+                        return state::RUNNING;
                     }
-                    cpInput.setDirection(vdir);
-                    return state::RUNNING;
                 }
                 default:
                     Log("invalid sub parameter: %s", node->values[0].c_str());
@@ -380,11 +384,15 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
             switch(actionMap[node->values[0]])
             {
                 case ActionBType::SLEEPZONE: {
-                    if (!ecs::has<cp::Position, cp::Collision>(eid))
-                        return state::FAILURE;
-                    auto bounds = SysHelper::getBounds(eid);
-                    this->data->freeSleepZone(cpAI.sleep,
-                                              {bounds.getMidX(), bounds.getMidY()});
+                    RoomData* roomData = dynamic_cast<RoomData*>(this->data);
+                    if (roomData)
+                    {
+                        if (!ecs::has<cp::Position, cp::Collision>(eid))
+                            return state::FAILURE;
+                        auto bounds = SysHelper::getBounds(eid);
+                        roomData->freeSleepZone(cpAI.sleep,
+                            {bounds.getMidX(), bounds.getMidY()});
+                    }
                     return state::SUCCESS;
                 }
                 default:

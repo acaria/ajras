@@ -65,11 +65,6 @@ cc::Rect RoomData::getBounds()
                          model->totalSize.y);
 }
 
-int RoomData::getZOrder(const cc::Vec2& pos)
-{
-    return model->getZOrder(pos);
-}
-
 cc::Vec2 RoomData::getPosFromCoord(const lib::v2u& coord)
 {
     return model->getPosFromCoord(coord);
@@ -93,6 +88,21 @@ lib::v2u RoomData::getDim()
 lib::DataGrid<BlockInfo>& RoomData::getContent()
 {
     return this->grid;
+}
+
+lib::DataGrid<BlockInfo>& RoomData::getGrid()
+{
+    return this->grid;
+}
+
+cc::Size RoomData::getTileSize()
+{
+    return {(float)this->model->tileSize.x, (float)this->model->tileSize.y};
+}
+
+int RoomData::getZOrder(const cc::Vec2& pos)
+{
+    return this->model->getZOrder(pos);
 }
 
 cc::Rect RoomData::getBlockBound(lib::v2u coord)

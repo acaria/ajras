@@ -1,7 +1,6 @@
 #include "CollisionSystem.h"
 #include "Components.h"
 #include "SysHelper.h"
-#include "RoomData.h"
 #include "ModelProvider.h"
 
 CollisionSystem::~CollisionSystem()
@@ -77,22 +76,23 @@ std::list<cocos2d::Rect> CollisionSystem::getRectGridCollisions(const cocos2d::R
     return res;
 }
 
-void CollisionSystem::init(RoomData* room)
+void CollisionSystem::init(IMapData* map)
 {
     this->reset();
-
-    auto grid = room->getContent();
     
-    auto blockBound = room->getBlockBound({0,0});
-    this->blockSize.x = blockBound.size.width;
-    this->blockSize.y = blockBound.size.height;
-    this->grids[CollisionCategory::walkable] = new lib::DataGrid<bool>(grid.width, grid.height);
-    this->grids[CollisionCategory::flyable] = new lib::DataGrid<bool>(grid.width, grid.height);
+    this->blockSize = {(unsigned)map->getTileSize().width,
+                       (unsigned)map->getTileSize().height};
+    this->grids[CollisionCategory::walkable] = new lib::DataGrid<bool>(
+            map->getGrid().width,
+            map->getGrid().height);
+    this->grids[CollisionCategory::flyable] = new lib::DataGrid<bool>(
+            map->getGrid().width,
+            map->getGrid().height);
 
-    for(unsigned j = 0; j < grid.height; j++)
-    for(unsigned i = 0; i < grid.width; i++)
+    for(unsigned j = 0; j < map->getGrid().height; j++)
+    for(unsigned i = 0; i < map->getGrid().width; i++)
     {
-        auto fields = grid[{i,j}].fields;
+        auto fields = map->getGrid().get(i,j).fields;
         if (fields.find(BlockInfo::PType::collision) != fields.end())
         {
             auto category = fields[BlockInfo::PType::collision];

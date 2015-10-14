@@ -115,13 +115,32 @@ TmxDataModel::TmxDataModel(const std::string &fileName) : grid(0,0)
                     CCLOG("incorrect tileindex=%d", tileIndex);
                 }
                 
-                this->objs.push_back({
+                ObjectInfo res = {
+                    .name = object.get<jsonxx::String>("name"),
+                    .type = object.get<jsonxx::String>("type"),
                     .pos = {
                         (float)object.get<jsonxx::Number>("x"),
                         this->totalSize.y - (float)object.get<jsonxx::Number>("y")
                     },
-                    .profileName = tileProperties[object.get<jsonxx::Number>("gid")]["profile"]
-                });
+                    .size = {
+                        (float)object.get<jsonxx::Number>("width"),
+                        (float)object.get<jsonxx::Number>("height")
+                    },
+                    .properties = {}
+                };
+                
+                for(auto cpl : tileProperties[object.get<jsonxx::Number>("gid")])
+                    res.properties.insert(cpl);
+                
+                if (object.has<jsonxx::Object>("properties"))
+                {
+                    for(const auto &el : object.get<jsonxx::Object>("properties").kv_map())
+                    {
+                        res.properties[el.first] = el.second->get<jsonxx::String>();
+                    }
+                }
+                
+                this->objs.push_back(res);
             }
         }
     }

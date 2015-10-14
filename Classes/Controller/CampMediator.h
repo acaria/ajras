@@ -2,6 +2,7 @@
 
 #include "BaseSceneMediator.h"
 #include "CampScene.h"
+#include "CampSystemCtrl.h"
 
 class CampMediator : public BaseSceneMediator<CampScene>
 {
@@ -16,5 +17,6 @@ public:
     virtual void onTick(double dt) override;
     virtual void onAnimate(double dt, double tickPercent) override;
     
-
+private:
+    CampSystemCtrl          campSystemCtrl;
 };

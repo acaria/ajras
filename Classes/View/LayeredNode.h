@@ -2,11 +2,11 @@
 
 #include "NodeRenderer.h"
 
-struct RoomLayer : public cc::Node
+struct LayeredNode : public cc::Node
 {
-    static RoomLayer* create()
+    static LayeredNode* create()
     {
-        RoomLayer* ret = new (std::nothrow) RoomLayer();
+        LayeredNode* ret = new (std::nothrow) LayeredNode();
         if (ret && ret->init())
         {
             ret->autorelease();
@@ -34,7 +34,7 @@ struct RoomLayer : public cc::Node
         return true;
     }
     
-    NodeRenderer* getShot(int w, int h)
+    NodeRenderer* getShoot(int w, int h)
     {
         return NodeRenderer::create(this, w, h);
     }

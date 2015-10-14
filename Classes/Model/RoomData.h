@@ -5,8 +5,9 @@
 #include "DataGrid.h"
 #include "V2.h"
 #include "AIComponent.h"
+#include "IMapData.h"
 
-class RoomData
+class RoomData : public IMapData
 {
 public:
 
@@ -34,15 +35,19 @@ public:
     //ctors
     RoomData(unsigned roomIndex, RoomModel* model);
     
+    //overrides
+    virtual lib::DataGrid<BlockInfo>& getGrid() override;
+    virtual cc::Size getTileSize() override;
+    virtual int getZOrder(const cc::Vec2& pos) override;
+    virtual cc::Rect getBlockBound(lib::v2u coord) override;
+    
     //getters
     cc::Rect                    getBounds();
     lib::v2u                    getDim();
     lib::DataGrid<BlockInfo>&   getContent();
     std::vector<ObjectInfo>     getModelObjs();
-    int                         getZOrder(const cc::Vec2& pos);
     cc::Vec2                    getPosFromCoord(const lib::v2u& coord);
     lib::v2u                    getCoordFromPos(const cc::Vec2& pos);
-    cc::Rect                    getBlockBound(lib::v2u coord);
     std::list<cc::Rect>         getWalls();
     SleepZone*                  getSleepZone(AIComponent::eSleep cat,
                                              const cc::Point& pos);

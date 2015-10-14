@@ -1,11 +1,6 @@
 #include "GameCtrl.h"
 #include "ControlSystem.h"
 #include "Components.h"
-#include "InputComponent.h"
-#include "AIComponent.h"
-#include "RoomData.h"
-#include "MissionScene.h"
-#include "MissionInterface.h"
 #include "SysHelper.h"
 #include "Defines.h"
 

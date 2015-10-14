@@ -1,10 +1,10 @@
 #include "RenderSystem.h"
 #include "Components.h"
 #include "SysHelper.h"
-#include "RoomData.h"
+#include "IMapData.h"
 #include "AnimationData.h"
 
-void RenderSystem::init(RoomData *data)
+void RenderSystem::init(IMapData *data)
 {
     this->data = data;
 }

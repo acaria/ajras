@@ -4,7 +4,19 @@ class CampData;
 class PlayerData;
 
 #include "ControlSystem.h"
+#include "RenderSystem.h"
+#include "CollisionSystem.h"
+#include "TransitSystem.h"
+#include "MeleeSystem.h"
+#include "TargetSystem.h"
+#include "AISystem.h"
+#include "TargetSystem.h"
+#include "InputSystem.h"
+#include "MoveSystem.h"
+#include "InteractSystem.h"
+
 #include "Randgine.h"
+#include "LayeredNode.h"
 #include "Event.h"
 #include "GameCamera.h"
 
@@ -24,13 +36,27 @@ public:
     ControlSystem* getCtrlSystem();
     
 private:
-    ControlSystem ctrlCampSystem;
+    //systems
+    ControlSystem controlSystem;
+    RenderSystem    renderSystem;
+    CollisionSystem collisionSystem;
+    MoveSystem      moveSystem;
+    TransitSystem   transSystem;
+    InputSystem     inputSystem;
+    MeleeSystem     meleeSystem;
+    TargetSystem    targetSystem;
+    AISystem        aiSystem;
+    InteractSystem  interactSystem;
     
     //local ecs
     lib::EcsGroup   ecsGroup;
     
+    //data
+    CampData* data;
+    
     //view
     cc::Node* view = nullptr;
+    LayeredNode* mapView = nullptr;
     GameCamera* cam = nullptr;
     
     //event

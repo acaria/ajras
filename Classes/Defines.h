@@ -16,7 +16,7 @@ namespace def {
     
     //design
     const cc::Rect  canvasMissionRect = {190.0f,15.0f,750.0f,600.0f};
-    const cc::Rect  canvasCampRect = {190.0f,15.0f,750.0f,600.0f};
+    const cc::Rect  canvasCampRect = {0.0f,0.0f,960.0f,640.0f};
 }
 
 static cocos2d::Size designResolutionSize = cocos2d::Size(960, 640);

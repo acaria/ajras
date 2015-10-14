@@ -9,7 +9,7 @@ class RoomData;
 #include "PositionComponent.h"
 #include "CollisionComponent.h"
 #include "V2.h"
-#include "DataGrid.h"
+#include "IMapData.h"
 
 class CollisionSystem : public BaseTickSystem
 {
@@ -17,7 +17,7 @@ public:
     CollisionSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
     virtual ~CollisionSystem();
     
-    void init(RoomData* data);
+    void init(IMapData* mapData);
     
     virtual void tick(double dt) final;
     virtual void animate(double dt, double tp) final {}

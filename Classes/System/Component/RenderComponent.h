@@ -2,7 +2,7 @@
 class Dir;
 class AnimationData;
 class ProfileData;
-class RoomLayer;
+class LayeredNode;
 
 #include "Defines.h"
 
@@ -19,8 +19,8 @@ struct RenderComponent
     void setMoveAnimation(const Dir &orientation, bool moving);
     void setMoveCategory(const std::string& cat);
     
-    static cc::Layer* chooseLayer(ProfileData* profile, RoomLayer* layer);
-    cc::Layer* chooseLayer(RoomLayer* roomLayer);
+    static cc::Layer* chooseLayer(ProfileData* profile, LayeredNode* layer);
+    cc::Layer* chooseLayer(LayeredNode* LayeredNode);
     
     AnimationData*      getCurAnim();
     std::string         moveAnimationKey = "";

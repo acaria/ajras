@@ -13,7 +13,7 @@
 
 using namespace std::placeholders;
 
-FloorSystemCtrl::FloorSystemCtrl() : ControlSystem(ecsGroup),
+FloorSystemCtrl::FloorSystemCtrl() : controlSystem(ecsGroup),
                                      random(Randgine::instance()->get(Randgine::FLOOR))
 {
     
@@ -39,7 +39,7 @@ FloorSystemCtrl::~FloorSystemCtrl()
 
 void FloorSystemCtrl::tick(double dt)
 {
-    ControlSystem.tick(dt);
+    controlSystem.tick(dt);
     
     //processing only current room
     roomSystems[currentRoomIndex]->tick(dt);
@@ -56,7 +56,7 @@ void FloorSystemCtrl::animate(double dt, double tickPercent)
         this->cam->focusTarget(pos);
     }
 
-    ControlSystem.animate(dt, tickPercent);
+    controlSystem.animate(dt, tickPercent);
     
     //processing only current room
     roomSystems[currentRoomIndex]->animate(dt, tickPercent);
@@ -378,7 +378,7 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
 
 ControlSystem* FloorSystemCtrl::getCtrlSystem()
 {
-    return &this->ControlSystem;
+    return &this->controlSystem;
 }
 
 void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
@@ -391,7 +391,7 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
     this->data = data;
     this->playerData = player;
     this->ecsGroup.setID(this->currentRoomIndex);
-    this->ControlSystem.init(player);
+    this->controlSystem.init(player);
     
     cc::Rect bounds = cc::Rect::ZERO;
     for(auto pair : data->rooms)
@@ -402,20 +402,20 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
         auto roomSystemCtrl = new RoomSystemCtrl();
         this->registerEvents(roomSystemCtrl);
         
-        auto roomLayer = RoomLayer::create();
-        roomLayer->retain();
+        auto LayeredNode = LayeredNode::create();
+        LayeredNode->retain();
         
-        roomSystemCtrl->loadRoom(roomLayer, roomData);
+        roomSystemCtrl->loadRoom(LayeredNode, roomData);
         roomSystemCtrl->hideObjects(0);
         
-        this->roomViews[roomIndex] = roomLayer;
+        this->roomViews[roomIndex] = LayeredNode;
         this->roomSystems[roomIndex] = roomSystemCtrl;
 
-        auto preview = roomLayer->getShot(
+        auto preview = LayeredNode->getShoot(
             roomData->getBounds().size.width, roomData->getBounds().size.height);
         this->roomPreviews[roomIndex] = preview;
         
-        roomLayer->setPosition(roomData->position);
+        LayeredNode->setPosition(roomData->position);
         preview->setPosition(roomData->position);
         preview->getSprite()->setOpacity(0);
         

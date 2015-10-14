@@ -8,9 +8,9 @@ private:
     const float FOCUS_MARGIN = 50.0;
     
 public:
-    GameCamera(cc::Node* playground, cc::Rect bounds);
+    GameCamera(cc::Node* playground, cc::Rect canvasRect);
     
-    void setInnerArea(cc::Rect);
+    void setFrameBounds(cc::Rect bounds);
     void setTarget(cc::Point pos);
     void translate(cc::Point translation);
     void setScale(float scale);
@@ -34,10 +34,9 @@ private:
     cc::Point   centerPos;
     cc::Point   curPosition;
     float       curScale = 1.0f;
-    cc::Size    groundSize;
     DataFocus   focus;
     cc::Rect    canvasRect;
-    cc::Rect    innerAreaRect;
+    cc::Rect    frameRect;
     
     //internal
     void updatePos();

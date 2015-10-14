@@ -10,6 +10,7 @@ void GameData::loadPlayer()
     //player --
     this->player = new PlayerData();
     this->player->ctrlIndex = 1;
+    this->player->charProfileName = "boy";
     this->player->keysDefList[CtrlKeyType::left] = {KeyCode::KEY_LEFT_ARROW, KeyCode::KEY_A};
     this->player->keysDefList[CtrlKeyType::right] = {KeyCode::KEY_RIGHT_ARROW, KeyCode::KEY_D};
     this->player->keysDefList[CtrlKeyType::up] = {KeyCode::KEY_UP_ARROW, KeyCode::KEY_W};

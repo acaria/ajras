@@ -8,7 +8,6 @@
 #include "ProfileData.h"
 #include "InputComponent.h"
 #include "CollisionComponent.h"
-#include "WarpComponent.h"
 #include "MeleeComponent.h"
 #include "HealthComponent.h"
 #include "AIComponent.h"
@@ -16,6 +15,7 @@
 #include "GearComponent.h"
 #include "CollectibleData.h"
 #include "GateMap.h"
+#include "WarpMap.h"
 
 namespace cp
 {
@@ -27,14 +27,15 @@ namespace cp
     using Input = ecs::component<InputComponent,                6>;
     using Collision = ecs::component<CollisionComponent,        7>;
     using Gate = ecs::component<GateMap,                        8>;
-    using Interact = ecs::component<InteractComponent,          9>;
-    using Control = ecs::component<unsigned,                    10>;
-    using Melee = ecs::component<MeleeComponent,                11>;
-    using Health = ecs::component<HealthComponent,              12>;
-    using Target = ecs::component<unsigned,                     13>;
-    using AI = ecs::component<AIComponent,                      14>;
-    using Gear = ecs::component<GearComponent,                  15>;
-    using Collec = ecs::component<std::string,                  16>;
+    using Warp = ecs::component<WarpMap,                        9>;
+    using Interact = ecs::component<InteractComponent,          10>;
+    using Control = ecs::component<unsigned,                    11>;
+    using Melee = ecs::component<MeleeComponent,                12>;
+    using Health = ecs::component<HealthComponent,              13>;
+    using Target = ecs::component<unsigned,                     14>;
+    using AI = ecs::component<AIComponent,                      15>;
+    using Gear = ecs::component<GearComponent,                  16>;
+    using Collec = ecs::component<std::string,                  17>;
     
     struct entity
     {
@@ -55,6 +56,7 @@ namespace cp
             ecs::move<Input>(id, g1, g2);
             ecs::move<Collision>(id, g1, g2);
             ecs::move<Gate>(id, g1, g2);
+            ecs::move<Warp>(id, g1, g2);
             ecs::move<Interact>(id, g1, g2);
             ecs::move<Control>(id, g1, g2);
             ecs::move<Melee>(id, g1, g2);
@@ -75,6 +77,7 @@ namespace cp
             ecs::del<Input>(id, 1);
             ecs::del<Collision>(id, group);
             ecs::del<Gate>(id, group);
+            ecs::del<Warp>(id, group);
             ecs::del<Interact>(id, group);
             ecs::del<Control>(id, group);
             ecs::del<Melee>(id, group);
@@ -95,6 +98,7 @@ namespace cp
             ecs::clearGroup<Input>(group);
             ecs::clearGroup<Collision>(group);
             ecs::clearGroup<Gate>(group);
+            ecs::clearGroup<Warp>(group);
             ecs::clearGroup<Interact>(group);
             ecs::clearGroup<Control>(group);
             ecs::clearGroup<Melee>(group);

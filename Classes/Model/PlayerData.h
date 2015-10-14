@@ -15,6 +15,9 @@ struct PlayerData
     //entity binding
     unsigned entityFocus = 0;
     
+    //profiles
+    std::string charProfileName;
+    
     //control
     unsigned ctrlIndex = 0;
     

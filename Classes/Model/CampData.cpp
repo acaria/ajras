@@ -7,6 +7,21 @@ CampData::CampData(const std::string& fileName) :
 {
     //hack: only 1 ss per camp
     this->spriteSheets.insert(fileName);
+    
+    for(auto obj : this->objs)
+    {
+        if (obj.type == "door" && lib::hasKey(obj.properties, "target"))
+        {
+            WarpMap warp = {
+                .keyCmd = obj.properties["target"],
+                .info = {
+                    .rect = {obj.pos.x, obj.pos.y, obj.size.width, obj.size.height},
+                    .type = GateInfo::GateType::Up
+                }
+            };
+            this->warpMapping.push_back(warp);
+        }
+    }
 }
 
 CampData::~CampData()
@@ -30,7 +45,7 @@ cc::Size CampData::getTileSize()
 
 int CampData::getZOrder(const cc::Vec2& pos)
 {
-    return this->getZOrder(pos);
+    return TmxDataModel::getZOrder(pos);
 }
 
 cc::Rect CampData::getBlockBound(lib::v2u coord)
@@ -48,7 +63,9 @@ lib::v2u CampData::getDim()
     return {grid.width, grid.height};
 }
 
-lib::DataGrid<BlockInfo>& CampData::getContent()
+cc::Rect CampData::getBounds()
 {
-    return this->grid;
+    return {
+        0, 0, (float)totalSize.x, (float)totalSize.y
+    };
 }

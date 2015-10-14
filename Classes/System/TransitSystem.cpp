@@ -83,6 +83,7 @@ void TransitSystem::tick(double dt)
         auto& cpPos = ecs::get<cp::Position>(eid2);
         auto& cpCol = ecs::get<cp::Collision>(eid2);
         
+        //processing gates
         for(auto eid : ecs.system<cp::Gate>())
         {
             auto& cpGate = ecs::get<cp::Gate>(eid);
@@ -94,11 +95,23 @@ void TransitSystem::tick(double dt)
                 break;
             }
         }
+        
+        //processing warps
+        for(auto eid : ecs.system<cp::Warp>())
+        {
+            auto& cpWarp = ecs::get<cp::Warp>(eid);
+            
+            auto result = this->processing(cpWarp.info, cpPos, cpCol);
+            if (result.first >= 1)
+            {
+                warpingEnter(eid2, result.second, cpWarp);
+                break;
+            }
+        }
     }
 }
 
-void TransitSystem::gateringEnter(unsigned eid,
-                                  const cocos2d::Vec2& targetPoint,
+void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint,
                                   const GateMap& gateMap)
 {
     using namespace std::placeholders;
@@ -112,6 +125,30 @@ void TransitSystem::gateringEnter(unsigned eid,
         cc::MoveTo::create(duration, targetPoint),
         cc::CallFunc::create([this, eid, &gateMap](){
             this->onGateTriggered(eid, gateMap);
+        }),
+        NULL
+    ));
+    render.sprite->runAction(cc::Sequence::create(
+        cc::TintTo::create(duration / 4, cc::Color3B::BLACK),
+        cc::FadeTo::create(duration / 6, 0),
+        NULL
+    ));
+}
+
+void TransitSystem::warpingEnter(unsigned eid, const cocos2d::Vec2& targetPoint,
+                                 const WarpMap& warpMap)
+{
+    using namespace std::placeholders;
+    float duration = 0.5f;
+    
+    auto& render = ecs::get<cp::Render>(eid);
+    ecs::get<cp::Input>(eid).forceDisable();
+    ecs.del<cp::Position>(eid);
+    ecs::get<cp::Velocity>(eid).reset();
+    render.sprite->runAction(cc::Sequence::create(
+        cc::MoveTo::create(duration, targetPoint),
+        cc::CallFunc::create([this, eid, &warpMap](){
+            this->onWarpTriggered(eid, warpMap);
         }),
         NULL
     ));

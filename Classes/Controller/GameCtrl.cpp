@@ -25,8 +25,8 @@ void GameCtrl::start()
     Randgine::instance()->setMaster(1);
     this->gameData.loadPlayer();
 
-    this->goToMission();
-    //this->goToCamp();
+    //this->goToMission();
+    this->goToCamp();
 }
 
 void GameCtrl::goToMainMenu()

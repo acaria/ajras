@@ -6,9 +6,10 @@
 namespace lib
 {
     template<typename T>
-    T clamp(const T& val, const T&min, const T& max)
-    {
-        return (val > max ? max : (val < min ? min : val));
+    T clamp(const T& value, const T& min, const T& max) {
+        return min < max ?
+            (value < min ? min : value > max ? max : value) :
+            (value < max ? max : value > min ? min : value);
     }
     
     template<typename T>

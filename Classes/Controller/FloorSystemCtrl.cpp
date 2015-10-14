@@ -266,7 +266,7 @@ void FloorSystemCtrl::start()
             break;
         }
     }
-    assert(enterGateRef != nullptr);
+    assert(enterGateRef);
     GateMap enterGate = *enterGateRef;
     
     //show room
@@ -313,7 +313,7 @@ void FloorSystemCtrl::start()
     
     //create player
     auto eid = cp::entity::genID();
-    auto profile = ModelProvider::instance()->profile.get("boy");
+    auto profile = ModelProvider::instance()->profile.get(playerData->charProfileName);
     auto srcPos = enterGate.info.getSrcPos();
     
     auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
@@ -335,8 +335,8 @@ void FloorSystemCtrl::start()
     csHealth.setProfile(profile);
     
     cpRender.sprite->setPosition({
-        srcPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
-        srcPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
+        srcPos.x - cpCollision.rect.getMidX(),
+        srcPos.y - cpCollision.rect.getMidY()
     });
     cpRender.sprite->setOpacity(0);
     cpRender.manualPosMode = true;

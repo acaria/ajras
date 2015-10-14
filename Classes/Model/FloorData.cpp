@@ -317,7 +317,7 @@ RoomData* FloorData::addRoom(RoomModel* model, const RoomData::Config& config)
         nbGates--;
     }
     
-    //handle special gates (warps)
+    //handle special gates (room warps)
     if (config.profile == RoomData::RoomType::STARTER ||
         config.profile == RoomData::RoomType::FINISHER)
     {

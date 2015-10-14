@@ -1,10 +1,10 @@
 #include "GameCamera.h"
 #include "CoreLib.h"
 
-GameCamera::GameCamera(cc::Node* playground, cc::Rect bounds):
-    playground(playground), groundSize(bounds.size),
-    canvasRect(bounds), innerAreaRect(bounds),
-    centerPos(bounds.size / 2)
+GameCamera::GameCamera(cc::Node* playground, cc::Rect canvasRect):
+    playground(playground),
+canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
+    centerPos(canvasRect.size / 2)
 {
     this->playground->setScale(1.0f);
     
@@ -15,12 +15,12 @@ GameCamera::GameCamera(cc::Node* playground, cc::Rect bounds):
         
         auto cameraPos = centerPos - curPosition;
         cc::Vec2 roomPos = {
-            innerAreaRect.origin.x + cameraPos.x,
-            innerAreaRect.origin.y + cameraPos.y
+            this->canvasRect.origin.x + cameraPos.x,
+            this->canvasRect.origin.y + cameraPos.y
         };
         
-        cc::Vec2 pos = {e->getCursorX() - roomPos.x - canvasRect.origin.x,
-                        e->getCursorY() - roomPos.y - canvasRect.origin.y};
+        cc::Vec2 pos = {e->getCursorX() - roomPos.x - this->canvasRect.origin.x,
+                        e->getCursorY() - roomPos.y - this->canvasRect.origin.y};
         
         if (e->getMouseButton() == MOUSE_BUTTON_RIGHT)
         {
@@ -66,12 +66,13 @@ GameCamera::GameCamera(cc::Node* playground, cc::Rect bounds):
                     }
                     auto cameraPos = centerPos - curPosition;
                     cc::Vec2 roomPos = {
-                        innerAreaRect.origin.x + cameraPos.x,
-                        innerAreaRect.origin.y + cameraPos.y
+                        this->canvasRect.origin.x + cameraPos.x,
+                        this->canvasRect.origin.y + cameraPos.y
                     };
                     
-                    cc::Vec2 pos = {touchPos.x - roomPos.x - canvasRect.origin.x,
-                        touchPos.y - roomPos.y - canvasRect.origin.y};
+                    cc::Vec2 pos = {
+                        touchPos.x - roomPos.x - this->canvasRect.origin.x,
+                        touchPos.y - roomPos.y - this->canvasRect.origin.y};
                 }
             }
     };
@@ -129,10 +130,12 @@ GameCamera::GameCamera(cc::Node* playground, cc::Rect bounds):
     
 }
 
-void GameCamera::setInnerArea(cc::Rect bounds)
+void GameCamera::setFrameBounds(cc::Rect bounds)
 {
-    this->innerAreaRect = bounds;
+    this->frameRect = bounds;
+    this->updatePos();
 }
+
 
 void GameCamera::setTarget(cc::Point pos)
 {
@@ -166,19 +169,27 @@ void GameCamera::addScale(float value)
 void GameCamera::updatePos()
 {
     if (moving) return;
-    auto filteredPos = this->curPosition;
     if (focus.enabled)
     {
-        filteredPos = {
+        this->curPosition = {
             lib::clamp(this->curPosition.x, focus.target.x + FOCUS_MARGIN - centerPos.x / 2,
                                             focus.target.x - FOCUS_MARGIN + centerPos.x / 2),
             lib::clamp(this->curPosition.y, focus.target.y + FOCUS_MARGIN - centerPos.y / 2,
                                             focus.target.y - FOCUS_MARGIN + centerPos.y / 2)
         };
-        this->curPosition = filteredPos;
+    }
+    
+    if (!frameRect.equals(cc::Rect::ZERO))
+    {
+        this->curPosition = {
+            lib::clamp(this->curPosition.x, frameRect.origin.x + centerPos.x / curScale,
+                                            frameRect.getMaxX() - (centerPos.x / curScale)),
+            lib::clamp(this->curPosition.y, frameRect.origin.y + centerPos.y / curScale,
+                                            frameRect.getMaxY() - (centerPos.y / curScale))
+        };
     }
 
-    this->playground->setPosition(centerPos - filteredPos * curScale);
+    this->playground->setPosition(centerPos - this->curPosition * curScale);
 }
 
 void GameCamera::focusTarget(cc::Point pos)

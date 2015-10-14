@@ -18,7 +18,7 @@ void MissionMediator::onAddView(MissionScene &scene)
         return playerData->KeyCode2KeyType(code);
     });
     
-    //mediator events
+    //view events
     this->eventRegs.push_back(scene.onEnterAfterTransition.registerObserver([](){
         Log("MissionScene after");
     }));

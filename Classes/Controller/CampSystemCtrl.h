@@ -2,6 +2,7 @@
 
 class CampData;
 class PlayerData;
+class WarpMap;
 
 #include "ControlSystem.h"
 #include "RenderSystem.h"
@@ -34,6 +35,9 @@ public:
     void animate(double dt, double tickPercent);
     
     ControlSystem* getCtrlSystem();
+    
+    lib::Subject<void(unsigned, int)>     onHealthChanged;
+    lib::Subject<void(unsigned, WarpMap)> onWarpTriggered;
     
 private:
     //systems

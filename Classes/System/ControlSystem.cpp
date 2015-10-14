@@ -83,7 +83,6 @@ void ControlSystem::clearReleased()
     this->preDirPressed = this->curDirPressed;
     this->curDirReleased = Dir::None;
     this->entitySelection = 0;
-    this->joyUpdate = false;
     this->actionSelection = ActionMode::none;
 }
 
@@ -123,6 +122,6 @@ void ControlSystem::setStickDirection(cc::Vec2 dir)
 
 void ControlSystem::releaseStick()
 {
-    joyUpdate = true;
+    joyUpdate = false;
     joyPos = cc::Vec2::ZERO;
 }

@@ -21,6 +21,7 @@ public:
     void load(GameCamera* cam, cc::Node* view,
               PlayerData *player, FloorData* data);
     void start();
+    void clear();
     void displayDebug(cc::Node* view, FloorData* data);
     cc::Sprite* displayMap(FloorData* data);
     
@@ -39,7 +40,6 @@ private:
     
     ControlSystem controlSystem;
     
-    void clear();
     void showRoom(unsigned roomIndex,
                   std::function<void()> after);
     void registerEvents(RoomSystemCtrl* ctrl);

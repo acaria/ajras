@@ -62,7 +62,7 @@ void CampMediator::onAddView(CampScene &scene)
 
 void CampMediator::onRemoveView(CampScene &scene)
 {
-    scene.getEventDispatcher()->removeAllEventListeners();
+    campSystemCtrl.clear();
 }
 
 void CampMediator::onTick(double dt)

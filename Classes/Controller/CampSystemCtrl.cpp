@@ -17,6 +17,7 @@ CampSystemCtrl::CampSystemCtrl() : renderSystem(ecsGroup),
         controlSystem(ecsGroup),
         random(Randgine::instance()->get(Randgine::CAMP))
 {
+    ecsGroup.setID(1);
     this->eventRegs.push_back(meleeSystem.onHealthChanged.registerObserver(
             [this](unsigned eid, int health) {
         this->onHealthChanged(eid, health);
@@ -29,7 +30,12 @@ CampSystemCtrl::CampSystemCtrl() : renderSystem(ecsGroup),
 
 CampSystemCtrl::~CampSystemCtrl()
 {
-    
+    this->clear();
+}
+
+void CampSystemCtrl::clear()
+{
+    cp::entity::clear(this->ecsGroup.getID());
 }
 
 void CampSystemCtrl::tick(double dt)

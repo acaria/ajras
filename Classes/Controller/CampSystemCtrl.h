@@ -30,6 +30,7 @@ public:
     void load(GameCamera* cam, cc::Node* view,
               PlayerData *player, CampData* data);
     void start();
+    void clear();
     
     void tick(double dt);
     void animate(double dt, double tickPercent);

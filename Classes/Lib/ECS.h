@@ -124,7 +124,9 @@ namespace ecs
     template<typename T>
     void clearGroup(unsigned group)
     {
-        system<T>(group).clear();
+        auto list = system<T>(group);
+        for(auto eid : list)
+            del<T>(eid, group);
     }
     
     template<typename T>

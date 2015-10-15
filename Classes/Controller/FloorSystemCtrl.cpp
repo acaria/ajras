@@ -23,6 +23,7 @@ void FloorSystemCtrl::clear()
 {
     for(auto pair : this->roomSystems)
     {
+        cp::entity::clear(pair.first);
         if (pair.second != nullptr)
         {
             delete pair.second;
@@ -384,7 +385,6 @@ ControlSystem* FloorSystemCtrl::getCtrlSystem()
 void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
                            PlayerData *player, FloorData *data)
 {
-    this->clear();
     this->currentRoomIndex = data->getCurIdxRoom();
     this->view = view;
     this->cam = cam;

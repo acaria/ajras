@@ -2,7 +2,6 @@
 
 void MainMenuScene::goIntro()
 {
-    this->getEventDispatcher()->removeAllEventListeners();
     this->onMenuCmd(CmdTag::START);
 }
 

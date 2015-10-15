@@ -2,6 +2,7 @@
 #include "FloorData.h"
 #include "MissionScene.h"
 #include "Randgine.h"
+#include "Components.h"
 
 using namespace std::placeholders;
 
@@ -20,18 +21,19 @@ GameCtrl::~GameCtrl()
 
 void GameCtrl::start()
 {
-    //this->goToMainMenu();
+    this->goToMainMenu();
     
-    Randgine::instance()->setMaster(1);
-    this->gameData.loadPlayer();
-
     //this->goToMission();
-    this->goToCamp();
+    //this->goToCamp();
 }
 
 void GameCtrl::goToMainMenu()
 {
+    cp::entity::resetID();
     this->gameData.reset();
+    
+    Randgine::instance()->setMaster(1);
+    this->gameData.loadPlayer();
     
     cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-main.plist");
     this->scene.go2MainMenu();

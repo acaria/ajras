@@ -46,6 +46,11 @@ namespace cp
             return eid++;
         }
         
+        static void resetID()
+        {
+            entity::genID(true);
+        }
+        
         static void move(unsigned id, unsigned g1, unsigned g2)
         {
             ecs::move<Render>(id, g1, g2);
@@ -107,8 +112,6 @@ namespace cp
             ecs::clearGroup<AI>(group);
             ecs::clearGroup<Gear>(group);
             ecs::clearGroup<Collec>(group);
-            
-            genID(true);
         }
     };
 }

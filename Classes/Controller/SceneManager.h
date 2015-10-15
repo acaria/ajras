@@ -33,6 +33,7 @@ protected:
         if (currentScene)
         {
             currentScene->onLeaveBeforeTransition();
+            currentScene->getEventDispatcher()->removeEventListenersForTarget(currentScene);
             currentScene->autorelease();
         }
         

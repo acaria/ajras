@@ -91,7 +91,7 @@ void MissionMediator::onAddView(MissionScene &scene)
 
 void MissionMediator::onRemoveView(MissionScene &scene)
 {
-    scene.getEventDispatcher()->removeAllEventListeners();
+    floorSystemCtrl.clear();
 }
 
 void MissionMediator::onTick(double dt)

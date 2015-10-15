@@ -9,6 +9,21 @@
 #include "GateMap.h"
 #include "Defines.h"
 
+RoomSystemCtrl::RoomSystemCtrl(): renderSystem(ecsGroup),
+        collisionSystem(ecsGroup),
+        moveSystem(ecsGroup),
+        transSystem(ecsGroup),
+        inputSystem(ecsGroup),
+        meleeSystem(ecsGroup),
+        targetSystem(ecsGroup),
+        aiSystem(ecsGroup),
+#if ECSYSTEM_DEBUG
+        debugSystem(ecsGroup),
+#endif
+        interactSystem(ecsGroup) {
+    this->registerEvents();
+}
+
 void RoomSystemCtrl::tick(double dt)
 {
     aiSystem.tick(dt);
@@ -20,6 +35,9 @@ void RoomSystemCtrl::tick(double dt)
     transSystem.tick(dt);
     renderSystem.tick(dt);
     interactSystem.tick(dt);
+#if ECSYSTEM_DEBUG
+    debugSystem.tick(dt);
+#endif
 }
 
 void RoomSystemCtrl::animate(double dt, double tickPercent)
@@ -33,6 +51,9 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
     transSystem.animate(dt, tickPercent);
     renderSystem.animate(dt, tickPercent);
     interactSystem.animate(dt, tickPercent);
+#if ECSYSTEM_DEBUG
+    debugSystem.animate(dt, tickPercent);
+#endif
 }
 
 void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
@@ -171,6 +192,9 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
     collisionSystem.init(data);
     renderSystem.init(data);
     aiSystem.init(data);
+#if ECSYSTEM_DEBUG
+    debugSystem.init(view, data);
+#endif
 }
 
 void RoomSystemCtrl::hideObjects(float duration)

@@ -5,6 +5,8 @@
 
 #define kTraceBehaviours 0
 
+#define ECSYSTEM_DEBUG 0
+
 namespace def {
     //config
     const bool showFPS = true;

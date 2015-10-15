@@ -15,6 +15,9 @@ CampSystemCtrl::CampSystemCtrl() : renderSystem(ecsGroup),
         aiSystem(ecsGroup),
         interactSystem(ecsGroup),
         controlSystem(ecsGroup),
+#if ECSYSTEM_DEBUG
+        debugSystem(ecsGroup),
+#endif
         random(Randgine::instance()->get(Randgine::CAMP))
 {
     ecsGroup.setID(1);
@@ -50,6 +53,9 @@ void CampSystemCtrl::tick(double dt)
     transSystem.tick(dt);
     renderSystem.tick(dt);
     interactSystem.tick(dt);
+#if ECSYSTEM_DEBUG
+    debugSystem.tick(dt);
+#endif
 }
 
 void CampSystemCtrl::animate(double dt, double tickPercent)
@@ -72,6 +78,9 @@ void CampSystemCtrl::animate(double dt, double tickPercent)
     transSystem.animate(dt, tickPercent);
     renderSystem.animate(dt, tickPercent);
     interactSystem.animate(dt, tickPercent);
+#if ECSYSTEM_DEBUG
+    debugSystem.animate(dt, tickPercent);
+#endif
 }
 
 ControlSystem* CampSystemCtrl::getCtrlSystem()
@@ -227,5 +236,8 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
     this->renderSystem.init(data);
     this->collisionSystem.init(data);
     this->aiSystem.init(data);
-
+    
+#if ECSYSTEM_DEBUG
+    this->debugSystem.init(this->mapView, data);
+#endif
 }

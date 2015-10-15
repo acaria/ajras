@@ -16,8 +16,9 @@ public:
     //getters
     const std::set<std::string>&    getSpriteSheets();
     lib::v2u                        getDim();
-    cc::Rect                        getBounds();
     
+    //overrides
+    cc::Rect                        getBounds() override;
     virtual lib::DataGrid<BlockInfo>& getGrid() override;
     virtual cc::Size getTileSize() override;
     virtual int getZOrder(const cc::Vec2& pos) override;

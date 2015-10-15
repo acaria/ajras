@@ -19,7 +19,7 @@ public:
     void start();
 
     void goToMainMenu();
-    void goToCamp();
+    void goToCamp(std::string startKey = "home");
     void goToMission();
 
     ScreenLog       log;

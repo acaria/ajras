@@ -40,9 +40,9 @@ public:
     virtual cc::Size getTileSize() override;
     virtual int getZOrder(const cc::Vec2& pos) override;
     virtual cc::Rect getBlockBound(lib::v2u coord) override;
+    virtual cc::Rect getBounds() override;
     
     //getters
-    cc::Rect                    getBounds();
     lib::v2u                    getDim();
     lib::DataGrid<BlockInfo>&   getContent();
     std::vector<ObjectInfo>     getModelObjs();

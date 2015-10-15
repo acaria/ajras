@@ -39,7 +39,7 @@ void GameCtrl::goToMainMenu()
     this->scene.go2MainMenu();
 }
 
-void GameCtrl::goToCamp()
+void GameCtrl::goToCamp(std::string startKey)
 {
     this->gameData.loadCamp();
     

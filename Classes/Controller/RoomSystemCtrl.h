@@ -1,4 +1,5 @@
 #pragma once
+#include "Defines.h"
 #include "RenderSystem.h"
 #include "CollisionSystem.h"
 #include "TransitSystem.h"
@@ -9,6 +10,11 @@
 #include "InputSystem.h"
 #include "MoveSystem.h"
 #include "InteractSystem.h"
+
+#if ECSYSTEM_DEBUG
+#include "DebugSystem.h"
+#endif
+
 #include "Event.h"
 
 class RoomData;
@@ -19,19 +25,8 @@ class GateMap;
 class RoomSystemCtrl
 {
 public:
-    RoomSystemCtrl(): renderSystem(ecsGroup),
-                      collisionSystem(ecsGroup),
-                      moveSystem(ecsGroup),
-                      transSystem(ecsGroup),
-                      inputSystem(ecsGroup),
-                      meleeSystem(ecsGroup),
-                      targetSystem(ecsGroup),
-                      aiSystem(ecsGroup),
-                      interactSystem(ecsGroup)
-    {
-        this->registerEvents();
-    }
-
+    RoomSystemCtrl();
+    
     void loadRoom(LayeredNode* view, RoomData* data);
     
     RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned>& eids);
@@ -62,6 +57,9 @@ private:
     TargetSystem    targetSystem;
     AISystem        aiSystem;
     InteractSystem  interactSystem;
+#if ECSYSTEM_DEBUG
+    DebugSystem     debugSystem;
+#endif
     
     //local ecs
     lib::EcsGroup   ecsGroup;

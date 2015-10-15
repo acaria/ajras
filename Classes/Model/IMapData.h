@@ -11,4 +11,5 @@ public:
     virtual cc::Size getTileSize() = 0;
     virtual int getZOrder(const cc::Vec2& pos) = 0;
     virtual cc::Rect getBlockBound(lib::v2u coord) = 0;
+    virtual cc::Rect getBounds() = 0;
 };

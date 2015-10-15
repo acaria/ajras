@@ -4,6 +4,8 @@ class CampData;
 class PlayerData;
 class WarpMap;
 
+#include "Defines.h"
+
 #include "ControlSystem.h"
 #include "RenderSystem.h"
 #include "CollisionSystem.h"
@@ -20,6 +22,10 @@ class WarpMap;
 #include "LayeredNode.h"
 #include "Event.h"
 #include "GameCamera.h"
+
+#if ECSYSTEM_DEBUG
+#include "DebugSystem.h"
+#endif
 
 class CampSystemCtrl
 {
@@ -52,6 +58,9 @@ private:
     TargetSystem    targetSystem;
     AISystem        aiSystem;
     InteractSystem  interactSystem;
+#if ECSYSTEM_DEBUG
+    DebugSystem     debugSystem;
+#endif
     
     //local ecs
     lib::EcsGroup   ecsGroup;

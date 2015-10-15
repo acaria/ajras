@@ -67,7 +67,7 @@ cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
 #endif
 
 #if kDrawInfo
-    this->lInfo = Label::createWithTTF("", "fonts/04b03.ttf", 8);
+    this->lInfo = cc::Label::createWithTTF("", "fonts/04b03.ttf", 8);
     this->lInfo->setPosition(res->getContentSize().width / 2, res->getContentSize().height);
     res->addChild(this->lInfo);
 #endif

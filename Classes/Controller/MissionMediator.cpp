@@ -80,8 +80,10 @@ void MissionMediator::onAddView(MissionScene &scene)
         switch(gate.cmd)
         {
             case GateMap::CmdType::ENTER_MAP:
+                GameCtrl::instance()->goToCamp("mission");
                 break;
             case GateMap::CmdType::EXIT_MAP:
+                GameCtrl::instance()->goToCamp("mission");
                 break;
             default:
                 break;

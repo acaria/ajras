@@ -15,6 +15,9 @@ struct PlayerData
     //entity binding
     unsigned entityFocus = 0;
     
+    //camp config
+    std::string startCampKey = "home";
+    
     //profiles
     std::string charProfileName;
     

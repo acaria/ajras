@@ -42,6 +42,7 @@ void GameCtrl::goToMainMenu()
 void GameCtrl::goToCamp(std::string startKey)
 {
     this->gameData.loadCamp();
+    this->gameData.curPlayer()->startCampKey = startKey;
     
     for(auto ss : this->gameData.curCamp()->getSpriteSheets())
     {

@@ -94,7 +94,7 @@ void CampSystemCtrl::start()
     WarpMap* enterWarpRef = nullptr;
     for(auto element : this->data->warpMapping)
     {
-        if (element.keyCmd == "home")
+        if (element.keyCmd == playerData->startCampKey)
         {
             enterWarpRef = &element;
             break;

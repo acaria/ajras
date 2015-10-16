@@ -2,7 +2,7 @@
 
 #include "Event.h"
 
-class StickControl : public cc::Sprite
+class StickControl : public cc::Node
 {
 public:
     static StickControl* create(const std::string& bg,

@@ -107,7 +107,8 @@ namespace lib
     
     bool intersectRects(const std::vector<cocos2d::Rect> &rs1,
                         const std::vector<cocos2d::Rect> &rs2);
-    cocos2d::Rect getIntersection(const cocos2d::Rect &r1, const cocos2d::Rect &r2);
+    cc::Rect getIntersection(const cocos2d::Rect &r1, const cocos2d::Rect &r2);
+    cc::Rect inflateRect(const cc::Rect &r, float value);
     
     double now();
     std::string format(const std::string fmt_str, ...);

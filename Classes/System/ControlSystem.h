@@ -3,6 +3,7 @@
 #include "ECSGroup.h"
 #include "MissionInterface.h"
 #include "PlayerData.h"
+#include "CoreLib.h"
 
 class RoomData;
 
@@ -20,11 +21,10 @@ public:
     void animate(double dt, double tickPercent) final {}
     
     void setSelectionAction(ActionMode mode);
+    void setSelectionPos(cc::Point p);
     void setKeyPressAction(int flag);
     void setKeyReleaseAction(int flag);
-    
-    void setStickDirection(cc::Vec2 dir);
-    void releaseStick();
+    void setStickDirection(const lib::Nullable<cc::Vec2>& dir);
     
 private:
     
@@ -34,12 +34,11 @@ private:
     unsigned    curDirPressed;
     unsigned    curDirReleased;
     unsigned    preDirPressed;
+    lib::Nullable<cc::Point> joyPos = nullptr;
     
-    bool        joyUpdate = false;
-    cc::Vec2    joyPos;
     //selection input
-    unsigned    entitySelection;
-    ActionMode  actionSelection;
+    lib::Nullable<ActionMode> actionSelection = nullptr;
+    lib::Nullable<cc::Point> posSelection = nullptr;
     
     PlayerData *player = nullptr;
 };

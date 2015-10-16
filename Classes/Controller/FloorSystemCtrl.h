@@ -62,7 +62,6 @@ private:
     //event
     std::vector<lib::Registration> eventRegs;
     
-    unsigned currentRoomIndex;
     lib::Random& random;
     
     PlayerData* playerData = nullptr;

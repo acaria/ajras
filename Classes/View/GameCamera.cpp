@@ -1,5 +1,6 @@
 #include "GameCamera.h"
 #include "CoreLib.h"
+#include "Defines.h"
 
 GameCamera::GameCamera(cc::Node* playground, cc::Rect canvasRect):
     playground(playground),
@@ -64,15 +65,8 @@ canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
                             continue;
                         }
                     }
-                    auto cameraPos = centerPos - curPosition;
-                    cc::Vec2 roomPos = {
-                        this->canvasRect.origin.x + cameraPos.x,
-                        this->canvasRect.origin.y + cameraPos.y
-                    };
-                    
-                    cc::Vec2 pos = {
-                        touchPos.x - roomPos.x - this->canvasRect.origin.x,
-                        touchPos.y - roomPos.y - this->canvasRect.origin.y};
+                    //here: detect single touch began
+                    //...
                 }
             }
     };
@@ -117,8 +111,25 @@ canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
     };
     
     tListener->onTouchesEnded = [this](const std::vector<cc::Touch*>& touches, cc::Event* event) {
+        bool once = true;
         for(auto touch : touches)
         {
+            if (once && cameraID.size() < 2)
+            {
+                once = false;
+                
+                cc::Point pos = touch->getLocation() - centerPos + curPosition - this->canvasRect.origin;
+                if ((touch->getStartLocation() - touch->getLocation()).length() < def::touchTreshold)
+                {
+                    this->onTouch(pos);
+                }
+                else
+                {
+                    auto startPos = touch->getStartLocation() - centerPos + curPosition;
+                    this->onSwipe(startPos, pos);
+                }
+                
+            }
             cameraID.erase(touch->getID());
         }
     };

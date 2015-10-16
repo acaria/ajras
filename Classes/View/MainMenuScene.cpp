@@ -10,7 +10,8 @@ bool MainMenuScene::init()
     if (!Base::init())
         return false;
     
-    this->setColor(cc::Color3B::BLACK);
+    auto back = cc::LayerColor::create(cc::Color4B::BLACK);
+    this->addChild(back);
     
     cc::Size visibleSize = cc::Director::getInstance()->getVisibleSize();
     cc::Point origin = cc::Director::getInstance()->getVisibleOrigin();

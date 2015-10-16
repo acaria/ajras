@@ -124,7 +124,6 @@ void MissionInterface::setActionPanel(ActionMode action)
         case ActionMode::inventorize:
             this->inventoryPanel->runAction(cc::FadeIn::create(0.5f));
             break;
-        case ActionMode::none:
         default:
             Log("invalid action mode");
     }

@@ -24,6 +24,7 @@ public:
     void setCurIdxRoom(unsigned roomIndex);
     
     RoomData*                       getRoomAt(unsigned idx);
+    RoomData*                       getCurrentRoom();
     const std::set<std::string>&    getSpriteSheets();
     std::map<unsigned, RoomData*>   rooms;
     

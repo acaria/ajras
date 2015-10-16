@@ -43,7 +43,7 @@ void FloorSystemCtrl::tick(double dt)
     controlSystem.tick(dt);
     
     //processing only current room
-    roomSystems[currentRoomIndex]->tick(dt);
+    roomSystems[this->data->getCurIdxRoom()]->tick(dt);
 }
 
 void FloorSystemCtrl::animate(double dt, double tickPercent)
@@ -52,7 +52,7 @@ void FloorSystemCtrl::animate(double dt, double tickPercent)
     if (playerData->entityFocus != 0 && ecs::has<cp::Render>(playerData->entityFocus))
     {
         auto& cpRender = ecs::get<cp::Render>(playerData->entityFocus);
-        auto pos = this->data->rooms[this->currentRoomIndex]->position +
+        auto pos = this->data->getCurrentRoom()->position +
             cpRender.sprite->getPosition() + cpRender.sprite->getContentSize() / 2;
         this->cam->focusTarget(pos);
     }
@@ -60,7 +60,7 @@ void FloorSystemCtrl::animate(double dt, double tickPercent)
     controlSystem.animate(dt, tickPercent);
     
     //processing only current room
-    roomSystems[currentRoomIndex]->animate(dt, tickPercent);
+    roomSystems[data->getCurIdxRoom()]->animate(dt, tickPercent);
 }
 
 void FloorSystemCtrl::registerEvents(RoomSystemCtrl *ctrl)
@@ -129,8 +129,8 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     {
         this->roomSystems[prevRoomIndex]->hideObjects(1);
         //this->gView->interface->clearTarget();
-        this->currentRoomIndex = nextRoomIndex;
-        ecsGroup.setID(this->currentRoomIndex);
+        this->data->setCurIdxRoom(nextRoomIndex);
+        ecsGroup.setID(nextRoomIndex);
         
         auto dataRoom = data->getRoomAt(nextRoomIndex);
         
@@ -250,10 +250,11 @@ void FloorSystemCtrl::displayDebug(cc::Node* view, FloorData *data)
 
 void FloorSystemCtrl::start()
 {
-    auto camRect = data->rooms[this->currentRoomIndex]->getBounds();
+    auto roomIndex = this->data->getCurIdxRoom();
+    auto camRect = data->getCurrentRoom()->getBounds();
     this->cam->setTarget({camRect.getMidX(), camRect.getMidY()});
     
-    auto roomIndex = this->currentRoomIndex;
+    
     auto roomData = this->data->rooms[roomIndex];
     auto roomView = this->roomViews[roomIndex];
     
@@ -274,7 +275,7 @@ void FloorSystemCtrl::start()
     this->showRoom(roomIndex, [this, enterGate]() {
         float duration = 3.0f;
         
-        auto roomData = this->data->rooms[this->currentRoomIndex];
+        auto roomData = this->data->getCurrentRoom();
         auto roomIndex = roomData->index;
         
         auto srcPos = enterGate.info.getSrcPos();
@@ -385,12 +386,11 @@ ControlSystem* FloorSystemCtrl::getCtrlSystem()
 void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
                            PlayerData *player, FloorData *data)
 {
-    this->currentRoomIndex = data->getCurIdxRoom();
     this->view = view;
     this->cam = cam;
     this->data = data;
     this->playerData = player;
-    this->ecsGroup.setID(this->currentRoomIndex);
+    this->ecsGroup.setID(this->data->getCurIdxRoom());
     this->controlSystem.init(player);
     
     cc::Rect bounds = cc::Rect::ZERO;
@@ -426,20 +426,21 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
     }
     
     //too slow!
-    /*auto batch = cc::Sprite::create();
+    /*auto batch = cc::Node::create();
     int count = 0;
-    for(auto j = 0; j < bounds.size.height; j+=kBlockSize)
-    for(auto i = 0; i < bounds.size.width; i+=kBlockSize)
+    for(auto j = 0; j < bounds.size.height; j+= def::blockSize)
+        for(auto i = 0; i < bounds.size.width; i += def::blockSize)
     {
         if (random.ratio() > 0.1)
             continue;
         auto bgName = random.select(data->getBgTiles());
         auto floorTile = cc::Sprite::createWithSpriteFrameName(bgName);
+        floorTile->getTexture()->setAliasTexParameters();
         floorTile->setAnchorPoint({0,0});
         floorTile->setPosition({bounds.origin.x + i, bounds.origin.y + j});
         batch->addChild(floorTile);
         count++;
     }
-    this->gView->frame->addChild(batch);
-    */
+    this->view->addChild(batch);*/
+
 }

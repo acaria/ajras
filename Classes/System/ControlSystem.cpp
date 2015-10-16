@@ -5,11 +5,25 @@
 #include "Defines.h"
 
 ControlSystem::ControlSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {
-    this->actionSelection = ActionMode::none;
 }
 
 void ControlSystem::tick(double dt)
 {
+    //selection control
+    if (posSelection != nullptr)
+    {
+        for(auto eid : ecs.join<cp::Interact, cp::Position, cp::Collision>())
+        {
+            auto eRect = lib::inflateRect(SysHelper::getBounds(eid), def::touchTreshold);
+            if (eRect.containsPoint(posSelection.Value))
+            {
+                ecs::get<cp::Interact>(eid).triggerActivation = true;
+                break;
+            }
+        }
+    }
+    
+    //moving control
     for(auto eid : ecs.join<cp::Control, cp::Input>())
     {
         auto feid = player->entityFocus;
@@ -21,16 +35,16 @@ void ControlSystem::tick(double dt)
             continue;
         auto& cpInput = ecs::get<cp::Input>(eid);
          
-        if (joyUpdate)
+        if (joyPos != nullptr)
         {
-            cpInput.setDirection(joyPos);
+            cpInput.setDirection(joyPos.Value);
         }
         else
         {
             cpInput.setDirection(this->curDirPressed |
                 (this->curDirReleased & ~this->preDirPressed));
         }
-            
+        
         //selection
         /*if (this->entitySelection[player->ctrlIndex] != 0)
         {
@@ -68,22 +82,21 @@ void ControlSystem::tick(double dt)
             }
         }*/
             
-        if (this->actionSelection != ActionMode::none)
+        if (this->actionSelection != nullptr)
         {
-            cpInput.actionMode = this->actionSelection;
+            cpInput.actionMode = this->actionSelection.Value;
         }
-        
-        //clear inputs
-        this->clearReleased();
     }
+    
+    this->clearReleased();
 }
 
 void ControlSystem::clearReleased()
 {
     this->preDirPressed = this->curDirPressed;
     this->curDirReleased = Dir::None;
-    this->entitySelection = 0;
-    this->actionSelection = ActionMode::none;
+    this->posSelection = nullptr;
+    this->actionSelection = nullptr;
 }
 
 void ControlSystem::init(PlayerData* player)
@@ -93,13 +106,18 @@ void ControlSystem::init(PlayerData* player)
     curDirPressed = Dir::None;
     curDirReleased = Dir::None;
     preDirPressed = Dir::None;
-    entitySelection = 0;
-    joyPos = cc::Vec2::ZERO;
+    posSelection = nullptr;
+    joyPos = nullptr;
 }
 
 void ControlSystem::setSelectionAction(ActionMode mode)
 {
     this->actionSelection = mode;
+}
+
+void ControlSystem::setSelectionPos(cc::Point p)
+{
+    this->posSelection = p;
 }
 
 void ControlSystem::setKeyPressAction(int flag)
@@ -114,14 +132,7 @@ void ControlSystem::setKeyReleaseAction(int flag)
     this->curDirReleased |= flag;
 }
 
-void ControlSystem::setStickDirection(cc::Vec2 dir)
+void ControlSystem::setStickDirection(const lib::Nullable<cc::Vec2>& dir)
 {
-    joyUpdate = true;
     joyPos = dir;
-}
-
-void ControlSystem::releaseStick()
-{
-    joyUpdate = false;
-    joyPos = cc::Vec2::ZERO;
 }

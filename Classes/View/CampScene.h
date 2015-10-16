@@ -21,13 +21,13 @@ public:
     
     CampInterface* interface = nullptr;
     
-    cc::Layer* getFrame();
+    cc::Node*   getFrame();
     GameCamera* getCam();
     
 private:
     
     //layers
     cc::ui::Layout* canvas = nullptr;
-    cc::Layer* frame = nullptr;
+    cc::Node* frame = nullptr;
     GameCamera* camera = nullptr;
 };

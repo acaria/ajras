@@ -44,7 +44,7 @@ void MissionMediator::onAddView(MissionScene &scene)
     
     this->eventRegs.push_back(scene.interface->getStick()->onRelease.registerObserver(
         [this](){
-            this->floorSystemCtrl.getCtrlSystem()->releaseStick();
+            this->floorSystemCtrl.getCtrlSystem()->setStickDirection(nullptr);
     }));
     
     this->eventRegs.push_back(scene.interface->onKeyPressAction.registerObserver(
@@ -60,6 +60,18 @@ void MissionMediator::onAddView(MissionScene &scene)
     this->eventRegs.push_back(scene.interface->onSetActionMode.registerObserver(
         [this](ActionMode mode){
             this->floorSystemCtrl.getCtrlSystem()->setSelectionAction(mode);
+    }));
+    
+    this->eventRegs.push_back(scene.getCam()->onTouch.registerObserver([this, floorData](cc::Point pos){
+        auto localPos = pos - floorData->getCurrentRoom()->getBounds().origin;
+        Log("touch=%f,%f", localPos.x, localPos.y);
+    }));
+    
+    this->eventRegs.push_back(scene.getCam()->onSwipe.registerObserver([this, floorData](
+            cc::Point pos1, cc::Point pos2){
+        auto localPos1 = pos1 - floorData->getCurrentRoom()->getBounds().origin;
+        auto localPos2 = pos2 - floorData->getCurrentRoom()->getBounds().origin;
+        Log("swipe=%f,%f -> %f,%f", localPos1.x, localPos1.y, localPos2.x, localPos2.y);
     }));
     
     //system events

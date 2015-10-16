@@ -24,7 +24,7 @@ bool CampScene::init()
     this->canvas->setSize(def::canvasCampRect.size);
     this->addChild(canvas);
     
-    this->frame = cc::Layer::create();
+    this->frame = cc::Node::create();
     this->frame->setAnchorPoint({0,0});
     this->canvas->addChild(this->frame);
     
@@ -57,7 +57,7 @@ void CampScene::setBgColor(cc::Color3B bgColor)
     this->canvas->setBackGroundColor(bgColor);
 }
 
-cc::Layer* CampScene::getFrame()
+cc::Node* CampScene::getFrame()
 {
     return this->frame;
 }

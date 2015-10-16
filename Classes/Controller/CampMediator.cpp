@@ -24,7 +24,7 @@ void CampMediator::onAddView(CampScene &scene)
     
     this->eventRegs.push_back(scene.interface->getStick()->onRelease.registerObserver(
         [this](){
-            this->campSystemCtrl.getCtrlSystem()->releaseStick();
+            this->campSystemCtrl.getCtrlSystem()->setStickDirection(nullptr);
     }));
     
     this->eventRegs.push_back(scene.interface->onKeyPressAction.registerObserver(
@@ -35,6 +35,15 @@ void CampMediator::onAddView(CampScene &scene)
     this->eventRegs.push_back(scene.interface->onKeyReleaseAction.registerObserver(
         [this](unsigned playerIndex, int flag){
             this->campSystemCtrl.getCtrlSystem()->setKeyReleaseAction(flag);
+    }));
+    
+    this->eventRegs.push_back(scene.getCam()->onTouch.registerObserver([this](cc::Point pos){
+        Log("touch=%f,%f", pos.x, pos.y);
+    }));
+    
+    this->eventRegs.push_back(scene.getCam()->onSwipe.registerObserver([this](cc::Point pos1,
+                                                                              cc::Point pos2){
+        Log("swipe=%f,%f -> %f,%f", pos1.x, pos1.y, pos2.x, pos2.y);
     }));
     
     //system events

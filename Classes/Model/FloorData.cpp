@@ -126,7 +126,7 @@ FloorData* FloorData::generate(const std::string& filename)
         .profile = RoomData::RoomType::STARTER
     });
     firstRoom->depth = 1;
-    map->setCurIdxRoom(firstRoom->index);
+    map->curIdxRoom = firstRoom->index;
     
     bool endRoomPlaced = false;
     while(map->floorMapping->withCrossingLeft())
@@ -359,6 +359,12 @@ RoomData* FloorData::getRoomAt(unsigned int idx)
 {
     CCASSERT(lib::hasKey(rooms, idx), "room is missing");
     return this->rooms[idx];
+}
+
+RoomData* FloorData::getCurrentRoom()
+{
+    CCASSERT(lib::hasKey(rooms, this->curIdxRoom), "room is missing");
+    return this->rooms[curIdxRoom];
 }
 
 cc::Color3B FloorData::getBgColor()

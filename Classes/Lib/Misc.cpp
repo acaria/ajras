@@ -36,6 +36,17 @@ namespace lib
         };
     }
     
+    cc::Rect inflateRect(const cc::Rect &r, float value)
+    {
+        float inflateValue = value / 2;
+        return {
+            r.origin.x - inflateValue,
+            r.origin.y - inflateValue,
+            r.size.width + value,
+            r.size.height + value
+        };
+    }
+    
     std::string format(const std::string fmt_str, ...)
     {
         int final_n, n = ((int)fmt_str.size()) * 2;

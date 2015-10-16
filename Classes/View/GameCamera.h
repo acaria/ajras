@@ -1,4 +1,6 @@
 #pragma once
+#include "Event.h"
+
 class GameCamera
 {
 private:
@@ -24,6 +26,10 @@ public:
         bool        enabled = false;
         cc::Point   target;
     };
+
+    //events
+    lib::Subject<void(cc::Point)>               onTouch;
+    lib::Subject<void(cc::Point, cc::Point)>    onSwipe;
 
 private:
 

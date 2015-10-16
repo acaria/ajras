@@ -28,7 +28,7 @@ bool CampScene::init()
     this->frame->setAnchorPoint({0,0});
     this->canvas->addChild(this->frame);
     
-    this->interface = CampInterface::create();
+    this->interface = cc::create<CampInterface>();
     this->addChild(interface);
 
     this->camera = new GameCamera(this->frame, def::canvasCampRect);

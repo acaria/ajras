@@ -1,17 +1,5 @@
 #include "StickControl.h"
 
-StickControl* StickControl::create(const std::string &bgImg, const std::string &stickImg,
-                                   int area, int range){
-    StickControl* stick = new (std::nothrow) StickControl(area, range);
-    if(stick && stick->initWithKey(bgImg, stickImg))
-    {
-        stick->autorelease();
-        return stick;
-    }
-    CC_SAFE_DELETE(stick);
-    return nullptr;
-}
-
 void StickControl::setStickPosition(cc::Point position)
 {
     auto factor = (position - this->getPosition()) / this->range;
@@ -30,11 +18,16 @@ void StickControl::setStickPosition(cc::Point position)
     this->onTrigger(factor);
 }
 
-bool StickControl::initWithKey(const std::string &bgImg, const std::string &stickImg)
+bool StickControl::init(const std::string& bgImg,
+                        const std::string& stickImg,
+                        int area, int range)
 {
-    if (!this->init())
+    if (!Node::init())
         return false;
-    
+
+    this->area = area;
+    this->range = range;
+
     this->bg = cc::Sprite::createWithSpriteFrameName(bgImg);
     this->stick = cc::Sprite::createWithSpriteFrameName(stickImg);
     

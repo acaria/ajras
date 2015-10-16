@@ -1,22 +1,6 @@
 #include "CampInterface.h"
 #include "Dir.h"
 
-CampInterface * CampInterface::create()
-{
-    CampInterface* layer = new (std::nothrow) CampInterface();
-    if(layer && layer->init())
-    {
-        layer->autorelease();
-        return layer;
-    }
-    CC_SAFE_DELETE(layer);
-    return nullptr;
-}
-
-CampInterface::CampInterface()
-{
-}
-
 CampInterface::~CampInterface()
 {
 }
@@ -38,7 +22,7 @@ bool CampInterface::init()
     if (!Node::init())
         return false;
     
-    this->stick = StickControl::create("joy2.png", "joy1.png", 90, 30);
+    this->stick = cc::create<StickControl>("joy2.png", "joy1.png", 90, 30);
     this->stick->setPosition(90, 90);
     this->addChild(this->stick);
     

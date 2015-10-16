@@ -342,7 +342,7 @@ bool MissionInterface::init()
     this->inventoryPanel->setOpacity(0);
     this->addChild(inventoryPanel);
     
-    this->stick = StickControl::create("joy2.png", "joy1.png", 90, 30);
+    this->stick = cc::create<StickControl>("joy2.png", "joy1.png", 90, 30);
     this->stick->setPosition(90, 90);
     this->addChild(this->stick);
     

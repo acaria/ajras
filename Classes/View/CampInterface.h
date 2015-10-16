@@ -9,10 +9,6 @@ using KeyCode = cocos2d::EventKeyboard::KeyCode;
 class CampInterface : public cc::Node
 {
 public:
-    
-    static CampInterface* create();
-    
-    CampInterface();
     virtual ~CampInterface();
     
     virtual bool init() override;

@@ -12,12 +12,4 @@ CtrlKeyType PlayerData::KeyCode2KeyType(KeyCode code)
 
 PlayerData::~PlayerData()
 {
-    for(auto& slot : inventory)
-    {
-        if (slot != nullptr)
-        {
-            delete slot;
-            slot = nullptr;
-        }
-    }
 }

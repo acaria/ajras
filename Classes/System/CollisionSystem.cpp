@@ -197,15 +197,13 @@ void CollisionSystem::tick(double dt)
                 {
                     if (cpCollision2.category == CollisionCategory::collectible) //collectible
                     {
-                        if (ecs::has<cp::Gear>(eid) && ecs::has<cp::Collec>(oid))
+                        if (ecs::has<cp::Gear>(eid) && ecs::has<cp::Collectible>(oid))
                         {
-                            auto collectible = ModelProvider::instance()->collectible.get(ecs::get<cp::Collec>(oid));
+                            auto collectible = ModelProvider::instance()->collectible.get(ecs::get<cp::Collectible>(oid));
                             auto& cpGear = ecs::get<cp::Gear>(eid);
-                            if (cpGear.checkFreeSlot(&collectible))
+                            if (SlotData::checkFreeSlot(cpGear, &collectible))
                             {
-                                cpGear.addCollectible(new CollectibleData(collectible));
-                                
-                                
+                                SlotData::addCollectible(cpGear, &collectible);
                                 ecs::get<cp::Render>(oid).sprite->removeFromParent();
                                 cp::entity::remove(oid, ecs.getID());
                             }

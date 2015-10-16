@@ -57,7 +57,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             //gen rewards
             auto nid = cp::entity::genID();
             
-            auto& cpCollec = ecs.add<cp::Collec>(nid);
+            auto& cpCollec = ecs.add<cp::Collectible>(nid);
             cpCollec = "treasure_cup";
             
             auto collectable = ModelProvider::instance()->collectible.get(cpCollec);

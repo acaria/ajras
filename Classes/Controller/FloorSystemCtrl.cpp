@@ -331,7 +331,7 @@ void FloorSystemCtrl::start()
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Orientation>(eid, roomIndex);
     ecs::add<cp::Control>(eid, roomIndex) = playerData->ctrlIndex;
-    ecs::add<cp::Gear>(eid, roomIndex).set(playerData->inventory);
+    ecs::add<cp::Gear>(eid, roomIndex) = playerData->inventory;
     
     auto& csHealth = ecs::add<cp::Health>(eid, roomIndex);
     csHealth.setProfile(profile);

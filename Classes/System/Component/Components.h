@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ECS.h"
+#include "CoreLib.h"
 #include "RenderComponent.h"
 #include "OrientationComponent.h"
 #include "PositionComponent.h"
@@ -12,13 +13,14 @@
 #include "HealthComponent.h"
 #include "AIComponent.h"
 #include "InteractComponent.h"
-#include "GearComponent.h"
-#include "CollectibleData.h"
 #include "GateMap.h"
 #include "WarpMap.h"
+#include "SlotData.h"
 
 namespace cp
 {
+    using GearComponent = std::list<lib::Nullable<SlotData>>;
+    
     using Render = ecs::component<RenderComponent,              1>;
     using Position = ecs::component<PositionComponent,          2>;
     using Orientation = ecs::component<OrientationComponent,    3>;
@@ -35,7 +37,7 @@ namespace cp
     using Target = ecs::component<unsigned,                     14>;
     using AI = ecs::component<AIComponent,                      15>;
     using Gear = ecs::component<GearComponent,                  16>;
-    using Collec = ecs::component<std::string,                  17>;
+    using Collectible = ecs::component<std::string,             17>;
     
     struct entity
     {
@@ -69,7 +71,7 @@ namespace cp
             ecs::move<Target>(id, g1, g2);
             ecs::move<AI>(id, g1, g2);
             ecs::move<Gear>(id, g1, g2);
-            ecs::move<Collec>(id, g1, g2);
+            ecs::move<Collectible>(id, g1, g2);
         }
         
         static void remove(unsigned id, unsigned group)
@@ -90,7 +92,7 @@ namespace cp
             ecs::del<Target>(id, group);
             ecs::del<AI>(id, group);
             ecs::del<Gear>(id, group);
-            ecs::del<Collec>(id, group);
+            ecs::del<Collectible>(id, group);
         }
         
         static void clear(unsigned group)
@@ -111,7 +113,7 @@ namespace cp
             ecs::clearGroup<Target>(group);
             ecs::clearGroup<AI>(group);
             ecs::clearGroup<Gear>(group);
-            ecs::clearGroup<Collec>(group);
+            ecs::clearGroup<Collectible>(group);
         }
     };
 }

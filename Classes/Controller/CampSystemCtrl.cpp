@@ -124,7 +124,7 @@ void CampSystemCtrl::start()
     ecsGroup.add<cp::Melee>(eid).setProfile(profile);
     ecsGroup.add<cp::Orientation>(eid);
     ecsGroup.add<cp::Control>(eid) = playerData->ctrlIndex;
-    ecsGroup.add<cp::Gear>(eid).set(playerData->inventory);
+    ecsGroup.add<cp::Gear>(eid) = playerData->inventory;
     ecsGroup.add<cp::Health>(eid).setProfile(profile);
     cpRender.sprite->setPosition({
         srcPos.x - cpCollision.rect.getMidX(),

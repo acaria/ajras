@@ -3,7 +3,7 @@
 #include "Defines.h"
 #include "CollectibleData.h"
 
-class InventoryPanel : public cc::Layer
+class InventoryPanel : public cc::Node
 {
 public:
     static InventoryPanel* create(unsigned bagCapacity);

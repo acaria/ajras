@@ -20,49 +20,54 @@ void CollectibleModel::load()
 {
     this->addModel({
         .key = "gold1",
-        .category = ColCat::currency,
         .currencyValue = 1,
-        .stackable = 50,
-        .spriteFrameName = "gold_1.png"
+        .stackability = 50,
+        .spriteFrameName = "gold_1.png",
+        .spriteRotate = false
     });
+    this->currencyGroup.insert("gold1");
     
     this->addModel({
         .key = "gold2",
-        .category = ColCat::currency,
         .currencyValue = 2,
-        .stackable = 50,
-        .spriteFrameName = "gold_2.png"
+        .stackability = 50,
+        .spriteFrameName = "gold_2.png",
+        .spriteRotate = false
     });
+    this->currencyGroup.insert("gold2");
     
     this->addModel({
         .key = "gold4",
-        .category = ColCat::currency,
         .currencyValue = 4,
-        .stackable = 50,
-        .spriteFrameName = "gold_3.png"
+        .stackability = 50,
+        .spriteFrameName = "gold_3.png",
+        .spriteRotate = false
     });
+    this->currencyGroup.insert("gold3");
     
     this->addModel({
         .key = "gold8",
-        .category = ColCat::currency,
         .currencyValue = 8,
-        .stackable = 50,
-        .spriteFrameName = "gold_4.png"
+         .stackability = 50,
+        .spriteFrameName = "gold_4.png",
+        .spriteRotate = false
     });
+    this->currencyGroup.insert("gold4");
     
     this->addModel({
         .key = "gold16",
-        .category = ColCat::currency,
         .currencyValue = 16,
-        .stackable = 50,
-        .spriteFrameName = "gold_5.png"
+        .stackability = 50,
+        .spriteFrameName = "gold_5.png",
+        .spriteRotate = false
     });
+    this->currencyGroup.insert("gold5");
     
     this->addModel({
         .key = "treasure_cup",
-        .category = ColCat::object,
         .currencyValue = 100,
-        .stackable = 1,
-        .spriteFrameName = "gold_6.png"
+        .stackability = 1,
+        .spriteFrameName = "gold_6.png",
+        .spriteRotate = true
     });
 }

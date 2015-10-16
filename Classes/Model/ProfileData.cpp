@@ -88,10 +88,6 @@ std::string ProfileData::toString()
     
     result << "profile: " << this->path << std::endl;
     if (withCollision) result << "collision - ";
-    if (withMove) result << "move - ";
-    if (withHealth) result << "health - ";
-    if (withSight) result << "sight - ";
-    if (withMelee) result << "melee - ";
     if (withBehaviour) result << "behaviour - ";
     return result.str();
 }
@@ -131,61 +127,12 @@ ProfileData::ProfileData(const std::string &path) : moodCategory("neutral")
     
     if (rawData.find("interaction") != rawData.end())
     {
-        withInteraction = true;
-        auto &iData = rawData.at("interaction").asValueMap();
-        
-        interPrereq = iData.at("prerequisite").asString();
-        interAnimKeys.first = iData.at("on").asString();
-        interAnimKeys.second = iData.at("off").asString();
-        interActionName = iData.at("actionName").asString();
-        if (iData.find("actionParams") != iData.end())
-            interActionParams = iData.at("actionParams").asString();
-        else
-            interActionParams = "";
+        this->interaction = ProfileInteractInfo(rawData.at("interaction").asValueMap());
     }
     
     if (rawData.find("stats") != rawData.end())
     {
-        auto &sData = rawData.at("stats").asValueMap();
-        if (sData.find("move") != sData.end())
-        {
-            withMove = true;
-            auto &mData = sData.at("move").asValueMap();
-            if (mData.find("speed") != mData.end())
-                this->speed = mData.at("speed").asDouble();
-            if (mData.find("acceleration") != mData.end())
-                this->acceleration = mData.at("acceleration").asDouble();
-            if (mData.find("deceleration") != mData.end())
-                this->deceleration = mData.at("deceleration").asDouble();
-            if (mData.find("orientation") != mData.end())
-                this->orientation = mData.at("orientation").asBool();
-        }
-        
-        if (sData.find("sight") != sData.end())
-        {
-            withSight = true;
-            auto &siData = sData.at("sight").asValueMap();
-            if (siData.find("range") != siData.end())
-                this->sightRange = siData.at("range").asDouble();
-        }
-        
-        if (sData.find("melee") != sData.end())
-        {
-            withMelee = true;
-            auto &mData = sData.at("melee").asValueMap();
-            if (mData.find("type") != mData.end())
-                this->meleeType = mData.at("type").asString();
-            if (mData.find("range") != mData.end())
-                this->meleeRange = mData.at("range").asDouble();
-            if (mData.find("anim_key") != mData.end())
-                this->meleeAnimKey = mData.at("anim_key").asString();
-        }
-        
-        if (sData.find("health") != sData.end())
-        {
-            withHealth = true;
-            this->health = sData.at("health").asInt();
-        }
+        this->stats = ProfileStatsInfo(rawData.at("stats").asValueMap());
     }
     
     if (rawData.find("behaviour") != rawData.end())

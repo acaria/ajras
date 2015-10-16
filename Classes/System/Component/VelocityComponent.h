@@ -5,7 +5,10 @@ struct VelocityComponent
 {
     void setProfile(ProfileData* profile)
     {
-        this->set(profile->speed, profile->acceleration, profile->deceleration);
+        assert(profile->stats != nullptr);
+        assert(profile->stats.Value.move != nullptr);
+        auto move = profile->stats.Value.move.Value;
+        this->set(move.speed, move.acceleration, move.deceleration);
     }
     
     void set(double speed, double accelDuration, double decelDuration)

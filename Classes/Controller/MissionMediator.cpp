@@ -64,7 +64,7 @@ void MissionMediator::onAddView(MissionScene &scene)
     
     this->eventRegs.push_back(scene.getCam()->onTouch.registerObserver([this, floorData](cc::Point pos){
         auto localPos = pos - floorData->getCurrentRoom()->getBounds().origin;
-        Log("touch=%f,%f", localPos.x, localPos.y);
+        this->floorSystemCtrl.getCtrlSystem()->setSelectionPos(localPos);
     }));
     
     this->eventRegs.push_back(scene.getCam()->onSwipe.registerObserver([this, floorData](

@@ -16,7 +16,9 @@ void AIComponent::setProfile(ProfileData* profile)
     
     this->mood = this->mapMood[profile->moodCategory];
     this->sleep = this->mapSleep[profile->sleepCategory];
-    this->sightRange = profile->sightRange;
+    
+    if (profile->stats != nullptr && profile->stats.Value.sight != nullptr)
+        this->sightRange = profile->stats.Value.sight.Value.range;
 }
 
 std::map<std::string, AIComponent::eMood> AIComponent::mapMood = {

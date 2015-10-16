@@ -32,6 +32,7 @@ void InteractSystem::tick(double dt)
                     if (!canceled)
                     {
                         this->triggerAction(eid, cpInteract);
+                        cpInteract.triggeredOnce = true;
                         cpInteract.activated = true;
                     }
                     cpInteract.busy = false;
@@ -45,9 +46,11 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
 {
     switch(interact.action)
     {
-        case InteractComponent::eAction::NONE:
+        case InteractComponent::ActionType::NONE:
             break;
-        case InteractComponent::eAction::REWARD:
+        case InteractComponent::ActionType::REWARD:
+            if (interact.triggeredOnce)
+                return; //empty
             //todo using action params
             auto bounds = SysHelper::getBounds(eid);
             

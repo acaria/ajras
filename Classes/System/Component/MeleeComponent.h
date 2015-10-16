@@ -8,10 +8,13 @@ struct MeleeComponent
     
     void setProfile(ProfileData* profile)
     {
+        assert(profile->stats != nullptr);
+        assert(profile->stats.Value.melee != nullptr);
+        auto melee = profile->stats.Value.melee.Value;
         enum type meleeType = type::SELF;
-        if (profile->meleeType == "dir")
+        if (melee.type == "dir")
             meleeType = type::DIR;
-        this->set(profile->meleeAnimKey, meleeType, profile->meleeRange);
+        this->set(melee.animKey, meleeType, melee.range);
     }
     
     void set(const std::string& name, type meleeType, unsigned range)

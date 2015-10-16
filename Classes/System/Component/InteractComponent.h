@@ -3,25 +3,23 @@
 
 struct InteractComponent
 {
+    using ActionType = ProfileInteractInfo::ActionType;
+    using PrereqType = ProfileInteractInfo::PrereqType;
+    
     enum class ePrereq
     {
         NONE
     };
     
-    enum class eAction
-    {
-        NONE,
-        REWARD
-    };
-    
     void setProfile(ProfileData* profile)
     {
-        assert(profile->withInteraction);
+        assert(profile->interaction != nullptr);
         activated = false;
-        animKeyOn = profile->interAnimKeys.first;
-        animKeyOff = profile->interAnimKeys.second;
-        prerequisite = prereqMap[profile->interPrereq];
-        action = actionMap[profile->interActionName];
+        auto interaction = profile->interaction.Value;
+        animKeyOn = interaction.animKeys.first;
+        animKeyOff = interaction.animKeys.second;
+        prerequisite = interaction.prereqType;
+        action = interaction.actionType;
     }
     
     //input
@@ -29,16 +27,11 @@ struct InteractComponent
     std::string animKeyOff;
     bool triggerActivation = false;
     
-    //prerequisiste
-    ePrereq prerequisite = ePrereq::NONE;
-    eAction action = eAction::NONE;
+    ProfileInteractInfo::PrereqType prerequisite = PrereqType::NONE;
+    ProfileInteractInfo::ActionType action = ActionType::NONE;
     
     //output
     bool activated = false;
     bool busy = false;
-    
-private:
-    static std::map<std::string, ePrereq> prereqMap;
-    static std::map<std::string, eAction> actionMap;
-
+    bool triggeredOnce = false;
 };

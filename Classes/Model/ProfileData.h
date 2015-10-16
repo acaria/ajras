@@ -1,5 +1,9 @@
 #pragma once
 
+#include "CoreLib.h"
+#include "ProfileInteractInfo.h"
+#include "ProfileStatsInfo.h"
+
 class AnimationData;
 class Dir;
 
@@ -25,35 +29,11 @@ public:
     std::string     moodCategory = "neutral";
     std::string     sleepCategory = "none";
     
-    //interaction
-    std::string                         interPrereq;
-    std::pair<std::string, std::string> interAnimKeys;
-    std::string                         interActionName;
-    std::string                         interActionParams;
-    
-    //stats - move
-    double          speed;
-    double          acceleration;
-    double          deceleration;
-    bool            orientation;
-    
-    //stats - sight
-    double          sightRange;
-    
-    //stats - melee
-    std::string     meleeType;
-    double          meleeRange;
-    std::string     meleeAnimKey;
-    
-    unsigned        health;
+    lib::Nullable<ProfileInteractInfo>  interaction;
+    lib::Nullable<ProfileStatsInfo>     stats;
     
     bool withCollision = false;
-    bool withMove = false;
-    bool withHealth = false;
-    bool withSight = false;
-    bool withMelee = false;
     bool withBehaviour = false;
-    bool withInteraction = false;
     
     static std::string getTagName(const Dir& orientation);
     bool animCategoryExists(const std::string& category);

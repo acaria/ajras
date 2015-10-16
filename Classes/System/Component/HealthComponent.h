@@ -5,7 +5,9 @@ struct HealthComponent
 {
     void setProfile(ProfileData* profile)
     {
-        this->set(profile->health);
+        assert(profile->stats != nullptr);
+        assert(profile->stats.Value.health != nullptr);
+        this->set(profile->stats.Value.health.Value.value);
     }
     
     void set(int hp)

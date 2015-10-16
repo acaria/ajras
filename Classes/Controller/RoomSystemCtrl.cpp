@@ -116,16 +116,26 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
         ecs::add<cp::Input>(eid, roomIndex);
         ecs::add<cp::Position>(eid, roomIndex).set(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
         
-        if (profile->withMove)
+        if (profile->stats != nullptr)
         {
-            if (profile->orientation)
-                ecs::add<cp::Orientation>(eid, roomIndex);
-            ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
-        }
-        
-        if (profile->withMelee)
-        {
-            ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
+            auto stats = profile->stats.Value;
+            if (stats.move != nullptr)
+            {
+                auto move = stats.move.Value;
+                if (move.orientation)
+                    ecs::add<cp::Orientation>(eid, roomIndex);
+                ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
+            }
+            
+            if (stats.melee != nullptr)
+            {
+                ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
+            }
+            
+            if (stats.health != nullptr)
+            {
+                ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
+            }
         }
         
         if (profile->withBehaviour)
@@ -133,12 +143,7 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
             ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
         }
         
-        if (profile->withHealth)
-        {
-            ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
-        }
-        
-        if (profile->withInteraction)
+        if (profile->interaction != nullptr)
         {
             ecs::add<cp::Interact>(eid, roomIndex).setProfile(profile);
         }

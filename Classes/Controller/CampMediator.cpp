@@ -38,7 +38,7 @@ void CampMediator::onAddView(CampScene &scene)
     }));
     
     this->eventRegs.push_back(scene.getCam()->onTouch.registerObserver([this](cc::Point pos){
-        Log("touch=%f,%f", pos.x, pos.y);
+        this->campSystemCtrl.getCtrlSystem()->setSelectionPos(pos);
     }));
     
     this->eventRegs.push_back(scene.getCam()->onSwipe.registerObserver([this](cc::Point pos1,

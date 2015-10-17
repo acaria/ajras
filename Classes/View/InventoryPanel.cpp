@@ -1,93 +1,99 @@
 #include "InventoryPanel.h"
 
-InventoryPanel::InventoryPanel(unsigned bagCapacity) : bagCapacity(bagCapacity)
-{
-    this->setCascadeOpacityEnabled(true);
-    
-    slotTagToType.push_back(ColCat::object);
-    slotTagToType.push_back(ColCat::head);
-    slotTagToType.push_back(ColCat::body);
-    slotTagToType.push_back(ColCat::leg);
-    slotTagToType.push_back(ColCat::feet);
-    slotTagToType.push_back(ColCat::ring);
-}
-
-InventoryPanel* InventoryPanel::create()
-{
-    return InventoryPanel::create(7);
-}
-
-InventoryPanel* InventoryPanel::create(unsigned bagCapacity)
-{
-    InventoryPanel * layer = new (std::nothrow) InventoryPanel(bagCapacity);
-    if(layer && layer->init())
-    {
-        layer->autorelease();
-        return layer;
-    }
-    CC_SAFE_DELETE(layer);
-    return nullptr;
-}
-
-void InventoryPanel::changeCapacity(unsigned int bagCapacity)
-{
-    //TODO
-    //assert(bagCapacity >= this->bagCapacity);
-    //if (bagCapacity == this->bagCapacity)
-    //    return; //skip
-    //
-    //this->removeChildByTag(bagSlotTag, true);
-}
-
-int InventoryPanel::getHeight()
-{
-    return (((this->bagCapacity + 1) / 4) + 1) * 39 + slotCatMargin + 39 * 2;
-}
-
 bool InventoryPanel::init()
 {
-    int nbLines = (this->bagCapacity + 1) / 4;
-    cc::Point origin = {0.f, (float)getHeight()};
- 
-    //bag
-    for(int j = nbLines; j >= 0; j--)
-    for(unsigned i = 0; i < 4; i++)
-    {
-        cc::Sprite* slot;
-        if (i == 0 && j == 0) //display category
-            slot = cc::Sprite::createWithSpriteFrameName("inv_cat_bag.png");
-        else //display slot
-        {
-            slot = cc::Sprite::createWithSpriteFrameName("inv_slot_empty.png");
-            slotList.push_back({slot, nullptr});
-        }
-        slot->setPosition({origin.x + i * 39.f, origin.y + j * - 39.f});
-        slot->setAnchorPoint({0,0});
-        slot->setTag(0);
-        this->addChild(slot);
-    }
+    if (!Node::init())
+        return false;
     
-    origin.y -= slotCatMargin + (nbLines + 1) * 39.f;
+    this->setCascadeOpacityEnabled(true);
     
-    //equipments
-    for(int j = 1; j >= 0; j--)
-    for(unsigned i = 0; i < 4; i++)
-    {
-        if (i == 0 && j == 1) //skip
-            continue;
-        cc::Sprite* slot;
-        if (i == 0 && j == 0) //display category
-            slot = cc::Sprite::createWithSpriteFrameName("inv_cat_eqp.png");
-        else //display slot
-        {
-            slot = cc::Sprite::createWithSpriteFrameName("inv_slot_eqp" + std::to_string(i + j * 4) + ".png");
-            slot->setTag(i + j * 4);
-            slotList.push_back({slot, nullptr});
-        }
-        slot->setPosition({origin.x + i * 39.f, origin.y + j * - 39.f});
-        slot->setAnchorPoint({0,0});
-        this->addChild(slot);
-    }
-
+    auto sep1 = cc::Sprite::createWithSpriteFrameName("inv_sep.png");
+    sep1->setPosition({33,23});
+    this->addChild(sep1);
+    
+    auto sep2 = cc::Sprite::createWithSpriteFrameName("inv_sep.png");
+    sep2->setPosition({122,23});
+    this->addChild(sep2);
+    
+    auto catBag = cc::Sprite::createWithSpriteFrameName("inv_cat_bag.png");
+    catBag->setPosition({75,16});
+    this->addChild(catBag);
+    
     return true;
+}
+
+void InventoryPanel::registerPlayer(unsigned eid, const std::list<SlotData>& slotList)
+{
+    std::vector<Slot> resultList;
+    
+    cc::Point origin = {0,35};
+    
+    unsigned cp = 0;
+    for(auto s : slotList)
+    {
+        cc::Sprite* slot = cc::Sprite::createWithSpriteFrameName("inv_slot.png");
+        slot->setPosition({origin.x + (cp % 4) * 39.f,
+                           origin.y + (int)(cp / 4) * 39.f});
+        slot->setAnchorPoint({0,0});
+        slot->setCascadeOpacityEnabled(true);
+        this->addChild(slot);
+        
+        if (s.quantity == 0)
+        {
+            resultList.push_back({
+                .quantity = 0,
+                .frameName = "",
+                .slot = slot
+            });
+        }
+        else
+        {
+            auto sIcon = cc::Sprite::createWithSpriteFrameName(s.content->spriteFrameName);
+            sIcon->setPosition({18,18});
+            sIcon->setScale(26.0f / MAX(sIcon->getContentSize().width,
+                                        sIcon->getContentSize().height));
+            slot->addChild(sIcon);
+            resultList.push_back({
+                .quantity = s.quantity,
+                .frameName = s.content->spriteFrameName,
+                .slot = slot
+            });
+        }
+        
+        cp++;
+    }
+    
+    slotsByEntity[eid] = resultList;
+}
+
+void InventoryPanel::updatePlayer(unsigned eid, const std::list<SlotData>& slotList)
+{
+    if (!lib::hasKey(slotsByEntity, eid))
+        return;
+    auto& resultList = slotsByEntity[eid];
+    unsigned index = 0;
+    for(auto& s : slotList)
+    {
+        
+        if (s.quantity == 0)
+        {
+            resultList[index].quantity = 0;
+            resultList[index].slot->removeAllChildren();
+        }
+        else
+        {
+            resultList[index].quantity = s.quantity;
+            if (resultList[index].frameName != s.content->spriteFrameName)
+            {
+                resultList[index].slot->removeAllChildren();
+                auto sIcon = cc::Sprite::createWithSpriteFrameName(s.content->spriteFrameName);
+                sIcon->setScale(26.0f / MAX(sIcon->getContentSize().width,
+                                            sIcon->getContentSize().height));
+                sIcon->setPosition({18,18});
+                
+                resultList[index].slot->addChild(sIcon);
+            }
+        }
+        index++;
+    }
 }

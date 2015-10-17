@@ -53,17 +53,3 @@ enum class CtrlKeyType
     autoselect,
     sel1, sel2, sel3
 };
-
-enum class ColCat
-{
-    //bag
-    object,
-    currency,
-    //equipemnt
-    head,
-    body,
-    arm,
-    leg,
-    feet,
-    ring
-};

@@ -1,43 +1,37 @@
 #include "SlotData.h"
 
-bool SlotData::checkFreeSlot(const std::list<lib::Nullable<SlotData> > &inventory,
+bool SlotData::checkFreeSlot(const std::list<SlotData> &inventory,
                              CollectibleData* element)
 {
     for(auto slot : inventory)
     {
-        if (slot == nullptr)
+        if (slot.quantity == 0)
             return true;
-        auto model = slot.get().content;
-        if (model->key == element->key && slot.get().quantity < model->stackability)
+        if (slot.content->key == element->key && slot.quantity < slot.content->stackability)
             return true;
     }
     return false;
 }
 
-bool SlotData::addCollectible(std::list<lib::Nullable<SlotData> > &inventory,
+bool SlotData::addCollectible(std::list<SlotData> &inventory,
                               CollectibleData* element)
 {
     for(auto& slot : inventory)
     {
-        if (slot == nullptr)
+        if (slot.quantity == 0)
             continue;
-        auto model = slot.Value.content;
-        if (model->key == element->key && slot.Value.quantity < model->stackability)
+        if (slot.content->key == element->key && slot.quantity < slot.content->stackability)
         {
-            SlotData updatedSlot = slot.Value;
-            updatedSlot.quantity++;
-            slot = updatedSlot;
+            slot.quantity++;
             return true;
         }
     }
     for(auto& slot : inventory)
     {
-        if (slot == nullptr)
+        if (slot.quantity == 0)
         {
-            slot = {
-                .quantity = 1,
-                .content = element
-            };
+            slot.quantity = 1;
+            slot.content = element;
             return true;
         }
     }

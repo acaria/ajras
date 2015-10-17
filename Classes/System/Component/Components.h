@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ECS.h"
-#include "CoreLib.h"
 #include "RenderComponent.h"
 #include "OrientationComponent.h"
 #include "PositionComponent.h"
@@ -19,7 +18,7 @@
 
 namespace cp
 {
-    using GearComponent = std::list<lib::Nullable<SlotData>>;
+    using GearComponent = std::list<SlotData>;
     
     using Render = ecs::component<RenderComponent,              1>;
     using Position = ecs::component<PositionComponent,          2>;

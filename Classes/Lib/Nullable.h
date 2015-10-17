@@ -141,7 +141,6 @@ private:
     
 public:
     const T & Value;
-    const T& get() { return Value; }
 };
 
 }

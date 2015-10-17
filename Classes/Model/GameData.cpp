@@ -21,10 +21,20 @@ void GameData::loadPlayer()
     this->player->keysDefList[CtrlKeyType::sel3] = {KeyCode::KEY_3};
     
     //player inventory
-    this->player->inventory.push_back(nullptr);
-    this->player->inventory.push_back(nullptr);
-    this->player->inventory.push_back(nullptr);
-    this->player->inventory.push_back(nullptr);
+    this->player->inventory.push_back({
+        .quantity = 0, .content = nullptr
+    });
+    this->player->inventory.push_back({
+        .quantity = 0, .content = nullptr
+    });this->player->inventory.push_back({
+        .quantity = 0, .content = nullptr
+    });this->player->inventory.push_back({
+        .quantity = 0, .content = nullptr
+    });this->player->inventory.push_back({
+        .quantity = 0, .content = nullptr
+    });this->player->inventory.push_back({
+        .quantity = 0, .content = nullptr
+    });
 }
 
 void GameData::loadCamp()

@@ -192,7 +192,6 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
             auto coord = data->getPosFromCoord({i,j});
             auto sprite = cc::Sprite::createWithSpriteFrameName(
                     properties[BlockInfo::bgTileName]);
-            sprite->getTexture()->setAliasTexParameters();
             sprite->setAnchorPoint({0, 0});
             sprite->setPosition(coord);
             rl->addChild(sprite, data->getZOrder(coord));
@@ -203,7 +202,6 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
             auto coord = data->getPosFromCoord({i,j});
             auto sprite = cc::Sprite::createWithSpriteFrameName(
                     properties[BlockInfo::fgTileName]);
-            sprite->getTexture()->setAliasTexParameters();
             sprite->setAnchorPoint({0, 0});
             sprite->setPosition(coord);
             mapView->fg->addChild(sprite, data->getZOrder(coord));

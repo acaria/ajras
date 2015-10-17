@@ -95,7 +95,6 @@ canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
             auto pt2 = lib::hasKey(movedCameraID, secondEl->first) ?
             movedCameraID[secondEl->first]:secondEl->second;
             auto newRect = computeRect(pt1, pt2);
-            
             if (newRect.size.width > 10 && newRect.size.height > 10)
             {
                 auto translateValue = newRect.origin - oldRect.origin;
@@ -118,14 +117,17 @@ canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
             {
                 once = false;
                 
-                cc::Point pos = touch->getLocation() - centerPos + curPosition - this->canvasRect.origin;
+                cc::Point pRelative = touch->getLocation() - this->canvasRect.origin;
+                cc::Point pos = (pRelative - this->playground->getPosition()) / curScale;
+                
                 if ((touch->getStartLocation() - touch->getLocation()).length() < def::touchTreshold)
                 {
                     this->onTouch(pos);
                 }
                 else
                 {
-                    auto startPos = touch->getStartLocation() - centerPos + curPosition;
+                    auto startPos = ((touch->getStartLocation() - this->canvasRect.origin) -
+                                     this->playground->getPosition())/ curScale;
                     this->onSwipe(startPos, pos);
                 }
                 
@@ -183,10 +185,12 @@ void GameCamera::updatePos()
     if (focus.enabled)
     {
         this->curPosition = {
-            lib::clamp(this->curPosition.x, focus.target.x + FOCUS_MARGIN - centerPos.x / 2,
-                                            focus.target.x - FOCUS_MARGIN + centerPos.x / 2),
-            lib::clamp(this->curPosition.y, focus.target.y + FOCUS_MARGIN - centerPos.y / 2,
-                                            focus.target.y - FOCUS_MARGIN + centerPos.y / 2)
+            lib::clamp(this->curPosition.x,
+                focus.target.x + FOCUS_MARGIN - centerPos.x / 2 / curScale,
+                focus.target.x - FOCUS_MARGIN + centerPos.x / 2 / curScale),
+            lib::clamp(this->curPosition.y,
+                focus.target.y + FOCUS_MARGIN - centerPos.y / 2 / curScale,
+                focus.target.y - FOCUS_MARGIN + centerPos.y / 2 / curScale)
         };
     }
     

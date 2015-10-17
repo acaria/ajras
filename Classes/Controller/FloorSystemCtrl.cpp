@@ -80,6 +80,10 @@ void FloorSystemCtrl::registerEvents(RoomSystemCtrl *ctrl)
         }
         this->onGateTriggered(prevRoomIndex, eid, gate);
     }));
+    
+    this->eventRegs.push_back(ctrl->onGearChanged.registerObserver([this](unsigned rdx, unsigned eid, const cp::GearComponent& gearList) {
+        this->onGearChanged(rdx, eid, gearList);
+    }));
 }
 
 void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,

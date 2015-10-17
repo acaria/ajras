@@ -12,8 +12,8 @@ void MainMenuMediator::onAddView(MainMenuScene& scene)
                     scene.goIntro();
                     break;
                 case MainMenuScene::CmdTag::START:
-                    GameCtrl::instance()->goToMission();
-                    //GameCtrl::instance()->goToCamp();
+                    //GameCtrl::instance()->goToMission();
+                    GameCtrl::instance()->goToCamp();
                     break;
                 case MainMenuScene::CmdTag::QUIT:
                     cc::Director::getInstance()->end();

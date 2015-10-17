@@ -41,10 +41,11 @@ public:
     //events
     lib::Subject<void(unsigned roomID, unsigned eid, int health)> onHealthChanged;
     lib::Subject<void(unsigned roomID, unsigned eid, GateMap gate)> onGateTriggered;
+    lib::Subject<void(unsigned roomID, unsigned eid, const cp::GearComponent&)> onGearChanged;
 
 private:
 
-    void registerEvents();
+    void forwardEvents();
     std::vector<lib::Registration> eventRegs;
 
     //systems

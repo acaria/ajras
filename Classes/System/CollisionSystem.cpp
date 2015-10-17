@@ -1,5 +1,4 @@
 #include "CollisionSystem.h"
-#include "Components.h"
 #include "SysHelper.h"
 #include "ModelProvider.h"
 
@@ -206,6 +205,7 @@ void CollisionSystem::tick(double dt)
                                 SlotData::addCollectible(cpGear, &collectible);
                                 ecs::get<cp::Render>(oid).sprite->removeFromParent();
                                 cp::entity::remove(oid, ecs.getID());
+                                this->onGearChanged(eid, cpGear);
                             }
                         }
                     }

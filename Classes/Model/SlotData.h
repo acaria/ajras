@@ -5,9 +5,9 @@
 
 struct SlotData
 {
-    static bool checkFreeSlot(const std::list<lib::Nullable<SlotData>>& inventory,
+    static bool checkFreeSlot(const std::list<SlotData>& inventory,
                               CollectibleData* element);
-    static bool addCollectible(std::list<lib::Nullable<SlotData>>& inventory,
+    static bool addCollectible(std::list<SlotData>& inventory,
                                CollectibleData* element);
 
 

@@ -1,24 +1,24 @@
 #pragma once
 
 #include "Defines.h"
-#include "CollectibleData.h"
+#include "CoreLib.h"
+#include "SlotData.h"
 
 class InventoryPanel : public cc::Node
 {
 public:
-    static InventoryPanel* create(unsigned bagCapacity);
-    static InventoryPanel* create();
-    InventoryPanel(unsigned bagCapacity);
     virtual ~InventoryPanel() {}
-    virtual bool init() override;
-    int getHeight();
-    void changeCapacity(unsigned bagCapacity);
+    virtual bool init();
+    void registerPlayer(unsigned eid, const std::list<SlotData>& list);
+    void updatePlayer(unsigned eid, const std::list<SlotData>& list);
     
 private:
-    std::vector<ColCat> slotTagToType;
+    struct Slot
+    {
+        unsigned quantity;
+        std::string frameName;
+        cc::Sprite* slot;
+    };
     
-    unsigned bagCapacity;
-    const unsigned slotCatMargin = 10;
-    
-    std::list<std::pair<cc::Sprite*, CollectibleData*>> slotList;
+    std::map<unsigned, std::vector<Slot>> slotsByEntity;
 };

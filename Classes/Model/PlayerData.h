@@ -11,7 +11,7 @@ struct PlayerData
     ~PlayerData();
     
     //inventory
-    std::list<lib::Nullable<SlotData>> inventory;
+    std::list<SlotData> inventory;
     
     //entity binding
     unsigned entityFocus = 0;

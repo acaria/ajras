@@ -38,7 +38,6 @@ void RenderComponent::setProfile(ProfileData* profile, cc::Node *parent, int zOr
 cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
 {
     auto res = cocos2d::Sprite::createWithSpriteFrameName(frameName);
-    res->getTexture()->setAliasTexParameters();
     res->setAnchorPoint({0, 0});
     
 

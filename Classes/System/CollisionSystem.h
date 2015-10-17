@@ -6,10 +6,10 @@ class RoomData;
 #include "ECSGroup.h"
 #include "CoreLib.h"
 #include "SweptAABB.h"
-#include "PositionComponent.h"
-#include "CollisionComponent.h"
+#include "Components.h"
 #include "V2.h"
 #include "IMapData.h"
+#include "Event.h"
 
 class CollisionSystem : public BaseTickSystem
 {
@@ -21,6 +21,8 @@ public:
     
     virtual void tick(double dt) final;
     virtual void animate(double dt, double tp) final {}
+    
+    lib::Subject<void(unsigned, const cp::GearComponent&)> onGearChanged;
     
 private:
     struct gridCollisionInfo

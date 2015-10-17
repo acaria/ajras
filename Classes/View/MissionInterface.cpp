@@ -336,9 +336,9 @@ bool MissionInterface::init()
     
     this->addChild(this->healthBar);
 
-    this->inventoryPanel = InventoryPanel::create();
+    this->inventoryPanel = cc::create<InventoryPanel>();
     this->inventoryPanel->setAnchorPoint({0,0});
-    this->inventoryPanel->setPosition({22.f, 270.f});
+    this->inventoryPanel->setPosition({22.f, 300.f});
     this->inventoryPanel->setOpacity(0);
     this->addChild(inventoryPanel);
     

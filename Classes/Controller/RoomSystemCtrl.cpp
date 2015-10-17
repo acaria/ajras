@@ -21,7 +21,7 @@ RoomSystemCtrl::RoomSystemCtrl(): renderSystem(ecsGroup),
         debugSystem(ecsGroup),
 #endif
         interactSystem(ecsGroup) {
-    this->registerEvents();
+    this->forwardEvents();
 }
 
 void RoomSystemCtrl::tick(double dt)
@@ -83,7 +83,6 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
                 auto coord = data->getPosFromCoord({i,j});
                 auto sprite = cc::Sprite::createWithSpriteFrameName(
                         properties[BlockInfo::bgTileName]);
-                sprite->getTexture()->setAliasTexParameters();
                 sprite->setAnchorPoint({0, 0});
                 sprite->setPosition(coord);
                 rl->addChild(sprite, data->getZOrder(coord));
@@ -94,7 +93,6 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
                 auto coord = data->getPosFromCoord({i,j});
                 auto sprite = cc::Sprite::createWithSpriteFrameName(
                         properties[BlockInfo::fgTileName]);
-                sprite->getTexture()->setAliasTexParameters();
                 sprite->setAnchorPoint({0, 0});
                 sprite->setPosition(coord);
                 view->fg->addChild(sprite, data->getZOrder(coord));
@@ -174,7 +172,6 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
         //view
         cc::Point pos = {gateMap.info.rect.origin.x, gateMap.info.rect.origin.y};
         auto sprite = cc::Sprite::createWithSpriteFrameName(gateMap.tileName + ".png");
-        sprite->getTexture()->setAliasTexParameters();
         sprite->setAnchorPoint({0, 0});
         sprite->setPosition(pos);
         view->bg->addChild(sprite, data->getZOrder(pos));
@@ -228,12 +225,15 @@ void RoomSystemCtrl::showObjects(float duration)
     }
 }
 
-void RoomSystemCtrl::registerEvents()
+void RoomSystemCtrl::forwardEvents()
 {
     this->eventRegs.push_back(meleeSystem.onHealthChanged.registerObserver([this](unsigned eid, int health){
         this->onHealthChanged(this->ecsGroup.getID(), eid, health);
     }));
     this->eventRegs.push_back(transSystem.onGateTriggered.registerObserver([this](unsigned eid, GateMap gate){
         this->onGateTriggered(this->ecsGroup.getID(), eid, gate);
+    }));
+    this->eventRegs.push_back(collisionSystem.onGearChanged.registerObserver([this](unsigned eid, const cp::GearComponent& gearList){
+        this->onGearChanged(this->ecsGroup.getID(), eid, gearList);
     }));
 }

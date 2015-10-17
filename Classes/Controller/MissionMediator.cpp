@@ -11,12 +11,12 @@ void MissionMediator::onAddView(MissionScene &scene)
     floorSystemCtrl.load(scene.getCam(), scene.getFrame(), playerData, floorData);
     floorSystemCtrl.start();
     
-    //this->gView->interface->getHealthBar()->initProperties(csHealth.maxHp,
-    //                                                       csHealth.hp);
-    
     scene.interface->registerPlayer(playerData->ctrlIndex, [playerData](KeyCode code) {
         return playerData->KeyCode2KeyType(code);
     });
+    
+    scene.interface->getInventoryPanel()->registerPlayer(playerData->entityFocus,
+                                                         playerData->inventory);
     
     //view events
     this->eventRegs.push_back(scene.onEnterAfterTransition.registerObserver([](){
@@ -99,6 +99,14 @@ void MissionMediator::onAddView(MissionScene &scene)
                 break;
             default:
                 break;
+        }
+    }));
+    
+    this->eventRegs.push_back(floorSystemCtrl.onGearChanged.registerObserver(
+            [this, playerData, &scene](unsigned roomIdx, unsigned eid, const cp::GearComponent& gear) {
+        if (playerData->entityFocus == eid)
+        {
+            scene.interface->getInventoryPanel()->updatePlayer(eid, gear);
         }
     }));
 }

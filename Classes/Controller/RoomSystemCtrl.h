@@ -1,5 +1,6 @@
 #pragma once
 #include "Defines.h"
+#include "Randgine.h"
 #include "RenderSystem.h"
 #include "CollisionSystem.h"
 #include "TransitSystem.h"
@@ -41,11 +42,13 @@ public:
     //events
     lib::Subject<void(unsigned roomID, unsigned eid, int health)> onHealthChanged;
     lib::Subject<void(unsigned roomID, unsigned eid, GateMap gate)> onGateTriggered;
-    lib::Subject<void(unsigned roomID, unsigned eid, const cp::GearComponent&)> onGearChanged;
+
+    CollisionSystem& getCollisionSystem();
 
 private:
 
     void forwardEvents();
+    lib::Random& random;
     std::vector<lib::Registration> eventRegs;
 
     //systems

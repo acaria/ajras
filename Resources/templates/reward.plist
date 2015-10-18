@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ultimate_chest</key>
+	<array>
+		<string>gold1,gold2</string>
+		<string>gold1</string>
+		<string>gold1</string>
+		<string>gold2</string>
+		<string>gold4</string>
+	</array>
+	<key>small_chest</key>
+	<array>
+		<string>treasure_cup</string>
+	</array>
+</dict>
+</plist>

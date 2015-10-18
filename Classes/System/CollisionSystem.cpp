@@ -200,9 +200,9 @@ void CollisionSystem::tick(double dt)
                         {
                             auto collectible = ModelProvider::instance()->collectible.get(ecs::get<cp::Collectible>(oid));
                             auto& cpGear = ecs::get<cp::Gear>(eid);
-                            if (SlotData::checkFreeSlot(cpGear, &collectible))
+                            if (SlotData::checkFreeSlot(cpGear, collectible))
                             {
-                                SlotData::addCollectible(cpGear, &collectible);
+                                SlotData::addCollectible(cpGear, collectible);
                                 ecs::get<cp::Render>(oid).sprite->removeFromParent();
                                 cp::entity::remove(oid, ecs.getID());
                                 this->onGearChanged(eid, cpGear);

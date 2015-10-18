@@ -35,7 +35,7 @@ public:
     
     lib::Subject<void(unsigned, unsigned, int)>                      onHealthChanged;
     lib::Subject<void(unsigned, unsigned, GateMap)>                  onGateTriggered;
-    lib::Subject<void(unsigned, unsigned, const cp::GearComponent&)> onGearChanged;
+    lib::Subject<void(unsigned, const cp::GearComponent&)>           onGearChanged;
     
 private:
     

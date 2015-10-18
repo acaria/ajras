@@ -25,11 +25,13 @@ public:
     {
         CCLOG("master seed: %ld", seed);
         masterSeed = seed;
+        subSeeds.clear();
         randgine.getEngine().seed((std::mt19937::result_type)seed);
         
         for(int i = 0; i < CAT::_SIZE; i++)
         {
             long subSeed = randgine.interval((long)0, MAX);
+            subSeeds[static_cast<CAT>(i)] = subSeed;
             subEngines[i].getEngine().seed((std::mt19937::result_type)subSeed);
             CCLOG("subseed n%d: %ld", i + 1, subSeed);
         }
@@ -48,5 +50,7 @@ public:
 private:
     lib::Random randgine;
     long masterSeed = 0;
+    std::map<CAT, long> subSeeds;
+    
     std::vector<lib::Random> subEngines;
 };

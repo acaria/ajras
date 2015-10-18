@@ -103,7 +103,7 @@ void MissionMediator::onAddView(MissionScene &scene)
     }));
     
     this->eventRegs.push_back(floorSystemCtrl.onGearChanged.registerObserver(
-            [this, playerData, &scene](unsigned roomIdx, unsigned eid, const cp::GearComponent& gear) {
+            [this, playerData, &scene](unsigned eid, const cp::GearComponent& gear) {
         if (playerData->entityFocus == eid)
         {
             scene.interface->getInventoryPanel()->updatePlayer(eid, gear);

@@ -1,18 +1,22 @@
 #pragma once
 
 #include "CollectibleData.h"
+#include "Random.h"
 
 class CollectibleModel
 {
 public:
-    CollectibleModel();
-    CollectibleData get(std::string key);
+    CollectibleData* get(const std::string& key);
+    std::list<CollectibleData*> genReward(lib::Random& rEngine, const std::string& key);
+    void loadAll();
     
 private:
-    void load();
+    bool initialized = false;
     void addModel(CollectibleData data);
     
-    std::map<std::string, CollectibleData> models;
+    std::map<std::string, CollectibleData>         models;
+    std::map<std::string,
+             std::list<std::list<std::string>>>    rewards;
     std::set<std::string> currencyGroup;
 };
 

@@ -63,7 +63,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             auto collectable = ModelProvider::instance()->collectible.get(cpCollec);
             
             auto& cpRender = ecs.add<cp::Render>(nid);
-            cpRender.setFrame(collectable.spriteFrameName,
+            cpRender.setFrame(collectable->spriteFrameName,
                               ecs::get<cp::Render>(eid).sprite->getParent(),
                               1000000);
             cpRender.manualPosMode = true;

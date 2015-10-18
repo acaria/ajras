@@ -13,6 +13,8 @@
 	<dict>
 		<key>actionName</key>
 		<string>reward</string>
+		<key>actionParams</key>
+		<string>small_chest</string>
 		<key>triggerMode</key>
 		<string>once</string>
 		<key>prerequisite</key>

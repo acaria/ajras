@@ -1,14 +1,14 @@
 #include "CollectibleModel.h"
+#include "CoreLib.h"
 
-CollectibleModel::CollectibleModel()
+CollectibleData* CollectibleModel::get(const std::string& key)
 {
-    this->load();
-}
-
-CollectibleData CollectibleModel::get(std::string key)
-{
+    if (!this->initialized)
+    {
+        this->loadAll();
+    }
     assert(this->models.find(key) != this->models.end());
-    return this->models[key];
+    return &this->models[key];
 }
 
 void CollectibleModel::addModel(CollectibleData data)
@@ -16,58 +16,63 @@ void CollectibleModel::addModel(CollectibleData data)
     this->models[data.key] = data;
 }
 
-void CollectibleModel::load()
+std::list<CollectibleData*> CollectibleModel::genReward(lib::Random& rEngine, const std::string& key)
 {
-    this->addModel({
-        .key = "gold1",
-        .currencyValue = 1,
-        .stackability = 50,
-        .spriteFrameName = "gold_1.png",
-        .spriteRotate = false
-    });
-    this->currencyGroup.insert("gold1");
+    if (!this->initialized)
+    {
+        this->loadAll();
+    }
+    auto result = std::list<CollectibleData*>();
+    assert(this->rewards.find(key) != this->rewards.end());
     
-    this->addModel({
-        .key = "gold2",
-        .currencyValue = 2,
-        .stackability = 50,
-        .spriteFrameName = "gold_2.png",
-        .spriteRotate = false
-    });
-    this->currencyGroup.insert("gold2");
+    for(auto reward : this->rewards[key])
+    {
+        if (reward.size() == 1)
+            result.push_back(this->get(reward.front()));
+        else
+            result.push_back(this->get(rEngine.select(reward)));
+    }
     
-    this->addModel({
-        .key = "gold4",
-        .currencyValue = 4,
-        .stackability = 50,
-        .spriteFrameName = "gold_3.png",
-        .spriteRotate = false
-    });
-    this->currencyGroup.insert("gold3");
-    
-    this->addModel({
-        .key = "gold8",
-        .currencyValue = 8,
-         .stackability = 50,
-        .spriteFrameName = "gold_4.png",
-        .spriteRotate = false
-    });
-    this->currencyGroup.insert("gold4");
-    
-    this->addModel({
-        .key = "gold16",
-        .currencyValue = 16,
-        .stackability = 50,
-        .spriteFrameName = "gold_5.png",
-        .spriteRotate = false
-    });
-    this->currencyGroup.insert("gold5");
-    
-    this->addModel({
-        .key = "treasure_cup",
-        .currencyValue = 100,
-        .stackability = 1,
-        .spriteFrameName = "gold_6.png",
-        .spriteRotate = true
-    });
+    return result;
 }
+
+void CollectibleModel::loadAll()
+{
+    this->initialized = true;
+    
+    auto path = cc::FileUtils::getInstance()->fullPathForFilename("templates/collectible.plist");
+    auto rawData = cc::FileUtils::getInstance()->getValueMapFromFile(path);
+    
+    for(auto row : rawData)
+    {
+        auto info = row.second.asValueMap();
+        this->addModel({
+            .key = row.first,
+            .currencyValue = (unsigned)info.at("currencyValue").asInt(),
+            .stackability = (unsigned)info.at("stackability").asInt(),
+            .spriteFrameName = info.at("spriteName").asString(),
+            .spriteRotate = info.at("spriteRotate").asBool()
+        });
+        
+        if (info.find("isCurrency") != info.end() && info.at("isCurrency").asBool())
+        {
+            this->currencyGroup.insert(row.first);
+        }
+    }
+    
+    path = cc::FileUtils::getInstance()->fullPathForFilename("templates/reward.plist");
+    auto rawData2 = cc::FileUtils::getInstance()->getValueMapFromFile(path);
+    
+    for(auto row : rawData2)
+    {
+        std::list<std::list<std::string>> collectibleList;
+        for(auto itemStr : row.second.asValueVector())
+        {
+            std::list<std::string> items;
+            lib::split(itemStr.asString(), items, ",", true);
+            collectibleList.push_back(items);
+        }
+        this->rewards[row.first] = collectibleList;
+    }
+}
+

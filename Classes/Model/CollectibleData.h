@@ -9,8 +9,8 @@ struct CollectibleData
     std::string key;
     
     //data
-    double currencyValue;
-    unsigned stackability;
+    unsigned    currencyValue;
+    unsigned    stackability;
     
     //view
     std::string spriteFrameName;

@@ -9,7 +9,8 @@
 #include "GateMap.h"
 #include "Defines.h"
 
-RoomSystemCtrl::RoomSystemCtrl(): renderSystem(ecsGroup),
+RoomSystemCtrl::RoomSystemCtrl(): random(Randgine::instance()->get(Randgine::FLOOR)),
+        renderSystem(ecsGroup),
         collisionSystem(ecsGroup),
         moveSystem(ecsGroup),
         transSystem(ecsGroup),
@@ -144,6 +145,22 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
         if (profile->interaction != nullptr)
         {
             ecs::add<cp::Interact>(eid, roomIndex).setProfile(profile);
+            
+            if (profile->interaction.Value.actionType == ProfileInteractInfo::ActionType::REWARD)
+            {
+                assert(profile->interaction.Value.actionParams != nullptr);
+                auto collectables = ModelProvider::instance()->collectible.genReward(
+                        random, profile->interaction.Value.actionParams.Value);
+                cp::GearComponent reward;
+                for(auto collectable : collectables)
+                {
+                    reward.push_back(SlotData {
+                        .quantity = 1,
+                        .content = collectable
+                    });
+                }
+                ecs::add<cp::Gear>(eid, roomIndex) = reward;
+            }
         }
         
         if (obj.properties["profile"] == "torch")
@@ -199,6 +216,11 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
 #endif
 }
 
+CollisionSystem& RoomSystemCtrl::getCollisionSystem()
+{
+    return collisionSystem;
+}
+
 void RoomSystemCtrl::hideObjects(float duration)
 {
     for(auto eid : ecsGroup.join<cp::Render, cp::AI>())
@@ -232,8 +254,5 @@ void RoomSystemCtrl::forwardEvents()
     }));
     this->eventRegs.push_back(transSystem.onGateTriggered.registerObserver([this](unsigned eid, GateMap gate){
         this->onGateTriggered(this->ecsGroup.getID(), eid, gate);
-    }));
-    this->eventRegs.push_back(collisionSystem.onGearChanged.registerObserver([this](unsigned eid, const cp::GearComponent& gearList){
-        this->onGearChanged(this->ecsGroup.getID(), eid, gearList);
     }));
 }

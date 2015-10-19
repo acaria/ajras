@@ -49,45 +49,53 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
         case InteractComponent::ActionType::NONE:
             break;
         case InteractComponent::ActionType::REWARD:
-            if (interact.triggeredOnce)
+            //if (interact.triggeredOnce)
+            //    return; //empty
+            
+            if (!ecs::has<cp::Gear>(eid))
+                return; //no rewards
+            auto& slots = ecs::get<cp::Gear>(eid);
+            if (slots.size() == 0)
                 return; //empty
+            
             //todo using action params
             auto bounds = SysHelper::getBounds(eid);
             
             //gen rewards
-            auto nid = cp::entity::genID();
-            
-            auto& cpCollec = ecs.add<cp::Collectible>(nid);
-            cpCollec = "treasure_cup";
-            
-            auto collectable = ModelProvider::instance()->collectible.get(cpCollec);
-            
-            auto& cpRender = ecs.add<cp::Render>(nid);
-            cpRender.setFrame(collectable->spriteFrameName,
-                              ecs::get<cp::Render>(eid).sprite->getParent(),
-                              1000000);
-            cpRender.manualPosMode = true;
-            cpRender.sprite->setAnchorPoint({0.5,0.5});
-            cpRender.sprite->setPosition(bounds.getMidX(), bounds.getMidY());
-            cpRender.sprite->setOpacity(0);
-            cpRender.sprite->runAction(cc::Spawn::create(
-                cc::FadeIn::create(0.3),
-                cc::RotateBy::create(0.8, std::rand() % 1000 - 500),
-                cc::JumpBy::create(0.8, {(float)(std::rand() % 60) - 30,
-                                         (float)(std::rand() % 60) - 30}, 10, 2),
-                NULL
-            ));
-            cpRender.sprite->runAction(cc::Sequence::create(
-                cc::DelayTime::create(0.8),
-                cc::CallFunc::create([nid, this](){
-                    auto& cpRender = ecs::get<cp::Render>(nid);
-                    auto size = cpRender.sprite->getContentSize();
-                    ecs.add<cp::Collision>(nid).set({0, 0, size.width, size.height},
-                                                    CollisionCategory::collectible);
-                    ecs.add<cp::Position>(nid).set(cpRender.sprite->getPosition() - (size / 2));
-                }),
-                NULL
-            ));
+            for(auto slot : slots)
+            {
+                auto nid = cp::entity::genID();
+                auto& cpCollec = ecs.add<cp::Collectible>(nid);
+                cpCollec = slot.content->key;
+                
+                auto& cpRender = ecs.add<cp::Render>(nid);
+                cpRender.setFrame(slot.content->spriteFrameName,
+                                  ecs::get<cp::Render>(eid).sprite->getParent(),
+                                  1000000);
+                cpRender.manualPosMode = true;
+                cpRender.sprite->setAnchorPoint({0.5,0.5});
+                cpRender.sprite->setPosition(bounds.getMidX(), bounds.getMidY());
+                cpRender.sprite->setOpacity(0);
+                cpRender.sprite->runAction(cc::Spawn::create(
+                        cc::FadeIn::create(0.3),
+                        cc::RotateBy::create(0.8, std::rand() % 1000 - 500),
+                        cc::JumpBy::create(0.8, {(float)(std::rand() % 60) - 30,
+                            (float)(std::rand() % 60) - 30}, 10, 2),
+                        NULL
+                ));
+                cpRender.sprite->runAction(cc::Sequence::create(
+                        cc::DelayTime::create(0.8),
+                        cc::CallFunc::create([nid, this](){
+                            auto& cpRender = ecs::get<cp::Render>(nid);
+                            auto size = cpRender.sprite->getContentSize();
+                            ecs.add<cp::Collision>(nid).set({0, 0, size.width, size.height},
+                                                            CollisionCategory::collectible);
+                            ecs.add<cp::Position>(nid).set(cpRender.sprite->getPosition() - (size / 2));
+                        }),
+                        NULL
+                ));
+            }
+            slots.clear();
             
             break;
     }

@@ -206,9 +206,12 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
             data->getContent().get(i, j).fields[BlockInfo::collision] = "walkable";
         }
     }
+    //hack: gerate collision data after twicks on gates
+    data->getCol()->process();
     
     //init systems
-    collisionSystem.init(data);
+    collisionSystem.init(data->getCol());
+    interactSystem.init(data->getCol());
     renderSystem.init(data);
     aiSystem.init(data);
 #if ECSYSTEM_DEBUG

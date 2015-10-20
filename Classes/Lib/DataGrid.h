@@ -25,13 +25,14 @@ public:
         return *this;
     }
 
-
     DataGrid(unsigned width, unsigned height):
-    width(width),
-    height(height),
-    content(width * height, [width](const v2u &pos){
-        return pos.y * width + pos.x;
+        width(width),
+        height(height),
+        content(width * height, [width](const v2u &pos){
+            return pos.y * width + pos.x;
     }) {}
+    
+    DataGrid(const v2u& size) : DataGrid(size.x, size.y) {}
     
     VALUE &get(unsigned x, unsigned y)
     {

@@ -228,11 +228,14 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
             grid.get(i, j).fields[BlockInfo::collision] = "walkable";
         }
     }
+    //hack: twicks to generate after gates process 
+    this->data->getCol()->process();
     
     //init systems
     this->controlSystem.init(player);
     this->renderSystem.init(data);
-    this->collisionSystem.init(data);
+    this->collisionSystem.init(data->getCol());
+    this->interactSystem.init(data->getCol());
     this->aiSystem.init(data);
     
 #if ECSYSTEM_DEBUG

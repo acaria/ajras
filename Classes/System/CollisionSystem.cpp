@@ -4,108 +4,11 @@
 
 CollisionSystem::~CollisionSystem()
 {
-    this->reset();
 }
 
-void CollisionSystem::reset()
+void CollisionSystem::init(CollisionInfo* collisionData)
 {
-    for(auto pair : this->grids)
-    {
-        if (pair.second != nullptr)
-            delete pair.second;
-    }
-    this->grids.clear();
-}
-
-lib::v2u CollisionSystem::getGridPosIntersect(float x, float y)
-{
-    return { (unsigned)(x / this->blockSize.x), (unsigned)(y / this->blockSize.y) };
-}
-
-lib::v2u CollisionSystem::getGridPosIntersect(const cocos2d::Vec2& v)
-{
-    return this->getGridPosIntersect(v.x, v.y);
-}
-
-bool CollisionSystem::checkRoomCollision(const cocos2d::Rect &rect, CollisionCategory cat)
-{
-    auto moveAble = this->grids[cat];
-    if (!moveAble->get(this->getGridPosIntersect({rect.getMinX(), rect.getMinY()})))
-        return true;
-    if (!moveAble->get(this->getGridPosIntersect({rect.getMinX(), rect.getMaxY()})))
-        return true;
-    if (!moveAble->get(this->getGridPosIntersect({rect.getMaxX(), rect.getMinY()})))
-        return true;
-    if (!moveAble->get(this->getGridPosIntersect({rect.getMaxX(), rect.getMaxY()})))
-        return true;
-    return false;
-}
-
-std::list<cocos2d::Rect> CollisionSystem::getRectGridCollisions(const cocos2d::Rect& rect, CollisionCategory cat)
-{
-    auto moveAble = this->grids[cat];
-    auto res = std::list<cocos2d::Rect>();
-    
-    auto upLeft = this->getGridPosIntersect(rect.getMinX() - 1, rect.getMaxY() +  1);
-    auto downRight = this->getGridPosIntersect(rect.getMaxX() + 1, rect.getMinY() - 1);
-    
-    for(unsigned x = upLeft.x; x <= downRight.x; x++)
-    for(unsigned y = downRight.y; y <= upLeft.y; y++)
-    {
-        if (!moveAble->get({x,y}))
-        {
-            auto gridRect = cc::Rect(
-                x * blockSize.x, y * blockSize.y, blockSize.x, blockSize.y);
-            cc::Vec2 origin = {
-                MAX(gridRect.getMinX(), rect.getMinX()),
-                MAX(gridRect.getMinY(), rect.getMinY())
-            };
-            res.push_back(cocos2d::Rect(
-                origin.x, origin.y,
-                MIN(gridRect.getMaxX(), rect.getMaxX()) - origin.x,
-                MIN(gridRect.getMaxY(), rect.getMaxY()) - origin.y
-            ));
-        }
-    }
-    
-    res.sort([&rect](const cocos2d::Rect& r1, const cocos2d::Rect& r2){
-        return r1.size.width * r1.size.height > r2.size.width * r2.size.height;
-    });
-    
-    return res;
-}
-
-void CollisionSystem::init(IMapData* map)
-{
-    this->reset();
-    
-    this->blockSize = {(unsigned)map->getTileSize().width,
-                       (unsigned)map->getTileSize().height};
-    this->grids[CollisionCategory::walkable] = new lib::DataGrid<bool>(
-            map->getGrid().width,
-            map->getGrid().height);
-    this->grids[CollisionCategory::flyable] = new lib::DataGrid<bool>(
-            map->getGrid().width,
-            map->getGrid().height);
-
-    for(unsigned j = 0; j < map->getGrid().height; j++)
-    for(unsigned i = 0; i < map->getGrid().width; i++)
-    {
-        auto fields = map->getGrid().get(i,j).fields;
-        if (fields.find(BlockInfo::PType::collision) != fields.end())
-        {
-            auto category = fields[BlockInfo::PType::collision];
-            if (category == "walkable")
-            {
-                this->grids[CollisionCategory::flyable]->get({i, j}) = true;
-                this->grids[CollisionCategory::walkable]->get({i, j}) = true;
-            }
-            else if (category == "flyable")
-                this->grids[CollisionCategory::flyable]->get({i, j}) = true;
-            else
-                Log("invalid collision category: %s", category.c_str());
-        }
-    }
+    this->collisionData = collisionData;
 }
 
 void CollisionSystem::tick(double dt)
@@ -157,7 +60,7 @@ void CollisionSystem::tick(double dt)
         lib::v2i gridPos;
         if (true)
         {
-            for(auto rc : this->getRectGridCollisions(bounds, cpCollision.category))
+            for(auto rc : this->collisionData->getRectGridCollisions(bounds, cpCollision.category))
             {
                 cpCollision.current = CollisionComponent::CType::DECOR;
                 cocos2d::Vec2 cv;
@@ -178,7 +81,7 @@ void CollisionSystem::tick(double dt)
             
                 cpPosition.pos += cv;
                 bounds.origin += cv;
-                if (!this->checkRoomCollision(bounds, cpCollision.category))
+                if (!this->collisionData->checkRoomCollision(bounds, cpCollision.category))
                     break;
             }
         }

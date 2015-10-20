@@ -22,6 +22,8 @@ CampData::CampData(const std::string& fileName) :
             this->warpMapping.push_back(warp);
         }
     }
+    
+    this->collision.init(this);
 }
 
 CampData::~CampData()
@@ -36,6 +38,11 @@ CampData* CampData::load(const std::string& filename)
 lib::DataGrid<BlockInfo>& CampData::getGrid()
 {
     return this->grid;
+}
+
+CollisionInfo* CampData::getCol()
+{
+    return &collision;
 }
 
 cc::Size CampData::getTileSize()
@@ -68,4 +75,9 @@ cc::Rect CampData::getBounds()
     return {
         0, 0, (float)totalSize.x, (float)totalSize.y
     };
+}
+
+lib::v2u CampData::getCoordFromPos(cocos2d::Vec2 pos)
+{
+    return TmxDataModel::getCoordFromPos(pos);
 }

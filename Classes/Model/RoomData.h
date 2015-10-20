@@ -6,6 +6,7 @@
 #include "V2.h"
 #include "AIComponent.h"
 #include "IMapData.h"
+#include "CollisionInfo.h"
 
 class RoomData : public IMapData
 {
@@ -41,14 +42,15 @@ public:
     virtual int getZOrder(const cc::Vec2& pos) override;
     virtual cc::Rect getBlockBound(lib::v2u coord) override;
     virtual cc::Rect getBounds() override;
+    virtual lib::v2u getCoordFromPos(cocos2d::Vec2 pos) override;
     
     //getters
     lib::v2u                    getDim();
     lib::DataGrid<BlockInfo>&   getContent();
     std::vector<ObjectInfo>     getModelObjs();
     cc::Vec2                    getPosFromCoord(const lib::v2u& coord);
-    lib::v2u                    getCoordFromPos(const cc::Vec2& pos);
     std::list<cc::Rect>         getWalls();
+    CollisionInfo*              getCol();
     SleepZone*                  getSleepZone(AIComponent::eSleep cat,
                                              const cc::Point& pos);
     void freeSleepZone(AIComponent::eSleep cat, const cc::Point& pos);
@@ -66,9 +68,9 @@ public:
     std::list<GateInfo>           crossAreas;
     std::map<unsigned, GateMap>   gateMapping;
     
-    
 private:
     RoomModel*                            model;
     lib::DataGrid<BlockInfo>              grid;
     std::map<AIComponent::eSleep, std::list<SleepZone>> sleepZones;
+    CollisionInfo collision;
 };

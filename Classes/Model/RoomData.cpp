@@ -23,6 +23,14 @@ RoomData::RoomData(unsigned roomIndex, RoomModel* model) :
             });
         }
     }
+    
+    //collisions
+    this->collision.init(this);
+}
+
+CollisionInfo* RoomData::getCol()
+{
+    return &collision;
 }
 
 RoomData::SleepZone* RoomData::getSleepZone(AIComponent::eSleep cat,
@@ -70,11 +78,6 @@ cc::Vec2 RoomData::getPosFromCoord(const lib::v2u& coord)
     return model->getPosFromCoord(coord);
 }
 
-lib::v2u RoomData::getCoordFromPos(const cc::Vec2& pos)
-{
-    return model->getCoordFromPos(pos);
-}
-
 std::vector<ObjectInfo> RoomData::getModelObjs()
 {
     return model->objs;
@@ -108,6 +111,11 @@ int RoomData::getZOrder(const cc::Vec2& pos)
 cc::Rect RoomData::getBlockBound(lib::v2u coord)
 {
     return this->model->getRectCoord(coord);
+}
+
+lib::v2u RoomData::getCoordFromPos(cocos2d::Vec2 pos)
+{
+    return this->model->getCoordFromPos(pos);
 }
 
 std::list<cc::Rect> RoomData::getWalls()

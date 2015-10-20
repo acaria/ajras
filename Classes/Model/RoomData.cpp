@@ -108,12 +108,12 @@ int RoomData::getZOrder(const cc::Vec2& pos)
     return this->model->getZOrder(pos);
 }
 
-cc::Rect RoomData::getBlockBound(lib::v2u coord)
+cc::Rect RoomData::getBlockBound(const lib::v2u& coord)
 {
     return this->model->getRectCoord(coord);
 }
 
-lib::v2u RoomData::getCoordFromPos(cocos2d::Vec2 pos)
+lib::v2u RoomData::getCoordFromPos(const cc::Vec2& pos)
 {
     return this->model->getCoordFromPos(pos);
 }

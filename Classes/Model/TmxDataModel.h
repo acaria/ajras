@@ -22,9 +22,9 @@ public:
     
     std::string     name;
     
-    cocos2d::Rect getRectCoord(lib::v2u pos);
-    cocos2d::Vec2 getPosFromCoord(lib::v2u coord);
-    lib::v2u getCoordFromPos(cocos2d::Vec2 pos);
+    cocos2d::Rect getRectCoord(const lib::v2u& pos);
+    cocos2d::Vec2 getPosFromCoord(const lib::v2u& coord);
+    lib::v2u getCoordFromPos(const cocos2d::Vec2& pos);
     int getZOrder(const cocos2d::Vec2& pos);
     
 protected:

@@ -55,7 +55,7 @@ int CampData::getZOrder(const cc::Vec2& pos)
     return TmxDataModel::getZOrder(pos);
 }
 
-cc::Rect CampData::getBlockBound(lib::v2u coord)
+cc::Rect CampData::getBlockBound(const lib::v2u& coord)
 {
     return this->getRectCoord(coord);
 }
@@ -77,7 +77,7 @@ cc::Rect CampData::getBounds()
     };
 }
 
-lib::v2u CampData::getCoordFromPos(cocos2d::Vec2 pos)
+lib::v2u CampData::getCoordFromPos(const cc::Vec2& pos)
 {
     return TmxDataModel::getCoordFromPos(pos);
 }

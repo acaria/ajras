@@ -146,18 +146,18 @@ TmxDataModel::TmxDataModel(const std::string &fileName) : grid(0,0)
     }
 }
 
-cocos2d::Rect TmxDataModel::getRectCoord(lib::v2u pos)
+cocos2d::Rect TmxDataModel::getRectCoord(const lib::v2u& pos)
 {
     return { (float)pos.x * tileSize.x, (float)pos.y * tileSize.y,
         (float)tileSize.x, (float)tileSize.y };
 }
 
-cocos2d::Vec2 TmxDataModel::getPosFromCoord(lib::v2u coord)
+cocos2d::Vec2 TmxDataModel::getPosFromCoord(const lib::v2u& coord)
 {
     return {(float)(coord.x * tileSize.x), (float)(coord.y * tileSize.y)};
 }
 
-lib::v2u TmxDataModel::getCoordFromPos(cocos2d::Vec2 pos)
+lib::v2u TmxDataModel::getCoordFromPos(const cocos2d::Vec2& pos)
 {
     return {(unsigned)pos.x / tileSize.x, (unsigned)pos.y / tileSize.y};
 }

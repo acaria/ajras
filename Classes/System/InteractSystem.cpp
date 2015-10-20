@@ -78,17 +78,24 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                 cpRender.setFrame(slot.content->spriteFrameName,
                                   ecs::get<cp::Render>(eid).sprite->getParent(),
                                   1000000);
+                cc::Point srcPos = {bounds.getMidX(), bounds.getMidY()};
                 cpRender.manualPosMode = true;
                 cpRender.sprite->setAnchorPoint({0.5,0.5});
-                cpRender.sprite->setPosition(bounds.getMidX(), bounds.getMidY());
+                cpRender.sprite->setPosition(srcPos);
                 cpRender.sprite->setOpacity(0);
+                
+                auto bList = this->collision->getAvailableBlocks(srcPos, 2, CollisionCategory::walkable);
+                auto destRect = bList[cc::random(0, (int)bList.size() - 1)];
+                cc::Point destPos = {
+                    destRect.origin.x + (cc::random(0, (int)destRect.size.width)) - srcPos.x,
+                    destRect.origin.y + (cc::random(0, (int)destRect.size.height))  - srcPos.y
+                };
                 cpRender.sprite->runAction(cc::Sequence::create(
                     cc::DelayTime::create(delay),
                     cc::Spawn::create(
                         cc::FadeIn::create(0.3),
                         cc::RotateBy::create(0.8, std::rand() % 1000 - 500),
-                        cc::JumpBy::create(0.8, {(float)(std::rand() % 60) - 30,
-                                                 (float)(std::rand() % 60) - 30}, 10, 2),
+                        cc::JumpBy::create(0.8, destPos, 10, 2),
                         NULL),
                     NULL
                 ));

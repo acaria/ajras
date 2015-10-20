@@ -50,6 +50,33 @@ void CollisionInfo::process()
         }
 }
 
+std::vector<cc::Rect> CollisionInfo::getAvailableBlocks(const cc::Point& pos, unsigned int maxDist, CollisionCategory cat)
+{
+    return this->getAvailableBlocks(this->data->getCoordFromPos(pos), maxDist, cat);
+}
+
+std::vector<cc::Rect> CollisionInfo::getAvailableBlocks(const lib::v2u &coord, unsigned int maxDist, CollisionCategory cat)
+{
+    std::vector<cc::Rect> results;
+    for(int j = coord.y - maxDist; j <= coord.y + maxDist; j++)
+    for(int i = coord.x - maxDist; i <= coord.x + maxDist; i++)
+    {
+        if (i < 0 || i >= this->data->getGrid().width)
+            continue;
+        if (j < 0 || j >= this->data->getGrid().height)
+            continue;
+        
+        if (i == coord.x && j == coord.y)
+            continue;
+        if (this->grids[cat]->get({(unsigned)i, (unsigned)j}))
+            results.push_back(data->getBlockBound({(unsigned)i,(unsigned)j}));
+    }
+    
+    if (results.size() == 0)
+        return {this->data->getBlockBound(coord)};
+    return results;
+}
+
 bool CollisionInfo::checkRoomCollision(const cocos2d::Rect &rect, CollisionCategory cat)
 {
     auto moveAble = this->grids[cat];

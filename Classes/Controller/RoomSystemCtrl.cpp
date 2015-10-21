@@ -103,79 +103,16 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
     //objects
     for(auto obj : data->getModelObjs())
     {
-        if (!lib::hasKey(obj.properties, "profile"))
-            continue;
-        auto profile = ModelProvider::instance()->profile.get(obj.properties["profile"]);
-        auto eid = cp::entity::genID();
-        ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
-            RenderComponent::chooseLayer(profile, view),
-            data->getZOrder(obj.pos));
-        ecs::get<cp::Render>(eid).sprite->setPosition(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
-        ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
-        ecs::add<cp::Input>(eid, roomIndex);
-        ecs::add<cp::Position>(eid, roomIndex).set(obj.pos - ecs::get<cp::Collision>(eid).rect.origin);
-        
-        if (profile->stats != nullptr)
+        if (lib::hasKey(obj.properties, "profile"))
+            this->loadStaticObject(obj.properties["profile"], obj.pos, data, view);
+        else if (lib::hasKey(obj.properties, "zone_type"))
         {
-            auto stats = profile->stats.Value;
-            if (stats.move != nullptr)
-            {
-                auto move = stats.move.Value;
-                if (move.orientation)
-                    ecs::add<cp::Orientation>(eid, roomIndex);
-                ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
-            }
-            
-            if (stats.melee != nullptr)
-            {
-                ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
-            }
-            
-            if (stats.health != nullptr)
-            {
-                ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
-            }
+            this->loadZoneObject(obj.properties["zone_type"],
+                {obj.pos.x, obj.pos.y, obj.size.width, obj.size.height}, data, view);
         }
-        
-        if (profile->withBehaviour)
+        else
         {
-            ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
-        }
-        
-        if (profile->interaction != nullptr)
-        {
-            ecs::add<cp::Interact>(eid, roomIndex).setProfile(profile);
-            
-            if (profile->interaction.Value.actionType == ProfileInteractInfo::ActionType::REWARD)
-            {
-                assert(profile->interaction.Value.actionParams != nullptr);
-                auto collectables = ModelProvider::instance()->collectible.genReward(
-                        random, profile->interaction.Value.actionParams.Value);
-                cp::GearComponent reward;
-                for(auto collectable : collectables)
-                {
-                    reward.push_back(SlotData {
-                        .quantity = 1,
-                        .content = collectable
-                    });
-                }
-                ecs::add<cp::Gear>(eid, roomIndex) = reward;
-            }
-        }
-        
-        if (obj.properties["profile"] == "torch")
-        {
-            ecs::get<cp::Render>(eid).setAnimation("activated", -1);
-            
-            auto light = cc::Sprite::createWithSpriteFrameName("grad_ellipse.png");
-            //light->setOpacity(120);
-            light->setColor(cc::Color3B(252, 195, 159));
-            light->setBlendFunc(cc::BlendFunc::ADDITIVE);
-            light->setPosition(obj.pos + cc::Vec2(8, 8));
-            light->runAction(cc::RepeatForever::create(Flicker::create(
-                80.0f, 0.1f, {150, 200}, {0.98, 1.2}, {0.9,1.1},
-                cc::Color3B(252, 168, 50), cc::Color3B(252, 168, 50))));
-            view->fg->addChild(light, 1);
+            Log("invalid obj detected: name:%s, type:%s", obj.name.c_str(), obj.type.c_str());
         }
     }
     
@@ -217,6 +154,120 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
 #if ECSYSTEM_DEBUG
     debugSystem.init(view, data);
 #endif
+}
+
+void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect &bounds, RoomData *data, LayeredNode *view)
+{
+    auto roomIndex = data->index;
+    std::string profileName;
+    
+    bool process = true;
+    switch(lib::hash(zoneType))
+    {
+        case lib::hash("foe"): {
+            profileName = "bat";
+            break;
+        }
+        case lib::hash("reward"): {
+            profileName = "chest1";
+            break;
+        }
+        default:
+        {
+            process = false;
+            Log("invalid zone type: %s", zoneType.c_str());
+        }
+    }
+    
+    if (process)
+    {
+        auto profile = ModelProvider::instance()->profile.get(profileName);
+        cc::Point pos = {
+            bounds.origin.x + this->random.interval(0, bounds.size.width - profile->collisionRect.getMaxX()),
+            bounds.origin.y + this->random.interval(0, bounds.size.height - profile->collisionRect.getMaxY())
+        };
+        this->loadStaticObject(profileName, pos, data, view);
+    }
+}
+
+void RoomSystemCtrl::loadStaticObject(const std::string &profileName,
+                                      const cc::Point& pos,
+                                      RoomData *data,
+                                      LayeredNode *view)
+{
+    auto roomIndex = data->index;
+    auto profile = ModelProvider::instance()->profile.get(profileName);
+    auto eid = cp::entity::genID();
+    ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
+                                                    RenderComponent::chooseLayer(profile, view),
+                                                    data->getZOrder(pos));
+    ecs::get<cp::Render>(eid).sprite->setPosition(pos - ecs::get<cp::Collision>(eid).rect.origin);
+    ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::Input>(eid, roomIndex);
+    ecs::add<cp::Position>(eid, roomIndex).set(pos - ecs::get<cp::Collision>(eid).rect.origin);
+    
+    if (profile->stats != nullptr)
+    {
+        auto stats = profile->stats.Value;
+        if (stats.move != nullptr)
+        {
+            auto move = stats.move.Value;
+            if (move.orientation)
+                ecs::add<cp::Orientation>(eid, roomIndex);
+            ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
+        }
+        
+        if (stats.melee != nullptr)
+        {
+            ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
+        }
+        
+        if (stats.health != nullptr)
+        {
+            ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
+        }
+    }
+    
+    if (profile->withBehaviour)
+    {
+        ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
+    }
+    
+    if (profile->interaction != nullptr)
+    {
+        ecs::add<cp::Interact>(eid, roomIndex).setProfile(profile);
+        
+        if (profile->interaction.Value.actionType == ProfileInteractInfo::ActionType::REWARD)
+        {
+            assert(profile->interaction.Value.actionParams != nullptr);
+            auto collectables = ModelProvider::instance()->collectible.genReward(
+                                                                                 random, profile->interaction.Value.actionParams.Value);
+            cp::GearComponent reward;
+            for(auto collectable : collectables)
+            {
+                reward.push_back(SlotData {
+                    .quantity = 1,
+                    .content = collectable
+                });
+            }
+            ecs::add<cp::Gear>(eid, roomIndex) = reward;
+        }
+    }
+    
+    if (profileName == "torch")
+    {
+        ecs::get<cp::Render>(eid).setAnimation("activated", -1);
+        
+        auto light = cc::Sprite::createWithSpriteFrameName("grad_ellipse.png");
+        //light->setOpacity(120);
+        light->setColor(cc::Color3B(252, 195, 159));
+        light->setBlendFunc(cc::BlendFunc::ADDITIVE);
+        light->setPosition(pos + cc::Vec2(8, 8));
+        light->runAction(cc::RepeatForever::create(Flicker::create(
+                                                                   80.0f, 0.1f, {150, 200}, {0.98, 1.2}, {0.9,1.1},
+                                                                   cc::Color3B(252, 168, 50), cc::Color3B(252, 168, 50))));
+        view->fg->addChild(light, 1);
+    }
 }
 
 CollisionSystem& RoomSystemCtrl::getCollisionSystem()

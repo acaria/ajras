@@ -48,6 +48,11 @@ public:
 private:
 
     void forwardEvents();
+    void loadStaticObject(const std::string &profileName,
+                          const cc::Point& pos, RoomData *data, LayeredNode *view);
+    void loadZoneObject(const std::string &profileName,
+                        const cc::Rect& bounds, RoomData *data, LayeredNode *view);
+    
     lib::Random& random;
     std::vector<lib::Registration> eventRegs;
 

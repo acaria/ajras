@@ -130,7 +130,11 @@ TmxDataModel::TmxDataModel(const std::string &fileName) : grid(0,0)
                 };
                 
                 for(auto cpl : tileProperties[object.get<jsonxx::Number>("gid")])
+                {
+                    if (cpl.first == "type" && res.type == "") //type override
+                        res.type = cpl.second;
                     res.properties.insert(cpl);
+                }
                 
                 if (object.has<jsonxx::Object>("properties"))
                 {

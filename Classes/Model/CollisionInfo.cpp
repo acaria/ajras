@@ -111,34 +111,49 @@ bool CollisionInfo::needMerge(const cc::Rect &r1, const cc::Rect &r2)
 
 std::list<cc::Rect> CollisionInfo::mergeRectGrids(std::list<cc::Rect> src)
 {
-    auto res = std::list<cc::Rect>();
-    if (src.size() > 0)
+    struct processInfo
     {
-        res.push_back(src.front());
-        src.pop_front();
-        for(auto r : src)
-        {
-            bool merged = false;
-            for (auto& mr : res)
-            {
-                if (this->needMerge(mr, r))
-                {
-                    merged = true;
-                    cc::Point origin = {
-                        MIN(mr.origin.x, r.origin.x),
-                        MIN(mr.origin.y, r.origin.y)
-                    };
-                    mr = {
-                        origin.x, origin.y,
-                        MAX(mr.getMaxX(), r.getMaxX()) - origin.x,
-                        MAX(mr.getMaxY(), r.getMaxY()) - origin.y
-                    };
-                }
-            }
-            if (!merged)
-                res.push_back(r);
-        }
+        cc::Rect bounds;
+        bool processed;
+    };
+    
+    std::list<processInfo> processList;
+    for(auto bounds : src)
+    {
+        processList.push_back({
+            .bounds = bounds,
+            .processed = false
+        });
     }
+    
+    std::list<cc::Rect> res;
+    
+    for(auto& info : processList)
+    {
+        if (info.processed)
+            continue;
+        cc::Rect mRect = info.bounds;
+        for(auto& info2 : processList)
+        {
+            auto bounds = info2.bounds;
+            if (needMerge(bounds, mRect))
+            {
+                info2.processed = true;
+                cc::Point origin = {
+                    MIN(bounds.origin.x, mRect.origin.x),
+                    MIN(bounds.origin.y, mRect.origin.y)
+                };
+                mRect = {
+                    origin.x, origin.y,
+                    MAX(bounds.getMaxX(), mRect.getMaxX()) - origin.x,
+                    MAX(bounds.getMaxY(), mRect.getMaxY()) - origin.y
+                };
+            }
+        }
+        res.push_back(mRect);
+        info.processed = true;
+    }
+    
     return res;
 }
 

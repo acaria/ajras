@@ -42,25 +42,25 @@ cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
     
 
 #if kDrawDebug
-    this->collision = Sprite::createWithSpriteFrameName("pixel.png");
+    this->collision = cc::Sprite::createWithSpriteFrameName("pixel.png");
     this->collision->setOpacity(100);
-    this->collision->setColor(Color3B::GREEN);
+    this->collision->setColor(cc::Color3B::GREEN);
     this->collision->setAnchorPoint({0,0});
     this->collision->setVisible(false);
     res->addChild(this->collision);
 
-    this->melee = Sprite::createWithSpriteFrameName("pixel.png");
+    this->melee = cc::Sprite::createWithSpriteFrameName("pixel.png");
     this->melee->setOpacity(100);
-    this->melee->setColor(Color3B::YELLOW);
+    this->melee->setColor(cc::Color3B::YELLOW);
     this->melee->setAnchorPoint({0,0});
     this->melee->setVisible(false);
     res->addChild(this->melee);
     
-    this->sight = Sprite::createWithSpriteFrameName("circle.png");
+    this->sight = cc::Sprite::createWithSpriteFrameName("circle.png");
     this->sight->setAnchorPoint({0.5,0.5});
     this->sight->setPosition(res->getContentSize().width / 2, res->getContentSize().height / 2);
     this->sight->setOpacity(80);
-    this->sight->setColor(Color3B::ORANGE);
+    this->sight->setColor(cc::Color3B::ORANGE);
     this->sight->setVisible(false);
     res->addChild(this->sight);
 #endif

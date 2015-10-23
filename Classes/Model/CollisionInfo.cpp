@@ -50,12 +50,12 @@ void CollisionInfo::process()
         }
 }
 
-std::vector<cc::Rect> CollisionInfo::getAvailableBlocks(const cc::Point& pos, unsigned int maxDist, CollisionCategory cat)
+std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const cc::Point& pos, unsigned int maxDist, CollisionCategory cat)
 {
-    return this->getAvailableBlocks(this->data->getCoordFromPos(pos), maxDist, cat);
+    return this->getNearEmptyBlocks(this->data->getCoordFromPos(pos), maxDist, cat);
 }
 
-std::vector<cc::Rect> CollisionInfo::getAvailableBlocks(const lib::v2u &coord, unsigned int maxDist, CollisionCategory cat)
+std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const lib::v2u &coord, unsigned int maxDist, CollisionCategory cat)
 {
     std::vector<cc::Rect> results;
     for(int j = coord.y - maxDist; j <= coord.y + maxDist; j++)
@@ -91,35 +91,80 @@ bool CollisionInfo::checkRoomCollision(const cocos2d::Rect &rect, CollisionCateg
     return false;
 }
 
+bool CollisionInfo::needMerge(const cc::Rect &r1, const cc::Rect &r2)
+{
+    if (r1.size.width != r2.size.width && r1.size.height != r2.size.height)
+        return false;
+    if (r1.size.width == r2.size.width && r1.origin.x == r2.origin.x)
+    {
+        if (r1.getMinY() == r2.getMaxY() || r2.getMinY() == r1.getMaxY())
+            return true;
+    }
+    if (r1.size.height == r2.size.height && r1.origin.y == r2.origin.y)
+    {
+        if (r1.getMinX() == r2.getMaxX() || r2.getMinX() == r1.getMaxX())
+            return true;
+    }
+    
+    return false;
+}
+
+std::list<cc::Rect> CollisionInfo::mergeRectGrids(std::list<cc::Rect> src)
+{
+    auto res = std::list<cc::Rect>();
+    if (src.size() > 0)
+    {
+        res.push_back(src.front());
+        src.pop_front();
+        for(auto r : src)
+        {
+            bool merged = false;
+            for (auto& mr : res)
+            {
+                if (this->needMerge(mr, r))
+                {
+                    merged = true;
+                    cc::Point origin = {
+                        MIN(mr.origin.x, r.origin.x),
+                        MIN(mr.origin.y, r.origin.y)
+                    };
+                    mr = {
+                        origin.x, origin.y,
+                        MAX(mr.getMaxX(), r.getMaxX()) - origin.x,
+                        MAX(mr.getMaxY(), r.getMaxY()) - origin.y
+                    };
+                }
+            }
+            if (!merged)
+                res.push_back(r);
+        }
+    }
+    return res;
+}
+
 std::list<cocos2d::Rect> CollisionInfo::getRectGridCollisions(const cocos2d::Rect& rect, CollisionCategory cat)
 {
     auto moveAble = this->grids[cat];
     auto res = std::list<cocos2d::Rect>();
     
-    auto upLeft = this->data->getCoordFromPos({rect.getMinX() - 1, rect.getMaxY() +  1});
-    auto downRight = this->data->getCoordFromPos({rect.getMaxX() + 1, rect.getMinY() - 1});
+    auto upLeft = this->data->getCoordFromPos({rect.getMinX(), rect.getMaxY()});
+    auto downRight = this->data->getCoordFromPos({rect.getMaxX(), rect.getMinY()});
     
     for(unsigned x = upLeft.x; x <= downRight.x; x++)
-        for(unsigned y = downRight.y; y <= upLeft.y; y++)
+    for(unsigned y = downRight.y; y <= upLeft.y; y++)
+    {
+        if (!moveAble->get({x,y}))
         {
-            if (!moveAble->get({x,y}))
-            {
-                auto gridRect = this->data->getBlockBound({x, y});
-                cc::Vec2 origin = {
-                    MAX(gridRect.getMinX(), rect.getMinX()),
-                    MAX(gridRect.getMinY(), rect.getMinY())
-                };
-                res.push_back(cocos2d::Rect(
-                                            origin.x, origin.y,
-                                            MIN(gridRect.getMaxX(), rect.getMaxX()) - origin.x,
-                                            MIN(gridRect.getMaxY(), rect.getMaxY()) - origin.y
-                                            ));
-            }
+            res.push_back(lib::getIntersection(
+                    this->data->getBlockBound({x, y}), rect));
         }
+    }
     
-    res.sort([&rect](const cocos2d::Rect& r1, const cocos2d::Rect& r2){
+    auto mergedRes = this->mergeRectGrids(res);
+    
+    mergedRes.sort([&rect](const cocos2d::Rect& r1, const cocos2d::Rect& r2){
         return r1.size.width * r1.size.height > r2.size.width * r2.size.height;
     });
     
-    return res;
+    return mergedRes;
 }

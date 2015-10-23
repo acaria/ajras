@@ -84,7 +84,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                 cpRender.sprite->setPosition(srcPos);
                 cpRender.sprite->setOpacity(0);
                 
-                auto bList = this->collision->getAvailableBlocks(srcPos, 2, CollisionCategory::walkable);
+                auto bList = this->collision->getNearEmptyBlocks(srcPos, 2, CollisionCategory::walkable);
                 auto destRect = bList[cc::random(0, (int)bList.size() - 1)];
                 cc::Point destPos = {
                     destRect.origin.x + (cc::random(0, (int)destRect.size.width)) - srcPos.x,

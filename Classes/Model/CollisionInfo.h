@@ -17,14 +17,19 @@ public:
                                                    CollisionCategory cat);
     bool checkRoomCollision(const cocos2d::Rect& rect,
                             CollisionCategory cat);
-    std::vector<cc::Rect> getAvailableBlocks(const lib::v2u& coord,
+    std::vector<cc::Rect> getNearEmptyBlocks(const lib::v2u& coord,
                                           unsigned maxDist,
                                           CollisionCategory cat);
-    std::vector<cc::Rect> getAvailableBlocks(const cc::Point& pos,
+    std::vector<cc::Rect> getNearEmptyBlocks(const cc::Point& pos,
                                            unsigned maxDist,
                                            CollisionCategory cat);
     
 private:
+    //internal
+    bool needMerge(const cc::Rect& r1, const cc::Rect& r2);
+    std::list<cc::Rect> mergeRectGrids(std::list<cc::Rect> src);
+
+    //fields
     std::map<CollisionCategory, lib::DataGrid<bool>*> grids;
     IMapData* data;
 };

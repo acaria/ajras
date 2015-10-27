@@ -89,8 +89,8 @@ cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::R
     {
         sweepCount = std::abs(dir.x) / destBounds.size.width;
         sweepDir = {
-            destBounds.size.width,
-            dir.y * destBounds.size.width / dir.x
+            dir.x / sweepCount,
+            dir.y * destBounds.size.width / std::abs(dir.x)
         };
         sweepTx = {
             fmodf(dir.x, sweepDir.x),
@@ -102,8 +102,8 @@ cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::R
     {
         sweepCount = std::abs(dir.y) / destBounds.size.height;
         sweepDir = {
-            dir.x * destBounds.size.height / dir.y,
-            destBounds.size.height,
+            dir.x * destBounds.size.height / std::abs(dir.y),
+            dir.y / sweepCount,
         };
         sweepTx = {
             dir.x ? fmodf(dir.x, sweepDir.x) : 0,
@@ -115,7 +115,9 @@ cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::R
     if (dir.x != 0 && (std::abs(dir.x) / tWidth) > sweepCount)
     {
         sweepCount = std::abs(dir.x) / tWidth;
-        sweepDir = { tWidth, dir.y * tWidth / dir.x };
+        sweepDir = {
+            dir.x / sweepCount,
+            dir.y * tWidth / std::abs(dir.x) };
         sweepTx = {
             fmodf(dir.x, sweepDir.x),
             dir.y ? fmodf(dir.y, sweepDir.y) : 0
@@ -126,7 +128,9 @@ cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::R
     if (dir.y != 0 && (std::abs(dir.y) / tHeight) > sweepCount)
     {
         sweepCount = std::abs(dir.y) / tHeight;
-        sweepDir = { dir.x * tHeight / dir.y, tHeight};
+        sweepDir = {
+            dir.x * tHeight / std::abs(dir.y),
+            dir.y / sweepCount};
         sweepTx = {
             dir.x ? fmodf(dir.x, sweepDir.x) : 0,
             fmodf(dir.y, sweepDir.y)
@@ -134,7 +138,7 @@ cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::R
     }
     
     int cp = 0;
-    for(cc::Point pos = lastBounds.origin + sweepTx; cp < sweepCount; cp++, pos += sweepDir)
+    for(cc::Point pos = lastBounds.origin + sweepTx; cp <= sweepCount; cp++, pos += sweepDir)
     {
         cc::Rect bounds = {pos, lastBounds.size};
         auto collisions = this->getRectGridCollisions(bounds, cat);

@@ -77,17 +77,113 @@ std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const lib::v2u &coord, u
     return results;
 }
 
-bool CollisionInfo::checkRoomCollision(const cocos2d::Rect &rect, CollisionCategory cat)
+cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::Rect& lastBounds, CollisionCategory cat)
+{
+    cc::Point dir = destBounds.origin - lastBounds.origin;
+    
+    float       sweepCount = 0;
+    cc::Point   sweepDir = {0, 0};
+    cc::Point   sweepTx = dir;
+    
+    if (dir.x != 0 && (std::abs(dir.x) / destBounds.size.width) > sweepCount)
+    {
+        sweepCount = std::abs(dir.x) / destBounds.size.width;
+        sweepDir = {
+            destBounds.size.width,
+            dir.y * destBounds.size.width / dir.x
+        };
+        sweepTx = {
+            fmodf(dir.x, sweepDir.x),
+            dir.y ? fmodf(dir.y, sweepDir.y) : 0
+        };
+    }
+    
+    if (dir.y != 0 && (std::abs(dir.y) / destBounds.size.height) > sweepCount)
+    {
+        sweepCount = std::abs(dir.y) / destBounds.size.height;
+        sweepDir = {
+            dir.x * destBounds.size.height / dir.y,
+            destBounds.size.height,
+        };
+        sweepTx = {
+            dir.x ? fmodf(dir.x, sweepDir.x) : 0,
+            fmodf(dir.y, sweepDir.y)
+        };
+    }
+    
+    auto tWidth = this->data->getTileSize().width;
+    if (dir.x != 0 && (std::abs(dir.x) / tWidth) > sweepCount)
+    {
+        sweepCount = std::abs(dir.x) / tWidth;
+        sweepDir = { tWidth, dir.y * tWidth / dir.x };
+        sweepTx = {
+            fmodf(dir.x, sweepDir.x),
+            dir.y ? fmodf(dir.y, sweepDir.y) : 0
+        };
+    }
+    
+    auto tHeight = this->data->getTileSize().height;
+    if (dir.y != 0 && (std::abs(dir.y) / tHeight) > sweepCount)
+    {
+        sweepCount = std::abs(dir.y) / tHeight;
+        sweepDir = { dir.x * tHeight / dir.y, tHeight};
+        sweepTx = {
+            dir.x ? fmodf(dir.x, sweepDir.x) : 0,
+            fmodf(dir.y, sweepDir.y)
+        };
+    }
+    
+    int cp = 0;
+    for(cc::Point pos = lastBounds.origin + sweepTx; cp < sweepCount; cp++, pos += sweepDir)
+    {
+        cc::Rect bounds = {pos, lastBounds.size};
+        auto collisions = this->getRectGridCollisions(bounds, cat);
+        if (collisions.size() > 0)
+        {
+            for(auto rc : collisions)
+            {
+                cocos2d::Vec2 cv;
+        
+                if (rc.size.width > rc.size.height) //ySlide
+                {
+                    if (rc.getMinY() > bounds.getMinY())
+                        cv.y = - (rc.size.height + 1);
+                    else
+                        cv.y = rc.size.height + 1;
+                }
+                else //xSlide
+                {
+                    if (rc.getMinX() > bounds.getMinX())
+                        cv.x = - (rc.size.width + 1);
+                    else
+                        cv.x = rc.size.width + 1;
+                }
+        
+                bounds.origin += cv;
+        
+                if (!this->checkCollisionRect(bounds, cat))
+                    break;
+            }
+            return bounds.origin;
+        }
+    }
+    return destBounds.origin;
+}
+
+bool CollisionInfo::checkCollisionRect(const cc::Rect &rect, CollisionCategory cat)
 {
     auto moveAble = this->grids[cat];
-    if (!moveAble->get(this->data->getCoordFromPos({rect.getMinX(), rect.getMinY()})))
-        return true;
-    if (!moveAble->get(this->data->getCoordFromPos({rect.getMinX(), rect.getMaxY()})))
-        return true;
-    if (!moveAble->get(this->data->getCoordFromPos({rect.getMaxX(), rect.getMinY()})))
-        return true;
-    if (!moveAble->get(this->data->getCoordFromPos({rect.getMaxX(), rect.getMaxY()})))
-        return true;
+ 
+    auto downLeft = this->data->getCoordFromPos({rect.getMinX(), rect.getMinY()});
+    auto upRight = this->data->getCoordFromPos({rect.getMaxX(), rect.getMaxY()});
+    
+    for(unsigned x = downLeft.x; x <= upRight.x; x++)
+    for(unsigned y = downLeft.y; y <= upRight.y; y++)
+    {
+        if (!moveAble->get(x, y))
+            return true;
+    }
+
     return false;
 }
 

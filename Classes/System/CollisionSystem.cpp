@@ -60,35 +60,18 @@ void CollisionSystem::tick(double dt)
         
         //----------------
         //check room blocks
-        lib::v2i gridPos;
-        if (true)
+        
+        Log("dir=%f-%f", cpPosition.pos.x - cpPosition.last.x, cpPosition.pos.y - cpPosition.last.y);
+        
+        cc::Rect lastBounds = SysHelper::getLastBounds(cpPosition, cpCollision);
+        
+        if (this->collisionData->checkCollisionRect(lib::getUnion(bounds, lastBounds),
+                                                    cpCollision.category))
         {
-            for(auto rc : this->collisionData->getRectGridCollisions(bounds, cpCollision.category))
-            {
-                cpCollision.current = CollisionComponent::CType::DECOR;
-                cocos2d::Vec2 cv;
-                
-                if (rc.size.width > rc.size.height) //ySlide
-                {
-                    if (rc.getMinY() > bounds.getMinY())
-                        cv.y = - rc.size.height - 1;
-                    else
-                        cv.y = rc.size.height + 1;
-                }
-                else //xSlide
-                {
-                    if (rc.getMinX() > bounds.getMinX())
-                        cv.x = - rc.size.width - 1;
-                    else
-                        cv.x = rc.size.width + 1;
-                }
-            
-                cpPosition.pos += cv;
-                bounds.origin += cv;
-                
-                if (!this->collisionData->checkRoomCollision(bounds, cpCollision.category))
-                    break;
-            }
+            cpCollision.current = CollisionComponent::DECOR;
+            bounds.origin = this->collisionData->getCollisionPos(
+                    bounds, lastBounds, cpCollision.category);
+            cpPosition.pos = bounds.origin - cpCollision.rect.origin;
         }
         
         //check room objects

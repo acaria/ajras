@@ -36,6 +36,21 @@ namespace lib
         };
     }
     
+    cc::Rect getUnion(const cc::Rect &r1, const cc::Rect& r2)
+    {
+        cocos2d::Vec2 origin = {
+            MIN(r1.getMinX(), r2.getMinX()),
+            MIN(r1.getMinY(), r2.getMinY())
+        };
+        
+        return {
+            origin.x,
+            origin.y,
+            MAX(r1.getMaxX(), r2.getMaxX()) - origin.x,
+            MAX(r1.getMaxY(), r2.getMaxY()) - origin.y
+        };
+    }
+    
     cc::Rect inflateRect(const cc::Rect &r, float value)
     {
         float inflateValue = value / 2;

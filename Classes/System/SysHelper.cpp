@@ -12,6 +12,16 @@ cc::Rect SysHelper::getBounds(const PositionComponent &position,
     );
 }
 
+cc::Rect SysHelper::getLastBounds(const PositionComponent &position,
+                                  const CollisionComponent &collision)
+{
+    return cc::Rect(
+        position.last.x + collision.rect.origin.x,
+        position.last.y + collision.rect.origin.y,
+        collision.rect.size.width - 1,
+        collision.rect.size.height - 1);
+}
+
 cc::Rect SysHelper::getBounds(unsigned eid)
 {
     CCASSERT((ecs::has<cp::Position, cp::Collision>(eid)), "invalid entity for bounds processing");

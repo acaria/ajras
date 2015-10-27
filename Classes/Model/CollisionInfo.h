@@ -13,19 +13,23 @@ public:
     void process();
     void init(IMapData* mapData);
     
-    std::list<cocos2d::Rect> getRectGridCollisions(const cocos2d::Rect& rect,
-                                                   CollisionCategory cat);
-    bool checkRoomCollision(const cocos2d::Rect& rect,
+    cc::Point getCollisionPos(const cc::Rect& destBounds,
+                              const cc::Rect& lastBounds,
+                              CollisionCategory cat);
+
+    bool checkCollisionRect(const cocos2d::Rect& rect,
                             CollisionCategory cat);
     std::vector<cc::Rect> getNearEmptyBlocks(const lib::v2u& coord,
-                                          unsigned maxDist,
-                                          CollisionCategory cat);
+                                             unsigned maxDist,
+                                             CollisionCategory cat);
     std::vector<cc::Rect> getNearEmptyBlocks(const cc::Point& pos,
-                                           unsigned maxDist,
-                                           CollisionCategory cat);
+                                             unsigned maxDist,
+                                             CollisionCategory cat);
     
 private:
     //internal
+    std::list<cocos2d::Rect> getRectGridCollisions(const cocos2d::Rect& rect,
+                                                   CollisionCategory cat);
     bool needMerge(const cc::Rect& r1, const cc::Rect& r2);
     std::list<cc::Rect> mergeRectGrids(std::list<cc::Rect> src);
 

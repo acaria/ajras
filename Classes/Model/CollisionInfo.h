@@ -28,6 +28,14 @@ public:
     
 private:
     //internal
+    struct SweepInfo
+    {
+        float       count;
+        cc::Point   dir;
+        cc::Point   tx;
+    };
+    SweepInfo InterpolateDir(const cc::Point& dir, const cc::Rect& bounds);
+    
     std::list<cocos2d::Rect> getRectGridCollisions(const cocos2d::Rect& rect,
                                                    CollisionCategory cat);
     bool needMerge(const cc::Rect& r1, const cc::Rect& r2);

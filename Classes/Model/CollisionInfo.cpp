@@ -77,68 +77,77 @@ std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const lib::v2u &coord, u
     return results;
 }
 
-cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::Rect& lastBounds, CollisionCategory cat)
+CollisionInfo::SweepInfo CollisionInfo::InterpolateDir(const cc::Point& dir, const cc::Rect &bounds)
 {
-    cc::Point dir = destBounds.origin - lastBounds.origin;
+    SweepInfo sweep = {
+        .count = 0,
+        .dir = {0,0},
+        .tx = dir
+    };
     
-    float       sweepCount = 0;
-    cc::Point   sweepDir = {0, 0};
-    cc::Point   sweepTx = dir;
-    
-    if (dir.x != 0 && (std::abs(dir.x) / destBounds.size.width) > sweepCount)
+    if (dir.x != 0 && (std::abs(dir.x) / bounds.size.width) > sweep.count)
     {
-        sweepCount = std::abs(dir.x) / destBounds.size.width;
-        sweepDir = {
-            dir.x / sweepCount,
-            dir.y * destBounds.size.width / std::abs(dir.x)
+        sweep.count = std::abs(dir.x) / bounds.size.width;
+        sweep.dir = {
+            dir.x / sweep.count,
+            dir.y * bounds.size.width / std::abs(dir.x)
         };
-        sweepTx = {
-            fmodf(dir.x, sweepDir.x),
-            dir.y ? fmodf(dir.y, sweepDir.y) : 0
+        sweep.tx = {
+            fmodf(dir.x, sweep.dir.x),
+            dir.y ? fmodf(dir.y, sweep.dir.y) : 0
         };
     }
     
-    if (dir.y != 0 && (std::abs(dir.y) / destBounds.size.height) > sweepCount)
+    if (dir.y != 0 && (std::abs(dir.y) / bounds.size.height) > sweep.count)
     {
-        sweepCount = std::abs(dir.y) / destBounds.size.height;
-        sweepDir = {
-            dir.x * destBounds.size.height / std::abs(dir.y),
-            dir.y / sweepCount,
+        sweep.count = std::abs(dir.y) / bounds.size.height;
+        sweep.dir = {
+            dir.x * bounds.size.height / std::abs(dir.y),
+            dir.y / sweep.count,
         };
-        sweepTx = {
-            dir.x ? fmodf(dir.x, sweepDir.x) : 0,
-            fmodf(dir.y, sweepDir.y)
+        sweep.tx = {
+            dir.x ? fmodf(dir.x, sweep.dir.x) : 0,
+            fmodf(dir.y, sweep.dir.y)
         };
     }
     
     auto tWidth = this->data->getTileSize().width;
-    if (dir.x != 0 && (std::abs(dir.x) / tWidth) > sweepCount)
+    if (dir.x != 0 && (std::abs(dir.x) / tWidth) > sweep.count)
     {
-        sweepCount = std::abs(dir.x) / tWidth;
-        sweepDir = {
-            dir.x / sweepCount,
+        sweep.count = std::abs(dir.x) / tWidth;
+        sweep.dir = {
+            dir.x / sweep.count,
             dir.y * tWidth / std::abs(dir.x) };
-        sweepTx = {
-            fmodf(dir.x, sweepDir.x),
-            dir.y ? fmodf(dir.y, sweepDir.y) : 0
+        sweep.tx = {
+            fmodf(dir.x, sweep.dir.x),
+            dir.y ? fmodf(dir.y, sweep.dir.y) : 0
         };
     }
     
     auto tHeight = this->data->getTileSize().height;
-    if (dir.y != 0 && (std::abs(dir.y) / tHeight) > sweepCount)
+    if (dir.y != 0 && (std::abs(dir.y) / tHeight) > sweep.count)
     {
-        sweepCount = std::abs(dir.y) / tHeight;
-        sweepDir = {
+        sweep.count = std::abs(dir.y) / tHeight;
+        sweep.dir = {
             dir.x * tHeight / std::abs(dir.y),
-            dir.y / sweepCount};
-        sweepTx = {
-            dir.x ? fmodf(dir.x, sweepDir.x) : 0,
-            fmodf(dir.y, sweepDir.y)
+            dir.y / sweep.count};
+        sweep.tx = {
+            dir.x ? fmodf(dir.x, sweep.dir.x) : 0,
+            fmodf(dir.y, sweep.dir.y)
         };
     }
     
+    return sweep;
+}
+
+cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::Rect& lastBounds, CollisionCategory cat)
+{
+    cc::Point dir = destBounds.origin - lastBounds.origin;
+    
+    auto sweep = this->InterpolateDir(dir, lastBounds);
+    
     int cp = 0;
-    for(cc::Point pos = lastBounds.origin + sweepTx; cp <= sweepCount; cp++, pos += sweepDir)
+    for(cc::Point pos = lastBounds.origin + sweep.tx; cp <= sweep.count; cp++, pos += sweep.dir)
     {
         cc::Rect bounds = {pos, lastBounds.size};
         auto collisions = this->getRectGridCollisions(bounds, cat);

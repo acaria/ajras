@@ -19,7 +19,7 @@
 #include "Event.h"
 
 class RoomData;
-class LayeredNode;
+class LayeredContainer;
 class MissionScene;
 class GateMap;
 
@@ -28,7 +28,7 @@ class RoomSystemCtrl
 public:
     RoomSystemCtrl();
     
-    void loadRoom(LayeredNode* view, RoomData* data);
+    void loadRoom(LayeredContainer* view, RoomData* data);
     
     RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned>& eids);
 
@@ -49,9 +49,9 @@ private:
 
     void forwardEvents();
     void loadStaticObject(const std::string &profileName,
-                          const cc::Point& pos, RoomData *data, LayeredNode *view);
+                          const cc::Point& pos, RoomData *data, LayeredContainer *view);
     void loadZoneObject(const std::string &profileName,
-                        const cc::Rect& bounds, RoomData *data, LayeredNode *view);
+                        const cc::Rect& bounds, RoomData *data, LayeredContainer *view);
     
     lib::Random& random;
     std::vector<lib::Registration> eventRegs;

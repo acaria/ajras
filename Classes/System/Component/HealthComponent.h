@@ -7,13 +7,14 @@ struct HealthComponent
     {
         assert(profile->stats != nullptr);
         assert(profile->stats.Value.health != nullptr);
-        this->set(profile->stats.Value.health.Value.value);
+        this->set(profile->stats.Value.health.Value.value,
+                  profile->stats.Value.health.Value.value);
     }
     
-    void set(int hp)
+    void set(int maxHP, int HP)
     {
-        this->maxHp = hp;
-        this->hp = maxHp;
+        this->maxHp = maxHP;
+        this->hp = HP;
     }
 
     //input

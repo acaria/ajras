@@ -35,6 +35,7 @@ void GameData::loadPlayer()
     });this->player->inventory.push_back({
         .quantity = 0, .content = nullptr
     });
+    
 }
 
 void GameData::loadCamp()

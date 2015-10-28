@@ -165,8 +165,3 @@ lib::v2u TmxDataModel::getCoordFromPos(const cocos2d::Vec2& pos)
 {
     return {(unsigned)pos.x / tileSize.x, (unsigned)pos.y / tileSize.y};
 }
-
-int TmxDataModel::getZOrder(const cocos2d::Vec2& pos)
-{
-    return (totalSize.x - pos.x + ((totalSize.y - pos.y) * totalSize.y));
-}

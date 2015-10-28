@@ -2,44 +2,43 @@
 #include "ModelProvider.h"
 #include "AnimationData.h"
 #include "ProfileData.h"
-#include "LayeredNode.h"
+#include "LayeredContainer.h"
 #include "Defines.h"
 
 RenderComponent::RenderComponent() : sprite(nullptr)
 {
 }
 
-void RenderComponent::setFrame(const std::string &frameName, cc::Node *parent, int zOrder)
+void RenderComponent::setFrame(const std::string &frameName,
+                               LayeredContainer *parent,
+                               def::LayerType layerType)
 {
     this->moveAnimationKey = "";
     this->profile = nullptr;
-    this->sprite = this->initSprite(frameName);
-    parent->addChild(this->sprite, zOrder);
+    this->sprite = this->initSprite(parent->createChild(frameName, layerType));
+    this->initSprite(sprite);
 }
 
 void RenderComponent::setProfile(const std::string &profileName,
-                                 cc::Node *parent,
-                                 int zOrder)
+                                 LayeredContainer* parent)
 {
-    this->setProfile(ModelProvider::instance()->profile.get(profileName), parent, zOrder);
+    this->setProfile(ModelProvider::instance()->profile.get(profileName), parent);
 }
 
-void RenderComponent::setProfile(ProfileData* profile, cc::Node *parent, int zOrder)
+void RenderComponent::setProfile(ProfileData* profile, LayeredContainer* parent)
 {
     this->profile = profile;
     this->setAnimation("idle", -1);
     //set default walk animation
     this->setMoveCategory("walk");
-    this->sprite = this->initSprite(getCurAnim()->frameNames.at(0));
-    parent->addChild(this->sprite, zOrder);
+    this->sprite = parent->createChild(getCurAnim()->frameNames.at(0),
+                                       this->chooseLayer(this->profile),
+                                       this->profile->collisionRect.origin);
     this->busy = false;
 }
 
-cocos2d::Sprite* RenderComponent::initSprite(const std::string &frameName)
+LayeredSprite* RenderComponent::initSprite(LayeredSprite* res)
 {
-    auto res = cocos2d::Sprite::createWithSpriteFrameName(frameName);
-    res->setAnchorPoint({0, 0});
-    
 
 #if kDrawDebug
     this->collision = cc::Sprite::createWithSpriteFrameName("pixel.png");
@@ -124,23 +123,23 @@ void RenderComponent::setMoveAnimation(const Dir &orientation, bool moving)
     this->onComplete = nullptr;
 }
 
-cc::Layer* RenderComponent::chooseLayer(ProfileData* profile, LayeredNode *LayeredNode)
+def::LayerType RenderComponent::chooseLayer(ProfileData* profile)
 {
     if (profile != nullptr && profile->withCollision)
     {
         if (profile->collisionCat == "walkable")
-            return LayeredNode->main;
+            return def::LayerType::MAIN1;
         if (profile->collisionCat == "flyable")
-            return LayeredNode->main2;
-        return LayeredNode->bg;
+            return def::LayerType::MAIN2;
+        return def::LayerType::FG;
     }
-    return LayeredNode->bg;
+    return def::LayerType::BG;
 }
 
-cc::Layer* RenderComponent::chooseLayer(LayeredNode *LayeredNode)
+/*cc::Layer* RenderComponent::chooseLayer(LayeredContainer *layeredNode)
 {
-    return chooseLayer(this->profile, LayeredNode);
-}
+    return chooseLayer(this->profile, layeredNode);
+}*/
 
 AnimationData* RenderComponent::getCurAnim()
 {

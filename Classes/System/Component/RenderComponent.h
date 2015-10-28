@@ -2,25 +2,31 @@
 class Dir;
 class AnimationData;
 class ProfileData;
-class LayeredNode;
 
 #include "Defines.h"
+#include "LayeredContainer.h"
 
 struct RenderComponent
 {
     RenderComponent();
 
-    void setFrame(const std::string &frameName, cc::Node *parent, int zOrder = 0);
-    void setProfile(const std::string &frameName, cc::Node *parent, int zOrder = 0);
-    void setProfile(ProfileData* profile, cc::Node *parent, int zOrder = 0);
+    void setFrame(const std::string &frameName,
+                  LayeredContainer* parent,
+                  def::LayerType layerType);
+
+    void setProfile(const std::string &frameName,
+                    LayeredContainer* parent);
+    
+    void setProfile(ProfileData* profile, LayeredContainer* parent);
+
     void setAnimation(const std::string &key, int repeat,
                       std::function<void(bool)> onComplete = nullptr);
     void cancelAnimation();
     void setMoveAnimation(const Dir &orientation, bool moving);
     void setMoveCategory(const std::string& cat);
     
-    static cc::Layer* chooseLayer(ProfileData* profile, LayeredNode* layer);
-    cc::Layer* chooseLayer(LayeredNode* LayeredNode);
+    static def::LayerType chooseLayer(ProfileData* profile);
+    //cc::Layer* chooseLayer(LayeredContainer* LayeredNode);
     
     AnimationData*      getCurAnim();
     std::string         moveAnimationKey = "";
@@ -46,8 +52,8 @@ struct RenderComponent
     bool                    manualPosMode = false;
 
     //output
-    cocos2d::Sprite*    sprite;
+    LayeredSprite* sprite;
 
 private:
-    cocos2d::Sprite* initSprite(const std::string &frameName);
+    LayeredSprite* initSprite(LayeredSprite* sprite);
 };

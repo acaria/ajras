@@ -114,9 +114,7 @@ void CampSystemCtrl::start()
     auto& cpRender = ecsGroup.add<cp::Render>(eid);
     auto& cpCollision = ecsGroup.add<cp::Collision>(eid);
     
-    cpRender.setProfile(profile,
-                        RenderComponent::chooseLayer(profile, this->mapView),
-                        1000000);
+    cpRender.setProfile(profile, this->mapView);
     cpCollision.setProfile(profile);
     
     ecsGroup.add<cp::AI>(eid).setProfile(profile);
@@ -166,7 +164,7 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
                           PlayerData *player, CampData *data)
 {
     this->view = view;
-    this->mapView = LayeredNode::create();
+    this->mapView = cc::create<LayeredContainer>(data->getBounds().size);
     this->view->addChild(mapView);
     
     this->cam = cam;
@@ -182,29 +180,23 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
         if (properties.find(BlockInfo::bgTileName) != properties.end())
         {
             //HACK: put most of tiles in bg layer
-            auto rl = mapView->bg;
+            auto rl = def::LayerType::BG;
             if (properties.find(BlockInfo::collision) != properties.end() &&
                 properties[BlockInfo::collision] == "flyable")
             {
-                rl = mapView->main;
+                rl = def::LayerType::MAIN1;
             }
             
             auto coord = data->getPosFromCoord({i,j});
-            auto sprite = cc::Sprite::createWithSpriteFrameName(
-                    properties[BlockInfo::bgTileName]);
-            sprite->setAnchorPoint({0, 0});
+            auto sprite = this->mapView->createChild(properties[BlockInfo::bgTileName], rl);
             sprite->setPosition(coord);
-            rl->addChild(sprite, data->getZOrder(coord));
         }
         
         if (properties.find(BlockInfo::fgTileName) != properties.end())
         {
             auto coord = data->getPosFromCoord({i,j});
-            auto sprite = cc::Sprite::createWithSpriteFrameName(
-                    properties[BlockInfo::fgTileName]);
-            sprite->setAnchorPoint({0, 0});
+            auto sprite = this->mapView->createChild(properties[BlockInfo::fgTileName], def::LayerType::FG);
             sprite->setPosition(coord);
-            mapView->fg->addChild(sprite, data->getZOrder(coord));
         }
     }
     

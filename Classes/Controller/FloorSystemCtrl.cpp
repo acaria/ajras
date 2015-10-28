@@ -1,6 +1,7 @@
 #include "FloorSystemCtrl.h"
 #include "Components.h"
 #include "BlockInfo.h"
+#include "LayeredContainer.h"
 #include "FloorData.h"
 #include "RoomData.h"
 #include "MissionScene.h"
@@ -96,10 +97,8 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
 
     if (ecs::has<cp::Render>(eid))
     {
-        ecs::get<cp::Render>(eid).sprite->removeFromParentAndCleanup(false);
-        auto layer = ecs::get<cp::Render>(eid).chooseLayer(
+        ecs::get<cp::Render>(eid).sprite->switchContainer(
             this->roomViews[nextRoomIndex]);
-        layer->addChild(ecs::get<cp::Render>(eid).sprite);
     }
     
     auto nextRoom = data->getRoomAt(nextRoomIndex);
@@ -325,9 +324,7 @@ void FloorSystemCtrl::start()
     auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
     auto& cpCollision = ecs::add<cp::Collision>(eid, roomIndex);
     
-    cpRender.setProfile(profile,
-                        RenderComponent::chooseLayer(profile, roomView),
-                        roomData->getZOrder(srcPos));
+    cpRender.setProfile(profile, roomView);
     cpCollision.setProfile(profile);
     
     ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
@@ -336,9 +333,8 @@ void FloorSystemCtrl::start()
     ecs::add<cp::Orientation>(eid, roomIndex);
     ecs::add<cp::Control>(eid, roomIndex) = playerData->ctrlIndex;
     ecs::add<cp::Gear>(eid, roomIndex) = playerData->inventory;
-    
-    auto& csHealth = ecs::add<cp::Health>(eid, roomIndex);
-    csHealth.setProfile(profile);
+
+    ecs::add<cp::Health>(eid, roomIndex).set(playerData->maxHealth, playerData->currentHealth);
     
     cpRender.sprite->setPosition({
         srcPos.x - cpCollision.rect.getMidX(),
@@ -406,20 +402,20 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
         auto roomSystemCtrl = new RoomSystemCtrl();
         this->registerEvents(roomSystemCtrl);
         
-        auto LayeredNode = LayeredNode::create();
-        LayeredNode->retain();
+        auto layeredNode = cc::create<LayeredContainer>(roomData->getBounds().size);
+        layeredNode->retain();
         
-        roomSystemCtrl->loadRoom(LayeredNode, roomData);
+        roomSystemCtrl->loadRoom(layeredNode, roomData);
         roomSystemCtrl->hideObjects(0);
         
-        this->roomViews[roomIndex] = LayeredNode;
+        this->roomViews[roomIndex] = layeredNode;
         this->roomSystems[roomIndex] = roomSystemCtrl;
 
-        auto preview = LayeredNode->getShoot(
+        auto preview = layeredNode->getShoot(
             roomData->getBounds().size.width, roomData->getBounds().size.height);
         this->roomPreviews[roomIndex] = preview;
         
-        LayeredNode->setPosition(roomData->position);
+        layeredNode->setPosition(roomData->position);
         preview->setPosition(roomData->position);
         preview->getSprite()->setOpacity(0);
         

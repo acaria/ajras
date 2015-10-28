@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-down" width="12" height="12" tilewidth="16" tileheight="16" nextobjectid="10">
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="12" height="12" tilewidth="16" tileheight="16" nextobjectid="12">
  <tileset firstgid="1" source="../tileset/dungeon1.tsx"/>
  <tileset firstgid="87" source="../tileset/collision.tsx"/>
  <tileset firstgid="90" source="../tileset/zone.tsx"/>
+ <tileset firstgid="92" source="../tileset/entity.tsx"/>
  <layer name="background" width="12" height="12">
   <data>
    <tile gid="0"/>
@@ -119,7 +120,7 @@
    <tile gid="4"/>
    <tile gid="4"/>
    <tile gid="4"/>
-   <tile gid="4"/>
+   <tile gid="83"/>
    <tile gid="4"/>
    <tile gid="4"/>
    <tile gid="76"/>
@@ -151,7 +152,7 @@
    <tile gid="0"/>
   </data>
  </layer>
- <layer name="collision" width="12" height="12" opacity="0.3">
+ <layer name="collision" width="12" height="12" visible="0" opacity="0.3">
   <data>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -255,8 +256,8 @@
    <tile gid="87"/>
    <tile gid="87"/>
    <tile gid="87"/>
-   <tile gid="87"/>
-   <tile gid="87"/>
+   <tile gid="88"/>
+   <tile gid="88"/>
    <tile gid="87"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -267,8 +268,8 @@
    <tile gid="87"/>
    <tile gid="87"/>
    <tile gid="87"/>
-   <tile gid="87"/>
-   <tile gid="87"/>
+   <tile gid="88"/>
+   <tile gid="88"/>
    <tile gid="87"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -299,8 +300,8 @@
    <tile gid="0"/>
   </data>
  </layer>
- <objectgroup name="objects" opacity="0.41">
+ <objectgroup name="objects" opacity="0.48">
   <object id="3" gid="90" x="80" y="96" width="48" height="32"/>
-  <object id="8" gid="90" x="80" y="160" width="48" height="32"/>
+  <object id="10" gid="93" x="64" y="144" width="16" height="22"/>
  </objectgroup>
 </map>

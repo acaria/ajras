@@ -103,11 +103,6 @@ cc::Size RoomData::getTileSize()
     return {(float)this->model->tileSize.x, (float)this->model->tileSize.y};
 }
 
-int RoomData::getZOrder(const cc::Vec2& pos)
-{
-    return this->model->getZOrder(pos);
-}
-
 cc::Rect RoomData::getBlockBound(const lib::v2u& coord)
 {
     return this->model->getRectCoord(coord);

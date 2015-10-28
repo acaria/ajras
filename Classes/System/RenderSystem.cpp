@@ -31,17 +31,6 @@ void RenderSystem::tick(double dt)
             cpRender.setMoveAnimation(orientation, !cpVel.direction.isZero());
         }
         
-        //update zorders
-        if (!cpVel.velocity.isZero() && ecs::has<cp::Position, cp::Collision>(eid))
-        {
-            auto cpPos = ecs::get<cp::Position>(eid);
-            if (cpPos.last != cpPos.pos)
-            {
-                auto pos = SysHelper::getBounds(eid);
-                cpRender.sprite->setLocalZOrder(data->getZOrder(pos.origin));
-            }
-        }
-        
         //update target mode
         //if (cpInput.actionMode == ActionMode::attack)
         //    cpRender.setMoveCategory("melee");

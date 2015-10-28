@@ -39,7 +39,6 @@ public:
     //overrides
     virtual lib::DataGrid<BlockInfo>& getGrid() override;
     virtual cc::Size getTileSize() override;
-    virtual int getZOrder(const cc::Vec2& pos) override;
     virtual cc::Rect getBlockBound(const lib::v2u& coord) override;
     virtual cc::Rect getBounds() override;
     virtual lib::v2u getCoordFromPos(const cc::Vec2& pos) override;

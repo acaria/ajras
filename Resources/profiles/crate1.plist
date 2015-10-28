@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>collision</key>
+	<dict>
+		<key>rect</key>
+		<string>0,0,16,16</string>
+		<key>cat</key>
+		<string>walkable</string>
+	</dict>
+	<key>animations</key>
+	<dict>
+		<key>idle</key>
+		<dict>
+			<key>format</key>
+			<string>crate1.png</string>
+			<key>frameCount</key>
+			<integer>1</integer>
+		</dict>
+	</dict>
+</dict>
+</plist>

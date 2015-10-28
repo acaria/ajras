@@ -50,11 +50,6 @@ cc::Size CampData::getTileSize()
     return {(float)this->tileSize.x, (float)this->tileSize.y};
 }
 
-int CampData::getZOrder(const cc::Vec2& pos)
-{
-    return TmxDataModel::getZOrder(pos);
-}
-
 cc::Rect CampData::getBlockBound(const lib::v2u& coord)
 {
     return this->getRectCoord(coord);

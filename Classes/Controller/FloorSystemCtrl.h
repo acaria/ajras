@@ -7,7 +7,7 @@ class GateMap;
 
 #include "ControlSystem.h"
 #include "RoomSystemCtrl.h"
-#include "LayeredNode.h"
+#include "LayeredContainer.h"
 #include "Randgine.h"
 #include "Event.h"
 #include "GameCamera.h"
@@ -53,7 +53,7 @@ private:
     
     //data
     FloorData*    data;
-    std::map<unsigned, LayeredNode*>      roomViews;
+    std::map<unsigned, LayeredContainer*>      roomViews;
     std::map<unsigned, NodeRenderer*>   roomPreviews;
     
     //view

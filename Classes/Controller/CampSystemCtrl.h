@@ -19,7 +19,7 @@ class WarpMap;
 #include "InteractSystem.h"
 
 #include "Randgine.h"
-#include "LayeredNode.h"
+#include "LayeredContainer.h"
 #include "Event.h"
 #include "GameCamera.h"
 
@@ -70,7 +70,7 @@ private:
     
     //view
     cc::Node* view = nullptr;
-    LayeredNode* mapView = nullptr;
+    LayeredContainer* mapView = nullptr;
     GameCamera* cam = nullptr;
     
     //event

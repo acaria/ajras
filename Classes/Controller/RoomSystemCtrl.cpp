@@ -1,6 +1,6 @@
 #include "RoomSystemCtrl.h"
 #include "RoomData.h"
-#include "LayeredNode.h"
+#include "LayeredContainer.h"
 #include "Components.h"
 #include "ModelProvider.h"
 #include "CsActionInterval.h"
@@ -57,7 +57,7 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
 #endif
 }
 
-void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
+void RoomSystemCtrl::loadRoom(LayeredContainer *view, RoomData *data)
 {
     ecsGroup.setID(data->index);
     
@@ -74,29 +74,23 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
             if (properties.find(BlockInfo::bgTileName) != properties.end())
             {
                 //HACK: put most of tiles in bg layer
-                auto rl = view->bg;
+                auto rl = def::LayerType::BG;
                 if (properties.find(BlockInfo::collision) != properties.end() &&
                     properties[BlockInfo::collision] == "flyable")
                 {
-                    rl = view->main;
+                    rl = def::LayerType::MAIN1;
                 }
                 
                 auto coord = data->getPosFromCoord({i,j});
-                auto sprite = cc::Sprite::createWithSpriteFrameName(
-                        properties[BlockInfo::bgTileName]);
-                sprite->setAnchorPoint({0, 0});
+                auto sprite = view->createChild(properties[BlockInfo::bgTileName], rl);
                 sprite->setPosition(coord);
-                rl->addChild(sprite, data->getZOrder(coord));
             }
             
             if (properties.find(BlockInfo::fgTileName) != properties.end())
             {
                 auto coord = data->getPosFromCoord({i,j});
-                auto sprite = cc::Sprite::createWithSpriteFrameName(
-                        properties[BlockInfo::fgTileName]);
-                sprite->setAnchorPoint({0, 0});
+                auto sprite = view->createChild(properties[BlockInfo::fgTileName], def::LayerType::FG);
                 sprite->setPosition(coord);
-                view->fg->addChild(sprite, data->getZOrder(coord));
             }
         }
     
@@ -125,10 +119,8 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
         
         //view
         cc::Point pos = {gateMap.info.rect.origin.x, gateMap.info.rect.origin.y};
-        auto sprite = cc::Sprite::createWithSpriteFrameName(gateMap.tileName + ".png");
-        sprite->setAnchorPoint({0, 0});
+        auto sprite = view->createChild(gateMap.tileName + ".png", def::LayerType::BG);
         sprite->setPosition(pos);
-        view->bg->addChild(sprite, data->getZOrder(pos));
         
         //change collision data
         
@@ -156,7 +148,7 @@ void RoomSystemCtrl::loadRoom(LayeredNode *view, RoomData *data)
 #endif
 }
 
-void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect &bounds, RoomData *data, LayeredNode *view)
+void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect &bounds, RoomData *data, LayeredContainer *view)
 {
     auto roomIndex = data->index;
     std::string profileName;
@@ -193,14 +185,12 @@ void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect 
 void RoomSystemCtrl::loadStaticObject(const std::string &profileName,
                                       const cc::Point& pos,
                                       RoomData *data,
-                                      LayeredNode *view)
+                                      LayeredContainer *view)
 {
     auto roomIndex = data->index;
     auto profile = ModelProvider::instance()->profile.get(profileName);
     auto eid = cp::entity::genID();
-    ecs::add<cp::Render>(eid, roomIndex).setProfile(profile,
-                                                    RenderComponent::chooseLayer(profile, view),
-                                                    data->getZOrder(pos));
+    ecs::add<cp::Render>(eid, roomIndex).setProfile(profile, view);
     ecs::get<cp::Render>(eid).sprite->setPosition(pos - ecs::get<cp::Collision>(eid).rect.origin);
     ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Input>(eid, roomIndex);
@@ -258,7 +248,7 @@ void RoomSystemCtrl::loadStaticObject(const std::string &profileName,
     {
         ecs::get<cp::Render>(eid).setAnimation("activated", -1);
         
-        auto light = cc::Sprite::createWithSpriteFrameName("grad_ellipse.png");
+        auto light = view->createChild("grad_ellipse.png", def::LayerType::FG);
         //light->setOpacity(120);
         light->setColor(cc::Color3B(252, 195, 159));
         light->setBlendFunc(cc::BlendFunc::ADDITIVE);
@@ -266,7 +256,6 @@ void RoomSystemCtrl::loadStaticObject(const std::string &profileName,
         light->runAction(cc::RepeatForever::create(Flicker::create(
                                                                    80.0f, 0.1f, {150, 200}, {0.98, 1.2}, {0.9,1.1},
                                                                    cc::Color3B(252, 168, 50), cc::Color3B(252, 168, 50))));
-        view->fg->addChild(light, 1);
     }
 }
 

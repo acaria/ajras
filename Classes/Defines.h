@@ -23,6 +23,9 @@ namespace def {
     
     //data
     enum class TriggerMode { ONCE, ALWAYS };
+    
+    //view
+    enum class LayerType : int { BG, MAIN1, MAIN2, FG};
 }
 
 static cocos2d::Size designResolutionSize = cocos2d::Size(960, 640);

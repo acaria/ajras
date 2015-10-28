@@ -518,11 +518,11 @@
             {
              "0":
                 {
-                 "image":"..\/..\/External\/tileset\/special\/gold.png"
+                 "image":"..\/..\/External\/tileset\/zone\/reward.png"
                 },
              "1":
                 {
-                 "image":"..\/..\/External\/tileset\/special\/red.png"
+                 "image":"..\/..\/External\/tileset\/zone\/foe.png"
                 }
             },
          "tilewidth":16

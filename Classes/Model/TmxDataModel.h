@@ -25,7 +25,6 @@ public:
     cocos2d::Rect getRectCoord(const lib::v2u& pos);
     cocos2d::Vec2 getPosFromCoord(const lib::v2u& coord);
     lib::v2u getCoordFromPos(const cocos2d::Vec2& pos);
-    int getZOrder(const cocos2d::Vec2& pos);
     
 protected:
     jsonxx::Object o;

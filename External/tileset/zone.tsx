@@ -5,13 +5,13 @@
    <property name="type" value="zone"/>
    <property name="zone_type" value="reward"/>
   </properties>
-  <image width="16" height="16" source="special/gold.png"/>
+  <image width="16" height="16" source="zone/reward.png"/>
  </tile>
  <tile id="1">
   <properties>
    <property name="type" value="zone"/>
    <property name="zone_type" value="foe"/>
   </properties>
-  <image width="16" height="16" source="special/red.png"/>
+  <image width="16" height="16" source="zone/foe.png"/>
  </tile>
 </tileset>

@@ -88,6 +88,11 @@ GameData::~GameData()
     this->reset();
 }
 
+void GameData::toggleDebug()
+{
+    this->debugMode = ++debugMode % 2;
+}
+
 PlayerData* GameData::curPlayer()
 {
     return player;

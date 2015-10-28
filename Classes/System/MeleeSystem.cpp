@@ -58,12 +58,6 @@ void MeleeSystem::tick(double dt)
         if (atkRect.equals(cc::Rect::ZERO))
             continue;
         
-#if kDrawDebug
-        cpRender.melee->setVisible(true);
-        cpRender.melee->setPosition(atkRect.origin.x - cpPosition.pos.x, atkRect.origin.y - cpPosition.pos.y);
-        cpRender.melee->setScale(atkRect.size.width, atkRect.size.height);
-#endif
-        
         //check room objects
         for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position, cp::Health>())
         {

@@ -18,6 +18,10 @@ public:
     FloorData*  curFloor();
     CampData*   curCamp();
     
+    
+    int debugMode = 0;
+    void toggleDebug();
+    
 private:
 //dynamics
     PlayerData* player = nullptr;

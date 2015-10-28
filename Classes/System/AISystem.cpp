@@ -24,13 +24,6 @@ void AISystem::tick(double dt)
         
         auto& cpAI = ecs::get<cp::AI>(eid);
 
-#if kDrawDebug
-        auto& cpRender = ecs::get<cp::Render>(eid);
-        cpRender.sight->setVisible(true);
-        cpRender.sight->setScale(cpAI.sightRange * 2 / def::blockSize,
-                                 cpAI.sightRange * 2 / def::blockSize);
-#endif
-
         cpAI.board.onCheck = [eid, this](unsigned nid) {
             return this->onCheck(eid, nid);
         };

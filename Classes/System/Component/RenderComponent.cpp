@@ -40,30 +40,6 @@ void RenderComponent::setProfile(ProfileData* profile, LayeredContainer* parent)
 LayeredSprite* RenderComponent::initSprite(LayeredSprite* res)
 {
 
-#if kDrawDebug
-    this->collision = cc::Sprite::createWithSpriteFrameName("pixel.png");
-    this->collision->setOpacity(100);
-    this->collision->setColor(cc::Color3B::GREEN);
-    this->collision->setAnchorPoint({0,0});
-    this->collision->setVisible(false);
-    res->addChild(this->collision);
-
-    this->melee = cc::Sprite::createWithSpriteFrameName("pixel.png");
-    this->melee->setOpacity(100);
-    this->melee->setColor(cc::Color3B::YELLOW);
-    this->melee->setAnchorPoint({0,0});
-    this->melee->setVisible(false);
-    res->addChild(this->melee);
-    
-    this->sight = cc::Sprite::createWithSpriteFrameName("circle.png");
-    this->sight->setAnchorPoint({0.5,0.5});
-    this->sight->setPosition(res->getContentSize().width / 2, res->getContentSize().height / 2);
-    this->sight->setOpacity(80);
-    this->sight->setColor(cc::Color3B::ORANGE);
-    this->sight->setVisible(false);
-    res->addChild(this->sight);
-#endif
-
 #if kDrawInfo
     this->lInfo = cc::Label::createWithTTF("", "fonts/04b03.ttf", 8);
     this->lInfo->setPosition(res->getContentSize().width / 2, res->getContentSize().height);
@@ -135,11 +111,6 @@ def::LayerType RenderComponent::chooseLayer(ProfileData* profile)
     }
     return def::LayerType::BG;
 }
-
-/*cc::Layer* RenderComponent::chooseLayer(LayeredContainer *layeredNode)
-{
-    return chooseLayer(this->profile, layeredNode);
-}*/
 
 AnimationData* RenderComponent::getCurAnim()
 {

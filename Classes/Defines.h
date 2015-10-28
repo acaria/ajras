@@ -1,11 +1,10 @@
 #pragma once
 
-#define kDrawDebug 0
 #define kDrawInfo 0
 
 #define kTraceBehaviours 0
 
-#define ECSYSTEM_DEBUG 0
+#define ECSYSTEM_DEBUG 1
 
 namespace def {
     //config

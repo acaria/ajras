@@ -13,20 +13,6 @@ void CollisionSystem::init(CollisionInfo* collisionData)
 
 void CollisionSystem::tick(double dt)
 {
-#if kDrawDebug
-    for(auto eid : ecs.join<cp::Render, cp::Collision, cp::Position>())
-    {
-        auto& cpRender = ecs::get<cp::Render>(eid);
-        auto& cpCollision = ecs::get<cp::Collision>(eid);
-        cpRender.collision->setVisible(true);
-        cpRender.collision->setColor(cc::Color3B::GREEN);
-        cpRender.collision->setPosition(cpCollision.rect.origin.x,
-                                        cpCollision.rect.origin.y);
-        cpRender.collision->setScale(cpCollision.rect.size.width,
-                                     cpCollision.rect.size.height);
-    }
-#endif
-    
     for(auto eid : ecs.join<cp::Render, cp::Collision, cp::Position, cp::AI>())
     {
         auto& cpRender = ecs::get<cp::Render>(eid);
@@ -103,9 +89,6 @@ void CollisionSystem::tick(double dt)
                     else //obstacle
                     {
                         cpCollision.current = CollisionComponent::CType::OBJECT;
-#if kDrawDebug
-                        ecs::get<cp::Render>(eid).collision->setColor(cc::Color3B::RED);
-#endif
                         
                         auto diff = slide(bounds, bounds2);
                         cpPosition.pos += diff;

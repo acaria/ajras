@@ -31,12 +31,6 @@ struct RenderComponent
     AnimationData*      getCurAnim();
     std::string         moveAnimationKey = "";
 
-#if kDrawDebug
-    cc::Sprite*    collision;
-    cc::Sprite*    melee;
-    cc::Sprite*    sight;
-#endif
-
 #if kDrawInfo
     cc::Label*     lInfo;
 #endif

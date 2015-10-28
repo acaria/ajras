@@ -71,7 +71,6 @@ bool CampInterface::init()
                 break;
             case CtrlKeyType::down: toDel = Dir::Down;
                 break;
-                
         }
         
         this->onKeyReleaseAction(this->playerIndex, toDel);

@@ -36,6 +36,13 @@ void MissionMediator::onAddView(MissionScene &scene)
             }
     }));
     
+    auto kListener = cc::EventListenerKeyboard::create();
+    kListener->onKeyReleased = [this](KeyCode code, cocos2d::Event *event) {
+        if (code == KeyCode::KEY_GRAVE)
+            GameCtrl::instance()->getData().toggleDebug();
+    };
+    scene.getEventDispatcher()->addEventListenerWithSceneGraphPriority(kListener, &scene);
+    
     //interface events
     this->eventRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
         [this](cc::Vec2 pos){

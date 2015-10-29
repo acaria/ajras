@@ -26,14 +26,9 @@ struct RenderComponent
     void setMoveCategory(const std::string& cat);
     
     static def::LayerType chooseLayer(ProfileData* profile);
-    //cc::Layer* chooseLayer(LayeredContainer* LayeredNode);
     
     AnimationData*      getCurAnim();
     std::string         moveAnimationKey = "";
-
-#if kDrawInfo
-    cc::Label*     lInfo;
-#endif
  
     //input
     ProfileData*                profile;
@@ -47,7 +42,4 @@ struct RenderComponent
 
     //output
     LayeredSprite* sprite;
-
-private:
-    LayeredSprite* initSprite(LayeredSprite* sprite);
 };

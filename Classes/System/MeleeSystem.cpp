@@ -107,11 +107,6 @@ void MeleeSystem::tick(double dt)
                                 cpHealth2.hp -= cpMelee.damage;
                                 this->onHealthChanged(oid, cpHealth2.hp);
                                 
-                                Log("hp%d=", cpHealth2.hp);
-
-#if kDrawInfo
-                                cpRender2.lInfo->setString(std::to_string(cpHealth2.hp));
-#endif
                                 if (cpHealth2.hp == 0)
                                 {
                                     ecs.del<cp::Target>(eid);

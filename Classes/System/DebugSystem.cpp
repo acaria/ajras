@@ -9,6 +9,22 @@ DebugSystem::DebugSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {
     
 }
 
+template<class T>
+void DebugSystem::purge(const std::set<unsigned int> &ref,
+                        std::set<unsigned int> &destSet,
+                        std::map<unsigned int, T> &destMap)
+{
+    std::set<int> diff;
+    std::set_difference(destSet.begin(), destSet.end(), ref.begin(), ref.end(),
+                        std::inserter(diff, diff.end()));
+    for(auto eid : diff)
+    {
+        destSet.erase(eid);
+        destMap[eid]->removeFromParentAndCleanup(true);
+        destMap.erase(eid);
+    }
+}
+
 void DebugSystem::tick(double dt)
 {
     if (GameCtrl::instance()->getData().debugMode == 0)
@@ -23,6 +39,8 @@ void DebugSystem::tick(double dt)
     for(auto eid : ecs.join<cp::Collision, cp::Position>())
     {
         auto bounds = SysHelper::getBounds(eid);
+        
+        //collision
         if (collisionSet.count(eid) > 0)
         {
             collisionMap[eid]->setPosition(bounds.origin);
@@ -33,19 +51,35 @@ void DebugSystem::tick(double dt)
             collisionMap[eid] = addPixel(cc::Color3B::GREEN, bounds);
             collisionSet.insert(eid);
         }
+        
+        //health
+        if (ecs::has<cp::Health>(eid))
+        {
+            auto cpHealth = ecs::get<cp::Health>(eid);
+            auto txt = lib::format("hp: %d/%d", cpHealth.hp, cpHealth.maxHp);
+            if (healthSet.count(eid) > 0)
+            {
+                healthMap[eid]->setPosition(bounds.origin);
+                healthMap[eid]->setString(txt);
+            }
+            else
+            {
+                healthMap[eid] = addText(cc::Color3B::WHITE, bounds, txt);
+                healthSet.insert(eid);
+            }
+        }
     }
     
-    std::set<int> diff;
-    auto collisionRef = ecs.join<cp::Collision, cp::Position>();
-    std::set_difference(collisionSet.begin(), collisionSet.end(), collisionRef.begin(), collisionRef.end(),
-                        std::inserter(diff, diff.end()));
-    
-    for(auto eid : diff)
-    {
-        collisionSet.erase(eid);
-        collisionMap[eid]->removeFromParentAndCleanup(true);
-        collisionMap.erase(eid);
-    }
+    this->purge(ecs.join<cp::Collision, cp::Position>(), collisionSet, collisionMap);
+    this->purge(ecs.join<cp::Collision, cp::Position, cp::Health>(), healthSet, healthMap);
+}
+
+cc::Label* DebugSystem::addText(cc::Color3B color, const cc::Rect& bounds, const std::string& txt)
+{
+    auto label = cc::Label::createWithTTF("", def::Font::mini, 8);
+    label->setPosition({bounds.getMidX(), bounds.getMaxY()});
+    this->debugLayer->addChild(label);
+    return label;
 }
 
 cc::Sprite* DebugSystem::addPixel(cc::Color3B color, const cc::Rect& bounds)

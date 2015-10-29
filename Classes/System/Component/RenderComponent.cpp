@@ -15,8 +15,7 @@ void RenderComponent::setFrame(const std::string &frameName,
 {
     this->moveAnimationKey = "";
     this->profile = nullptr;
-    this->sprite = this->initSprite(parent->createChild(frameName, layerType));
-    this->initSprite(sprite);
+    this->sprite = parent->createChild(frameName, layerType);
 }
 
 void RenderComponent::setProfile(const std::string &profileName,
@@ -35,19 +34,6 @@ void RenderComponent::setProfile(ProfileData* profile, LayeredContainer* parent)
                                        this->chooseLayer(this->profile),
                                        this->profile->collisionRect.origin);
     this->busy = false;
-}
-
-LayeredSprite* RenderComponent::initSprite(LayeredSprite* res)
-{
-
-#if kDrawInfo
-    this->lInfo = cc::Label::createWithTTF("", "fonts/04b03.ttf", 8);
-    this->lInfo->setPosition(res->getContentSize().width / 2, res->getContentSize().height);
-    res->addChild(this->lInfo);
-#endif
-
-
-    return res;
 }
 
 void RenderComponent::setMoveCategory(const std::string &cat)

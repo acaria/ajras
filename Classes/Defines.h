@@ -1,12 +1,11 @@
 #pragma once
 
-#define kDrawInfo 0
-
 #define kTraceBehaviours 0
 
 #define ECSYSTEM_DEBUG 1
 
 namespace def {
+
     //config
     const bool showFPS = true;
     const float updatesPerSecond = 60.0f;
@@ -25,6 +24,10 @@ namespace def {
     
     //view
     enum class LayerType : int { BG, MAIN1, MAIN2, FG};
+    struct Font
+    {
+        static constexpr auto mini = "fonts/04b03.ttf";
+    };
 }
 
 static cocos2d::Size designResolutionSize = cocos2d::Size(960, 640);

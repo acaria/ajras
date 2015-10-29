@@ -1,5 +1,9 @@
 #include "TickScheduler.h"
-#include "GameCtrl.h"
+
+TickScheduler::TickScheduler(std::function<void(float)> updateFunc)
+{
+    this->onUpdate = updateFunc;
+}
 
 void TickScheduler::onEnterTransitionDidFinish()
 {
@@ -17,5 +21,5 @@ void TickScheduler::onExitTransitionDidStart()
 
 void TickScheduler::update(float delta)
 {
-    GameCtrl::instance()->tickUpdate(delta);
+    this->onUpdate(delta);
 }

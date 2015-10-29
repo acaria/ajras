@@ -8,11 +8,16 @@ using namespace std::placeholders;
 
 GameCtrl::GameCtrl():tick(std::bind(&GameCtrl::onTick, this, _1),
                           std::bind(&GameCtrl::onAnimate, this, _1, _2)),
-                     scene(tick)
+                     scene(&tick)
 
 {
     log.setLevelMask(LL_DEBUG | LL_INFO | LL_TRACE | LL_WARNING | LL_ERROR | LL_FATAL);
     log.setTimeoutSeconds(15);
+    
+#if GINFO_DEBUG
+    this->debugInfo = cc::create<DebugInfoLayer>();
+    this->debugInfo->retain();
+#endif
 }
 
 GameCtrl::~GameCtrl()
@@ -65,24 +70,27 @@ void GameCtrl::goToMission()
     this->scene.go2Mission();
 }
 
-void GameCtrl::scheduleUpdate(cocos2d::Node* parent)
-{
-    tick.schedule(parent);
-}
-
-void GameCtrl::tickUpdate(float dt)
-{
-    tick.update(dt);
-}
-
 void GameCtrl::onTick(double dt)
 {
-    scene.onTick(dt);
+#if GINFO_DEBUG
+    if (this->debugInfo->getParent() != scene.getCurScene())
+    {
+      this->debugInfo->removeFromParent();
+      scene.getCurScene()->addChild(this->debugInfo);
+    }
+    this->debugInfo->update();
+#endif
+
+    auto mediator = scene.getCurMediator();
+    if (mediator != nullptr)
+        mediator->onTick(dt);
 }
 
 void GameCtrl::onAnimate(double dt, double tickPercent)
 {
-    scene.onAnimate(dt, tickPercent);
+    auto mediator = scene.getCurMediator();
+    if (mediator != nullptr)
+        mediator->onAnimate(dt, tickPercent);
 }
 
 GameData& GameCtrl::getData()

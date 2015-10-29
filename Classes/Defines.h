@@ -3,11 +3,12 @@
 #define kTraceBehaviours 0
 
 #define ECSYSTEM_DEBUG 1
+#define GINFO_DEBUG 1
 
 namespace def {
 
     //config
-    const bool showFPS = true;
+    const bool  showFPS = false;
     const float updatesPerSecond = 60.0f;
     const float idealInterval = 1.0f / updatesPerSecond;
     const float ticksPerSecond = 20;
@@ -24,9 +25,11 @@ namespace def {
     
     //view
     enum class LayerType : int { BG, MAIN1, MAIN2, FG};
-    struct Font
+    namespace font
     {
-        static constexpr auto mini = "fonts/04b03.ttf";
+        const std::string mini = "fonts/04b03.ttf";
+        const std::string mini2 = "fonts/04b11.ttf";
+        const std::string normal = "fonts/romulus.ttf";
     };
 }
 

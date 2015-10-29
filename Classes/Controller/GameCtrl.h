@@ -5,6 +5,8 @@
 #include "TickCtrl.h"
 #include "SceneManager.h"
 #include "GameData.h"
+#include "DebugInfoLayer.h"
+
 class RoomData;
 class FloorData;
 class PlayerData;
@@ -26,9 +28,6 @@ public:
 
     TickCtrl        tick;
     
-    void tickUpdate(float dt);
-    void scheduleUpdate(cocos2d::Node* parent);
-    
     GameData& getData();
 
 protected:
@@ -39,4 +38,8 @@ private:
     void onAnimate(double dt, double tickPercent);
     
     GameData gameData;
+    
+#if GINFO_DEBUG
+    DebugInfoLayer* debugInfo;
+#endif
 };

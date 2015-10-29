@@ -59,7 +59,7 @@ void DebugSystem::tick(double dt)
             auto txt = lib::format("hp: %d/%d", cpHealth.hp, cpHealth.maxHp);
             if (healthSet.count(eid) > 0)
             {
-                healthMap[eid]->setPosition(bounds.origin);
+                healthMap[eid]->setPosition({bounds.getMidX(), bounds.getMaxY() + bounds.size.height});
                 healthMap[eid]->setString(txt);
             }
             else
@@ -76,7 +76,7 @@ void DebugSystem::tick(double dt)
 
 cc::Label* DebugSystem::addText(cc::Color3B color, const cc::Rect& bounds, const std::string& txt)
 {
-    auto label = cc::Label::createWithTTF("", def::Font::mini, 8);
+    auto label = cc::Label::createWithTTF("", def::font::mini, 8);
     label->setPosition({bounds.getMidX(), bounds.getMaxY()});
     this->debugLayer->addChild(label);
     return label;

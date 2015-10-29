@@ -3,8 +3,8 @@
 #include "CoreLib.h"
 #include "Defines.h"
 
-TickCtrl::TickCtrl(std::function<void(double)> onTick,
-                   std::function<void(double, double)> onAnimate) :
+TickCtrl::TickCtrl(const std::function<void(double)>& onTick,
+                   const std::function<void(double, double)>& onAnimate) :
                    onTick(onTick),
                    onAnimate(onAnimate)
 {
@@ -17,13 +17,32 @@ void TickCtrl::update(float dt)
     if (lastUpdateTime == 0.0)
         lastUpdateTime = currentTime;
     
-    double frameTime = currentTime - lastUpdateTime;
+    double frameTime = (currentTime - lastUpdateTime) * timeScale;
+    cc::Director::getInstance()->getScheduler()->setTimeScale(timeScale);
+    
+    fps.counter++;
+    fps.timer += frameTime;
+    if (fps.timer >= 1.0)
+    {
+        fps.display = fps.counter;
+        fps.timer -= 1.0;
+        fps.counter = 0;
+    }
+    
+    if (sleepTimer > 0.0)
+    {
+        sleepTimer -= frameTime;
+        if (sleepTimer <= 0)
+            sleepTimer = 0.0;
+        else
+        {
+            cc::Director::getInstance()->getScheduler()->setTimeScale(0);
+            return;
+        }
+    }
+    
     this->accumulator += frameTime;
     this->upTime += frameTime;
-    
-    //normal motion
-    float timeScale = 1.0f;
-    cc::Director::getInstance()->getScheduler()->setTimeScale(timeScale);
     
     int tickCount = 0;
     while (this->accumulator > def::secondsPerTick)
@@ -50,13 +69,39 @@ void TickCtrl::clear()
     this->lastUpdateTime = 0.0;
     this->accumulator = 0.0;
     this->upTime = 0.0;
+    this->currentTick = 0;
+    this->fps.counter = 0;
+    this->fps.display = 0;
+    this->fps.timer = 0.0;
 }
 
 void TickCtrl::schedule(cocos2d::Node *parent)
 {
+    using namespace std::placeholders;
+    
     this->clear();
     
-    auto scheduler = new TickScheduler();
+    auto scheduler = new TickScheduler(std::bind(&TickCtrl::update, this, _1));
     parent->addChild(scheduler);
     scheduler->release();
+}
+
+int TickCtrl::getFPS()
+{
+    return fps.display;
+}
+
+unsigned long TickCtrl::getTicks()
+{
+    return this->currentTick;
+}
+
+double TickCtrl::getTimeScale()
+{
+    return timeScale;
+}
+
+void TickCtrl::setTimeScale(double scale)
+{
+    timeScale = scale;
 }

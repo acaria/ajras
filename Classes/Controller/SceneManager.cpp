@@ -3,7 +3,7 @@
 #include "MissionMediator.h"
 #include "CampMediator.h"
 
-SceneManager::SceneManager(const TickCtrl& tickCtrl) : tickCtrl(tickCtrl)
+SceneManager::SceneManager(TickCtrl* tickCtrl) : tickCtrl(tickCtrl)
 {
 }
 
@@ -26,18 +26,12 @@ void SceneManager::go2Camp()
     this->launch<CampMediator>();
 }
 
-void SceneManager::onTick(double dt)
+BaseMediator* SceneManager::getCurMediator()
 {
-    if (this->currentMediator != nullptr)
-    {
-        this->currentMediator->onTick(dt);
-    }
+    return currentMediator;
 }
 
-void SceneManager::onAnimate(double dt, double tickPercent)
+EventScene* SceneManager::getCurScene()
 {
-    if (this->currentMediator != nullptr)
-    {
-        this->currentMediator->onAnimate(dt, tickPercent);
-    }
+    return currentScene;
 }

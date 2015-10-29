@@ -7,14 +7,14 @@
 class SceneManager
 {
 public:
-    SceneManager(const TickCtrl &tickCtrl);
+    SceneManager(TickCtrl* tickCtrl);
     ~SceneManager();
     void go2MainMenu();
     void go2Mission();
     void go2Camp();
     
-    void onTick(double dt);
-    void onAnimate(double dt, double tickPercent);
+    BaseMediator* getCurMediator();
+    EventScene*   getCurScene();
 
 protected:
 
@@ -42,7 +42,7 @@ protected:
         
         eventRegs.push_back(scene->onEnterBeforeTransition.registerObserver([cMediator, scene, this](){
             cMediator->triggerAddView(*scene);
-            this->tickCtrl.schedule(scene);
+            this->tickCtrl->schedule(scene);
             this->currentMediator = cMediator;
         }));
 
@@ -73,5 +73,5 @@ private:
     EventScene*                     currentScene = nullptr;
     BaseMediator*                   currentMediator = nullptr;
 
-    TickCtrl                        tickCtrl;
+    TickCtrl*                       tickCtrl;
 };

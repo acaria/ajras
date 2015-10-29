@@ -1,6 +1,6 @@
 #pragma once
 
-#define kTraceBehaviours 0
+#define kTraceBehaviours 1
 
 #define ECSYSTEM_DEBUG 1
 #define GINFO_DEBUG 1

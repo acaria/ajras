@@ -42,6 +42,8 @@ namespace behaviour
         std::function<nState(unsigned id)> onCheck;
         std::function<nState(unsigned id)> onExecute;
         
+        std::string lastAction = "";
+        
     private:
         std::map<unsigned, std::map<std::string, cc::Value>> fields;
     };
@@ -147,6 +149,8 @@ namespace behaviour
             board.clear(node->id);
             for(auto child : node->children)
                 recursiveClearStates(child, board);
+            if (node->finally != nullptr)
+                recursiveClearStates(node->finally, board);
         }
     };
 
@@ -316,7 +320,7 @@ namespace behaviour
         nState visit(BoardNode& board)
         {
 #if kTraceBehaviours
-            Log("CheckNode: %s", this->toStr().c_str());
+            //Log("CheckNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
                 return board.states[id];
@@ -346,6 +350,8 @@ namespace behaviour
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
                 return board.states[id];
+        
+            board.lastAction = this->toStr().c_str();
         
             auto state = board.onExecute(this->id);
             if (!redo)

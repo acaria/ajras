@@ -47,8 +47,6 @@ void CollisionSystem::tick(double dt)
         //----------------
         //check room blocks
         
-        Log("dir=%f-%f", cpPosition.pos.x - cpPosition.last.x, cpPosition.pos.y - cpPosition.last.y);
-        
         cc::Rect lastBounds = SysHelper::getLastBounds(cpPosition, cpCollision);
         
         if (this->collisionData->checkCollisionRect(lib::getUnion(bounds, lastBounds),

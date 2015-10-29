@@ -37,4 +37,8 @@ private:
     //health
     std::set<unsigned>              healthSet;
     std::map<unsigned, cc::Label*>  healthMap;
+    
+    //AI
+    std::set<unsigned>              aiSet;
+    std::map<unsigned, cc::Label*>  aiMap;
 };

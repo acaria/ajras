@@ -52,6 +52,8 @@ void DebugSystem::tick(double dt)
             collisionSet.insert(eid);
         }
         
+        unsigned decal = 0;
+        
         //health
         if (ecs::has<cp::Health>(eid))
         {
@@ -59,7 +61,7 @@ void DebugSystem::tick(double dt)
             auto txt = lib::format("hp: %d/%d", cpHealth.hp, cpHealth.maxHp);
             if (healthSet.count(eid) > 0)
             {
-                healthMap[eid]->setPosition({bounds.getMidX(), bounds.getMaxY() + bounds.size.height});
+                healthMap[eid]->setPosition({bounds.getMidX(), bounds.getMaxY() + bounds.size.height + decal});
                 healthMap[eid]->setString(txt);
             }
             else
@@ -67,11 +69,30 @@ void DebugSystem::tick(double dt)
                 healthMap[eid] = addText(cc::Color3B::WHITE, bounds, txt);
                 healthSet.insert(eid);
             }
+            decal += 8;
+        }
+        
+        //AI
+        if (ecs::has<cp::AI>(eid))
+        {
+            auto cpAI = ecs::get<cp::AI>(eid);
+            if (aiSet.count(eid) > 0)
+            {
+                aiMap[eid]->setPosition({bounds.getMidX(), bounds.getMaxY() + bounds.size.height + decal});
+                aiMap[eid]->setString(cpAI.board.lastAction);
+            }
+            else
+            {
+                aiMap[eid] = addText(cc::Color3B::WHITE, bounds, cpAI.board.lastAction);
+                aiSet.insert(eid);
+            }
+            decal += 8;
         }
     }
     
     this->purge(ecs.join<cp::Collision, cp::Position>(), collisionSet, collisionMap);
     this->purge(ecs.join<cp::Collision, cp::Position, cp::Health>(), healthSet, healthMap);
+    this->purge(ecs.join<cp::Collision, cp::Position, cp::AI>(), aiSet, aiMap);
 }
 
 cc::Label* DebugSystem::addText(cc::Color3B color, const cc::Rect& bounds, const std::string& txt)

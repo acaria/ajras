@@ -98,7 +98,10 @@ void RoomSystemCtrl::loadRoom(LayeredContainer *view, RoomData *data)
     for(auto obj : data->getModelObjs())
     {
         if (lib::hasKey(obj.properties, "profile"))
-            this->loadStaticObject(obj.properties["profile"], obj.pos, data, view);
+        {
+            auto eid = this->loadStaticObject(obj.properties["profile"], obj.pos, data, view);
+            ecs::add<cp::Control>(eid, data->index) = 2;
+        }
         else if (lib::hasKey(obj.properties, "zone_type"))
         {
             this->loadZoneObject(obj.properties["zone_type"],
@@ -178,11 +181,11 @@ void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect 
             bounds.origin.x + this->random.interval(0, bounds.size.width - profile->collisionRect.getMaxX()),
             bounds.origin.y + this->random.interval(0, bounds.size.height - profile->collisionRect.getMaxY())
         };
-        this->loadStaticObject(profileName, pos, data, view);
+        auto eid = this->loadStaticObject(profileName, pos, data, view);
     }
 }
 
-void RoomSystemCtrl::loadStaticObject(const std::string &profileName,
+unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
                                       const cc::Point& pos,
                                       RoomData *data,
                                       LayeredContainer *view)
@@ -257,6 +260,8 @@ void RoomSystemCtrl::loadStaticObject(const std::string &profileName,
                                                                    80.0f, 0.1f, {150, 200}, {0.98, 1.2}, {0.9,1.1},
                                                                    cc::Color3B(252, 168, 50), cc::Color3B(252, 168, 50))));
     }
+    
+    return eid;
 }
 
 CollisionSystem& RoomSystemCtrl::getCollisionSystem()

@@ -24,25 +24,22 @@ void ControlSystem::tick(double dt)
     }
     
     //moving control
-    for(auto eid : ecs.join<cp::Control, cp::Input>())
+    for(auto eid : ecs.join<cp::Control, cp::Input, cp::Control>())
     {
-        auto feid = player->entityFocus;
-        if (feid == 0)
+        unsigned ctrlIndex = ecs::get<cp::Control>(eid);
+        if (std::find(indexList.begin(), indexList.end(), ctrlIndex) == indexList.end())
             continue;
         
-        //direction
-        if (ecs::get<cp::Control>(eid) != player->ctrlIndex)
-            continue;
         auto& cpInput = ecs::get<cp::Input>(eid);
          
-        if (joyPos != nullptr)
+        if (joyPos[ctrlIndex] != nullptr)
         {
-            cpInput.setDirection(joyPos.Value);
+            cpInput.setDirection(joyPos[ctrlIndex].Value);
         }
         else
         {
-            cpInput.setDirection(this->curDirPressed |
-                (this->curDirReleased & ~this->preDirPressed));
+            cpInput.setDirection(this->curDirPressed[ctrlIndex] |
+                (this->curDirReleased[ctrlIndex] & ~this->preDirPressed[ctrlIndex]));
         }
         
         //selection
@@ -93,21 +90,29 @@ void ControlSystem::tick(double dt)
 
 void ControlSystem::clearReleased()
 {
-    this->preDirPressed = this->curDirPressed;
-    this->curDirReleased = Dir::None;
+    for(unsigned index : this->indexList)
+    {
+        this->preDirPressed[index] = this->curDirPressed[index];
+        this->curDirReleased[index] = Dir::None;
+    }
+    
     this->posSelection = nullptr;
     this->actionSelection = nullptr;
 }
 
-void ControlSystem::init(PlayerData* player)
+void ControlSystem::init(std::list<unsigned> indexes)
 {
-    this->player = player;
+    this->indexList = indexes;
     
-    curDirPressed = Dir::None;
-    curDirReleased = Dir::None;
-    preDirPressed = Dir::None;
+    for(auto index : this->indexList)
+    {
+        curDirPressed[index] = Dir::None;
+        curDirReleased[index] = Dir::None;
+        preDirPressed[index] = Dir::None;
+        joyPos[index] = nullptr;
+    }
     posSelection = nullptr;
-    joyPos = nullptr;
+    actionSelection = nullptr;
 }
 
 void ControlSystem::setSelectionAction(ActionMode mode)
@@ -120,19 +125,19 @@ void ControlSystem::setSelectionPos(cc::Point p)
     this->posSelection = p;
 }
 
-void ControlSystem::setKeyPressAction(int flag)
+void ControlSystem::setKeyPressAction(unsigned index, int flag)
 {
-    this->curDirPressed |= flag;
-    this->curDirReleased &= ~flag;
+    this->curDirPressed[index] |= flag;
+    this->curDirReleased[index] &= ~flag;
 }
 
-void ControlSystem::setKeyReleaseAction(int flag)
+void ControlSystem::setKeyReleaseAction(unsigned index, int flag)
 {
-    this->curDirPressed &= ~flag;
-    this->curDirReleased |= flag;
+    this->curDirPressed[index] &= ~flag;
+    this->curDirReleased[index] |= flag;
 }
 
-void ControlSystem::setStickDirection(const lib::Nullable<cc::Vec2>& dir)
+void ControlSystem::setStickDirection(unsigned index, const lib::Nullable<cc::Vec2>& dir)
 {
-    joyPos = dir;
+    this->joyPos[index] = dir;
 }

@@ -13,16 +13,15 @@ class MissionInterface : public cc::Node
 private:
     
 public:
- 
-    static MissionInterface* create();
+    using KeyCode2TypeFunc = std::function<CtrlKeyType(KeyCode)>;
 
     MissionInterface();
     virtual ~MissionInterface();
     
     virtual bool init() override;
     
-    void registerPlayer(unsigned playerIndex,
-                        std::function<CtrlKeyType(KeyCode)> onKeyCode2KeyType);
+    void registerIndex(unsigned playerIndex,
+                       const KeyCode2TypeFunc& onKeyCode2KeyType);
     
     void        setTargetID(unsigned eid,
                     bool friendly,
@@ -47,7 +46,7 @@ public:
     lib::Subject<void(ActionMode)>    onSetActionMode;
     
 private:
-    std::function<CtrlKeyType(KeyCode)> onKeyCode2KeyType = nullptr;
+    std::map<unsigned, KeyCode2TypeFunc> controlMap;
     
     cc::ui::Scale9Sprite*           actionSelection;
     
@@ -77,6 +76,4 @@ private:
     HealthBar* healthBar;
     
     ActionMode currentAction;
-    
-    unsigned playerIndex = 0;
 };

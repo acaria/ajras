@@ -391,7 +391,7 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
     this->data = data;
     this->playerData = player;
     this->ecsGroup.setID(this->data->getCurIdxRoom());
-    this->controlSystem.init(player);
+    this->controlSystem.init({PlayerData::ctrlIndex, PlayerData::debugIndex});
     
     cc::Rect bounds = cc::Rect::ZERO;
     for(auto pair : data->rooms)

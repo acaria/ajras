@@ -29,7 +29,7 @@ bool MissionScene::init()
     this->frame->setAnchorPoint({0,0});
     this->canvas->addChild(this->frame);
     
-    this->interface = MissionInterface::create();
+    this->interface = cc::create<MissionInterface>();
     this->addChild(interface);
     
     this->camera = new GameCamera(this->frame, def::canvasMissionRect);

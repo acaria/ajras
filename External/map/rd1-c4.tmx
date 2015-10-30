@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-down" width="24" height="10" tilewidth="16" tileheight="16" nextobjectid="12">
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="24" height="10" tilewidth="16" tileheight="16" nextobjectid="14">
  <tileset firstgid="1" source="../tileset/dungeon1.tsx"/>
  <tileset firstgid="87" source="../tileset/collision.tsx"/>
  <tileset firstgid="90" source="../tileset/char1.tsx"/>
  <tileset firstgid="92" source="../tileset/zone.tsx"/>
+ <tileset firstgid="94" source="../tileset/entity.tsx"/>
  <layer name="background" width="24" height="10">
   <data>
    <tile gid="0"/>
@@ -135,12 +136,12 @@
    <tile gid="0"/>
    <tile gid="1"/>
    <tile gid="1"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="2"/>
+   <tile gid="2"/>
    <tile gid="1"/>
    <tile gid="1"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="2"/>
+   <tile gid="2"/>
    <tile gid="2"/>
    <tile gid="2"/>
    <tile gid="0"/>
@@ -159,12 +160,12 @@
    <tile gid="0"/>
    <tile gid="1"/>
    <tile gid="2"/>
-   <tile gid="83"/>
-   <tile gid="0"/>
+   <tile gid="2"/>
+   <tile gid="2"/>
    <tile gid="2"/>
    <tile gid="1"/>
-   <tile gid="83"/>
-   <tile gid="0"/>
+   <tile gid="2"/>
+   <tile gid="2"/>
    <tile gid="2"/>
    <tile gid="2"/>
    <tile gid="83"/>
@@ -379,12 +380,12 @@
    <tile gid="88"/>
    <tile gid="87"/>
    <tile gid="87"/>
-   <tile gid="88"/>
-   <tile gid="88"/>
    <tile gid="87"/>
    <tile gid="87"/>
-   <tile gid="88"/>
-   <tile gid="88"/>
+   <tile gid="87"/>
+   <tile gid="87"/>
+   <tile gid="87"/>
+   <tile gid="87"/>
    <tile gid="87"/>
    <tile gid="87"/>
    <tile gid="88"/>
@@ -403,12 +404,12 @@
    <tile gid="88"/>
    <tile gid="87"/>
    <tile gid="87"/>
-   <tile gid="88"/>
-   <tile gid="88"/>
    <tile gid="87"/>
    <tile gid="87"/>
-   <tile gid="88"/>
-   <tile gid="88"/>
+   <tile gid="87"/>
+   <tile gid="87"/>
+   <tile gid="87"/>
+   <tile gid="87"/>
    <tile gid="87"/>
    <tile gid="87"/>
    <tile gid="88"/>
@@ -493,7 +494,6 @@
   </data>
  </layer>
  <objectgroup name="objects" opacity="0.96">
-  <object id="7" gid="90" x="209" y="97" width="30" height="21"/>
-  <object id="10" gid="91" x="124" y="65" width="24" height="35"/>
+  <object id="12" gid="97" x="176" y="80" width="13" height="22"/>
  </objectgroup>
 </map>

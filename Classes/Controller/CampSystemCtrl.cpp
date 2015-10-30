@@ -224,7 +224,7 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
     this->data->getCol()->process();
     
     //init systems
-    this->controlSystem.init(player);
+    this->controlSystem.init({PlayerData::ctrlIndex});
     this->renderSystem.init(data);
     this->collisionSystem.init(data->getCol());
     this->interactSystem.init(data->getCol());

@@ -536,8 +536,8 @@
 
             },
          "spacing":0,
-         "tilecount":2,
-         "tileheight":22,
+         "tilecount":4,
+         "tileheight":34,
          "tileproperties":
             {
              "0":
@@ -547,6 +547,14 @@
              "1":
                 {
                  "profile":"crate1"
+                },
+             "2":
+                {
+                 "profile":"chest1"
+                },
+             "3":
+                {
+                 "profile":"zomb"
                 }
             },
          "tiles":
@@ -558,6 +566,14 @@
              "1":
                 {
                  "image":"..\/..\/External\/tileset\/entity\/crate1.png"
+                },
+             "2":
+                {
+                 "image":"..\/..\/External\/tileset\/entity\/chest1.png"
+                },
+             "3":
+                {
+                 "image":"..\/..\/External\/tileset\/entity\/zomb.png"
                 }
             },
          "tilewidth":30

@@ -5,11 +5,9 @@ CampInterface::~CampInterface()
 {
 }
 
-void CampInterface::registerPlayer(unsigned playerIndex,
-                                      std::function<CtrlKeyType(KeyCode)> onKeyCode2KeyType)
+void CampInterface::registerIndex(unsigned index, const KeyCode2TypeFunc& onKeyCode2KeyType)
 {
-    this->playerIndex = playerIndex;
-    this->onKeyCode2KeyType = onKeyCode2KeyType;
+    this->controlMap[index] = onKeyCode2KeyType;
 }
 
 StickControl* CampInterface::getStick()
@@ -29,51 +27,56 @@ bool CampInterface::init()
     //keyboard
     auto kListener = cc::EventListenerKeyboard::create();
     kListener->onKeyPressed = [this](KeyCode code, cocos2d::Event *event) {
-        assert(this->onKeyCode2KeyType);
-        int toAdd = Dir::None;
-        
-        switch(this->onKeyCode2KeyType(code))
+        for(auto el : this->controlMap)
         {
-            case CtrlKeyType::none:
-                break;
-            case CtrlKeyType::left:
-                toAdd = Dir::Left;
-                break;
-            case CtrlKeyType::right:
-                toAdd = Dir::Right;
-                break;
-            case CtrlKeyType::up:
-                toAdd = Dir::Up;
-                break;
-            case CtrlKeyType::down:
-                toAdd = Dir::Down;
-                break;
-            default:
-                break;
-        }
+            assert(el.second);
+            int toAdd = Dir::None;
         
-        this->onKeyPressAction(this->playerIndex, toAdd);
+            switch(el.second(code))
+            {
+                case CtrlKeyType::none:
+                    break;
+                case CtrlKeyType::left:
+                    toAdd = Dir::Left;
+                    break;
+                case CtrlKeyType::right:
+                    toAdd = Dir::Right;
+                    break;
+                case CtrlKeyType::up:
+                    toAdd = Dir::Up;
+                    break;
+                case CtrlKeyType::down:
+                    toAdd = Dir::Down;
+                    break;
+                default:
+                    break;
+            }
+            this->onKeyPressAction(el.first, toAdd);
+        }
     };
     
     kListener->onKeyReleased = [this](KeyCode code, cocos2d::Event *event) {
-        assert(this->onKeyCode2KeyType);
-        int toDel = Dir::None;
-        
-        switch(this->onKeyCode2KeyType(code))
+        for(auto el : this->controlMap)
         {
-            default:
-                break;
-            case CtrlKeyType::left: toDel = Dir::Left;
-                break;
-            case CtrlKeyType::right: toDel = Dir::Right;
-                break;
-            case CtrlKeyType::up: toDel = Dir::Up;
-                break;
-            case CtrlKeyType::down: toDel = Dir::Down;
-                break;
-        }
+            assert(el.second);
+            int toDel = Dir::None;
         
-        this->onKeyReleaseAction(this->playerIndex, toDel);
+            switch(el.second(code))
+            {
+                default:
+                    break;
+                case CtrlKeyType::left: toDel = Dir::Left;
+                    break;
+                case CtrlKeyType::right: toDel = Dir::Right;
+                    break;
+                case CtrlKeyType::up: toDel = Dir::Up;
+                    break;
+                case CtrlKeyType::down: toDel = Dir::Down;
+                    break;
+            }
+        
+            this->onKeyReleaseAction(el.first, toDel);
+        }
     };
     
     auto tListener = cc::EventListenerTouchOneByOne::create();

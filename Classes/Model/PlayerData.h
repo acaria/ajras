@@ -8,6 +8,9 @@ using KeyCode = cocos2d::EventKeyboard::KeyCode;
 
 struct PlayerData
 {
+    static const unsigned ctrlIndex = 1;
+    static const unsigned debugIndex = 2;
+    
     ~PlayerData();
     
     //inventory
@@ -25,9 +28,6 @@ struct PlayerData
     
     //profiles
     std::string charProfileName;
-    
-    //control
-    unsigned ctrlIndex = 0;
     
     //keyboard
     CtrlKeyType ctrlKeyType;

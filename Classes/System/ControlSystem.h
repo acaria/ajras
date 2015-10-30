@@ -14,7 +14,7 @@ public:
     ControlSystem(lib::EcsGroup& ecs);
     virtual ~ControlSystem() {}
 
-    void init(PlayerData* player);
+    void init(std::list<unsigned> indexes);
     
     //overrides
     void tick(double dt) final;
@@ -22,23 +22,23 @@ public:
     
     void setSelectionAction(ActionMode mode);
     void setSelectionPos(cc::Point p);
-    void setKeyPressAction(int flag);
-    void setKeyReleaseAction(int flag);
-    void setStickDirection(const lib::Nullable<cc::Vec2>& dir);
+    void setKeyPressAction(unsigned index, int flag);
+    void setKeyReleaseAction(unsigned index, int flag);
+    void setStickDirection(unsigned index, const lib::Nullable<cc::Vec2>& dir);
     
 private:
     
     void clearReleased();
     
     //control input
-    unsigned    curDirPressed;
-    unsigned    curDirReleased;
-    unsigned    preDirPressed;
-    lib::Nullable<cc::Point> joyPos = nullptr;
+    std::map<unsigned, unsigned>                 curDirPressed;
+    std::map<unsigned, unsigned>                 curDirReleased;
+    std::map<unsigned, unsigned>                 preDirPressed;
+    std::map<unsigned, lib::Nullable<cc::Point>> joyPos;
     
     //selection input
     lib::Nullable<ActionMode> actionSelection = nullptr;
     lib::Nullable<cc::Point> posSelection = nullptr;
     
-    PlayerData *player = nullptr;
+    std::list<unsigned> indexList;
 };

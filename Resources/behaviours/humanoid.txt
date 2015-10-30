@@ -6,8 +6,8 @@ selector
         wait 1.0
     sequence "wander"
         action target none
-        selector
-            until time 2.0
+        sequence
+            until time 4.0
 #               action movetodir rand
 #           action movedir stop
                 action moveto rand

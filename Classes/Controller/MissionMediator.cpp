@@ -11,8 +11,19 @@ void MissionMediator::onAddView(MissionScene &scene)
     floorSystemCtrl.load(scene.getCam(), scene.getFrame(), playerData, floorData);
     floorSystemCtrl.start();
     
-    scene.interface->registerPlayer(playerData->ctrlIndex, [playerData](KeyCode code) {
+    scene.interface->registerIndex(playerData->ctrlIndex, [playerData](KeyCode code) {
         return playerData->KeyCode2KeyType(code);
+    });
+    
+    scene.interface->registerIndex(playerData->debugIndex, [](KeyCode code) {
+        switch(code)
+        {
+            case KeyCode::KEY_K: return CtrlKeyType::down;
+            case KeyCode::KEY_I: return CtrlKeyType::up;
+            case KeyCode::KEY_L: return CtrlKeyType::right;
+            case KeyCode::KEY_J: return CtrlKeyType::left;
+            default: return CtrlKeyType::none;
+        }
     });
     
     scene.interface->getInventoryPanel()->registerPlayer(playerData->entityFocus,
@@ -44,24 +55,25 @@ void MissionMediator::onAddView(MissionScene &scene)
     scene.getEventDispatcher()->addEventListenerWithSceneGraphPriority(kListener, &scene);
     
     //interface events
+    unsigned pIndex = playerData->ctrlIndex;
     this->eventRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
-        [this](cc::Vec2 pos){
-            this->floorSystemCtrl.getCtrlSystem()->setStickDirection(pos);
+        [this, pIndex](cc::Vec2 pos){
+            this->floorSystemCtrl.getCtrlSystem()->setStickDirection(pIndex, pos);
     }));
     
     this->eventRegs.push_back(scene.interface->getStick()->onRelease.registerObserver(
-        [this](){
-            this->floorSystemCtrl.getCtrlSystem()->setStickDirection(nullptr);
+        [this, pIndex](){
+            this->floorSystemCtrl.getCtrlSystem()->setStickDirection(pIndex, nullptr);
     }));
     
     this->eventRegs.push_back(scene.interface->onKeyPressAction.registerObserver(
-        [this](unsigned playerIndex, int flag){
-            this->floorSystemCtrl.getCtrlSystem()->setKeyPressAction(flag);
+        [this](unsigned index, int flag){
+            this->floorSystemCtrl.getCtrlSystem()->setKeyPressAction(index, flag);
     }));
     
     this->eventRegs.push_back(scene.interface->onKeyReleaseAction.registerObserver(
-        [this](unsigned playerIndex, int flag){
-            this->floorSystemCtrl.getCtrlSystem()->setKeyReleaseAction(flag);
+        [this](unsigned index, int flag){
+            this->floorSystemCtrl.getCtrlSystem()->setKeyReleaseAction(index, flag);
     }));
     
     this->eventRegs.push_back(scene.interface->onSetActionMode.registerObserver(

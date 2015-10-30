@@ -12,7 +12,7 @@ void CampMediator::onAddView(CampScene &scene)
     campSystemCtrl.load(scene.getCam(), scene.getFrame(), playerData, campData);
     campSystemCtrl.start();
     
-    scene.interface->registerPlayer(playerData->ctrlIndex, [playerData](KeyCode code) {
+    scene.interface->registerIndex(playerData->ctrlIndex, [playerData](KeyCode code) {
         return playerData->KeyCode2KeyType(code);
     });
     
@@ -25,24 +25,25 @@ void CampMediator::onAddView(CampScene &scene)
     scene.getEventDispatcher()->addEventListenerWithSceneGraphPriority(kListener, &scene);
     
     //interface events
+    unsigned pIndex = playerData->ctrlIndex;
     this->eventRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
-        [this](cc::Vec2 pos){
-            this->campSystemCtrl.getCtrlSystem()->setStickDirection(pos);
+        [this, pIndex](cc::Vec2 pos){
+            this->campSystemCtrl.getCtrlSystem()->setStickDirection(pIndex, pos);
     }));
     
     this->eventRegs.push_back(scene.interface->getStick()->onRelease.registerObserver(
-        [this](){
-            this->campSystemCtrl.getCtrlSystem()->setStickDirection(nullptr);
+        [this, pIndex](){
+            this->campSystemCtrl.getCtrlSystem()->setStickDirection(pIndex, nullptr);
     }));
     
     this->eventRegs.push_back(scene.interface->onKeyPressAction.registerObserver(
-        [this](unsigned playerIndex, int flag){
-            this->campSystemCtrl.getCtrlSystem()->setKeyPressAction(flag);
+        [this](unsigned index, int flag){
+            this->campSystemCtrl.getCtrlSystem()->setKeyPressAction(index, flag);
     }));
     
     this->eventRegs.push_back(scene.interface->onKeyReleaseAction.registerObserver(
-        [this](unsigned playerIndex, int flag){
-            this->campSystemCtrl.getCtrlSystem()->setKeyReleaseAction(flag);
+        [this](unsigned index, int flag){
+            this->campSystemCtrl.getCtrlSystem()->setKeyReleaseAction(index, flag);
     }));
     
     this->eventRegs.push_back(scene.getCam()->onTouch.registerObserver([this](cc::Point pos){

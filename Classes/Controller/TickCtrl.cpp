@@ -17,8 +17,8 @@ void TickCtrl::update(float dt)
     if (lastUpdateTime == 0.0)
         lastUpdateTime = currentTime;
     
-    double frameTime = (currentTime - lastUpdateTime) * timeScale;
-    cc::Director::getInstance()->getScheduler()->setTimeScale(timeScale);
+    double frameTime = (currentTime - lastUpdateTime);
+    cc::Director::getInstance()->getScheduler()->setTimeScale(this->timeScale);
     
     fps.counter++;
     fps.timer += frameTime;
@@ -28,6 +28,7 @@ void TickCtrl::update(float dt)
         fps.timer -= 1.0;
         fps.counter = 0;
     }
+    frameTime *= this->timeScale;
     
     if (sleepTimer > 0.0)
     {
@@ -98,10 +99,10 @@ unsigned long TickCtrl::getTicks()
 
 double TickCtrl::getTimeScale()
 {
-    return timeScale;
+    return this->timeScale;
 }
 
 void TickCtrl::setTimeScale(double scale)
 {
-    timeScale = scale;
+    this->timeScale = scale;
 }

@@ -9,6 +9,15 @@ BehaviourData::BehaviourData(const std::string& path)
     std::list<std::string> lines;
     lib::split(rawData, lines, "\n", true);
     
+    //purge comments
+    for(auto it = lines.begin(); it != lines.end();)
+    {
+        if (lib::trimCopy(*it)[0] == '#')
+            it = lines.erase(it);
+        else
+            it++;
+    }
+    
     this->curId = 1;
     this->tree = new behaviour::RepeatNode(this->curId++, nullptr);
     this->dict[this->tree->id] = this->tree;
@@ -58,32 +67,31 @@ void BehaviourData::parsingNode(behaviour::BaseNode *node,
     while (lines.size() > 0 && curDepth == getLineDepth(line))
     {
         lines.pop_front();
-        if (lib::trimCopy(line)[0] != '#') //skip
-        {
-            std::vector<std::string> words;
-            lib::split(line, words, "\t ", true);
-            auto tagName = words[0];
+        std::vector<std::string> words;
+        lib::split(line, words, "\t ", true);
+        auto tagName = words[0];
     
-            auto subNode = behaviour::factory[tagName](this->curId++, node);
-            this->dict[subNode->id] = subNode;
-            if (words.size() > 1)
-                subNode->name = words[1];
-            if (words.size() > 2)
-                subNode->values = std::vector<std::string>(words.begin() + 2,
+        auto subNode = behaviour::factory[tagName](this->curId++, node);
+        this->dict[subNode->id] = subNode;
+        if (words.size() > 1)
+            subNode->name = words[1];
+        if (words.size() > 2)
+            subNode->values = std::vector<std::string>(words.begin() + 2,
                                                        words.end());
-            if (tagName == "finally")
-            {
-                assert(node->finally == nullptr);
-                node->finally = subNode;
-            }
-            else
-                node->children.push_back(subNode);
-        
-            line = lines.front();
-            if (getLineDepth(line) == curDepth + 1)
-                this->parsingNode(subNode, lines);
+        if (tagName == "finally")
+        {
+            assert(node->finally == nullptr);
+            node->finally = subNode;
         }
-        if (lines.size() > 0)
-            line = lines.front();
+        else
+            node->children.push_back(subNode);
+        
+        line = lines.front();
+        if (getLineDepth(line) == curDepth + 1)
+        {
+            this->parsingNode(subNode, lines);
+            if (lines.size() > 0)
+                line = lines.front();
+        }
     }
 }

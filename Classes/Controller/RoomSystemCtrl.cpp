@@ -157,7 +157,7 @@ void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect 
     switch(lib::hash(zoneType))
     {
         case lib::hash("foe"): {
-            profileName = "bat";
+            profileName = "zomb";
             break;
         }
         case lib::hash("reward"): {

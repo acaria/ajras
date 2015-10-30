@@ -1,0 +1,20 @@
+repeat
+    +{children}
+
+selector ["description"]
+    *{children}
+    
+sequence ["description"]
+    *{children}
+    
+action "actionName" *["actionParams"]
+    
+chech "checkName" *["checkName"]
+
+until "untilName" *["untilParams"]
+    1{children}
+    
+finally ["description"]
+    +{children}
+    
+wait "value"

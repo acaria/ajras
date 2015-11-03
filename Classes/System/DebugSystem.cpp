@@ -52,6 +52,22 @@ void DebugSystem::tick(double dt)
             collisionSet.insert(eid);
         }
         
+        //melee
+        if (ecs::has<cp::Melee>(eid))
+        {
+            auto& cpMelee = ecs::get<cp::Melee>(eid);
+            if (meleeSet.count(eid) > 0)
+            {
+                meleeMap[eid]->setPosition(cpMelee.atkRect.origin);
+                meleeMap[eid]->setScale(cpMelee.atkRect.size.width, cpMelee.atkRect.size.height);
+            }
+            else
+            {
+                meleeMap[eid] = addPixel(cc::Color3B::YELLOW, bounds);
+                meleeSet.insert(eid);
+            }
+        }
+        
         unsigned decal = 0;
         
         //health
@@ -59,6 +75,11 @@ void DebugSystem::tick(double dt)
         {
             auto cpHealth = ecs::get<cp::Health>(eid);
             auto txt = lib::format("hp: %d/%d", cpHealth.hp, cpHealth.maxHp);
+            if (ecs::has<cp::Stamina>(eid))
+            {
+                auto cpStamina = ecs::get<cp::Stamina>(eid);
+                txt += lib::format(" - end:%.1f", cpStamina.current);
+            }
             if (healthSet.count(eid) > 0)
             {
                 healthMap[eid]->setPosition({bounds.getMidX(), bounds.getMaxY() + bounds.size.height + decal});
@@ -91,6 +112,7 @@ void DebugSystem::tick(double dt)
     }
     
     this->purge(ecs.join<cp::Collision, cp::Position>(), collisionSet, collisionMap);
+    this->purge(ecs.join<cp::Collision, cp::Position, cp::Melee>(), meleeSet, meleeMap);
     this->purge(ecs.join<cp::Collision, cp::Position, cp::Health>(), healthSet, healthMap);
     this->purge(ecs.join<cp::Collision, cp::Position, cp::AI>(), aiSet, aiMap);
 }

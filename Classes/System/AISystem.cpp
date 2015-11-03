@@ -342,8 +342,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                             ecs::get<cp::Velocity>(eid).ratio = properties["save_ratio"].asFloat();
                         //ecs::get<cp::Input>(eid).actionMode = ActionMode::explore;
                         ecs::get<cp::Render>(eid).setAnimation("idle", -1);
-                        ecs::get<cp::Melee>(eid).launched = false;
-                        ecs::get<cp::Melee>(eid).processed = true;
+                        ecs::get<cp::Melee>(eid).processing = true;
                         return state::SUCCESS;
                     }
                     if (now > properties["time_load"].asDouble())

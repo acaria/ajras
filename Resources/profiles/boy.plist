@@ -33,8 +33,10 @@
 		<dict>
 			<key>type</key>
 			<string>dir</string>
+			<key>stamina</key>
+			<string>30</string>
 			<key>range</key>
-			<string>12</string>
+			<string>20,30</string>
 			<key>anim_key</key>
 			<string>atk</string>
 		</dict>

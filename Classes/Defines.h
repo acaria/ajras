@@ -11,7 +11,7 @@ namespace def {
     const bool  showFPS = false;
     const float updatesPerSecond = 60.0f;
     const float idealInterval = 1.0f / updatesPerSecond;
-    const float ticksPerSecond = 20;
+    const float ticksPerSecond = /*20*/60;
     const float secondsPerTick = 1.0f / ticksPerSecond;
     const int   blockSize = 16;
     
@@ -31,6 +31,14 @@ namespace def {
         const std::string mini2 = "fonts/04b11.ttf";
         const std::string normal = "fonts/romulus.ttf";
     };
+    
+    //melee
+    namespace blinkAnim
+    {
+        const float duration = 0.5f;
+        const int   count = 3;
+    }
+    const float meleeAnimDuration = 1.f;
 }
 
 static cocos2d::Size designResolutionSize = cocos2d::Size(960, 640);

@@ -24,9 +24,13 @@ ProfileStatsInfo::ProfileStatsInfo(const cc::ValueMap& map)
     if (map.find("melee") != map.end())
     {
         auto &mData = map.at("melee").asValueMap();
+        std::vector<std::string> rangeSplit;
+        lib::split(mData.at("range").asString(), rangeSplit, ", ", true);
+
         this->melee = {
             .type = mData.at("type").asString(),
-            .range = mData.at("range").asDouble(),
+            .range = {std::stof(rangeSplit[0]), std::stof(rangeSplit[1])},
+            .stamina = mData.at("stamina").asFloat(),
             .animKey = mData.at("anim_key").asString()
         };
     }

@@ -14,7 +14,7 @@ RoomSystemCtrl::RoomSystemCtrl(): random(Randgine::instance()->get(Randgine::FLO
         collisionSystem(ecsGroup),
         moveSystem(ecsGroup),
         transSystem(ecsGroup),
-        inputSystem(ecsGroup),
+        updaterSystem(ecsGroup),
         meleeSystem(ecsGroup),
         targetSystem(ecsGroup),
         aiSystem(ecsGroup),
@@ -28,7 +28,7 @@ RoomSystemCtrl::RoomSystemCtrl(): random(Randgine::instance()->get(Randgine::FLO
 void RoomSystemCtrl::tick(double dt)
 {
     aiSystem.tick(dt);
-    inputSystem.tick(dt);
+    updaterSystem.tick(dt);
     targetSystem.tick(dt);
     moveSystem.tick(dt);
     collisionSystem.tick(dt);
@@ -44,7 +44,7 @@ void RoomSystemCtrl::tick(double dt)
 void RoomSystemCtrl::animate(double dt, double tickPercent)
 {
     aiSystem.animate(dt, tickPercent);
-    inputSystem.animate(dt, tickPercent);
+    updaterSystem.animate(dt, tickPercent);
     targetSystem.animate(dt, tickPercent);
     moveSystem.animate(dt, tickPercent);
     collisionSystem.animate(dt, tickPercent);
@@ -181,7 +181,7 @@ void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect 
             bounds.origin.x + this->random.interval(0, bounds.size.width - profile->collisionRect.getMaxX()),
             bounds.origin.y + this->random.interval(0, bounds.size.height - profile->collisionRect.getMaxY())
         };
-        auto eid = this->loadStaticObject(profileName, pos, data, view);
+        this->loadStaticObject(profileName, pos, data, view);
     }
 }
 
@@ -213,6 +213,7 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
         if (stats.melee != nullptr)
         {
             ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
+            ecs::add<cp::Stamina>(eid, roomIndex);
         }
         
         if (stats.health != nullptr)

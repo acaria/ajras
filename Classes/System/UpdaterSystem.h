@@ -2,12 +2,12 @@
 #include "BaseTickSystem.h"
 #include "ECSGroup.h"
 
-class InputSystem : public BaseTickSystem
+class UpdaterSystem : public BaseTickSystem
 {
 public:
-    InputSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
+    UpdaterSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
     
-    ~InputSystem() {}
+    ~UpdaterSystem() {}
     
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}

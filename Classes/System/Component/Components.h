@@ -5,6 +5,7 @@
 #include "OrientationComponent.h"
 #include "PositionComponent.h"
 #include "VelocityComponent.h"
+#include "StaminaComponent.h"
 #include "ProfileData.h"
 #include "InputComponent.h"
 #include "CollisionComponent.h"
@@ -24,6 +25,7 @@ namespace cp
     using Position = ecs::component<PositionComponent,          2>;
     using Orientation = ecs::component<OrientationComponent,    3>;
     using Velocity = ecs::component<VelocityComponent,          4>;
+    using Stamina = ecs::component<StaminaComponent,            5>;
     using Input = ecs::component<InputComponent,                6>;
     using Collision = ecs::component<CollisionComponent,        7>;
     using Gate = ecs::component<GateMap,                        8>;
@@ -57,6 +59,7 @@ namespace cp
             ecs::move<Position>(id, g1, g2);
             ecs::move<Orientation>(id, g1, g2);
             ecs::move<Velocity>(id, g1, g2);
+            ecs::move<Stamina>(id, g1, g2);
             ecs::move<Input>(id, g1, g2);
             ecs::move<Collision>(id, g1, g2);
             ecs::move<Gate>(id, g1, g2);
@@ -77,6 +80,7 @@ namespace cp
             ecs::del<Position>(id, group);
             ecs::del<Orientation>(id, group);
             ecs::del<Velocity>(id, group);
+            ecs::del<Stamina>(id, group);
             ecs::del<Input>(id, 1);
             ecs::del<Collision>(id, group);
             ecs::del<Gate>(id, group);
@@ -97,6 +101,7 @@ namespace cp
             ecs::clearGroup<Position>(group);
             ecs::clearGroup<Orientation>(group);
             ecs::clearGroup<Velocity>(group);
+            ecs::clearGroup<Stamina>(group);
             ecs::clearGroup<Input>(group);
             ecs::clearGroup<Collision>(group);
             ecs::clearGroup<Gate>(group);

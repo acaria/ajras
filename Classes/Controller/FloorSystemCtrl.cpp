@@ -327,6 +327,7 @@ void FloorSystemCtrl::start()
     cpRender.setProfile(profile, roomView);
     cpCollision.setProfile(profile);
     
+    ecs::add<cp::Stamina>(eid, roomIndex);
     ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);

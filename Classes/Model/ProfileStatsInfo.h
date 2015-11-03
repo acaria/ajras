@@ -23,7 +23,8 @@ struct ProfileStatsInfo
     struct Melee
     {
         std::string     type;
-        double          range;
+        cc::Size        range;
+        float           stamina;
         std::string     animKey;
     };
     

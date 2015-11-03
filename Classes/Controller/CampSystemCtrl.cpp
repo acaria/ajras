@@ -9,7 +9,7 @@ CampSystemCtrl::CampSystemCtrl() : renderSystem(ecsGroup),
         collisionSystem(ecsGroup),
         moveSystem(ecsGroup),
         transSystem(ecsGroup),
-        inputSystem(ecsGroup),
+        updaterSystem(ecsGroup),
         meleeSystem(ecsGroup),
         targetSystem(ecsGroup),
         aiSystem(ecsGroup),
@@ -45,7 +45,7 @@ void CampSystemCtrl::tick(double dt)
 {
     controlSystem.tick(dt);
     aiSystem.tick(dt);
-    inputSystem.tick(dt);
+    updaterSystem.tick(dt);
     targetSystem.tick(dt);
     moveSystem.tick(dt);
     collisionSystem.tick(dt);
@@ -70,7 +70,7 @@ void CampSystemCtrl::animate(double dt, double tickPercent)
     
     controlSystem.animate(dt, tickPercent);
     aiSystem.animate(dt, tickPercent);
-    inputSystem.animate(dt, tickPercent);
+    updaterSystem.animate(dt, tickPercent);
     targetSystem.animate(dt, tickPercent);
     moveSystem.animate(dt, tickPercent);
     collisionSystem.animate(dt, tickPercent);

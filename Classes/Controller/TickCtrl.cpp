@@ -12,13 +12,14 @@ TickCtrl::TickCtrl(const std::function<void(double)>& onTick,
 
 void TickCtrl::update(float dt)
 {
+    cc::Director::getInstance()->getScheduler()->setTimeScale(this->timeScale);
+    
     double currentTime = lib::now();
     
     if (lastUpdateTime == 0.0)
         lastUpdateTime = currentTime;
     
     double frameTime = (currentTime - lastUpdateTime);
-    cc::Director::getInstance()->getScheduler()->setTimeScale(this->timeScale);
     
     fps.counter++;
     fps.timer += frameTime;
@@ -43,11 +44,11 @@ void TickCtrl::update(float dt)
     }
     
     this->accumulator += frameTime;
-    this->upTime += frameTime;
     
     int tickCount = 0;
     while (this->accumulator > def::secondsPerTick)
     {
+        this->elapsedTime += def::secondsPerTick;
         accumulator -= def::secondsPerTick;
         tickCount++;
         this->currentTick++;
@@ -69,7 +70,7 @@ void TickCtrl::clear()
 {
     this->lastUpdateTime = 0.0;
     this->accumulator = 0.0;
-    this->upTime = 0.0;
+    this->elapsedTime = 0.0;
     this->currentTick = 0;
     this->fps.counter = 0;
     this->fps.display = 0;
@@ -95,6 +96,11 @@ int TickCtrl::getFPS()
 unsigned long TickCtrl::getTicks()
 {
     return this->currentTick;
+}
+
+double TickCtrl::getElapsedTime()
+{
+    return this->elapsedTime;
 }
 
 double TickCtrl::getTimeScale()

@@ -1,8 +1,9 @@
-#include "InputSystem.h"
+#include "UpdaterSystem.h"
 #include "Components.h"
 
-void InputSystem::tick(double dt)
+void UpdaterSystem::tick(double dt)
 {
+    //update from inputs
     for(auto eid : ecs.system<cp::Input>())
     {
         auto& cpInput = ecs::get<cp::Input>(eid);
@@ -42,6 +43,20 @@ void InputSystem::tick(double dt)
                 cpVelocity.accelFactor = 0.0f;
             }
             cpVelocity.direction = cpInput.direction;
+        }
+    }
+    
+    //update velocity
+    for(auto eid : ecs.join<cp::Stamina, cp::Input>())
+    {
+        if (ecs::get<cp::Input>(eid).disabled)
+            continue; //skip disabled
+        auto& cpStamina = ecs::get<cp::Stamina>(eid);
+        if (cpStamina.current < cpStamina.max)
+        {
+            cpStamina.current += cpStamina.recovery * dt;
+            if (cpStamina.current > cpStamina.max)
+                cpStamina.current = cpStamina.max;
         }
     }
 }

@@ -8,6 +8,7 @@ namespace lib
 }
 class Dir;
 class GameScene;
+class MeleeComponent;
 
 #include "BaseTickSystem.h"
 
@@ -24,8 +25,10 @@ public:
     lib::Subject<void(unsigned eid, int health)> onHealthChanged;
     
 private:
+    void processMelee(unsigned eid, unsigned oid, Dir atkDir);
+    Dir getAtkDir(unsigned eid, const MeleeComponent& cpMelee);
     cocos2d::Rect getAtkRectFromDir(const cocos2d::Rect& bounds,
-                                    unsigned range,
+                                    cc::Size range,
                                     const Dir& dir);
     bool detectStriking(unsigned eid);
     

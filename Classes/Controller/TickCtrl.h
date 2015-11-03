@@ -11,6 +11,7 @@ public:
 
     //accessors
     double getTimeScale();
+    double getElapsedTime();
     int getFPS();
     unsigned long getTicks();
     void setTimeScale(double scale);
@@ -31,7 +32,7 @@ private:
     double timeScale = 1.0;
     double lastUpdateTime = 0.0;
     double accumulator = 0.0;
-    double upTime = 0.0;
+    double elapsedTime = 0.0;
     unsigned long currentTick = 0;
     Fps fps;
 };

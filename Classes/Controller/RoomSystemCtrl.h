@@ -8,7 +8,7 @@
 #include "TargetSystem.h"
 #include "AISystem.h"
 #include "TargetSystem.h"
-#include "InputSystem.h"
+#include "UpdaterSystem.h"
 #include "MoveSystem.h"
 #include "InteractSystem.h"
 
@@ -65,7 +65,7 @@ private:
     CollisionSystem collisionSystem;
     MoveSystem      moveSystem;
     TransitSystem   transSystem;
-    InputSystem     inputSystem;
+    UpdaterSystem   updaterSystem;
     MeleeSystem     meleeSystem;
     TargetSystem    targetSystem;
     AISystem        aiSystem;

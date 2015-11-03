@@ -78,11 +78,6 @@ void ControlSystem::tick(double dt)
                     break;
             }
         }*/
-            
-        if (this->actionSelection != nullptr)
-        {
-            cpInput.actionMode = this->actionSelection.Value;
-        }
     }
     
     this->clearReleased();

@@ -13,6 +13,10 @@
 	</dict>
 	<key>stats</key>
 	<dict>
+		<key>health</key>
+		<string>99</string>
+		<key>stamina</key>
+		<string>100</string>
 		<key>move</key>
 		<dict>
 			<key>orientation</key>
@@ -40,8 +44,6 @@
 			<key>anim_key</key>
 			<string>atk</string>
 		</dict>
-		<key>health</key>
-		<string>5</string>
 	</dict>
 	<key>collision</key>
 	<dict>

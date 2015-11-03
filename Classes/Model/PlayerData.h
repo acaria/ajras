@@ -16,10 +16,6 @@ struct PlayerData
     //inventory
     std::list<SlotData> inventory;
     
-    //stats
-    unsigned maxHealth = 5;
-    unsigned currentHealth = 5;
-    
     //entity binding
     unsigned entityFocus = 0;
     

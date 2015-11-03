@@ -216,6 +216,11 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
             ecs::add<cp::Stamina>(eid, roomIndex);
         }
         
+        if (stats.stamina != nullptr)
+        {
+            ecs::add<cp::Stamina>(eid, roomIndex).setProfile(profile);
+        }
+        
         if (stats.health != nullptr)
         {
             ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);

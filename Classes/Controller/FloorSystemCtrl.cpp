@@ -327,15 +327,14 @@ void FloorSystemCtrl::start()
     cpRender.setProfile(profile, roomView);
     cpCollision.setProfile(profile);
     
-    ecs::add<cp::Stamina>(eid, roomIndex);
     ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Orientation>(eid, roomIndex);
     ecs::add<cp::Control>(eid, roomIndex) = playerData->ctrlIndex;
     ecs::add<cp::Gear>(eid, roomIndex) = playerData->inventory;
-
-    ecs::add<cp::Health>(eid, roomIndex).set(playerData->maxHealth, playerData->currentHealth);
+    ecs::add<cp::Stamina>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
     
     cpRender.sprite->setPosition({
         srcPos.x - cpCollision.rect.getMidX(),

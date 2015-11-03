@@ -74,7 +74,7 @@ void DebugSystem::tick(double dt)
         if (ecs::has<cp::Health>(eid))
         {
             auto cpHealth = ecs::get<cp::Health>(eid);
-            auto txt = lib::format("hp: %d/%d", cpHealth.hp, cpHealth.maxHp);
+            auto txt = lib::format("hp: %.0f/%.0f", cpHealth.hp, cpHealth.maxHp);
             if (ecs::has<cp::Stamina>(eid))
             {
                 auto cpStamina = ecs::get<cp::Stamina>(eid);

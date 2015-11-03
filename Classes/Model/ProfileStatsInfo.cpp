@@ -37,8 +37,11 @@ ProfileStatsInfo::ProfileStatsInfo(const cc::ValueMap& map)
     
     if (map.find("health") != map.end())
     {
-        this->health = {
-            .value = (unsigned)map.at("health").asInt()
-        };
+        this->health = map.at("health").asFloat();
+    }
+    
+    if (map.find("stamina") != map.end())
+    {
+        this->stamina = map.at("stamina").asFloat();
     }
 }

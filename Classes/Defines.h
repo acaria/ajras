@@ -38,7 +38,6 @@ namespace def {
         const float duration = 0.5f;
         const int   count = 3;
     }
-    const float meleeAnimDuration = 1.f;
 }
 
 static cocos2d::Size designResolutionSize = cocos2d::Size(960, 640);

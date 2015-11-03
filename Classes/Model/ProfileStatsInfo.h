@@ -28,13 +28,9 @@ struct ProfileStatsInfo
         std::string     animKey;
     };
     
-    struct Health
-    {
-        unsigned        value;
-    };
-    
     lib::Nullable<Move>     move;
     lib::Nullable<Sight>    sight;
     lib::Nullable<Melee>    melee;
-    lib::Nullable<Health>   health;
+    lib::Nullable<float>    health;
+    lib::Nullable<float>    stamina;
 };

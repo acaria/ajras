@@ -61,6 +61,11 @@ void RenderComponent::cancelAnimation()
     this->busy = false;
 }
 
+float RenderComponent::getAnimationDuration(const std::string &key)
+{
+    return this->profile->getKeyAnimation(key)->duration();
+}
+
 void RenderComponent::setAnimation(const std::string &key, int repeat, std::function<void(bool)> onComplete)
 {
     this->busy = true;

@@ -132,8 +132,18 @@ void MeleeSystem::processMelee(unsigned eid, unsigned oid, Dir atkDir)
     auto& cpRender = ecs::get<cp::Render>(eid);
     auto& cpRender2 = ecs::get<cp::Render>(oid);
     
-    cpInput.disable(def::meleeAnimDuration + def::blinkAnim::duration);
-    cpInput2.disable(def::meleeAnimDuration + def::blinkAnim::duration);
+    auto bounds1 = SysHelper::getBounds(eid);
+    auto bounds2 = SysHelper::getBounds(oid);
+    cc::Vec2 moveDir = { (bounds2.getMidX() - bounds1.getMidX()) / 2,
+                         (bounds2.getMidY() - bounds1.getMidY()) / 2 };
+    
+    cpRender.manualPosMode = true;
+    
+    auto animName = cpMelee.name + ProfileData::getTagName(atkDir);
+    auto animDuration = cpRender.getAnimationDuration(animName);
+    
+    cpInput.disable(animDuration + def::blinkAnim::duration);
+    cpInput2.disable(animDuration + def::blinkAnim::duration);
     
     auto df = def::blinkAnim::duration / def::blinkAnim::count / 2;
     auto redBlinkAnim = cc::Repeat::create(
@@ -150,18 +160,56 @@ void MeleeSystem::processMelee(unsigned eid, unsigned oid, Dir atkDir)
             NULL),
         def::blinkAnim::count);
     
+    auto moveAnim = cc::Sequence::create(
+        cc::MoveBy::create(animDuration / 3, moveDir),
+        cc::DelayTime::create(animDuration / 3),
+        cc::MoveBy::create(animDuration / 3, moveDir)->reverse(),
+        NULL
+    );
+    
+    auto attackAnim = cc::CallFunc::create([&cpMelee, &cpRender, atkDir](){
+        auto animName = cpMelee.name + ProfileData::getTagName(atkDir);
+        cpRender.setAnimation(animName, 1, [&cpMelee, &cpRender](bool canceled){
+            cpMelee.processing = false;
+            cpRender.manualPosMode = false;
+        });
+    });
+    
+    auto resolutionAnim = cc::Sequence::create(
+        cc::DelayTime::create(animDuration / 2),
+        cc::CallFunc::create([this, &cpRender2, &cpMelee, oid, moveDir](){
+            auto& cpHealth2 = ecs::get<cp::Health>(oid);
+            if (ecs::has<cp::Velocity>(oid))
+            {
+                ecs::get<cp::Velocity>(oid).decelFactor = 1;
+                ecs::get<cp::Velocity>(oid).velocity = moveDir.getNormalized() * 2;
+            }
+        
+            cpHealth2.hp -= cpMelee.damage;
+            this->onHealthChanged(oid, cpHealth2.hp);
+        
+            if (cpHealth2.hp == 0)
+            {
+                ecs::get<cp::Input>(oid).forceDisable();
+                //ecs.del<cp::Input>(oid);
+                cpRender2.setAnimation("death", 1, [oid, this](bool cancel){
+                    cp::entity::remove(oid, ecs.getID());
+                });
+            }
+        }),
+        NULL
+    );
+    
     cpRender2.sprite->runAction(redBlinkAnim);
     cpRender.sprite->runAction(cc::Sequence::create(
         blueBlinkAnim,
-        cc::CallFunc::create([&cpMelee, &cpRender, atkDir](){
-            auto animName = cpMelee.name + ProfileData::getTagName(atkDir);
-            cpRender.setAnimation(animName, 1, [&cpMelee](bool canceled){
-                cpMelee.processing = false;
-            });
-        }),
+        cc::Spawn::create(
+            resolutionAnim,
+            moveAnim,
+            attackAnim,
+            NULL),
         NULL)
     );
-
 }
 
 bool MeleeSystem::detectStriking(unsigned int eid)

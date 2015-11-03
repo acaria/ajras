@@ -21,6 +21,7 @@ struct RenderComponent
 
     void setAnimation(const std::string &key, int repeat,
                       std::function<void(bool)> onComplete = nullptr);
+    float getAnimationDuration(const std::string& key);
     void cancelAnimation();
     void setMoveAnimation(const Dir &orientation, bool moving);
     void setMoveCategory(const std::string& cat);

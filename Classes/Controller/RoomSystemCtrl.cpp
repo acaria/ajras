@@ -144,6 +144,7 @@ void RoomSystemCtrl::loadRoom(LayeredContainer *view, RoomData *data)
     //init systems
     collisionSystem.init(data->getCol());
     interactSystem.init(data->getCol());
+    meleeSystem.init(data->getCol());
     renderSystem.init(data);
     aiSystem.init(data);
 #if ECSYSTEM_DEBUG

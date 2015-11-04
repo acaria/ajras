@@ -152,8 +152,8 @@ TmxDataModel::TmxDataModel(const std::string &fileName) : grid(0,0)
 
 cocos2d::Rect TmxDataModel::getRectCoord(const lib::v2u& pos)
 {
-    return { (float)pos.x * tileSize.x, (float)pos.y * tileSize.y,
-        (float)tileSize.x, (float)tileSize.y };
+    return {(float)pos.x * tileSize.x, (float)pos.y * tileSize.y,
+            (float)tileSize.x, (float)tileSize.y};
 }
 
 cocos2d::Vec2 TmxDataModel::getPosFromCoord(const lib::v2u& coord)

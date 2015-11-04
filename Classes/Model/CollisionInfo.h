@@ -4,6 +4,7 @@
 #include "CoreLib.h"
 #include "IMapData.h"
 #include "Random.h"
+#include "Dir.h"
 
 class CollisionInfo
 {
@@ -19,6 +20,11 @@ public:
 
     bool checkCollisionRect(const cocos2d::Rect& rect,
                             CollisionCategory cat);
+
+    bool checkCollisionRay(const cc::Point& origin,
+                           const cc::Point& dest,
+                           CollisionCategory cat);
+
     std::vector<cc::Rect> getNearEmptyBlocks(const lib::v2u& coord,
                                              unsigned maxDist,
                                              CollisionCategory cat);

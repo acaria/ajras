@@ -6,6 +6,11 @@
 #include "SysHelper.h"
 #include "GameCtrl.h"
 
+void MeleeSystem::init(CollisionInfo *collision)
+{
+    this->collision = collision;
+}
+
 void MeleeSystem::tick(double dt)
 {
     std::list<std::list<std::pair<unsigned, unsigned>>> meleeListGroup;
@@ -26,7 +31,7 @@ void MeleeSystem::tick(double dt)
         Dir atkDir = getAtkDir(eid, cpMelee);
         cpMelee.atkRect = getAtkRectFromDir(body, cpMelee.range, atkDir);
 
-        if (cpMelee.atkRect.equals(cc::Rect::ZERO))
+        if (cpMelee.atkRect.size.width == 0 || cpMelee.atkRect.size.height == 0)
             continue;
         
         //check room objects
@@ -42,6 +47,12 @@ void MeleeSystem::tick(double dt)
                 if (cpMelee.atkRect.intersectsRect(bounds) && !cpMelee.processing &&
                     ecs::get<cp::Stamina>(eid).current >= cpMelee.energie)
                 {
+                    if (this->collision->checkCollisionRay({body.getMidX(), body.getMidY()},
+                                                           {bounds.getMidX(), bounds.getMidY()},
+                                                           ecs::get<cp::Collision>(eid).category))
+                        continue;
+                        
+                    
                     bool added = false;
                     for(auto& meleeList : meleeListGroup)
                     {
@@ -226,7 +237,8 @@ Dir MeleeSystem::getAtkDir(unsigned int eid, const MeleeComponent &cpMelee)
     return atkDir;
 }
 
-cocos2d::Rect MeleeSystem::getAtkRectFromDir(const cocos2d::Rect& bounds, cc::Size range, const Dir& dir)
+cocos2d::Rect MeleeSystem::getAtkRectFromDir(const cocos2d::Rect& bounds,
+                                             cc::Size range, const Dir& dir)
 {
     switch(dir.getRaw())
     {

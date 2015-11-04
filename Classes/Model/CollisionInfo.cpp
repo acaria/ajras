@@ -185,6 +185,8 @@ cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::R
 
 bool CollisionInfo::checkCollisionRect(const cc::Rect &rect, CollisionCategory cat)
 {
+    if (rect.size.width == 0 || rect.size.height == 0)
+        return false;
     auto moveAble = this->grids[cat];
  
     auto downLeft = this->data->getCoordFromPos({rect.getMinX(), rect.getMinY()});
@@ -197,6 +199,47 @@ bool CollisionInfo::checkCollisionRect(const cc::Rect &rect, CollisionCategory c
             return true;
     }
 
+    return false;
+}
+
+bool CollisionInfo::checkCollisionRay(const cc::Point& origin,
+                                      const cc::Point& dest,
+                                      CollisionCategory cat)
+{
+    auto dir = dest - origin;
+    if (dir.x == 0 && dir.y == 0)
+        return false;
+    auto moveAble = this->grids[cat];
+    cc::Point p1 = origin;
+    cc::Point p2 = origin + dir;
+    auto downLeft = this->data->getCoordFromPos({MIN(p1.x, p2.x), MIN(p1.y, p2.y)});
+    auto upRight = this->data->getCoordFromPos({MAX(p1.x, p2.x), MAX(p1.y, p2.y)});
+    
+    auto nDir = dir.getNormalized();
+    cc::Point dirFrac = {
+        1.0f / (nDir.x == 0 ? FLT_MIN : nDir.x),
+        1.0f / (nDir.y == 0 ? FLT_MIN : nDir.y)
+    };
+    
+    for(unsigned x = downLeft.x; x <= upRight.x; x++)
+    for(unsigned y = downLeft.y; y <= upRight.y; y++)
+    {
+        if (!moveAble->get(x, y))
+        {
+            cc::Rect bounds = this->data->getBlockBound({x,y});
+            float t1 = (bounds.getMinX() - origin.x) * dirFrac.x;
+            float t2 = (bounds.getMaxX() - origin.x) * dirFrac.x;
+            float t3 = (bounds.getMinY() - origin.y) * dirFrac.y;
+            float t4 = (bounds.getMaxY() - origin.y) * dirFrac.y;
+            
+            float tmin = MAX(MIN(t1, t2), MIN(t3, t4));
+            float tmax = MIN(MAX(t1, t2), MAX(t3, t4));
+            
+            if (tmax >= 0 && tmin <= tmax)
+                return true;
+        }
+    }
+    
     return false;
 }
 

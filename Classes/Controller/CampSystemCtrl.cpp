@@ -228,6 +228,7 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
     this->renderSystem.init(data);
     this->collisionSystem.init(data->getCol());
     this->interactSystem.init(data->getCol());
+    this->meleeSystem.init(data->getCol());
     this->aiSystem.init(data);
     
 #if ECSYSTEM_DEBUG

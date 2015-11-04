@@ -6,6 +6,7 @@ class IMapData;
 #include "BaseTickSystem.h"
 #include "BehaviourNodes.h"
 #include "Randgine.h"
+#include "Defines.h"
 
 class AISystem : public BaseTickSystem
 {
@@ -23,6 +24,9 @@ public:
     behaviour::nState onExecute(unsigned eid, unsigned nid);
     
 private:
+    def::mood::Flags getMoodGroup(def::mood::Flags ref,
+                                  const std::string& moodGroupCat);
+
     enum class ExecBType {
         TARGET,
         MOVE_TO,

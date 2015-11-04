@@ -1,6 +1,6 @@
 selector
     sequence "attack"
-        action target mood friendly
+        action target mood opponent
         until time 2.0
             action movenear target 20.0
         wait 1.0

@@ -14,15 +14,16 @@ struct MeleeComponent
         enum type meleeType = type::SELF;
         if (melee.type == "dir")
             meleeType = type::DIR;
-        this->set(melee.animKey, meleeType, melee.range);
+        this->set(melee.animKey, meleeType, def::mood::fromStr(profile->moodCategory), melee.range);
     }
     
-    void set(const std::string& name, type meleeType, const cc::Size& range)
+    void set(const std::string& name, type meleeType, def::mood::Flags moodCat, const cc::Size& range)
     {
         this->range = range;
         this->type = meleeType;
         this->name = name;
         this->processing = false;
+        this->moodCat = moodCat;
     }
 
     unsigned    damage = 1;
@@ -30,10 +31,11 @@ struct MeleeComponent
     bool        processing;
     
     //input
-    std::string name;
-    float       energie = 30.0f;
-    cc::Size    range;
-    type        type;
+    std::string      name;
+    float            energie = 30.0f;
+    cc::Size         range;
+    type             type;
+    def::mood::Flags moodCat = def::mood::Neutral;
     //-----
     
     //output

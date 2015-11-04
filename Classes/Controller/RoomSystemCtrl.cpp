@@ -230,6 +230,11 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
     if (profile->withBehaviour)
     {
         ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
+        ecs::add<cp::Mood>(eid, roomIndex) = def::mood::fromStr(profile->moodCategory);
+    }
+    else
+    {
+        ecs::add<cp::Mood>(eid, roomIndex) = def::mood::Neutral;
     }
     
     if (profile->interaction != nullptr)

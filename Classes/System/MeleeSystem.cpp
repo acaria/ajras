@@ -9,10 +9,13 @@
 void MeleeSystem::tick(double dt)
 {
     std::list<std::list<std::pair<unsigned, unsigned>>> meleeListGroup;
-    for(auto eid : ecs.join<cp::Melee, cp::Stamina, cp::Collision, cp::Position, cp::Render>())
+    for(auto eid : ecs.join<cp::Melee, cp::Mood, cp::Stamina, cp::Collision, cp::Position, cp::Render>())
     {
         if (!ecs::has<cp::Input>(eid) || ecs::get<cp::Input>(eid).disabled)
             continue;
+        
+        auto entityMood = ecs::get<cp::Mood>(eid);
+        auto oppositeMoods = def::mood::getOpponents(entityMood);
         
         auto& cpMelee = ecs::get<cp::Melee>(eid);
         if (cpMelee.processing)
@@ -27,11 +30,12 @@ void MeleeSystem::tick(double dt)
             continue;
         
         //check room objects
-        for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position, cp::Health, cp::Input>())
+        for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position, cp::Health, cp::Mood, cp::Input>())
         {
             if (oid == eid) continue;
             
-            if (!ecs::has<cp::Target>(eid) || ecs::get<cp::Target>(eid) == oid)
+            if ((!ecs::has<cp::Target>(eid) || ecs::get<cp::Target>(eid) == oid) &&
+                def::mood::inside(ecs::get<cp::Mood>(oid), oppositeMoods))
             {
                 cocos2d::Rect bounds = SysHelper::getBounds(oid);
                 
@@ -54,41 +58,6 @@ void MeleeSystem::tick(double dt)
                     if (!added)
                         meleeListGroup.push_back({{eid, oid}});
                 }
-                        /*if (!cpMelee.processed)
-                        {
-                            if (detectStriking(eid))
-                            {
-                                //strike
-                                cpMelee.processed = true;
-                                
-                                float duration = 0.2f;
-                                int   freq = 3;
-                                
-                                cpRender2.sprite->runAction(cc::Repeat::create(
-                                    cc::Sequence::create(cc::TintTo::create(duration / freq / 2, 255, 50, 50),
-                                    cc::TintTo::create(duration / freq / 2, 255, 255, 255),
-                                    NULL), freq));
-                                
-                                if (ecs::has<cp::Velocity>(oid))
-                                {
-                                    ecs::get<cp::Velocity>(oid).decelFactor = 1;
-                                    ecs::get<cp::Velocity>(oid).velocity = (bounds.origin - body.origin).getNormalized() * 5;
-                                }
-                                
-                                cpHealth2.hp -= cpMelee.damage;
-                                this->onHealthChanged(oid, cpHealth2.hp);
-                                
-                                if (cpHealth2.hp == 0)
-                                {
-                                    ecs.del<cp::Target>(eid);
-                                    ecs::get<cp::Input>(oid).forceDisable();
-                                    //ecs.del<cp::Input>(oid);
-                                    cpRender2.setAnimation("death", 1, [oid, this](bool cancel){
-                                        cp::entity::remove(oid, ecs.getID());
-                                    });
-                                }
-                            }
-                        }*/
             }
         }
     }

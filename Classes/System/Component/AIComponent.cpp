@@ -14,18 +14,11 @@ void AIComponent::setProfile(ProfileData* profile)
         this->bref = ModelProvider::instance()->behaviour.get(profile->behaviourKey);
     }
     
-    this->mood = this->mapMood[profile->moodCategory];
     this->sleep = this->mapSleep[profile->sleepCategory];
     
     if (profile->stats != nullptr && profile->stats.Value.sight != nullptr)
         this->sightRange = profile->stats.Value.sight.Value.range;
 }
-
-std::map<std::string, AIComponent::eMood> AIComponent::mapMood = {
-    {"neutral", eMood::NEUTRAL},
-    {"hostile", eMood::HOSTILE},
-    {"friendly",eMood::FRIENDLY}
-};
 
 std::map<std::string, AIComponent::eSleep> AIComponent::mapSleep = {
     {"none", eSleep::NONE},

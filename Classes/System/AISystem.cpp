@@ -15,7 +15,7 @@ void AISystem::tick(double dt)
 {
     using namespace std::placeholders;
     
-    for(auto eid : ecs.join<cp::Input, cp::AI>())
+    for(auto eid : ecs.join<cp::Input, cp::AI, cp::Mood>())
     {
         if (ecs::has<cp::Control>(eid))
             continue; //manual
@@ -42,6 +42,7 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
 {
     using state = behaviour::nState;
     auto& cpAI = ecs::get<cp::AI>(eid);
+    auto mood = ecs::get<cp::Mood>(eid);
     behaviour::BaseNode* node = cpAI.bref->getNode(nid);
     
     switch(this->checkMap[node->name])
@@ -53,16 +54,16 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
                 case AIComponent::eType::MOOD: {
                     assert(node->values.size() == 2); //params=[category,value]
                     auto maxDist = cpAI.sightRange * cpAI.sightRange;
-                    auto targetMood = AIComponent::mapMood[node->values[1]];
+                    auto moodGroup = this->getMoodGroup(mood, node->values[1]);
                     auto bounds = SysHelper::getBounds(eid);
                     
                     float nearest = maxDist;
                     unsigned targetID = 0;
-                    for(auto tid : ecs.join<cp::AI, cp::Position, cp::Collision>())
+                    for(auto tid : ecs.join<cp::AI, cp::Position, cp::Collision, cp::Mood>())
                     {
                         if (tid == eid)
                             continue;
-                        if (targetMood != ecs::get<cp::AI>(tid).mood)
+                        if (!def::mood::inside(ecs::get<cp::Mood>(tid), moodGroup))
                             continue;
                         auto bounds2 = SysHelper::getBounds(tid);
                         float dist = cc::Vec2(
@@ -109,10 +110,25 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
     return state::FAILURE;
 }
 
+def::mood::Flags AISystem::getMoodGroup(def::mood::Flags ref,
+                                        const std::string& moodGroupCat)
+{
+    switch(lib::hash(moodGroupCat))
+    {
+        case lib::hash("opponent"): return def::mood::getOpponents(ref);
+        case lib::hash("ally"): return def::mood::getAllies(ref);
+        default:
+            Log("unrecognised mood group selection : %s", moodGroupCat.c_str());
+            break;
+    }
+    return def::mood::Neutral;
+}
+
 behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
 {
     using state = behaviour::nState;
     auto& cpAI = ecs::get<cp::AI>(eid);
+    auto mood = ecs::get<cp::Mood>(eid);
     behaviour::BaseNode* node = cpAI.bref->getNode(nid);
 
     switch(this->execMap[node->name])
@@ -143,8 +159,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                 case AIComponent::eType::MOOD: {
                     assert(node->values.size() == 2); //params=[category,value]
                     
-                    auto targetID = SysHelper::getNearest(ecs.getID(), eid,
-                        AIComponent::mapMood[node->values[1]], cpAI.sightRange);
+                    auto moodGroup = this->getMoodGroup(mood, node->values[1]);
+                    auto targetID = SysHelper::getNearest(ecs.getID(), eid, moodGroup, cpAI.sightRange);
                     if (targetID != 0)
                     {
                         ecs.add<cp::Target>(eid) = targetID;
@@ -194,7 +210,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                             };
                         }
                         
-                        properties["target"] = cc::ValueMap{{"x", cc::Value((int)pos.x)}, {"y", cc::Value((int)pos.y)}};
+                        properties["target"] = cc::ValueMap{{"x", cc::Value((int)pos.x)},
+                                                            {"y", cc::Value((int)pos.y)}};
                     }
                     
                     auto& cpInput = ecs::get<cp::Input>(eid);

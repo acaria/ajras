@@ -38,6 +38,60 @@ namespace def {
         const float duration = 0.5f;
         const int   count = 3;
     }
+    
+    //AI
+    namespace mood
+    {
+        enum Flags
+        {
+            None = 0,
+            Neutral = 1,
+            Hostile = 2,
+            Friendly = 4,
+            Agressive = 8
+        };
+        
+        inline Flags operator|(Flags a, Flags b)
+        { return static_cast<Flags>(static_cast<int>(a) | static_cast<int>(b)); }
+        
+        inline bool inside(Flags a, Flags  b)
+        { return (static_cast<int>(a) & static_cast<int>(b)) != 0; }
+        
+        static Flags fromStr(const std::string& str)
+        {
+            if (str == "hostile")
+                return Flags::Hostile;
+            if (str == "friendly")
+                return Flags::Friendly;
+            if (str == "agressive")
+                return Flags::Agressive;
+            return Flags::Neutral;
+        }
+        
+        static Flags getOpponents(Flags a)
+        {
+            switch(a)
+            {
+                case Flags::Friendly: return Flags::Hostile | Flags::Agressive;
+                case Flags::Hostile : return Flags::Friendly | Flags::Agressive;
+                case Flags::Agressive: return Flags::Friendly | Flags::Hostile | Flags::Agressive | Flags::Neutral;
+                case Flags::Neutral:
+                default: return Flags::None;
+            }
+        }
+        
+        static Flags getAllies(Flags a)
+        {
+            switch(a)
+            {
+                case Flags::Friendly: return Flags::Friendly;
+                case Flags::Hostile : return Flags::Hostile;
+                case Flags::Agressive:
+                case Flags::Neutral:
+                default: return Flags::None;
+            }
+        }
+    }
 }
 
 static cocos2d::Size designResolutionSize = cocos2d::Size(960, 640);

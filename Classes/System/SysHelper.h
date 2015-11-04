@@ -15,6 +15,6 @@ public:
     static cocos2d::Rect getBounds(unsigned eid);
     
     static unsigned getNearest(unsigned gid,unsigned eid,
-                               AIComponent::eMood mood,
+                               def::mood::Flags moodCat,
                                float maxLength);
 };

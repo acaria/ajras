@@ -38,6 +38,7 @@ namespace cp
     using AI = ecs::component<AIComponent,                      15>;
     using Gear = ecs::component<GearComponent,                  16>;
     using Collectible = ecs::component<std::string,             17>;
+    using Mood = ecs::component<def::mood::Flags,               18>;
     
     struct entity
     {
@@ -72,6 +73,7 @@ namespace cp
             ecs::move<AI>(id, g1, g2);
             ecs::move<Gear>(id, g1, g2);
             ecs::move<Collectible>(id, g1, g2);
+            ecs::move<Mood>(id, g1, g2);
         }
         
         static void remove(unsigned id, unsigned group)
@@ -93,6 +95,7 @@ namespace cp
             ecs::del<AI>(id, group);
             ecs::del<Gear>(id, group);
             ecs::del<Collectible>(id, group);
+            ecs::del<Mood>(id, group);
         }
         
         static void clear(unsigned group)
@@ -114,6 +117,7 @@ namespace cp
             ecs::clearGroup<AI>(group);
             ecs::clearGroup<Gear>(group);
             ecs::clearGroup<Collectible>(group);
+            ecs::clearGroup<Mood>(group);
         }
     };
 }

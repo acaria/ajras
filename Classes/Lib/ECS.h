@@ -150,13 +150,25 @@ namespace ecs
     template<class T, class U, class V, class W>
     set< unsigned > join(unsigned group)
     {
-        return subsystem<T,JOIN>( join<U,V,W>(group) );
+        return subsystem<T,JOIN>( join<U,V,W>(group), group);
     }
     
     template<class T, class U, class V, class W, class X>
     set< unsigned > join(unsigned group)
     {
-        return subsystem<T,JOIN>( join<U,V,W,X>(group) );
+        return subsystem<T,JOIN>( join<U,V,W,X>(group), group);
+    }
+    
+    template<class T, class U, class V, class W, class X, class Y>
+    set< unsigned > join(unsigned group)
+    {
+        return subsystem<T,JOIN>( join<U,V,W,X,Y>(group), group);
+    }
+    
+    template<class T, class U, class V, class W, class X, class Y, class Z>
+    set< unsigned > join(unsigned group)
+    {
+        return subsystem<T,JOIN>( join<U,V,W,X,Y,Z>(group), group);
     }
     
     template<class T>
@@ -187,5 +199,17 @@ namespace ecs
     bool has(unsigned id)
     {
         return has<T>(id) && has<U,V,W,X>(id);
+    }
+    
+    template<class T, class U, class V, class W, class X, class Y>
+    bool has(unsigned id)
+    {
+        return has<T>(id) && has<U,V,W,X,Y>(id);
+    }
+    
+    template<class T, class U, class V, class W, class X, class Y, class Z>
+    bool has(unsigned id)
+    {
+        return has<T>(id) && has<U,V,W,X,Y,Z>(id);
     }
 };

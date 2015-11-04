@@ -71,6 +71,12 @@ public:
         return ecs::subsystem<T,ecs::JOIN>( join<U,V,W,X,Y>(), this->gid);
     }
     
+    template<class T, class U, class V, class W, class X, class Y, class Z>
+    ecs::set< unsigned > join()
+    {
+        return ecs::subsystem<T,ecs::JOIN>( join<U,V,W,X,Y,Z>(), this->gid);
+    }
+    
     template<class T>
     ecs::set< unsigned > exclude(const ecs::set<unsigned> &B)
     {

@@ -13,7 +13,16 @@ bool MissionScene::init()
     if (!Base::init())
         return false;
     
-    auto back = cc::LayerColor::create(cc::Color4B(143,86,59,255));
+    auto pOrigin = cc::Director::getInstance()->getVisibleOrigin();
+    auto pSize = cc::Director::getInstance()->getVisibleSize();
+    
+    auto margin = def::canvasMissionMargin;
+    cc::Rect canvasRect = {pOrigin.x + margin.x,
+                           pOrigin.y + margin.w,
+                           pSize.width - margin.x - margin.y,
+                           pSize.height - margin.w - margin.z};
+    
+    auto back = cc::LayerColor::create(def::bgColor);
     this->addChild(back);
 
     this->canvas = cc::ui::Layout::create();
@@ -21,18 +30,18 @@ bool MissionScene::init()
     this->canvas->setBackGroundColor(back->getColor());
     this->canvas->setLayoutType(cc::ui::Layout::Type::RELATIVE);
     this->canvas->setClippingEnabled(true);
-    this->canvas->setPosition(def::canvasMissionRect.origin);
-    this->canvas->setSize(def::canvasMissionRect.size);
+    this->canvas->setPosition(canvasRect.origin);
+    this->canvas->setSize(canvasRect.size);
     this->addChild(canvas);
     
-    this->frame = cc::Layer::create();
+    this->frame = cc::create<ViewNode>();
     this->frame->setAnchorPoint({0,0});
     this->canvas->addChild(this->frame);
     
     this->interface = cc::create<MissionInterface>();
     this->addChild(interface);
     
-    this->camera = new GameCamera(this->frame, def::canvasMissionRect);
+    this->camera = new GameCamera(this->frame, canvasRect);
     
     auto listener = cc::EventListenerTouchOneByOne::create();
     //listener->setSwallowTouches(true);
@@ -60,7 +69,7 @@ void MissionScene::setBgColor(cc::Color3B bgColor)
     this->canvas->setBackGroundColor(bgColor);
 }
 
-cc::Layer* MissionScene::getFrame()
+cc::Node* MissionScene::getFrame()
 {
     return this->frame;
 }

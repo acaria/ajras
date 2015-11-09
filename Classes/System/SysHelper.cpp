@@ -7,8 +7,8 @@ cc::Rect SysHelper::getBounds(const PositionComponent &position,
     return cc::Rect(
         position.pos.x + collision.rect.origin.x,
         position.pos.y + collision.rect.origin.y,
-        collision.rect.size.width - 1,
-        collision.rect.size.height - 1
+        collision.rect.size.width,
+        collision.rect.size.height
     );
 }
 
@@ -18,8 +18,8 @@ cc::Rect SysHelper::getLastBounds(const PositionComponent &position,
     return cc::Rect(
         position.last.x + collision.rect.origin.x,
         position.last.y + collision.rect.origin.y,
-        collision.rect.size.width - 1,
-        collision.rect.size.height - 1);
+        collision.rect.size.width,
+        collision.rect.size.height);
 }
 
 cc::Rect SysHelper::getBounds(unsigned eid)

@@ -3,6 +3,7 @@
 #include "MissionScene.h"
 #include "Randgine.h"
 #include "Components.h"
+#include "CocosHelper.h"
 
 using namespace std::placeholders;
 
@@ -18,6 +19,7 @@ GameCtrl::GameCtrl():tick(std::bind(&GameCtrl::onTick, this, _1),
     this->debugInfo = cc::create<DebugInfoLayer>();
     this->debugInfo->retain();
 #endif
+    
 }
 
 GameCtrl::~GameCtrl()
@@ -40,7 +42,7 @@ void GameCtrl::goToMainMenu()
     Randgine::instance()->setMaster(1);
     this->gameData.loadPlayer();
     
-    cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-main.plist");
+    CocosHelper::addTexture("ss-main.plist", def::antialias);
     this->scene.go2MainMenu();
 }
 
@@ -51,7 +53,7 @@ void GameCtrl::goToCamp(std::string startKey)
     
     for(auto ss : this->gameData.curCamp()->getSpriteSheets())
     {
-        cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-" + ss + ".plist");
+        CocosHelper::addTexture("ss-" + ss + ".plist", def::antialias);
     }
     
     this->scene.go2Camp();
@@ -63,9 +65,9 @@ void GameCtrl::goToMission()
     
     for(auto ss : this->gameData.curFloor()->getSpriteSheets())
     {
-        cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-" + ss + ".plist");
+        CocosHelper::addTexture("ss-" + ss + ".plist", def::antialias);
     }
-    cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile("ss-gui_mission.plist");
+    CocosHelper::addTexture("ss-gui_mission.plist", def::antialias);
     
     this->scene.go2Mission();
 }

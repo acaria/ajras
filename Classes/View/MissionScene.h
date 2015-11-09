@@ -4,6 +4,7 @@
 #include "BaseScene.h"
 #include "Event.h"
 #include "GameCamera.h"
+#include "ViewNode.h"
 
 class MissionScene : public BaseScene<MissionScene>
 {
@@ -22,13 +23,13 @@ public:
     
     MissionInterface* interface = nullptr;
     
-    cc::Layer* getFrame();
+    cc::Node* getFrame();
     GameCamera* getCam();
     
 private:
     
     //layers
     cc::ui::Layout* canvas = nullptr;
-    cc::Layer* frame = nullptr;
+    ViewNode* frame = nullptr;
     GameCamera* camera = nullptr;
 };

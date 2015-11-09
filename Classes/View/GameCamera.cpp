@@ -2,7 +2,7 @@
 #include "CoreLib.h"
 #include "Defines.h"
 
-GameCamera::GameCamera(cc::Node* playground, cc::Rect canvasRect):
+GameCamera::GameCamera(ViewNode* playground, cc::Rect canvasRect):
     playground(playground),
 canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
     centerPos(canvasRect.size / 2)

@@ -267,6 +267,15 @@ bool MissionInterface::init()
 {
     if (!Node::init())
         return false;
+    
+    auto pOrigin = cc::Director::getInstance()->getVisibleOrigin();
+    auto pSize = cc::Director::getInstance()->getVisibleSize();
+    auto margin = def::canvasMissionMargin;
+    cc::Rect canvasRect = {pOrigin.x + margin.x,
+                           pOrigin.y + margin.w,
+                           pSize.width - margin.x - margin.y,
+                           pSize.height - margin.w - margin.z};
+    
     this->targetEnemy = cc::Sprite::createWithSpriteFrameName("target_e.png");
     this->targetEnemy->setAnchorPoint({0,0});
     this->targetEnemy->retain();
@@ -276,7 +285,7 @@ bool MissionInterface::init()
     
     this->actionSelection = cc::ui::Scale9Sprite::createWithSpriteFrameName("alt_frame.png");
     actionSelection->setAnchorPoint({0,0});
-    actionSelection->setPosition({11, 190});
+    actionSelection->setPosition({pOrigin.x + 11, pOrigin.y + 190});
     actionSelection->setContentSize({180,100});
     this->addChild(actionSelection);
     
@@ -309,11 +318,10 @@ bool MissionInterface::init()
     this->actionInventorizeHi->setOpacity(0);
     this->addChild(actionInventorizeHi, actionInventorize->getLocalZOrder() - 1);
 
-
     auto borders = cc::ui::Scale9Sprite::createWithSpriteFrameName("main_frame.png");
     borders->setAnchorPoint({0,0});
-    borders->setPosition(def::canvasMissionRect.origin - cc::Point(10.0f,10.0f));
-    borders->setContentSize(def::canvasMissionRect.size + cc::Size(20.0f,20.0f));
+    borders->setPosition(canvasRect.origin - cc::Point(10.0f,10.0f));
+    borders->setContentSize(canvasRect.size + cc::Size(20.0f,20.0f));
     this->addChild(borders);
     
     this->healthBar = HealthBar::create("bar", "health_full", "health_empty");
@@ -324,12 +332,12 @@ bool MissionInterface::init()
 
     this->inventoryPanel = cc::create<InventoryPanel>();
     this->inventoryPanel->setAnchorPoint({0,0});
-    this->inventoryPanel->setPosition({22.f, 300.f});
+    this->inventoryPanel->setPosition({pOrigin.x + 22.f, pOrigin.y + 300.f});
     this->inventoryPanel->setOpacity(0);
     this->addChild(inventoryPanel);
     
     this->stick = cc::create<StickControl>("joy2.png", "joy1.png", 90, 30);
-    this->stick->setPosition(90, 90);
+    this->stick->setPosition(pOrigin.x + 90, pOrigin.y + 90);
     this->addChild(this->stick);
     
     //keyboard

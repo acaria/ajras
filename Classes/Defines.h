@@ -7,17 +7,25 @@
 
 namespace def {
 
+    //app
+    const cc::Size designResolutionSize = {1024, 768};
+    const cc::Size sdResolutionSize = {480, 320};
+    const cc::Size hdResolutionSize = {1024, 768};
+
     //config
+    const bool  antialias = false;
     const bool  showFPS = false;
     const float updatesPerSecond = 60.0f;
     const float idealInterval = 1.0f / updatesPerSecond;
-    const float ticksPerSecond = /*20*/60;
+    const float ticksPerSecond = 60;
     const float secondsPerTick = 1.0f / ticksPerSecond;
-    const int   blockSize = 16;
     
     //design
-    const cc::Rect  canvasMissionRect = {190.0f,15.0f,750.0f,600.0f};
-    const cc::Rect  canvasCampRect = {0.0f,0.0f,960.0f,640.0f};
+    //margin x:left, y:right, z:up, w:down
+    const cc::Vec4  canvasCampMargin = {0,0,0,0};
+    const cc::Vec4  canvasMissionMargin = {190.0f,30.0f,30.0f,30.0f};
+    
+    const cc::Color4B     bgColor = {143,86,59,255};
     const float     touchTreshold = 20;
     
     //data
@@ -35,7 +43,7 @@ namespace def {
     //melee
     namespace blinkAnim
     {
-        const float duration = 0.5f;
+        const float duration = 0.3f;
         const int   count = 3;
     }
     
@@ -93,11 +101,6 @@ namespace def {
         }
     }
 }
-
-static cocos2d::Size designResolutionSize = cocos2d::Size(960, 640);
-static cocos2d::Size smallResolutionSize = cocos2d::Size(480, 320);
-static cocos2d::Size mediumResolutionSize = cocos2d::Size(1024, 768);
-static cocos2d::Size largeResolutionSize = cocos2d::Size(2048, 1536);
 
 enum CollisionCategory
 {

@@ -1,5 +1,6 @@
 #pragma once
 #include "Event.h"
+#include "ViewNode.h"
 
 class GameCamera
 {
@@ -10,7 +11,7 @@ private:
     const float FOCUS_MARGIN = 50.0;
     
 public:
-    GameCamera(cc::Node* playground, cc::Rect canvasRect);
+    GameCamera(ViewNode* playground, cc::Rect canvasRect);
     
     void setFrameBounds(cc::Rect bounds);
     void setTarget(cc::Point pos);
@@ -34,7 +35,7 @@ public:
 private:
 
     //cam content
-    cc::Node*   playground;
+    ViewNode*   playground;
     
     //cam params
     cc::Point   centerPos;

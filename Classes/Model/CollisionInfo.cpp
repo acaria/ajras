@@ -158,19 +158,9 @@ cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::R
                 cocos2d::Vec2 cv;
         
                 if (rc.size.width > rc.size.height) //ySlide
-                {
-                    if (rc.getMinY() > bounds.getMinY())
-                        cv.y = - (rc.size.height + 1);
-                    else
-                        cv.y = rc.size.height + 1;
-                }
+                    cv.y = rc.size.height * (rc.getMinY() > bounds.getMinY() ? -1 : 1);
                 else //xSlide
-                {
-                    if (rc.getMinX() > bounds.getMinX())
-                        cv.x = - (rc.size.width + 1);
-                    else
-                        cv.x = rc.size.width + 1;
-                }
+                    cv.x = rc.size.width * (rc.getMinX() > bounds.getMinX() ? -1 : 1);
         
                 bounds.origin += cv;
         

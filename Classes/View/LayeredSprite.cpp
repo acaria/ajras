@@ -44,9 +44,29 @@ void LayeredSprite::setPosition(const cc::Vec2 &pos)
 
 void LayeredSprite::setPosition(float x, float y)
 {
+    this->actualPosition.x = x;
+    this->actualPosition.y = y;
+    
+    float scale = cc::Director::getInstance()->getContentScaleFactor();
+    if (scale > 0.0)
+    {
+        x = round(x * scale) / scale;
+        y = round(y * scale) / scale;
+    }
+
     Sprite::setPosition(x, y);
     this->setLocalZOrder(this->container->getZOrder(
         {x + zMargin.x, y + zMargin.y}));
+}
+
+const cc::Vec2& LayeredSprite::getPosition() const
+{
+    return this->actualPosition;
+}
+
+cc::Vec3 LayeredSprite::getPosition3D() const
+{
+    return cc::Vec3(this->actualPosition.x, this->actualPosition.y, _positionZ);
 }
 
 void LayeredSprite::switchContainer(LayeredContainer* container)

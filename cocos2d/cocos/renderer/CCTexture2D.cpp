@@ -434,7 +434,7 @@ Texture2D::Texture2D()
 , _hasPremultipliedAlpha(false)
 , _hasMipmaps(false)
 , _shaderProgram(nullptr)
-, _antialiasEnabled(false)
+, _antialiasEnabled(true)
 , _ninePatchInfo(nullptr)
 {
 }

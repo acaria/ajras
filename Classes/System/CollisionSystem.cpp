@@ -49,6 +49,11 @@ void CollisionSystem::tick(double dt)
         
         cc::Rect lastBounds = SysHelper::getLastBounds(cpPosition, cpCollision);
         
+        if (eid == 48)
+        {
+            Log("pos=%f,%f", bounds.origin.x, bounds.origin.y);
+         }
+        
         if (this->collisionData->checkCollisionRect(lib::getUnion(bounds, lastBounds),
                                                     cpCollision.category))
         {
@@ -147,16 +152,16 @@ cc::Vec2 CollisionSystem::slide(const cc::Rect& src,
     if (intersect.size.width > intersect.size.height) // ySlide
     {
         if (intersect.getMinY() > src.getMinY())
-            result.y = -intersect.size.height - 1;
+            result.y = -intersect.size.height;
         else
-            result.y = intersect.size.height + 1;
+            result.y = intersect.size.height;
     }
     else //xSlide
     {
         if (intersect.getMinX() > src.getMinX())
-            result.x = -intersect.size.width - 1;
+            result.x = -intersect.size.width;
         else
-            result.x = intersect.size.width + 1;
+            result.x = intersect.size.width;
     }
     
     return result;

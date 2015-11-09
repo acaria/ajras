@@ -37,6 +37,8 @@
 		<dict>
 			<key>type</key>
 			<string>dir</string>
+			<key>recoil</key>
+			<string>5.0</string>
 			<key>stamina</key>
 			<string>30</string>
 			<key>range</key>

@@ -49,11 +49,6 @@ void CollisionSystem::tick(double dt)
         
         cc::Rect lastBounds = SysHelper::getLastBounds(cpPosition, cpCollision);
         
-        if (eid == 48)
-        {
-            Log("pos=%f,%f", bounds.origin.x, bounds.origin.y);
-         }
-        
         if (this->collisionData->checkCollisionRect(lib::getUnion(bounds, lastBounds),
                                                     cpCollision.category))
         {

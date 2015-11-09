@@ -11,7 +11,7 @@ private:
     const float FOCUS_MARGIN = 50.0;
     
 public:
-    GameCamera(ViewNode* playground, cc::Rect canvasRect);
+    GameCamera(ViewNode* playground, cc::Rect canvasRect, float initScale = 1.0f);
     
     void setFrameBounds(cc::Rect bounds);
     void setTarget(cc::Point pos);

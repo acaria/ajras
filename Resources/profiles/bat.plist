@@ -32,14 +32,18 @@
 		<key>melee</key>
 		<dict>
 			<key>type</key>
-			<string>self</string>
+			<string>charge</string>
+			<key>recoil</key>
+			<string>5.0</string>
+			<key>stamina</key>
+			<string>30</string>
 			<key>range</key>
-			<string>2</string>
+			<string>2,2</string>
 			<key>anim_key</key>
 			<string>atk</string>
 		</dict>
 		<key>health</key>
-		<string>3</string>
+		<string>90</string>
 	</dict>
 	<key>collision</key>
 	<dict>

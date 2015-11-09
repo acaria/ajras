@@ -28,9 +28,9 @@
          "name":"objects",
          "objects":[
                 {
-                 "gid":97,
-                 "height":22,
-                 "id":12,
+                 "gid":92,
+                 "height":21,
+                 "id":14,
                  "name":"",
                  "properties":
                     {
@@ -39,8 +39,8 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":13,
-                 "x":176,
+                 "width":30,
+                 "x":192,
                  "y":80
                 }],
          "opacity":0.959999978542328,
@@ -50,7 +50,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":14,
+ "nextobjectid":15,
  "orientation":"orthogonal",
  "properties":
     {
@@ -477,41 +477,6 @@
         {
          "firstgid":90,
          "margin":0,
-         "name":"char1",
-         "properties":
-            {
-
-            },
-         "spacing":0,
-         "tilecount":2,
-         "tileheight":35,
-         "tileproperties":
-            {
-             "0":
-                {
-                 "profile":"bat"
-                },
-             "1":
-                {
-                 "profile":"chest1"
-                }
-            },
-         "tiles":
-            {
-             "0":
-                {
-                 "image":"..\/..\/External\/tileset\/char1\/bat_icon.png"
-                },
-             "1":
-                {
-                 "image":"..\/..\/External\/src\/special\/chest1_icon.png"
-                }
-            },
-         "tilewidth":30
-        }, 
-        {
-         "firstgid":92,
-         "margin":0,
          "name":"zone",
          "properties":
             {
@@ -547,7 +512,7 @@
          "tilewidth":16
         }, 
         {
-         "firstgid":94,
+         "firstgid":92,
          "margin":0,
          "name":"entity",
          "properties":

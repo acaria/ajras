@@ -99,8 +99,7 @@ void RoomSystemCtrl::loadRoom(LayeredContainer *view, RoomData *data)
     {
         if (lib::hasKey(obj.properties, "profile"))
         {
-            auto eid = this->loadStaticObject(obj.properties["profile"], obj.pos, data, view);
-            ecs::add<cp::Control>(eid, data->index) = 2;
+            this->loadStaticObject(obj.properties["profile"], obj.pos, data, view);
         }
         else if (lib::hasKey(obj.properties, "zone_type"))
         {

@@ -25,6 +25,7 @@ struct ProfileStatsInfo
         std::string     type;
         cc::Size        range;
         float           stamina;
+        float           recoil;
         std::string     animKey;
     };
     

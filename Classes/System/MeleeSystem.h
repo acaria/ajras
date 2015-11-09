@@ -27,12 +27,11 @@ public:
     lib::Subject<void(unsigned eid, int health)> onHealthChanged;
     
 private:
-    void processMelee(unsigned eid, unsigned oid, Dir atkDir);
+    void processDirMelee(unsigned eid, unsigned oid, Dir atkDir);
+    void processTouchMelee(unsigned eid, unsigned oid);
     Dir getAtkDir(unsigned eid, const MeleeComponent& cpMelee);
     cocos2d::Rect getAtkRectFromDir(const cocos2d::Rect& bounds,
                                     cc::Size range, const Dir& dir);
-    
-    bool detectStriking(unsigned eid);
     
     GameScene* gView;
     CollisionInfo* collision;

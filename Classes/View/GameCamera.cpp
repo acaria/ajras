@@ -2,12 +2,13 @@
 #include "CoreLib.h"
 #include "Defines.h"
 
-GameCamera::GameCamera(ViewNode* playground, cc::Rect canvasRect):
+GameCamera::GameCamera(ViewNode* playground, cc::Rect canvasRect, float initScale):
     playground(playground),
 canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
     centerPos(canvasRect.size / 2)
 {
-    this->playground->setScale(1.0f);
+    this->curScale = initScale;
+    this->playground->setScale(initScale);
     
     auto mListener = cc::EventListenerMouse::create();
     mListener->onMouseDown = [this](cc::Event *event) {

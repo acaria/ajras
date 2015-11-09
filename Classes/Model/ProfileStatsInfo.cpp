@@ -31,6 +31,7 @@ ProfileStatsInfo::ProfileStatsInfo(const cc::ValueMap& map)
             .type = mData.at("type").asString(),
             .range = {std::stof(rangeSplit[0]), std::stof(rangeSplit[1])},
             .stamina = mData.at("stamina").asFloat(),
+            .recoil = mData.at("recoil").asFloat(),
             .animKey = mData.at("anim_key").asString()
         };
     }

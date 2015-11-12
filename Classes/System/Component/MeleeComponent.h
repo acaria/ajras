@@ -23,30 +23,44 @@ struct MeleeComponent
             default: Log("unrecognised melee type: %s", melee.type.c_str());
                 break;
         }
-        this->set(melee.animKey, meleeType, def::mood::fromStr(profile->moodCategory), melee.range, melee.recoil);
+        this->set(melee.animKey,
+                  meleeType,
+                  def::mood::fromStr(profile->moodCategory),
+                  melee.range,
+                  melee.recoil,
+                  melee.triggerRatio);
     }
     
-    void set(const std::string& name, type meleeType, def::mood::Flags moodCat, const cc::Size& range, float recoil)
+    void set(const std::string& name,
+             type meleeType,
+             def::mood::Flags moodCat,
+             const cc::Size& range,
+             const ProfileStatsInfo::Recoil& recoil,
+             float triggerRatio)
     {
         this->range = range;
         this->type = meleeType;
         this->name = name;
         this->moodCat = moodCat;
         this->recoil = recoil;
+        this->triggerRatio = triggerRatio;
     }
 
+    //todo: input it
     unsigned    damage = 1;
     
-    bool        enabled = true;
-    
     //input
-    std::string      name;
-    float            energie = 30.0f;
-    float            recoil;
-    cc::Size         range;
-    type             type;
-    def::mood::Flags moodCat = def::mood::Neutral;
+    std::string              name;
+    float                    energie = 30.0f;
+    ProfileStatsInfo::Recoil recoil;
+    float                    triggerRatio;
+    cc::Size                 range;
+    type                     type;
+    def::mood::Flags         moodCat = def::mood::Neutral;
     //-----
+    
+    //internal
+    bool        enabled = true;
     
     //output
     cc::Rect    atkRect;

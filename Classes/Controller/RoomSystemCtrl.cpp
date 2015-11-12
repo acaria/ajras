@@ -31,9 +31,9 @@ void RoomSystemCtrl::tick(double dt)
     updaterSystem.tick(dt);
     targetSystem.tick(dt);
     moveSystem.tick(dt);
-    collisionSystem.tick(dt);
     meleeSystem.tick(dt);
     transSystem.tick(dt);
+    collisionSystem.tick(dt);
     renderSystem.tick(dt);
     interactSystem.tick(dt);
 #if ECSYSTEM_DEBUG
@@ -47,9 +47,9 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
     updaterSystem.animate(dt, tickPercent);
     targetSystem.animate(dt, tickPercent);
     moveSystem.animate(dt, tickPercent);
-    collisionSystem.animate(dt, tickPercent);
     meleeSystem.animate(dt, tickPercent);
     transSystem.animate(dt, tickPercent);
+    collisionSystem.animate(dt, tickPercent);
     renderSystem.animate(dt, tickPercent);
     interactSystem.animate(dt, tickPercent);
 #if ECSYSTEM_DEBUG
@@ -99,7 +99,8 @@ void RoomSystemCtrl::loadRoom(LayeredContainer *view, RoomData *data)
     {
         if (lib::hasKey(obj.properties, "profile"))
         {
-            this->loadStaticObject(obj.properties["profile"], obj.pos, data, view);
+            auto eid = this->loadStaticObject(obj.properties["profile"], obj.pos, data, view);
+            //ecs::add<cp::Control>(eid, data->index) = 2;
         }
         else if (lib::hasKey(obj.properties, "zone_type"))
         {

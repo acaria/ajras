@@ -49,7 +49,7 @@ bool Dir::contains(const Dir &rhs) const
 
 bool Dir::uncross(const Dir &rhs) const
 {
-    return (this->value & rhs.value) == 0;
+    return (this->value & rhs.value) == 0 && this->value != rhs.value;
 }
 
 bool operator==(const Dir& lhs, const Dir& rhs) {

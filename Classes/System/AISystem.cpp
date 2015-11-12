@@ -19,16 +19,20 @@ void AISystem::tick(double dt)
     {
         if (ecs::has<cp::Control>(eid))
             continue; //manual
-        if (ecs::get<cp::Input>(eid).disabled)
+        if (!ecs::get<cp::Input>(eid).isActive())
+        {
+            if (ecs::get<cp::AI>(eid).processing)
+                ecs::get<cp::AI>(eid).reset();
             continue; //skip disabled entities
-        
+        }
         auto& cpAI = ecs::get<cp::AI>(eid);
+        cpAI.processing = true;
 
-        cpAI.board.onCheck = [eid, this](unsigned nid) {
-            return this->onCheck(eid, nid);
+        cpAI.board.onCheck = [eid, this, dt](unsigned nid) {
+            return this->onCheck(eid, nid, dt);
         };
-        cpAI.board.onExecute = [eid, this](unsigned nid) {
-            return this->onExecute(eid, nid);
+        cpAI.board.onExecute = [eid, this, dt](unsigned nid) {
+            return this->onExecute(eid, nid, dt);
         };
         
         auto status = cpAI.bref->getRootNode()->visit(cpAI.board);
@@ -38,7 +42,7 @@ void AISystem::tick(double dt)
     }
 }
 
-behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
+behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid, double dt)
 {
     using state = behaviour::nState;
     auto& cpAI = ecs::get<cp::AI>(eid);
@@ -87,13 +91,15 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid)
             assert(node->values.size() == 1); //params=[timer]
             auto &properties = cpAI.board.getFields(nid);
             if (!lib::hasKey(properties, "timer"))
-                properties["timer"] = lib::now();
-            if (lib::now() - properties["timer"].asDouble() > std::stod(node->values[0]))
+                properties["timer"] = std::stod(node->values[0]);
+            
+            if (properties["timer"].asDouble() <= 0)
             {
                 //timeout
                 properties.erase("timer");
                 return state::FAILURE;
             }
+            properties["timer"] = properties["timer"].asDouble() - dt;
             return state::SUCCESS;
         }
         case CheckBType::COLLISION:
@@ -124,7 +130,7 @@ def::mood::Flags AISystem::getMoodGroup(def::mood::Flags ref,
     return def::mood::Neutral;
 }
 
-behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
+behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
 {
     using state = behaviour::nState;
     auto& cpAI = ecs::get<cp::AI>(eid);
@@ -344,30 +350,30 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                                              bounds2.getMidY() - bounds.getMidY());
                         properties["target"] = cc::ValueMap{{"x", cc::Value((float)vdir.x)},
                                                             {"y", cc::Value((float)vdir.y)}};
-                        properties["time_load"] = lib::now() + std::stod(node->values[1]);
+                        properties["time_load"] = std::stod(node->values[1]);
                         properties["time_charge"] = properties["time_load"].asDouble() + std::stod(node->values[2]);
-                        properties["save_ratio"] = ecs::has<cp::Velocity>(eid) ? ecs::get<cp::Velocity>(eid).ratio : 1.0;
+                        properties["save_ratio"] = ecs::has<cp::Velocity>(eid) ? ecs::get<cp::Velocity>(eid).move.ratio : 1.0;
                         ecs::get<cp::Render>(eid).setAnimation("charge_load", -1);
                     }
                     
-                    auto now = lib::now();
-                    
-                    if (now > properties["time_charge"].asDouble()/* ||
+                    if (properties["time_charge"].asDouble() <= 0/* ||
                         ecs::get<cp::Collision>(eid).current == CollisionComponent::CType::DECOR*/)
                     {
                         if (ecs::has<cp::Velocity>(eid))
-                            ecs::get<cp::Velocity>(eid).ratio = properties["save_ratio"].asFloat();
+                            ecs::get<cp::Velocity>(eid).move.ratio = properties["save_ratio"].asFloat();
                         ecs::get<cp::Render>(eid).setAnimation("idle", -1);
+                        ecs.del<cp::Untargetable>(eid);
                         ecs::get<cp::Melee>(eid).enabled = false;
                         return state::SUCCESS;
                     }
-                    if (now > properties["time_load"].asDouble())
+                    if (properties["time_load"].asDouble() <= 0)
                     {
                         if (!lib::hasKey(properties, "charging"))
                         {
                             properties["charging"] = true;
                             if (ecs::has<cp::Velocity>(eid))
-                                ecs::get<cp::Velocity>(eid).ratio = 3.0;
+                                ecs::get<cp::Velocity>(eid).move.ratio = 3.0;
+                            ecs.add<cp::Untargetable>(eid) = true;
                             ecs::get<cp::Melee>(eid).enabled = true;
                             ecs::get<cp::Render>(eid).setAnimation("charge_atk", -1);
                         }
@@ -380,6 +386,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid)
                             ecs::get<cp::Input>(eid).setDirection(vdir);
                         }
                     }
+                    properties["time_charge"] = properties["time_charge"].asDouble() - dt;
+                    properties["time_load"] = properties["time_load"].asDouble() - dt;
                     return state::RUNNING;
                 }
                 default:

@@ -28,7 +28,7 @@ void RenderSystem::tick(double dt)
                 if (orientation == Dir::None)
                     orientation = cpOrientation.curDir;
             }
-            cpRender.setMoveAnimation(orientation, !cpVel.direction.isZero());
+            cpRender.setMoveAnimation(orientation, !cpVel.move.direction.isZero());
         }
         
         //update target mode

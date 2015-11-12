@@ -7,12 +7,16 @@ void UpdaterSystem::tick(double dt)
     for(auto eid : ecs.system<cp::Input>())
     {
         auto& cpInput = ecs::get<cp::Input>(eid);
+        cpInput.updatePredicates(eid, dt);
         
-        if (!cpInput.checkPredicates(eid)) //inhibitor
+        if (!cpInput.isActive()) //inhibitor
         {
             //reset velocity dir
             if (ecs::has<cp::Velocity>(eid))
-                ecs::get<cp::Velocity>(eid).direction = cc::Vec2::ZERO;
+            {
+                ecs::get<cp::Velocity>(eid).move.direction = cc::Vec2::ZERO;
+                ecs::get<cp::Velocity>(eid).move.ratio = 1.0;
+            }
             continue;
         }
         
@@ -42,14 +46,14 @@ void UpdaterSystem::tick(double dt)
                 cpInput.lastOrientation = cpInput.orientation;
                 cpVelocity.accelFactor = 0.0f;
             }
-            cpVelocity.direction = cpInput.direction;
+            cpVelocity.move.direction = cpInput.direction;
         }
     }
     
-    //update velocity
+    //update stamina
     for(auto eid : ecs.join<cp::Stamina, cp::Input>())
     {
-        if (ecs::get<cp::Input>(eid).disabled)
+        if (!ecs::get<cp::Input>(eid).isActive())
             continue; //skip disabled
         auto& cpStamina = ecs::get<cp::Stamina>(eid);
         if (cpStamina.current < cpStamina.max)

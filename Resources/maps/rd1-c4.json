@@ -30,7 +30,7 @@
                 {
                  "gid":92,
                  "height":21,
-                 "id":14,
+                 "id":19,
                  "name":"",
                  "properties":
                     {
@@ -40,8 +40,8 @@
                  "type":"",
                  "visible":true,
                  "width":30,
-                 "x":192,
-                 "y":80
+                 "x":208,
+                 "y":96
                 }],
          "opacity":0.959999978542328,
          "type":"objectgroup",
@@ -50,7 +50,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":15,
+ "nextobjectid":20,
  "orientation":"orthogonal",
  "properties":
     {

@@ -24,10 +24,9 @@ struct AIComponent
     void setProfile(ProfileData* profile);
     void setProfile(const std::string &profileName);
     
-    double timer = 0;
-    
     void reset()
     {
+        processing = false;
         board.reset();
     }
     
@@ -37,7 +36,9 @@ struct AIComponent
     eSleep sleep = eSleep::NONE;
     //------
     
+    //internal
     behaviour::BoardNode board;
+    bool processing = false;
     
     static std::map<std::string, eType>     mapType;
     static std::map<std::string, eSleep>    mapSleep;

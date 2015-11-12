@@ -6,51 +6,65 @@
 struct InputComponent
 {
     //output
-    bool        disabled = false;
     Dir         orientation;
     Dir         lastOrientation;
     cc::Vec2    exactOrientation;
     cc::Vec2    direction;
     
-    void disable(float duration)
+    //internal
+    double      chrono = 0;
+    
+    bool isActive()
     {
-        double lastTime = lib::now();
-        predicates["time"] = [duration, lastTime](unsigned id){
-            return lib::now() - lastTime > duration;
-        };
+        return enabled;
+    }
+    
+    void disable(double duration)
+    {
+        enabled = false;
+        if (chrono < duration)
+            chrono = duration;
+        if (!lib::hasKey(predicates, "time"))
+        {
+            predicates["time"] = [this](unsigned id){
+                return chrono > 0;
+            };
+        }
+    }
+    
+    void disable(const std::string& name, const std::function<bool(unsigned)>& predicate)
+    {
+        predicates[name] = predicate;
     }
     
     void forceDisable()
     {
-        disabled = true;
-        predicates["force"] = [](unsigned id) {
-            return false;
-        };
-    }
-    
-    bool checkPredicates(unsigned eid)
-    {
-        if (predicates.size() == 0)
-            return true;
-        
-        auto itr = predicates.begin();
-        while(itr != predicates.end())
-        {
-            if (!itr->second(eid))
-            {
-                disabled = true;
-                return false;
-            }
-            predicates.erase(itr++);
-        }
-        disabled = false;
-        return true;
+        enabled = false;
+        predicates["force"] = [](unsigned eid){ return true; };
     }
     
     void forceEnable()
     {
-        disabled = false;
-        predicates.erase("force");
+        enabled = true;
+        predicates.clear();
+    }
+    
+    void updatePredicates(unsigned eid, double dt)
+    {
+        chrono -= dt;
+        if (chrono < 0) chrono = 0;
+        
+        auto itr = predicates.begin();
+        while(itr != predicates.end())
+        {
+            if (itr->second(eid))
+            {
+                enabled = false;
+                return;
+            }
+            predicates.erase(itr++);
+        }
+        enabled = true;
     }
     
     void setDirection(Dir orientation)
@@ -73,5 +87,6 @@ struct InputComponent
     }
     
 private:
+    bool enabled = true;
     std::map<std::string, std::function<bool(unsigned)>> predicates;
 };

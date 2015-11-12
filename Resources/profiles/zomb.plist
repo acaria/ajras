@@ -38,13 +38,15 @@
 			<key>type</key>
 			<string>dir</string>
 			<key>recoil</key>
-			<string>5.0</string>
+			<string>150,0.075</string>
 			<key>stamina</key>
 			<string>30</string>
 			<key>range</key>
 			<string>20,30</string>
 			<key>anim_key</key>
 			<string>atk</string>
+			<key>trigger_ratio</key>
+			<string>0.5</string>
 		</dict>
 	</dict>
 	<key>animations</key>

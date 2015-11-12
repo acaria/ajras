@@ -20,8 +20,8 @@ public:
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
     
-    behaviour::nState onCheck(unsigned eid, unsigned nid);
-    behaviour::nState onExecute(unsigned eid, unsigned nid);
+    behaviour::nState onCheck(unsigned eid, unsigned nid, double dt);
+    behaviour::nState onExecute(unsigned eid, unsigned nid, double dt);
     
 private:
     def::mood::Flags getMoodGroup(def::mood::Flags ref,

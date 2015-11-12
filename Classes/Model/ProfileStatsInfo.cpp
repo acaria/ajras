@@ -26,13 +26,21 @@ ProfileStatsInfo::ProfileStatsInfo(const cc::ValueMap& map)
         auto &mData = map.at("melee").asValueMap();
         std::vector<std::string> rangeSplit;
         lib::split(mData.at("range").asString(), rangeSplit, ", ", true);
+        
+        std::vector<std::string> recoilSplit;
+        lib::split(mData.at("recoil").asString(), recoilSplit, ", ", true);
+
+        float triggerRatio = 1.0;
+        if (mData.find("trigger_ratio") != mData.end())
+            triggerRatio = mData.at("trigger_ratio").asFloat();
 
         this->melee = {
             .type = mData.at("type").asString(),
             .range = {std::stof(rangeSplit[0]), std::stof(rangeSplit[1])},
             .stamina = mData.at("stamina").asFloat(),
-            .recoil = mData.at("recoil").asFloat(),
-            .animKey = mData.at("anim_key").asString()
+            .recoil = { .speed = std::stof(recoilSplit[0]), .duration = std::stof(recoilSplit[1])},
+            .animKey = mData.at("anim_key").asString(),
+            .triggerRatio = triggerRatio
         };
     }
     

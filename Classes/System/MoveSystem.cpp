@@ -9,24 +9,28 @@ void MoveSystem::tick(double dt)
         auto& cpPos = ecs::get<cp::Position>(eid);
         auto& cpVel = ecs::get<cp::Velocity>(eid);
     
-        //slowing target move
-        float speed = cpVel.getSpeed();
-        //if (cpInput.actionMode != ActionMode::walk)
-        //    speed *= 0.6;
-    
         //save previous pos
         cpPos.last = cpPos.pos;
-        
-        //compute velocity
-        if (!cpVel.direction.isZero())
+    
+        //compute velocity : priority force > move > inertia
+        if (cpVel.force.duration > 0) //force
         {
-            cpVel.accelFactor = lib::clamp<float>((float)cpVel.accelFactor + (dt / cpVel.accelDuration), 0.0f, 1.0f);
+            cpVel.force.duration -= dt;
+            
             cpVel.decelFactor = cpVel.accelFactor;
-                
-            cpVel.velocity.x = cpVel.direction.x * speed * cpVel.accelFactor * dt;
-            cpVel.velocity.y = cpVel.direction.y * speed * cpVel.accelFactor * dt;
+            cpVel.accelFactor = lib::clamp<float>((float)cpVel.accelFactor + (dt / cpVel.accelDuration), 0.0f, 1.0f);
+            
+            cpVel.velocity = cpVel.force.direction * cpVel.getForceSpeed() * cpVel.accelFactor * dt;
         }
-        else
+        else if (!cpVel.move.direction.isZero()) //move
+        {
+            cpVel.decelFactor = cpVel.accelFactor;
+            cpVel.accelFactor = lib::clamp<float>((float)cpVel.accelFactor + (dt / cpVel.accelDuration), 0.0f, 1.0f);
+            
+                
+            cpVel.velocity = cpVel.move.direction * cpVel.getMoveSpeed() * cpVel.accelFactor * dt;
+        }
+        else //inertia
         {
             if (!cpVel.velocity.isZero())
             {

@@ -536,7 +536,7 @@
 
             },
          "spacing":0,
-         "tilecount":4,
+         "tilecount":5,
          "tileheight":34,
          "tileproperties":
             {
@@ -555,6 +555,10 @@
              "3":
                 {
                  "profile":"zomb"
+                },
+             "4":
+                {
+                 "profile":"rat"
                 }
             },
          "tiles":
@@ -574,6 +578,10 @@
              "3":
                 {
                  "image":"..\/..\/External\/tileset\/entity\/zomb.png"
+                },
+             "4":
+                {
+                 "image":"..\/..\/External\/tileset\/entity\/rat.png"
                 }
             },
          "tilewidth":30

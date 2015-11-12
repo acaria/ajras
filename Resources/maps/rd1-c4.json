@@ -28,9 +28,9 @@
          "name":"objects",
          "objects":[
                 {
-                 "gid":92,
-                 "height":21,
-                 "id":19,
+                 "gid":96,
+                 "height":12,
+                 "id":20,
                  "name":"",
                  "properties":
                     {
@@ -39,8 +39,8 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":30,
-                 "x":208,
+                 "width":16,
+                 "x":224,
                  "y":96
                 }],
          "opacity":0.959999978542328,
@@ -50,7 +50,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":20,
+ "nextobjectid":21,
  "orientation":"orthogonal",
  "properties":
     {
@@ -520,7 +520,7 @@
 
             },
          "spacing":0,
-         "tilecount":4,
+         "tilecount":5,
          "tileheight":34,
          "tileproperties":
             {
@@ -539,6 +539,10 @@
              "3":
                 {
                  "profile":"zomb"
+                },
+             "4":
+                {
+                 "profile":"rat"
                 }
             },
          "tiles":
@@ -558,6 +562,10 @@
              "3":
                 {
                  "image":"..\/..\/External\/tileset\/entity\/zomb.png"
+                },
+             "4":
+                {
+                 "image":"..\/..\/External\/tileset\/entity\/rat.png"
                 }
             },
          "tilewidth":30

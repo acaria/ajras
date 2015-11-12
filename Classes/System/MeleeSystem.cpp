@@ -190,7 +190,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     
     cpRender.manualPosMode = true;
     
-    auto animName = cpMelee.name + ProfileData::getTagName(atkDir);
+    auto animName = cpMelee.animKey.Value + ProfileData::getTagName(atkDir);
     auto animDuration = cpRender.getAnimationDuration(animName);
     
     cpInput.disable(animDuration + def::blinkAnim::duration);
@@ -219,7 +219,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     );
     
     auto attackAnim = cc::CallFunc::create([&cpMelee, &cpRender, atkDir](){
-        auto animName = cpMelee.name + ProfileData::getTagName(atkDir);
+        auto animName = cpMelee.animKey.Value + ProfileData::getTagName(atkDir);
         cpRender.setAnimation(animName, 1, [&cpMelee, &cpRender](bool canceled){
             cpMelee.enabled = true;
             cpRender.manualPosMode = false;

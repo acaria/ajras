@@ -31,7 +31,7 @@ struct MeleeComponent
                   melee.triggerRatio);
     }
     
-    void set(const std::string& name,
+    void set(const lib::Nullable<std::string>& name,
              type meleeType,
              def::mood::Flags moodCat,
              const cc::Size& range,
@@ -40,7 +40,7 @@ struct MeleeComponent
     {
         this->range = range;
         this->type = meleeType;
-        this->name = name;
+        this->animKey = name;
         this->moodCat = moodCat;
         this->recoil = recoil;
         this->triggerRatio = triggerRatio;
@@ -50,13 +50,13 @@ struct MeleeComponent
     unsigned    damage = 1;
     
     //input
-    std::string              name;
-    float                    energie = 30.0f;
-    ProfileStatsInfo::Recoil recoil;
-    float                    triggerRatio;
-    cc::Size                 range;
-    type                     type;
-    def::mood::Flags         moodCat = def::mood::Neutral;
+    lib::Nullable<std::string>  animKey;
+    float                       energie = 30.0f;
+    ProfileStatsInfo::Recoil    recoil;
+    float                       triggerRatio;
+    cc::Size                    range;
+    type                        type;
+    def::mood::Flags            moodCat = def::mood::Neutral;
     //-----
     
     //internal

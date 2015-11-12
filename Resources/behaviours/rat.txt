@@ -2,7 +2,7 @@ selector
     sequence "attack"
         action target mood opponent
         until time 5.0
-            action movenear target 60.0
+            action movenear target 10.0
         action charge target 0.5 1
     sequence "gotosleep"
         !check near mood opponent

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset name="entity" tilewidth="30" tileheight="34" tilecount="4">
+<tileset name="entity" tilewidth="30" tileheight="34" tilecount="5">
  <tile id="0">
   <properties>
    <property name="profile" value="bat"/>
@@ -23,5 +23,11 @@
    <property name="profile" value="zomb"/>
   </properties>
   <image width="13" height="22" source="entity/zomb.png"/>
+ </tile>
+ <tile id="4">
+  <properties>
+   <property name="profile" value="rat"/>
+  </properties>
+  <image width="16" height="12" source="entity/rat.png"/>
  </tile>
 </tileset>

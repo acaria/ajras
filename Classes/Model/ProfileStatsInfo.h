@@ -28,12 +28,12 @@ struct ProfileStatsInfo
     
     struct Melee
     {
-        std::string     type;
-        cc::Size        range;
-        float           stamina;
-        Recoil          recoil;
-        std::string     animKey;
-        float           triggerRatio;
+        std::string                type;
+        cc::Size                   range;
+        float                      stamina;
+        Recoil                     recoil;
+        lib::Nullable<std::string> animKey;
+        float                      triggerRatio;
     };
     
     lib::Nullable<Move>     move;

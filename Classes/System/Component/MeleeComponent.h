@@ -28,6 +28,7 @@ struct MeleeComponent
                   def::mood::fromStr(profile->moodCategory),
                   melee.range,
                   melee.recoil,
+                  melee.stamina,
                   melee.triggerRatio);
     }
     
@@ -36,6 +37,7 @@ struct MeleeComponent
              def::mood::Flags moodCat,
              const cc::Size& range,
              const ProfileStatsInfo::Recoil& recoil,
+             float stamina,
              float triggerRatio)
     {
         this->range = range;
@@ -44,6 +46,7 @@ struct MeleeComponent
         this->moodCat = moodCat;
         this->recoil = recoil;
         this->triggerRatio = triggerRatio;
+        this->stamina = stamina;
     }
 
     //todo: input it
@@ -51,7 +54,7 @@ struct MeleeComponent
     
     //input
     lib::Nullable<std::string>  animKey;
-    float                       energie = 30.0f;
+    float                       stamina = 100.0f;
     ProfileStatsInfo::Recoil    recoil;
     float                       triggerRatio;
     cc::Size                    range;

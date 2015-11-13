@@ -15,3 +15,14 @@ void CocosHelper::addTexture(const std::string& plistFileName, bool antialias)
     else
         spriteFrame->getTextureForKey(pngFileName)->setAliasTexParameters();
 }
+
+cc::ActionInterval* CocosHelper::blinkActionCreate(const cc::Color3B& color, unsigned count, float duration)
+{
+    auto df = duration / count / 2;
+    return cc::Repeat::create(
+        cc::Sequence::create(
+            cc::TintTo::create(df, color.r, color.g, color.b),
+            cc::TintTo::create(df, 255, 255, 255),
+            NULL),
+        count);
+}

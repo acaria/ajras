@@ -38,9 +38,9 @@
 			<key>type</key>
 			<string>self</string>
 			<key>recoil</key>
-			<string>150,0.075</string>
+			<string>20,0.075</string>
 			<key>stamina</key>
-			<string>30</string>
+			<string>90</string>
 			<key>range</key>
 			<string>3,3</string>
 		</dict>

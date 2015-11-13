@@ -5,6 +5,7 @@
 #include "ControlSystem.h"
 #include "SysHelper.h"
 #include "GameCtrl.h"
+#include "CocosHelper.h"
 
 void MeleeSystem::init(CollisionInfo *collision)
 {
@@ -54,7 +55,7 @@ void MeleeSystem::tick(double dt)
                 cc::Rect bounds = SysHelper::getBounds(oid);
                 
                 if (cpMelee.atkRect.intersectsRect(bounds) &&
-                    ecs::get<cp::Stamina>(eid).current >= cpMelee.energie)
+                    ecs::get<cp::Stamina>(eid).current >= cpMelee.stamina)
                 {
                     if (this->collision->checkCollisionRay({body.getMidX(), body.getMidY()},
                                                            {bounds.getMidX(), bounds.getMidY()},
@@ -67,7 +68,7 @@ void MeleeSystem::tick(double dt)
                     {
                         for(auto pair : meleeList)
                         {
-                            if (pair.first == oid && pair.second == eid)
+                            if (pair.first == oid || pair.first == eid || pair.second == oid || pair.second == eid)
                             {
                                 added = true;
                                 meleeList.push_back({eid, oid});
@@ -93,9 +94,9 @@ void MeleeSystem::tick(double dt)
             {
                 auto& cpStamina = ecs::get<cp::Stamina>(pair.first);
                 auto& cpMelee = ecs::get<cp::Melee>(pair.first);
-                if (cpStamina.current - cpMelee.energie > best)
+                if (cpStamina.current - cpMelee.stamina >= best)
                 {
-                    best = cpStamina.current - cpMelee.energie;
+                    best = cpStamina.current - cpMelee.stamina;
                     selection = pair;
                 }
             }
@@ -108,13 +109,14 @@ void MeleeSystem::tick(double dt)
         assert(meleeList.size() <=  1);
         auto pair = meleeList.front();
         auto& cpMelee = ecs::get<cp::Melee>(pair.first);
-        ecs::get<cp::Stamina>(pair.first).current -= cpMelee.energie;
+        ecs::get<cp::Stamina>(pair.first).current -= cpMelee.stamina;
         switch(cpMelee.type)
         {
             case MeleeComponent::DIR:
                 this->processDirMelee(pair.first, pair.second, getAtkDir(pair.first, cpMelee));
                 break;
             case MeleeComponent::CHARGE:
+            case MeleeComponent::SELF:
                 this->processTouchMelee(pair.first, pair.second);
                 break;
             default: Log("unhandled melee component type...");
@@ -138,20 +140,21 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
         (bounds2.getMidY() - bounds1.getMidY()) / 2 };
     
     cpInput2.disable(1.0);
-    
-    auto df = def::blinkAnim::duration / def::blinkAnim::count / 2;
-    auto redBlinkAnim = cc::Repeat::create(
-        cc::Sequence::create(
-            cc::TintTo::create(df, 255, 50, 50),
-            cc::TintTo::create(df, 255, 255, 255),
-            NULL),
-        def::blinkAnim::count);
+    ecs.add<cp::Untargetable>(oid);
+    cpRender2.sprite->runAction(cc::Sequence::create(
+        CocosHelper::blinkActionCreate({255,50,50}, def::blinkAnim::count / def::blinkAnim::duration, 1.0),
+        cc::CallFunc::create([oid, this](){
+            ecs.del<cp::Untargetable>(oid);
+        }),
+        NULL));
     
     auto resolutionAnim = cc::Sequence::create(
         cc::CallFunc::create([this, &cpRender2, &cpMelee, oid, moveDir](){
         
             if (ecs::has<cp::Velocity>(oid))
                 ecs::get<cp::Velocity>(oid).applyForce(cpMelee.recoil.speed, cpMelee.recoil.duration, moveDir);
+        
+            cpMelee.enabled = true;
         
             auto& cpHealth2 = ecs::get<cp::Health>(oid);
             cpHealth2.hp -= cpMelee.damage;
@@ -169,7 +172,9 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
         NULL
     );
     
-    cpRender2.sprite->runAction(redBlinkAnim);
+    cpRender2.sprite->runAction(
+        CocosHelper::blinkActionCreate({100,255,255}, def::blinkAnim::count, def::blinkAnim::duration)
+    );
     cpRender.sprite->runAction(resolutionAnim);
 }
 
@@ -196,21 +201,6 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     cpInput.disable(animDuration + def::blinkAnim::duration);
     cpInput2.disable(animDuration * cpMelee.triggerRatio + def::blinkAnim::duration + 0.1);
     
-    auto df = def::blinkAnim::duration / def::blinkAnim::count / 2;
-    auto redBlinkAnim = cc::Repeat::create(
-        cc::Sequence::create(
-            cc::TintTo::create(df, 255, 50, 50),
-            cc::TintTo::create(df, 255, 255, 255),
-            NULL),
-        def::blinkAnim::count);
-    
-    auto blueBlinkAnim = cc::Repeat::create(
-        cc::Sequence::create(
-            cc::TintTo::create(df, 50, 50, 255),
-            cc::TintTo::create(df, 255, 255, 255),
-            NULL),
-        def::blinkAnim::count);
-    
     auto moveAnim = cc::Sequence::create(
         cc::MoveBy::create(animDuration / 3, moveDir),
         cc::DelayTime::create(animDuration / 3),
@@ -232,10 +222,25 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
             auto& cpHealth2 = ecs::get<cp::Health>(oid);
             if (ecs::has<cp::Velocity>(oid))
             {
+                auto blinkAction = CocosHelper::blinkActionCreate(
+                    {255,50,50}, def::blinkAnim::count * 1000000, def::blinkAnim::duration * 1000000);
+                blinkAction->setTag(def::blinkAnim::tag);
+                cpRender2.sprite->runAction(blinkAction);
                 ecs::get<cp::Velocity>(oid).applyForce(cpMelee.recoil.speed, cpMelee.recoil.duration, moveDir);
-                ecs::get<cp::Input>(oid).disable("velocity", [](unsigned eid) {
-                    return ecs::get<cp::Velocity>(eid).velocity != cc::Vec2::ZERO;
+                ecs::get<cp::Input>(oid).disable("velocity", [this](unsigned eid) {
+                    if (ecs::get<cp::Velocity>(eid).velocity == cc::Vec2::ZERO)
+                    {
+                        ecs.del<cp::Untargetable>(eid);
+                        ecs::get<cp::Render>(eid).sprite->stopAllActionsByTag(def::blinkAnim::tag);
+                        ecs::get<cp::Render>(eid).sprite->setColor({255,255,255});
+                        return false;
+                    }
+                    return true;
                 });
+            }
+            else
+            {
+                ecs.del<cp::Untargetable>(oid);
             }
             cpHealth2.hp -= cpMelee.damage;
             this->onHealthChanged(oid, cpHealth2.hp);
@@ -252,11 +257,14 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
         NULL
     );
     
-    cpRender2.sprite->runAction(redBlinkAnim);
+    cpRender2.sprite->runAction(
+        CocosHelper::blinkActionCreate({100,255,255}, def::blinkAnim::count, def::blinkAnim::duration)
+    );
     cpRender.sprite->runAction(cc::Sequence::create(
-        cc::CallFunc::create([eid, this](){
+        cc::CallFunc::create([eid, oid, this](){
+            ecs.add<cp::Untargetable>(oid) = true;
             ecs.add<cp::Untargetable>(eid) = true; }),
-        blueBlinkAnim,
+        CocosHelper::blinkActionCreate({50,50,255}, def::blinkAnim::count, def::blinkAnim::duration),
         cc::Spawn::create(
             moveAnim,
             attackAnim,

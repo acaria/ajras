@@ -45,6 +45,7 @@ namespace def {
     {
         const float duration = 0.3f;
         const int   count = 3;
+        const int   tag = 99;
     }
     
     //AI

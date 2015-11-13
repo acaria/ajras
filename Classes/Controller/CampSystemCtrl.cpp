@@ -229,9 +229,9 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
     //init systems
     this->controlSystem.init({PlayerData::ctrlIndex});
     this->renderSystem.init(data);
-    this->collisionSystem.init(data->getCol());
-    this->interactSystem.init(data->getCol());
-    this->meleeSystem.init(data->getCol());
+    this->collisionSystem.init(data);
+    this->interactSystem.init(data);
+    this->meleeSystem.init(data);
     this->aiSystem.init(data);
     
 #if ECSYSTEM_DEBUG

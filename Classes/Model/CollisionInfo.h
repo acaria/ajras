@@ -2,9 +2,12 @@
 
 #include "Defines.h"
 #include "CoreLib.h"
-#include "IMapData.h"
+#include "DataGrid.h"
 #include "Random.h"
 #include "Dir.h"
+
+class IMapData;
+class DatGrid;
 
 class CollisionInfo
 {

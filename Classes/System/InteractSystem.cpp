@@ -1,10 +1,11 @@
 #include "InteractSystem.h"
 #include "SysHelper.h"
 #include "ModelProvider.h"
+#include "IMapData.h"
 
-void InteractSystem::init(CollisionInfo *collision)
+void InteractSystem::init(IMapData *data)
 {
-    this->collision = collision;
+    this->collision = data->getCol();
 }
 
 void InteractSystem::tick(double dt)

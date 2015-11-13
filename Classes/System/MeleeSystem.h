@@ -9,6 +9,7 @@ namespace lib
 class Dir;
 class GameScene;
 class MeleeComponent;
+class IMapData;
 
 #include "BaseTickSystem.h"
 #include "CollisionInfo.h"
@@ -19,7 +20,7 @@ public:
     MeleeSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
     virtual ~MeleeSystem() {}
     
-    void init(CollisionInfo* collision);
+    void init(IMapData* data);
     
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}

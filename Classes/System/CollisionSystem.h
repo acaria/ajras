@@ -1,6 +1,7 @@
 #pragma once
 
 class RoomData;
+class IMapData;
 
 #include "BaseTickSystem.h"
 #include "ECSGroup.h"
@@ -16,7 +17,7 @@ public:
     CollisionSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
     virtual ~CollisionSystem();
     
-    void init(CollisionInfo* collisionData);
+    void init(IMapData* data);
     
     virtual void tick(double dt) final;
     virtual void animate(double dt, double tp) final {}

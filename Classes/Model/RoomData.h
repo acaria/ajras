@@ -42,6 +42,7 @@ public:
     virtual cc::Rect getBlockBound(const lib::v2u& coord) override;
     virtual cc::Rect getBounds() override;
     virtual lib::v2u getCoordFromPos(const cc::Vec2& pos) override;
+    virtual CollisionInfo* getCol() override;
     
     //getters
     lib::v2u                    getDim();
@@ -49,7 +50,6 @@ public:
     std::vector<ObjectInfo>     getModelObjs();
     cc::Vec2                    getPosFromCoord(const lib::v2u& coord);
     std::list<cc::Rect>         getWalls();
-    CollisionInfo*              getCol();
     SleepZone*                  getSleepZone(AIComponent::eSleep cat,
                                              const cc::Point& pos);
     void freeSleepZone(AIComponent::eSleep cat, const cc::Point& pos);

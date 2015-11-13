@@ -2,6 +2,7 @@
 
 #include "DataGrid.h"
 #include "BlockInfo.h"
+#include "CollisionInfo.h"
 #include "Event.h"
 
 class IMapData
@@ -13,4 +14,5 @@ public:
     virtual cc::Rect getBlockBound(const lib::v2u& coord) = 0;
     virtual lib::v2u getCoordFromPos(const cocos2d::Vec2& pos) = 0;
     virtual cc::Rect getBounds() = 0;
+    virtual CollisionInfo* getCol() = 0;
 };

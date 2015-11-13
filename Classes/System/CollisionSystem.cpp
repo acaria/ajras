@@ -1,14 +1,15 @@
 #include "CollisionSystem.h"
 #include "SysHelper.h"
 #include "ModelProvider.h"
+#include "IMapData.h"
 
 CollisionSystem::~CollisionSystem()
 {
 }
 
-void CollisionSystem::init(CollisionInfo* collisionData)
+void CollisionSystem::init(IMapData* data)
 {
-    this->collisionData = collisionData;
+    this->collisionData = data->getCol();
 }
 
 void CollisionSystem::tick(double dt)

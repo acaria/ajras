@@ -1,4 +1,5 @@
 #include "CollisionInfo.h"
+#include "IMapData.h"
 
 CollisionInfo::~CollisionInfo()
 {

@@ -5,11 +5,12 @@
 #include "ControlSystem.h"
 #include "SysHelper.h"
 #include "GameCtrl.h"
+#include "IMapData.h"
 #include "CocosHelper.h"
 
-void MeleeSystem::init(CollisionInfo *collision)
+void MeleeSystem::init(IMapData *data)
 {
-    this->collision = collision;
+    this->collision = data->getCol();
 }
 
 void MeleeSystem::tick(double dt)

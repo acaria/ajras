@@ -4,12 +4,14 @@
 #include "ECSGroup.h"
 #include "CollisionInfo.h"
 
+class IMapData;
+
 class InteractSystem : public BaseTickSystem
 {
 public:
     InteractSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
     
-    void init(CollisionInfo* collision);
+    void init(IMapData* data);
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
     

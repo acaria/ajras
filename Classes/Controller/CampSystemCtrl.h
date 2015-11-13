@@ -17,6 +17,7 @@ class WarpMap;
 #include "UpdaterSystem.h"
 #include "MoveSystem.h"
 #include "InteractSystem.h"
+#include "HealthSystem.h"
 
 #include "Randgine.h"
 #include "LayeredContainer.h"
@@ -48,7 +49,7 @@ public:
     
 private:
     //systems
-    ControlSystem controlSystem;
+    ControlSystem   controlSystem;
     RenderSystem    renderSystem;
     CollisionSystem collisionSystem;
     MoveSystem      moveSystem;
@@ -58,6 +59,7 @@ private:
     TargetSystem    targetSystem;
     AISystem        aiSystem;
     InteractSystem  interactSystem;
+    HealthSystem    healthSystem;
 #if ECSYSTEM_DEBUG
     DebugSystem     debugSystem;
 #endif

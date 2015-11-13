@@ -20,4 +20,7 @@ struct HealthComponent
     //input
     float maxHp;
     float hp;
+    
+    //output
+    float damage = 0;
 };

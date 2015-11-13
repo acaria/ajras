@@ -18,6 +18,7 @@ RoomSystemCtrl::RoomSystemCtrl(): random(Randgine::instance()->get(Randgine::FLO
         meleeSystem(ecsGroup),
         targetSystem(ecsGroup),
         aiSystem(ecsGroup),
+        healthSystem(ecsGroup),
 #if ECSYSTEM_DEBUG
         debugSystem(ecsGroup),
 #endif
@@ -34,6 +35,7 @@ void RoomSystemCtrl::tick(double dt)
     meleeSystem.tick(dt);
     transSystem.tick(dt);
     collisionSystem.tick(dt);
+    healthSystem.tick(dt);
     renderSystem.tick(dt);
     interactSystem.tick(dt);
 #if ECSYSTEM_DEBUG
@@ -50,6 +52,7 @@ void RoomSystemCtrl::animate(double dt, double tickPercent)
     meleeSystem.animate(dt, tickPercent);
     transSystem.animate(dt, tickPercent);
     collisionSystem.animate(dt, tickPercent);
+    healthSystem.animate(dt, tickPercent);
     renderSystem.animate(dt, tickPercent);
     interactSystem.animate(dt, tickPercent);
 #if ECSYSTEM_DEBUG
@@ -309,7 +312,7 @@ void RoomSystemCtrl::showObjects(float duration)
 
 void RoomSystemCtrl::forwardEvents()
 {
-    this->eventRegs.push_back(meleeSystem.onHealthChanged.registerObserver([this](unsigned eid, int health){
+    this->eventRegs.push_back(healthSystem.onHealthChanged.registerObserver([this](unsigned eid, int health){
         this->onHealthChanged(this->ecsGroup.getID(), eid, health);
     }));
     this->eventRegs.push_back(transSystem.onGateTriggered.registerObserver([this](unsigned eid, GateMap gate){

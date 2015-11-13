@@ -24,8 +24,6 @@ public:
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
     
-    lib::Subject<void(unsigned eid, int health)> onHealthChanged;
-    
 private:
     void processDirMelee(unsigned eid, unsigned oid, Dir atkDir);
     void processTouchMelee(unsigned eid, unsigned oid);

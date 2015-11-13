@@ -155,19 +155,7 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
                 ecs::get<cp::Velocity>(oid).applyForce(cpMelee.recoil.speed, cpMelee.recoil.duration, moveDir);
         
             cpMelee.enabled = true;
-        
-            auto& cpHealth2 = ecs::get<cp::Health>(oid);
-            cpHealth2.hp -= cpMelee.damage;
-            this->onHealthChanged(oid, cpHealth2.hp);
-        
-            if (cpHealth2.hp == 0)
-            {
-                ecs::get<cp::Input>(oid).forceDisable();
-                //ecs.del<cp::Input>(oid);
-                cpRender2.setAnimation("death", 1, [oid, this](bool cancel){
-                    cp::entity::remove(oid, ecs.getID());
-                });
-            }
+            ecs::get<cp::Health>(oid).damage += cpMelee.damage;
         }),
         NULL
     );
@@ -242,17 +230,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
             {
                 ecs.del<cp::Untargetable>(oid);
             }
-            cpHealth2.hp -= cpMelee.damage;
-            this->onHealthChanged(oid, cpHealth2.hp);
-        
-            if (cpHealth2.hp == 0)
-            {
-                ecs::get<cp::Input>(oid).forceDisable();
-                //ecs.del<cp::Input>(oid);
-                cpRender2.setAnimation("death", 1, [oid, this](bool cancel){
-                    cp::entity::remove(oid, ecs.getID());
-                });
-            }
+            cpHealth2.damage += cpMelee.damage;
         }),
         NULL
     );

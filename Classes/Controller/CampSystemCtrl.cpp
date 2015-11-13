@@ -15,13 +15,14 @@ CampSystemCtrl::CampSystemCtrl() : renderSystem(ecsGroup),
         aiSystem(ecsGroup),
         interactSystem(ecsGroup),
         controlSystem(ecsGroup),
+        healthSystem(ecsGroup),
 #if ECSYSTEM_DEBUG
         debugSystem(ecsGroup),
 #endif
         random(Randgine::instance()->get(Randgine::CAMP))
 {
     ecsGroup.setID(1);
-    this->eventRegs.push_back(meleeSystem.onHealthChanged.registerObserver(
+    this->eventRegs.push_back(healthSystem.onHealthChanged.registerObserver(
             [this](unsigned eid, int health) {
         this->onHealthChanged(eid, health);
     }));
@@ -48,9 +49,10 @@ void CampSystemCtrl::tick(double dt)
     updaterSystem.tick(dt);
     targetSystem.tick(dt);
     moveSystem.tick(dt);
-    collisionSystem.tick(dt);
     meleeSystem.tick(dt);
     transSystem.tick(dt);
+    collisionSystem.tick(dt);
+    healthSystem.tick(dt);
     renderSystem.tick(dt);
     interactSystem.tick(dt);
 #if ECSYSTEM_DEBUG
@@ -73,9 +75,10 @@ void CampSystemCtrl::animate(double dt, double tickPercent)
     updaterSystem.animate(dt, tickPercent);
     targetSystem.animate(dt, tickPercent);
     moveSystem.animate(dt, tickPercent);
-    collisionSystem.animate(dt, tickPercent);
     meleeSystem.animate(dt, tickPercent);
     transSystem.animate(dt, tickPercent);
+    collisionSystem.animate(dt, tickPercent);
+    healthSystem.animate(dt, tickPercent);
     renderSystem.animate(dt, tickPercent);
     interactSystem.animate(dt, tickPercent);
 #if ECSYSTEM_DEBUG

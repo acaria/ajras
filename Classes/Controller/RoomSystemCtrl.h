@@ -11,6 +11,7 @@
 #include "UpdaterSystem.h"
 #include "MoveSystem.h"
 #include "InteractSystem.h"
+#include "HealthSystem.h"
 
 #if ECSYSTEM_DEBUG
 #include "DebugSystem.h"
@@ -70,6 +71,7 @@ private:
     TargetSystem    targetSystem;
     AISystem        aiSystem;
     InteractSystem  interactSystem;
+    HealthSystem    healthSystem;
 #if ECSYSTEM_DEBUG
     DebugSystem     debugSystem;
 #endif

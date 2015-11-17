@@ -166,6 +166,9 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
 
 void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
 {
+    if (atkDir == Dir::None)
+        return;
+
     auto& cpMelee = ecs::get<cp::Melee>(eid);
  
     cpMelee.enabled = false;

@@ -115,19 +115,21 @@ void CampSystemCtrl::start()
     auto profile = ModelProvider::instance()->profile.get(playerData->charProfileName);
     
     auto& cpRender = ecsGroup.add<cp::Render>(eid);
-    auto& cpCollision = ecsGroup.add<cp::Physics>(eid);
+    auto& cpCollision = ecsGroup.add<cp::Collision>(eid);
     
     cpRender.setProfile(profile, this->mapView);
     cpCollision.setProfile(profile);
     
     ecsGroup.add<cp::AI>(eid).setProfile(profile);
+    ecsGroup.add<cp::Velocity>(eid).setProfile(profile);
     ecsGroup.add<cp::Melee>(eid).setProfile(profile);
+    ecsGroup.add<cp::Orientation>(eid);
     ecsGroup.add<cp::Control>(eid) = playerData->ctrlIndex;
     ecsGroup.add<cp::Gear>(eid) = playerData->inventory;
     ecsGroup.add<cp::Health>(eid).setProfile(profile);
     cpRender.sprite->setPosition({
-        srcPos.x - cpCollision.shape.getMidX(),
-        srcPos.y - cpCollision.shape.getMidY()
+        srcPos.x - cpCollision.rect.getMidX(),
+        srcPos.y - cpCollision.rect.getMidY()
     });
     cpRender.sprite->setOpacity(0);
     cpRender.manualPosMode = true;
@@ -141,8 +143,8 @@ void CampSystemCtrl::start()
     cpRender.sprite->stopAllActions();
     cpRender.sprite->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, {
-            destPos.x - cpCollision.shape.getMidX(),
-            destPos.y - cpCollision.shape.getMidY()
+            destPos.x - cpCollision.rect.getMidX(),
+            destPos.y - cpCollision.rect.getMidY()
         }),
         cc::CallFunc::create([eid, this](){
             auto& cpRender = ecs::get<cp::Render>(eid);

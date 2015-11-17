@@ -47,12 +47,11 @@ class CC_DLL FileUtilsWin32 : public FileUtils
     friend class FileUtils;
     FileUtilsWin32();
 public:
-    /* override functions */
+    /* override funtions */
     bool init();
     virtual std::string getWritablePath() const override;
     virtual bool isAbsolutePath(const std::string& strPath) const override;
     virtual std::string getSuitableFOpen(const std::string& filenameUtf8) const override;
-    virtual long getFileSize(const std::string &filepath);
 protected:
 
     virtual bool isFileExistInternal(const std::string& strFilePath) const override;
@@ -150,6 +149,7 @@ protected:
      *  @return The full path of the file, if the file can't be found, it will return an empty string.
      */
     virtual std::string getFullPathForDirectoryAndFilename(const std::string& directory, const std::string& filename) const override;
+
 };
 
 // end of platform group

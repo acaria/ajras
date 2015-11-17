@@ -289,11 +289,6 @@ LayoutComponent* Widget::getOrCreateLayoutComponent()
 
 void Widget::setContentSize(const cocos2d::Size &contentSize)
 {
-    Size previousSize = ProtectedNode::getContentSize();
-    if(previousSize.equals(contentSize))
-    {
-        return;
-    }
     ProtectedNode::setContentSize(contentSize);
 
     _customSize = contentSize;
@@ -607,9 +602,9 @@ bool Widget::isHighlighted() const
     return _highlight;
 }
 
-void Widget::setHighlighted(bool highlight)
+void Widget::setHighlighted(bool hilight)
 {
-    _highlight = highlight;
+    _highlight = hilight;
     if (_bright)
     {
         if (_highlight)

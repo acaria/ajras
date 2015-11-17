@@ -1,12 +1,12 @@
 #pragma once
-#include "BaseSystem.h"
+#include "BaseTickSystem.h"
 #include "ECSGroup.h"
 class IMapData;
 
-class RenderSystem : public BaseSystem
+class RenderSystem : public BaseTickSystem
 {
 public:
-    RenderSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {}
+    RenderSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
     ~RenderSystem() {}
     
     void init(IMapData* data);

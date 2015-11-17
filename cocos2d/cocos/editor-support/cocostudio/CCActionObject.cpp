@@ -51,8 +51,6 @@ ActionObject::ActionObject()
 
 ActionObject::~ActionObject()
 {
-    _loop = false;
-    _pScheduler->unscheduleAllForTarget(this);
     _actionNodeList.clear();
     CC_SAFE_RELEASE(_pScheduler);
     CC_SAFE_RELEASE(_CallBack);

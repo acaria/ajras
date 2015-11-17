@@ -35,7 +35,6 @@ using namespace Windows::Foundation;
 #include <algorithm>
 #include "platform/CCFileUtils.h"
 #include "CCWinRTUtils.h"
-#include "platform/CCApplication.h"
 
 /**
 @brief    This function change the PVRFrame show/hide setting in register.
@@ -117,12 +116,12 @@ const char * Application::getCurrentLanguageCode()
         result = GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numLanguages, pwszLanguagesBuffer, &cchLanguagesBuffer);
         if (result) {
 
-            code = StringWideCharToUtf8(pwszLanguagesBuffer);
+            code = CCUnicodeToUtf8(pwszLanguagesBuffer);
         }
 
         if (pwszLanguagesBuffer)
         {
-            delete [] pwszLanguagesBuffer;
+            delete pwszLanguagesBuffer;
         }
     }
 

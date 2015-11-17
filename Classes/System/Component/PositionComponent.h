@@ -1,26 +1,18 @@
 #pragma once
-#include "Dir.h"
 
 struct PositionComponent
 {
     PositionComponent() {
         pos = {0, 0};
-        lastPos = {0, 0};
-        curDir = Dir::None;
-        lastDir = Dir::None;
-        orientation = curDir.toVec();
+        last = {0, 0};
     }
     
     void set(const cc::Vec2 &pos)
     {
         this->pos = pos;
-        this->lastPos = pos;
+        this->last = pos;
     }
     
-    cc::Vec2    pos;
-    cc::Vec2    lastPos;
-    
-    Dir         curDir;
-    Dir         lastDir;
-    cc::Vec2    orientation;
+    cc::Vec2 pos;
+    cc::Vec2 last;
 };

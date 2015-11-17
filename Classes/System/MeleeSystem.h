@@ -11,13 +11,13 @@ class GameScene;
 class MeleeComponent;
 class IMapData;
 
-#include "BaseSystem.h"
+#include "BaseTickSystem.h"
 #include "CollisionInfo.h"
 
-class MeleeSystem : public BaseSystem
+class MeleeSystem : public BaseTickSystem
 {
 public:
-    MeleeSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {}
+    MeleeSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
     virtual ~MeleeSystem() {}
     
     void init(IMapData* data);

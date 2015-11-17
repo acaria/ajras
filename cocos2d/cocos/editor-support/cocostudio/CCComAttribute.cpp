@@ -30,15 +30,12 @@ using namespace cocos2d;
 namespace cocostudio {
 
 IMPLEMENT_CLASS_COMPONENT_INFO(ComAttribute)
-
-const std::string ComAttribute::COMPONENT_NAME = "CCComAttribute";
-
-ComAttribute::ComAttribute()
+ComAttribute::ComAttribute(void)
 {
-    _name = COMPONENT_NAME;
+    _name = "CCComAttribute";
 }
 
-ComAttribute::~ComAttribute()
+ComAttribute::~ComAttribute(void)
 {
     _dict.clear();
 }
@@ -131,7 +128,7 @@ std::string ComAttribute::getString(const std::string& key, const std::string& d
     return DICTOOL->getStringValue_json(_doc, key.c_str());
 }
 
-ComAttribute* ComAttribute::create()
+ComAttribute* ComAttribute::create(void)
 {
 	ComAttribute * pRet = new (std::nothrow) ComAttribute();
 	if (pRet && pRet->init())

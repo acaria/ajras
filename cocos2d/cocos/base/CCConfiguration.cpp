@@ -189,7 +189,7 @@ bool Configuration::checkForGLExtension(const std::string &searchName) const
 
 //
 // getters for specific variables.
-// Maintained for backward compatibility reasons only.
+// Mantained for backward compatiblity reasons only.
 //
 int Configuration::getMaxTextureSize() const
 {

@@ -1,5 +1,5 @@
 #pragma once
-#include "BaseSystem.h"
+#include "BaseTickSystem.h"
 #include "ECSGroup.h"
 #include "MissionInterface.h"
 #include "PlayerData.h"
@@ -7,7 +7,7 @@
 
 class RoomData;
 
-class ControlSystem : public BaseSystem
+class ControlSystem : public BaseTickSystem
 {
 public:
     //ctors

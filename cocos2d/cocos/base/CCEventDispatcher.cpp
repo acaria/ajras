@@ -204,7 +204,6 @@ EventDispatcher::EventDispatcher()
 , _nodePriorityIndex(0)
 {
     _toAddedListeners.reserve(50);
-    _toRemovedListeners.reserve(50);
     
     // fixed #4129: Mark the following listener IDs for internal use.
     // Therefore, internal listeners would not be cleaned when removeAllEventListeners is invoked.
@@ -620,12 +619,8 @@ void EventDispatcher::removeEventListener(EventListener* listener)
                 
                 if (_inDispatch == 0)
                 {
-                    iter = listeners->erase(iter);
+                    listeners->erase(iter);
                     CC_SAFE_RELEASE(l);
-                }
-                else
-                {
-                    _toRemovedListeners.push_back(l);
                 }
                 
                 isFound = true;
@@ -833,8 +828,8 @@ void EventDispatcher::dispatchTouchEventToListeners(EventListenerVector* listene
                 }
             }
             // second, for all camera call all listeners
-            // get a copy of cameras, prevent it's been modified in listener callback
-            // if camera's depth is greater, process it earlier
+            // get a copy of cameras, prevent it's been modified in linstener callback
+            // if camera's depth is greater, process it earler
             auto cameras = scene->getCameras();
             Camera* camera;
             for (int j = int(cameras.size()) - 1; j >= 0; --j)
@@ -846,13 +841,8 @@ void EventDispatcher::dispatchTouchEventToListeners(EventListenerVector* listene
                 }
                 
                 Camera::_visitingCamera = camera;
-                auto cameraFlag = (unsigned short)camera->getCameraFlag();
                 for (auto& l : sceneListeners)
                 {
-                    if (nullptr == l->getAssociatedNode() || 0 == (l->getAssociatedNode()->getCameraMask() & cameraFlag))
-                    {
-                        continue;
-                    }
                     if (onEvent(l))
                     {
                         shouldStopPropagation = true;
@@ -1157,10 +1147,6 @@ void EventDispatcher::updateListeners(Event* event)
                 if (!l->isRegistered())
                 {
                     iter = sceneGraphPriorityListeners->erase(iter);
-                    // if item in toRemove list, remove it from the list
-                    auto matchIter = std::find(_toRemovedListeners.begin(), _toRemovedListeners.end(), l);
-                    if (matchIter != _toRemovedListeners.end())
-                        _toRemovedListeners.erase(matchIter);
                     l->release();
                 }
                 else
@@ -1178,10 +1164,6 @@ void EventDispatcher::updateListeners(Event* event)
                 if (!l->isRegistered())
                 {
                     iter = fixedPriorityListeners->erase(iter);
-                    // if item in toRemove list, remove it from the list
-                    auto matchIter = std::find(_toRemovedListeners.begin(), _toRemovedListeners.end(), l);
-                    if (matchIter != _toRemovedListeners.end())
-                        _toRemovedListeners.erase(matchIter);
                     l->release();
                 }
                 else
@@ -1235,11 +1217,6 @@ void EventDispatcher::updateListeners(Event* event)
             forceAddEventListener(listener);
         }
         _toAddedListeners.clear();
-    }
-
-    if (!_toRemovedListeners.empty())
-    {
-        cleanToRemovedListeners();
     }
 }
 
@@ -1541,63 +1518,6 @@ void EventDispatcher::setDirty(const EventListener::ListenerID& listenerID, Dirt
         int ret = (int)flag | (int)iter->second;
         iter->second = (DirtyFlag) ret;
     }
-}
-
-void EventDispatcher::cleanToRemovedListeners()
-{
-    for (auto& l : _toRemovedListeners)
-    {
-        auto listenersIter = _listenerMap.find(l->getListenerID());
-        if (listenersIter == _listenerMap.end())
-        {
-            CC_SAFE_RELEASE(l);
-            continue;
-        }
-
-        bool find = false;
-        auto listeners = listenersIter->second;
-        auto fixedPriorityListeners = listeners->getFixedPriorityListeners();
-        auto sceneGraphPriorityListeners = listeners->getSceneGraphPriorityListeners();
-
-        if (sceneGraphPriorityListeners)
-        {
-            auto machedIter = std::find(sceneGraphPriorityListeners->begin(), sceneGraphPriorityListeners->end(), l);
-            if (machedIter != sceneGraphPriorityListeners->end())
-            {
-                find = true;
-                CC_SAFE_RELEASE(l);
-                sceneGraphPriorityListeners->erase(machedIter);
-            }
-        }
-
-        if (fixedPriorityListeners)
-        {
-            auto machedIter = std::find(fixedPriorityListeners->begin(), fixedPriorityListeners->end(), l);
-            if (machedIter != fixedPriorityListeners->end())
-            {
-                find = true;
-                CC_SAFE_RELEASE(l);
-                fixedPriorityListeners->erase(machedIter);
-            }
-        }
-
-        if (find)
-        {
-            if (sceneGraphPriorityListeners && sceneGraphPriorityListeners->empty())
-            {
-                listeners->clearSceneGraphListeners();
-            }
-
-            if (fixedPriorityListeners && fixedPriorityListeners->empty())
-            {
-                listeners->clearFixedListeners();
-            }
-        }
-        else
-            CC_SAFE_RELEASE(l);
-    }
-
-    _toRemovedListeners.clear();
 }
 
 NS_CC_END

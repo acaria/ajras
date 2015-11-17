@@ -16,7 +16,6 @@
 * See the License for the specific language governing permissions and limitations under the License.
 */
 
-#include "base/ccMacros.h"
 #include "platform/CCPlatformConfig.h"
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_WINRT

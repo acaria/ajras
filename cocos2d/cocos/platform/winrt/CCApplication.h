@@ -49,7 +49,7 @@ public:
     int run();
 
     /**
-    @brief    Get current application instance.
+    @brief    Get current applicaiton instance.
     @return Current application instance pointer.
     */
     static Application* getInstance();

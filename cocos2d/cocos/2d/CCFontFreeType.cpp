@@ -49,7 +49,7 @@ typedef struct _DataRef
 
 static std::unordered_map<std::string, DataRef> s_cacheFontData;
 
-FontFreeType * FontFreeType::create(const std::string &fontName, float fontSize, GlyphCollection glyphs, const char *customGlyphs,bool distanceFieldEnabled /* = false */,int outline /* = 0 */)
+FontFreeType * FontFreeType::create(const std::string &fontName, int fontSize, GlyphCollection glyphs, const char *customGlyphs,bool distanceFieldEnabled /* = false */,int outline /* = 0 */)
 {
     FontFreeType *tempFont =  new FontFreeType(distanceFieldEnabled,outline);
 
@@ -117,7 +117,7 @@ FontFreeType::FontFreeType(bool distanceFieldEnabled /* = false */,int outline /
     }
 }
 
-bool FontFreeType::createFontObject(const std::string &fontName, float fontSize)
+bool FontFreeType::createFontObject(const std::string &fontName, int fontSize)
 {
     FT_Face face;
     // save font name locally
@@ -182,16 +182,13 @@ bool FontFreeType::createFontObject(const std::string &fontName, float fontSize)
 
 FontFreeType::~FontFreeType()
 {
-    if (_FTInitialized)
+    if (_stroker)
     {
-        if (_stroker)
-        {
-            FT_Stroker_Done(_stroker);
-        }
-        if (_fontRef)
-        {
-            FT_Done_Face(_fontRef);
-        }
+        FT_Stroker_Done(_stroker);
+    }
+    if (_fontRef)
+    {
+        FT_Done_Face(_fontRef);
     }
 
     s_cacheFontData[_fontName].referenceCount -= 1;

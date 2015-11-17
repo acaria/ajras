@@ -223,15 +223,15 @@ std::string SceneReader::getComponentClassName(const std::string &name)
     {
         comName = "ComRender";
     }
-    else if (name == ComAudio::COMPONENT_NAME || name == "CCBackgroundAudio")
+    else if (name == "CCComAudio" || name == "CCBackgroundAudio")
     {
         comName = "ComAudio";
     }
-    else if (name == ComController::COMPONENT_NAME)
+    else if (name == "CCComController")
     {
         comName = "ComController";
     }
-    else if (name == ComAttribute::COMPONENT_NAME)
+    else if (name == "CCComAttribute")
     {
         comName = "ComAttribute";
     }

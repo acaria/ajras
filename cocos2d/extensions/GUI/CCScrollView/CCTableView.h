@@ -154,11 +154,11 @@ public:
         BOTTOM_UP
     };
     
-    /** Empty constructor of TableView */
+    /** Empty contructor of TableView */
     static TableView* create();
     
     /**
-     * An initialized table view object
+     * An intialized table view object
      *
      * @param dataSource data source
      * @param size view size

@@ -11,25 +11,24 @@ void RenderSystem::init(IMapData *data)
 
 void RenderSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Render, cp::Physics, cp::Input, cp::Position>())
+    for(auto eid : ecs.join<cp::Render, cp::Velocity, cp::Input>())
     {
         auto &cpRender = ecs::get<cp::Render>(eid);
-        auto &cpPhy = ecs::get<cp::Physics>(eid);
+        auto &cpVel = ecs::get<cp::Velocity>(eid);
         //auto &cpInput = ecs::get<cp::Input>(eid);
  
         //processing velocity animations
-        if (cpRender.moveAnimation && !cpRender.busy)
+        if (!cpRender.busy && cpRender.profile != nullptr)
         {
             Dir orientation = Dir::None;
-            if (cpRender.orientationAnimation)
+            if (ecs::has<cp::Orientation>(eid))
             {
-                auto& cpPosition = ecs::get<cp::Position>(eid);
-                orientation = Dir::cardinalFromVec(cpPosition.orientation);
+                auto& cpOrientation = ecs::get<cp::Orientation>(eid);
+                orientation = Dir::cardinalFromVec(cpOrientation.visual);
                 if (orientation == Dir::None)
-                    orientation = ((cpPosition.curDir != Dir::None) ? cpPosition.curDir : Dir::Down);
+                    orientation = cpOrientation.curDir;
             }
-            
-            cpRender.setMoveAnimation(orientation, !cpPhy.move.direction.isZero());
+            cpRender.setMoveAnimation(orientation, !cpVel.move.direction.isZero());
         }
         
         //update target mode
@@ -51,8 +50,8 @@ void RenderSystem::animate(double dt, double tickPercent)
         if (!cpRender.manualPosMode)
         {
             cc::Vec2 pos(
-                cpPos.pos.x * tickPercent + cpPos.lastPos.x * (1 - tickPercent),
-                cpPos.pos.y * tickPercent + cpPos.lastPos.y * (1 - tickPercent));
+                cpPos.pos.x * tickPercent + cpPos.last.x * (1 - tickPercent),
+                cpPos.pos.y * tickPercent + cpPos.last.y * (1 - tickPercent));
             cpRender.sprite->setPosition(pos);
         }
         

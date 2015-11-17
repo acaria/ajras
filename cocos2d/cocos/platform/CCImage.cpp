@@ -522,7 +522,7 @@ bool Image::initWithImageData(const unsigned char * data, ssize_t dataLen)
         unsigned char* unpackedData = nullptr;
         ssize_t unpackedLen = 0;
         
-        //detect and unzip the compress file
+        //detecgt and unzip the compress file
         if (ZipUtils::isCCZBuffer(data, dataLen))
         {
             unpackedLen = ZipUtils::inflateCCZBuffer(data, dataLen, &unpackedData);
@@ -576,7 +576,7 @@ bool Image::initWithImageData(const unsigned char * data, ssize_t dataLen)
                 }
                 else
                 {
-                    CCLOG("cocos2d: unsupported image format!");
+                    CCAssert(false, "unsupport image format!");
                 }
                 
                 free(tgaData);
@@ -789,8 +789,8 @@ namespace
         
         /* Always display the message. */
         /* We could postpone this until after returning, if we chose. */
-        /* internal message function can't show error message in some platforms, so we rewrite it here.
-         * edit it if has version conflict.
+        /* internal message function cann't show error message in some platforms, so we rewrite it here.
+         * edit it if has version confilict.
          */
         //(*cinfo->err->output_message) (cinfo);
         char buffer[JMSG_LENGTH_MAX];
@@ -1583,8 +1583,6 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
     {
         _hasPremultipliedAlpha = true;
     }
-    else
-        _hasPremultipliedAlpha = false;
     
     // sizing
     int width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
@@ -1599,7 +1597,7 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
     memcpy(_data, static_cast<const unsigned char*>(data) + sizeof(PVRv3TexHeader) + header->metadataLength, _dataLen);
     
     _numberOfMipmaps = header->numberOfMipmaps;
-    CCAssert(_numberOfMipmaps < MIPMAP_MAX, "Image: Maximum number of mimpaps reached. Increase the CC_MIPMAP_MAX value");
+    CCAssert(_numberOfMipmaps < MIPMAP_MAX, "Image: Maximum number of mimpaps reached. Increate the CC_MIPMAP_MAX value");
     
     for (int i = 0; i < _numberOfMipmaps; i++)
     {
@@ -1687,7 +1685,7 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
         }
         
         dataOffset += packetLength;
-        CCAssert(dataOffset <= _dataLen, "CCTexurePVR: Invalid length");
+        CCAssert(dataOffset <= _dataLen, "CCTexurePVR: Invalid lenght");
         
         
         width = MAX(width >> 1, 1);
@@ -1771,7 +1769,7 @@ bool Image::initWithTGAData(tImageTGA* tgaData)
         if (2 == tgaData->type || 10 == tgaData->type)
         {
             // true color
-            // unsupported RGB555
+            // unsupport RGB555
             if (tgaData->pixelDepth == 16)
             {
                 _renderFormat = Texture2D::PixelFormat::RGB5A1;
@@ -1786,7 +1784,7 @@ bool Image::initWithTGAData(tImageTGA* tgaData)
             }
             else
             {
-                CCLOG("Image WARNING: unsupported true color tga data pixel format. FILE: %s", _filePath.c_str());
+                CCLOG("Image WARNING: unsupport true color tga data pixel format. FILE: %s", _filePath.c_str());
                 break;
             }
         }
@@ -1800,7 +1798,7 @@ bool Image::initWithTGAData(tImageTGA* tgaData)
             else
             {
                 // actually this won't happen, if it happens, maybe the image file is not a tga
-                CCLOG("Image WARNING: unsupported gray tga data pixel format. FILE: %s", _filePath.c_str());
+                CCLOG("Image WARNING: unsupport gray tga data pixel format. FILE: %s", _filePath.c_str());
                 break;
             }
         }
@@ -1847,7 +1845,7 @@ namespace
 
 bool Image::initWithS3TCData(const unsigned char * data, ssize_t dataLen)
 {
-    _hasPremultipliedAlpha = false;
+    
     const uint32_t FOURCC_DXT1 = makeFourCC('D', 'X', 'T', '1');
     const uint32_t FOURCC_DXT3 = makeFourCC('D', 'X', 'T', '3');
     const uint32_t FOURCC_DXT5 = makeFourCC('D', 'X', 'T', '5');
@@ -1892,7 +1890,7 @@ bool Image::initWithS3TCData(const unsigned char * data, ssize_t dataLen)
     
     /* if hardware supports s3tc, set pixelformat before loading mipmaps, to support non-mipmapped textures  */
     if (Configuration::getInstance()->supportsS3TC())
-    {   //decode texture through hardware
+    {   //decode texture throught hardware
         
         if (FOURCC_DXT1 == header->ddsd.DUMMYUNIONNAMEN4.ddpfPixelFormat.fourCC)
         {
@@ -1924,7 +1922,7 @@ bool Image::initWithS3TCData(const unsigned char * data, ssize_t dataLen)
         int size = ((width+3)/4)*((height+3)/4)*blockSize;
                 
         if (Configuration::getInstance()->supportsS3TC())
-        {   //decode texture through hardware
+        {   //decode texture throught hardware
             _mipmaps[i].address = (unsigned char *)_data + encodeOffset;
             _mipmaps[i].len = size;
         }
@@ -1999,7 +1997,7 @@ bool Image::initWithATITCData(const unsigned char *data, ssize_t dataLen)
     /* pixelData point to the compressed data address */
     unsigned char *pixelData = (unsigned char *)data + sizeof(ATITCTexHeader) + header->bytesOfKeyValueData + 4;
     
-    /* calculate the dataLen */
+    /* caculate the dataLen */
     int width = _width;
     int height = _height;
     
@@ -2038,7 +2036,7 @@ bool Image::initWithATITCData(const unsigned char *data, ssize_t dataLen)
         
         if (Configuration::getInstance()->supportsATITC())
         {
-            /* decode texture through hardware */
+            /* decode texture throught hardware */
             
             CCLOG("this is atitc H decode");
             

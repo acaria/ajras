@@ -24,9 +24,10 @@ THE SOFTWARE.
 
 #include "2d/CCComponent.h"
 
+
 NS_CC_BEGIN
 
-Component::Component()
+Component::Component(void)
 : _owner(nullptr)
 , _enabled(true)
 {
@@ -36,7 +37,7 @@ Component::Component()
 #endif
 }
 
-Component::~Component()
+Component::~Component(void)
 {
 }
 
@@ -123,11 +124,10 @@ bool Component::serialize(void *ar)
     return true;
 }
 
-Component* Component::create()
+Component* Component::create(void)
 {
     Component * ret = new (std::nothrow) Component();
-
-    if (ret && ret->init())
+    if (ret != nullptr && ret->init())
     {
         ret->autorelease();
     }
@@ -135,8 +135,22 @@ Component* Component::create()
     {
         CC_SAFE_DELETE(ret);
     }
-
     return ret;
+}
+
+const std::string& Component::getName() const
+{
+    return _name;
+}
+
+void Component::setName(const std::string& name)
+{
+    _name = name;
+}
+
+Node* Component::getOwner() const
+{
+    return _owner;
 }
 
 void Component::setOwner(Node *owner)
@@ -144,9 +158,14 @@ void Component::setOwner(Node *owner)
     _owner = owner;
 }
 
-void Component::setEnabled(bool enabled)
+bool Component::isEnabled() const
 {
-    _enabled = enabled;
+    return _enabled;
+}
+
+void Component::setEnabled(bool b)
+{
+    _enabled = b;
 }
 
 NS_CC_END

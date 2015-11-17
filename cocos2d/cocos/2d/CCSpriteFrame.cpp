@@ -188,26 +188,11 @@ Texture2D* SpriteFrame::getTexture()
         return _texture;
     }
 
-    if( !_textureFilename.empty()) {
+    if( _textureFilename.length() > 0 ) {
         return Director::getInstance()->getTextureCache()->addImage(_textureFilename.c_str());
     }
     // no texture or texture filename
     return nullptr;
-}
-
-void SpriteFrame::setPolygonInfo(const PolygonInfo &polygonInfo)
-{
-    _polygonInfo = polygonInfo;
-}
-
-const PolygonInfo &SpriteFrame::getPolygonInfo() const
-{
-    return _polygonInfo;
-}
-
-bool SpriteFrame::hasPolygonInfo() const
-{
-    return _polygonInfo.triangles.vertCount != 0;
 }
 
 NS_CC_END

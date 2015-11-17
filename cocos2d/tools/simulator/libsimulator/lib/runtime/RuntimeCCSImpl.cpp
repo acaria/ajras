@@ -71,7 +71,7 @@ void RuntimeCCSImpl::loadCSDProject(const std::string& file)
             if (strcmp("PropertyGroup", element->Name()) == 0)
             {
                 const tinyxml2::XMLAttribute* attribute = element->FirstAttribute();
-                while (attribute !=  nullptr)
+                if (attribute)
                 {
                     std::string csdType = attribute->Name();
                     if (csdType.compare("Type") == 0)
@@ -81,9 +81,7 @@ void RuntimeCCSImpl::loadCSDProject(const std::string& file)
                         {
                             node->setPosition(cocos2d::Vec2(frameSize.width / 2.0f, frameSize.height / 2.0f));
                         }
-                        break;
                     }
-                    attribute = attribute->Next();
                 }
             }
 

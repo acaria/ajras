@@ -82,7 +82,6 @@ namespace cocostudio
         flatbuffers::FlatBufferBuilder *builder)
     {
         std::string name = "";
-        bool useDefaultLight = false;
         int skyBoxMask = 1;
         bool skyBoxEnabled = false;
         bool skyBoxValid = true;
@@ -124,10 +123,6 @@ namespace cocostudio
             if (attriname == "Name")
             {
                 name = value;
-            }
-            else if (attriname == "UseDefaultLight")
-            {
-                useDefaultLight = (value == "True") ? true : false;
             }
             else if (attriname == "SkyBoxEnabled")
             {
@@ -380,8 +375,7 @@ namespace cocostudio
                                 builder->CreateString(backPlistFile),
                                 backResourceType),
             builder->CreateString(frameEvent),
-            builder->CreateString(customProperty),
-            useDefaultLight
+            builder->CreateString(customProperty)
             );
 
         return *(Offset<Table>*)(&options);
@@ -420,10 +414,10 @@ namespace cocostudio
 
         std::string customProperty = options->customProperty()->c_str();
         ComExtensionData* extensionData = ComExtensionData::create();
-        extensionData->setCustomProperty(customProperty);
-        if (node->getComponent(ComExtensionData::COMPONENT_NAME))
+        extensionData->setCustomProperty(customProperty);\
+        if (node->getComponent("ComExtensionData"))
         {
-            node->removeComponent(ComExtensionData::COMPONENT_NAME);
+            node->removeComponent("ComExtensionData");
         }
         node->addComponent(extensionData);
     }

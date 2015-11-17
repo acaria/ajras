@@ -20,6 +20,7 @@
 
 // OpenGL ES includes
 #include <GLES3/gl3.h>
+#include <GLES3/gl3ext.h>
 
 // EGL includes
 #include <EGL/egl.h>
@@ -33,8 +34,7 @@ public:
     OpenGLES();
     ~OpenGLES();
 
-    EGLSurface CreateSurface(Windows::UI::Xaml::Controls::SwapChainPanel^ panel, const Windows::Foundation::Size* renderSurfaceSize, const float* renderResolutionScale);
-    void GetSurfaceDimensions(const EGLSurface surface, EGLint *width, EGLint *height);
+    EGLSurface CreateSurface(Windows::UI::Xaml::Controls::SwapChainPanel^ panel, const Windows::Foundation::Size* renderSurfaceSize);
     void DestroySurface(const EGLSurface surface);
     void MakeCurrent(const EGLSurface surface);
     EGLBoolean SwapBuffers(const EGLSurface surface);

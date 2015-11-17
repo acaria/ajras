@@ -33,7 +33,6 @@
 #else // from our embedded sources
 #include "unzip.h"
 #endif
-#include "base/CCAsyncTaskPool.h"
 
 using namespace cocos2d;
 using namespace std;
@@ -51,6 +50,7 @@ NS_CC_EXT_BEGIN
 
 const std::string AssetsManagerEx::VERSION_ID = "@version";
 const std::string AssetsManagerEx::MANIFEST_ID = "@manifest";
+const std::string AssetsManagerEx::BATCH_UPDATE_ID = "@batch_update";
 
 // Implementation of AssetsManagerEx
 
@@ -80,19 +80,16 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
     _updateState = State::UNCHECKED;
 
     _downloader = std::shared_ptr<network::Downloader>(new network::Downloader);
-//    _downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
-    _downloader->onTaskError = bind(&AssetsManagerEx::onError, this, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4);
-    _downloader->onTaskProgress = [this](const network::DownloadTask& task,
-                                         int64_t bytesReceived,
-                                         int64_t totalBytesReceived,
-                                         int64_t totalBytesExpected)
-    {
-        this->onProgress(totalBytesExpected, totalBytesReceived, task.requestURL, task.identifier);
-    };
-    _downloader->onFileTaskSuccess = [this](const network::DownloadTask& task)
-    {
-        this->onSuccess(task.requestURL, task.storagePath, task.identifier);
-    };
+    _downloader->setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
+    _downloader->setErrorCallback(std::bind(&AssetsManagerEx::onError, this, std::placeholders::_1));
+    _downloader->setProgressCallback(std::bind(&AssetsManagerEx::onProgress,
+                                         this,
+                                         std::placeholders::_1,
+                                         std::placeholders::_2,
+                                         std::placeholders::_3,
+                                         std::placeholders::_4)
+                                     );
+    _downloader->setSuccessCallback(std::bind(&AssetsManagerEx::onSuccess, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
     setStoragePath(storagePath);
     _cacheVersionPath = _storagePath + VERSION_FILENAME;
     _cacheManifestPath = _storagePath + MANIFEST_FILENAME;
@@ -103,9 +100,9 @@ AssetsManagerEx::AssetsManagerEx(const std::string& manifestUrl, const std::stri
 
 AssetsManagerEx::~AssetsManagerEx()
 {
-    _downloader->onTaskError = (nullptr);
-    _downloader->onFileTaskSuccess = (nullptr);
-    _downloader->onTaskProgress = (nullptr);
+    _downloader->setErrorCallback(nullptr);
+    _downloader->setSuccessCallback(nullptr);
+    _downloader->setProgressCallback(nullptr);
     CC_SAFE_RELEASE(_localManifest);
     // _tempManifest could share a ptr with _remoteManifest or _localManifest
     if (_tempManifest != _localManifest && _tempManifest != _remoteManifest)
@@ -141,7 +138,7 @@ void AssetsManagerEx::initManifests(const std::string& manifestUrl)
         if (_tempManifest)
         {
             _tempManifest->parse(_tempManifestPath);
-            if (!_tempManifest->isLoaded() && _fileUtils->isFileExist(_tempManifestPath))
+            if (!_tempManifest->isLoaded())
                 _fileUtils->removeFile(_tempManifestPath);
         }
         else
@@ -291,7 +288,7 @@ bool AssetsManagerEx::decompress(const std::string &zip)
     const std::string rootPath = zip.substr(0, pos+1);
     
     // Open the zip file
-    unzFile zipfile = unzOpen(FileUtils::getInstance()->getSuitableFOpen(zip).c_str());
+    unzFile zipfile = unzOpen(zip.c_str());
     if (! zipfile)
     {
         CCLOG("AssetsManagerEx : can not open downloaded zip file %s\n", zip.c_str());
@@ -443,7 +440,7 @@ void AssetsManagerEx::downloadVersion()
     {
         _updateState = State::DOWNLOADING_VERSION;
         // Download version file asynchronously
-        _downloader->createDownloadFileTask(versionUrl, _cacheVersionPath, VERSION_ID);
+        _downloader->downloadAsync(versionUrl, _cacheVersionPath, VERSION_ID);
     }
     // No version file found
     else
@@ -499,7 +496,7 @@ void AssetsManagerEx::downloadManifest()
     {
         _updateState = State::DOWNLOADING_MANIFEST;
         // Download version file asynchronously
-        _downloader->createDownloadFileTask(manifestUrl, _tempManifestPath, MANIFEST_ID);
+        _downloader->downloadAsync(manifestUrl, _tempManifestPath, MANIFEST_ID);
     }
     // No manifest file found
     else
@@ -562,8 +559,9 @@ void AssetsManagerEx::startUpdate()
     if (_tempManifest->isLoaded() && _tempManifest->versionEquals(_remoteManifest))
     {
         _tempManifest->genResumeAssetsList(&_downloadUnits);
+        
         _totalWaitToDownload = _totalToDownload = (int)_downloadUnits.size();
-        this->batchDownload();
+        _downloader->batchDownloadAsync(_downloadUnits, BATCH_UPDATE_ID);
         
         std::string msg = StringUtils::format("Resuming from previous unfinished update, %d files remains to be finished.", _totalToDownload);
         dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_PROGRESSION, "", msg);
@@ -600,15 +598,16 @@ void AssetsManagerEx::startUpdate()
                     // Create path
                     _fileUtils->createDirectory(basename(_storagePath + path));
 
-                    DownloadUnit unit;
+                    network::DownloadUnit unit;
                     unit.customId = it->first;
                     unit.srcUrl = packageUrl + path;
                     unit.storagePath = _storagePath + path;
+                    unit.resumeDownload = false;
                     _downloadUnits.emplace(unit.customId, unit);
                 }
             }
             // Set other assets' downloadState to SUCCESSED
-            auto &assets = _remoteManifest->getAssets();
+            auto assets = _remoteManifest->getAssets();
             for (auto it = assets.cbegin(); it != assets.cend(); ++it)
             {
                 const std::string &key = it->first;
@@ -618,8 +617,9 @@ void AssetsManagerEx::startUpdate()
                     _tempManifest->setAssetDownloadState(key, Manifest::DownloadState::SUCCESSED);
                 }
             }
+            
             _totalWaitToDownload = _totalToDownload = (int)_downloadUnits.size();
-            this->batchDownload();
+            _downloader->batchDownloadAsync(_downloadUnits, BATCH_UPDATE_ID);
             
             std::string msg = StringUtils::format("Start to update %d files from remote package.", _totalToDownload);
             dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_PROGRESSION, "", msg);
@@ -641,50 +641,12 @@ void AssetsManagerEx::updateSucceed()
     _remoteManifest = nullptr;
     // 3. make local manifest take effect
     prepareLocalManifest();
-
-
-    _updateState = State::UNZIPPING;
     // 4. decompress all compressed files
-    //decompressDownloadedZip();
-
-    struct AsyncData
-    {
-        std::vector<std::string> compressedFiles;
-        std::string errorCompressedFile;
-    };
-
-    AsyncData* asyncData = new AsyncData;
-    asyncData->compressedFiles = _compressedFiles;
-    _compressedFiles.clear();
-
-    std::function<void(void*)> mainThread = [this](void* param) {
-        AsyncData* asyncData = (AsyncData*)param;
-        if (asyncData->errorCompressedFile.empty())
-        {
-            // 5. Set update state
-            _updateState = State::UP_TO_DATE;
-            // 6. Notify finished event
-            dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_FINISHED);
-        }
-        else
-        {
-            _updateState = State::FAIL_TO_UPDATE;
-            dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_DECOMPRESS, "", "Unable to decompress file " + asyncData->errorCompressedFile);
-        }
-
-        delete asyncData;
-    };
-    AsyncTaskPool::getInstance()->enqueue(AsyncTaskPool::TaskType::TASK_OTHER, mainThread, (void*)asyncData, [this, asyncData]() {
-        // Decompress all compressed files
-        for (auto& zipFile : asyncData->compressedFiles) {
-            if (!decompress(zipFile))
-            {
-                asyncData->errorCompressedFile = zipFile;
-                break;
-            }
-            _fileUtils->removeFile(zipFile);
-        }
-    });
+    decompressDownloadedZip();
+    // 5. Set update state
+    _updateState = State::UP_TO_DATE;
+    // 6. Notify finished event
+    dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_FINISHED);
 }
 
 void AssetsManagerEx::checkUpdate()
@@ -783,7 +745,6 @@ void AssetsManagerEx::update()
             break;
         case State::UP_TO_DATE:
         case State::UPDATING:
-        case State::UNZIPPING:
             _waitToUpdate = false;
             break;
         default:
@@ -791,7 +752,7 @@ void AssetsManagerEx::update()
     }
 }
 
-void AssetsManagerEx::updateAssets(const DownloadUnits& assets)
+void AssetsManagerEx::updateAssets(const network::DownloadUnits& assets)
 {
     if (!_inited){
         CCLOG("AssetsManagerEx : Manifests uninited.\n");
@@ -807,7 +768,7 @@ void AssetsManagerEx::updateAssets(const DownloadUnits& assets)
             _updateState = State::UPDATING;
             _downloadUnits.clear();
             _downloadUnits = assets;
-            this->batchDownload();
+            _downloader->batchDownloadAsync(_downloadUnits, BATCH_UPDATE_ID);
         }
         else if (size == 0 && _totalWaitToDownload == 0)
         {
@@ -816,7 +777,7 @@ void AssetsManagerEx::updateAssets(const DownloadUnits& assets)
     }
 }
 
-const DownloadUnits& AssetsManagerEx::getFailedAssets() const
+const network::DownloadUnits& AssetsManagerEx::getFailedAssets() const
 {
     return _failedUnits;
 }
@@ -828,32 +789,29 @@ void AssetsManagerEx::downloadFailedAssets()
 }
 
 
-void AssetsManagerEx::onError(const network::DownloadTask& task,
-                              int errorCode,
-                              int errorCodeInternal,
-                              const std::string& errorStr)
+void AssetsManagerEx::onError(const network::Downloader::Error &error)
 {
     // Skip version error occured
-    if (task.identifier == VERSION_ID)
+    if (error.customId == VERSION_ID)
     {
         CCLOG("AssetsManagerEx : Fail to download version file, step skipped\n");
         _updateState = State::PREDOWNLOAD_MANIFEST;
         downloadManifest();
     }
-    else if (task.identifier == MANIFEST_ID)
+    else if (error.customId == MANIFEST_ID)
     {
-        dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_DOWNLOAD_MANIFEST, task.identifier, errorStr, errorCode, errorCodeInternal);
+        dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_DOWNLOAD_MANIFEST, error.customId, error.message, error.curle_code, error.curlm_code);
     }
     else
     {
-        auto unitIt = _downloadUnits.find(task.identifier);
+        auto unitIt = _downloadUnits.find(error.customId);
         // Found unit and add it to failed units
         if (unitIt != _downloadUnits.end())
         {
-            DownloadUnit unit = unitIt->second;
+            network::DownloadUnit unit = unitIt->second;
             _failedUnits.emplace(unit.customId, unit);
         }
-        dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_UPDATING, task.identifier, errorStr, errorCode, errorCodeInternal);
+        dispatchUpdateEvent(EventAssetsManagerEx::EventCode::ERROR_UPDATING, error.customId, error.message, error.curle_code, error.curlm_code);
     }
 }
 
@@ -921,9 +879,27 @@ void AssetsManagerEx::onSuccess(const std::string &srcUrl, const std::string &st
         _updateState = State::MANIFEST_LOADED;
         parseManifest();
     }
+    else if (customId == BATCH_UPDATE_ID)
+    {
+        // Finished with error check
+        if (_failedUnits.size() > 0 || _totalWaitToDownload > 0)
+        {
+            // Save current download manifest information for resuming
+            _tempManifest->saveToFile(_tempManifestPath);
+            
+            decompressDownloadedZip();
+            
+            _updateState = State::FAIL_TO_UPDATE;
+            dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_FAILED);
+        }
+        else
+        {
+            updateSucceed();
+        }
+    }
     else
     {
-        auto &assets = _remoteManifest->getAssets();
+        auto assets = _remoteManifest->getAssets();
         auto assetIt = assets.find(customId);
         if (assetIt != assets.end())
         {
@@ -956,25 +932,6 @@ void AssetsManagerEx::onSuccess(const std::string &srcUrl, const std::string &st
             // Remove from failed units list
             _failedUnits.erase(unitIt);
         }
-        
-        if (_totalWaitToDownload <= 0)
-        {
-            // Finished with error check
-            if (_failedUnits.size() > 0)
-            {
-                // Save current download manifest information for resuming
-                _tempManifest->saveToFile(_tempManifestPath);
-                
-                decompressDownloadedZip();
-                
-                _updateState = State::FAIL_TO_UPDATE;
-                dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_FAILED);
-            }
-            else
-            {
-                updateSucceed();
-            }
-        }
     }
 }
 
@@ -982,15 +939,6 @@ void AssetsManagerEx::destroyDownloadedVersion()
 {
     _fileUtils->removeFile(_cacheVersionPath);
     _fileUtils->removeFile(_cacheManifestPath);
-}
-
-void AssetsManagerEx::batchDownload()
-{
-    for(auto iter : _downloadUnits)
-    {
-        DownloadUnit& unit = iter.second;
-        _downloader->createDownloadFileTask(unit.srcUrl, unit.storagePath, unit.customId);
-    }
 }
 
 NS_CC_EXT_END

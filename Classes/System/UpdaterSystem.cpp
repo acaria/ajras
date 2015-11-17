@@ -4,7 +4,7 @@
 void UpdaterSystem::tick(double dt)
 {
     //update from inputs
-    for(auto eid : ecs.join<cp::Input, cp::Position>())
+    for(auto eid : ecs.system<cp::Input>())
     {
         auto& cpInput = ecs::get<cp::Input>(eid);
         cpInput.updatePredicates(eid, dt);
@@ -12,32 +12,35 @@ void UpdaterSystem::tick(double dt)
         if (!cpInput.isActive()) //inhibitor
         {
             //reset velocity dir
-            if (ecs::has<cp::Physics>(eid))
+            if (ecs::has<cp::Velocity>(eid))
             {
-                ecs::get<cp::Physics>(eid).move.direction = cc::Vec2::ZERO;
-                ecs::get<cp::Physics>(eid).move.ratio = 1.0;
+                ecs::get<cp::Velocity>(eid).move.direction = cc::Vec2::ZERO;
+                ecs::get<cp::Velocity>(eid).move.ratio = 1.0;
             }
             continue;
         }
         
         //set orientation
-        auto& cpPosition = ecs::get<cp::Position>(eid);
-        
-        if (cpInput.orientation != Dir::None)
+        if (ecs::has<cp::Orientation>(eid))
         {
-            cpPosition.orientation = cpInput.exactOrientation;
-            cpPosition.lastDir = cpPosition.curDir;
+            auto& cpOrientation = ecs::get<cp::Orientation>(eid);
+        
+            if (cpInput.orientation != Dir::None)
+            {
+                cpOrientation.visual = cpInput.exactOrientation;
+                cpOrientation.lastDir = cpOrientation.curDir;
             
-            if (cpPosition.lastDir != Dir::None && cpInput.orientation.contains(cpPosition.lastDir))
-                cpPosition.curDir = cpPosition.lastDir;
-            else
-                cpPosition.curDir = cpInput.orientation;
+                if (cpOrientation.lastDir != Dir::None && cpInput.orientation.contains(cpOrientation.lastDir))
+                    cpOrientation.curDir = cpOrientation.lastDir;
+                else
+                    cpOrientation.curDir = cpInput.orientation;
+            }
         }
         
         //set velocity dir
-        if (ecs::has<cp::Physics>(eid))
+        if (ecs::has<cp::Velocity>(eid))
         {
-            auto& cpVelocity = ecs::get<cp::Physics>(eid);
+            auto& cpVelocity = ecs::get<cp::Velocity>(eid);
             if (cpInput.orientation.uncross(cpInput.lastOrientation))
             {
                 cpInput.lastOrientation = cpInput.orientation;

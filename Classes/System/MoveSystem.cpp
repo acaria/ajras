@@ -3,49 +3,49 @@
 
 void MoveSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Physics, cp::Position, cp::Input>())
+    for(auto eid : ecs.join<cp::Velocity, cp::Position, cp::Input>())
     {
         //shortcuts
         auto& cpPos = ecs::get<cp::Position>(eid);
-        auto& cpPhy = ecs::get<cp::Physics>(eid);
+        auto& cpVel = ecs::get<cp::Velocity>(eid);
     
         //save previous pos
-        cpPos.lastPos = cpPos.pos;
+        cpPos.last = cpPos.pos;
     
         //compute velocity : priority force > move > inertia
-        if (cpPhy.force.duration > 0) //force
+        if (cpVel.force.duration > 0) //force
         {
-            cpPhy.force.duration -= dt;
+            cpVel.force.duration -= dt;
             
-            cpPhy.decelFactor = cpPhy.accelFactor;
-            cpPhy.accelFactor = lib::clamp<float>((float)cpPhy.accelFactor + (dt / cpPhy.accelDuration), 0.0f, 1.0f);
+            cpVel.decelFactor = cpVel.accelFactor;
+            cpVel.accelFactor = lib::clamp<float>((float)cpVel.accelFactor + (dt / cpVel.accelDuration), 0.0f, 1.0f);
             
-            cpPhy.velocity = cpPhy.force.direction * cpPhy.getForceSpeed() * cpPhy.accelFactor * dt;
+            cpVel.velocity = cpVel.force.direction * cpVel.getForceSpeed() * cpVel.accelFactor * dt;
         }
-        else if (!cpPhy.move.direction.isZero()) //move
+        else if (!cpVel.move.direction.isZero()) //move
         {
-            cpPhy.decelFactor = cpPhy.accelFactor;
-            cpPhy.accelFactor = lib::clamp<float>((float)cpPhy.accelFactor + (dt / cpPhy.accelDuration), 0.0f, 1.0f);
+            cpVel.decelFactor = cpVel.accelFactor;
+            cpVel.accelFactor = lib::clamp<float>((float)cpVel.accelFactor + (dt / cpVel.accelDuration), 0.0f, 1.0f);
             
                 
-            cpPhy.velocity = cpPhy.move.direction * cpPhy.getMoveSpeed() * cpPhy.accelFactor * dt;
+            cpVel.velocity = cpVel.move.direction * cpVel.getMoveSpeed() * cpVel.accelFactor * dt;
         }
         else //inertia
         {
-            if (!cpPhy.velocity.isZero())
+            if (!cpVel.velocity.isZero())
             {
-                cpPhy.accelFactor = cpPhy.decelFactor;
-                cpPhy.velocity.x *= cpPhy.decelFactor;
-                cpPhy.velocity.y *= cpPhy.decelFactor;
+                cpVel.accelFactor = cpVel.decelFactor;
+                cpVel.velocity.x *= cpVel.decelFactor;
+                cpVel.velocity.y *= cpVel.decelFactor;
                     
-                cpPhy.decelFactor = lib::clamp<float>((float)cpPhy.decelFactor - (dt / cpPhy.decelDuration), 0.0f, 1.0f);
+                cpVel.decelFactor = lib::clamp<float>((float)cpVel.decelFactor - (dt / cpVel.decelDuration), 0.0f, 1.0f);
             }
         }
         
         //update positions
-        if (!cpPhy.velocity.isZero())
+        if (!cpVel.velocity.isZero())
         {
-            cpPos.pos += cpPhy.velocity;
+            cpPos.pos += cpVel.velocity;
         }
     }
 }

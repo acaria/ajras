@@ -28,9 +28,6 @@ obtained from https://directxtk.codeplex.com
 #ifndef __WIC_IMAGE_LOADER_H__
 #define __WIC_IMAGE_LOADER_H__
 
-#include "base/ccConfig.h"
-
-
 #if defined(CC_USE_WIC)
 
 #include <memory>

@@ -103,7 +103,6 @@ bool Label::multilineTextWrapByWord()
     float letterRight = 0.f;
 
     auto contentScaleFactor = CC_CONTENT_SCALE_FACTOR();  
-    float lineSpacing = _lineSpacing * contentScaleFactor;
     float highestY = 0.f;
     float lowestY = 0.f;
     FontLetterDefinition letterDef;
@@ -118,7 +117,7 @@ bool Label::multilineTextWrapByWord()
             letterRight = 0.f;
             lineIndex++;
             nextWordX = 0.f;
-            nextWordY -= _lineHeight + lineSpacing;
+            nextWordY -= _lineHeight;
             recordPlaceholderInfo(index, character);
             index++;
             continue;
@@ -153,7 +152,7 @@ bool Label::multilineTextWrapByWord()
                 letterRight = 0.f;
                 lineIndex++;
                 nextWordX = 0.f;
-                nextWordY -= _lineHeight + lineSpacing;
+                nextWordY -= _lineHeight;
                 newLine = true;
                 break;
             }
@@ -197,8 +196,6 @@ bool Label::multilineTextWrapByWord()
 
     _numberOfLines = lineIndex + 1;
     _textDesiredHeight = (_numberOfLines * _lineHeight) / contentScaleFactor;
-    if (_numberOfLines > 1)
-        _textDesiredHeight += (_numberOfLines - 1) * _lineSpacing;
     Size contentSize(_labelWidth, _labelHeight);
     if (_labelWidth <= 0.f)
         contentSize.width = longestLine;
@@ -226,7 +223,6 @@ bool Label::multilineTextWrapByChar()
     float letterRight = 0.f;
 
     auto contentScaleFactor = CC_CONTENT_SCALE_FACTOR();
-    float lineSpacing = _lineSpacing * contentScaleFactor;
     float highestY = 0.f;
     float lowestY = 0.f;
     FontLetterDefinition letterDef;
@@ -246,7 +242,7 @@ bool Label::multilineTextWrapByChar()
             letterRight = 0.f;
             lineIndex++;
             nextLetterX = 0.f;
-            nextLetterY -= _lineHeight + lineSpacing;
+            nextLetterY -= _lineHeight;
             recordPlaceholderInfo(index, character);
             continue;
         }
@@ -265,7 +261,7 @@ bool Label::multilineTextWrapByChar()
             letterRight = 0.f;
             lineIndex++;
             nextLetterX = 0.f;
-            nextLetterY -= _lineHeight + lineSpacing;
+            nextLetterY -= _lineHeight;
             letterPosition.x = letterDef.offsetX / contentScaleFactor;
         }
         else
@@ -293,8 +289,6 @@ bool Label::multilineTextWrapByChar()
 
     _numberOfLines = lineIndex + 1;
     _textDesiredHeight = (_numberOfLines * _lineHeight) / contentScaleFactor;
-    if (_numberOfLines > 1)
-        _textDesiredHeight += (_numberOfLines - 1) * _lineSpacing;
     Size contentSize(_labelWidth, _labelHeight);
     if (_labelWidth <= 0.f)
         contentSize.width = longestLine;

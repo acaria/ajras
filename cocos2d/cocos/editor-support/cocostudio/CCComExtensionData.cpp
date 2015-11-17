@@ -23,19 +23,18 @@
  ****************************************************************************/
 
 #include "CCComExtensionData.h"
+
 #include "cocostudio/ActionTimeline/CCActionTimeline.h"
+
 
 namespace cocostudio
 {
     IMPLEMENT_CLASS_COMPONENT_INFO(ComExtensionData)
-
-    const std::string ComExtensionData::COMPONENT_NAME = "ComExtensionData";
-
     ComExtensionData::ComExtensionData()
     : _customProperty("")
     , _timelineData(nullptr)
     {
-        _name = COMPONENT_NAME;
+        _name = "ComExtensionData";
     }
 
     ComExtensionData::~ComExtensionData()
@@ -81,6 +80,7 @@ namespace cocostudio
 
     void ComExtensionData::onRemove()
     {
+        CC_SAFE_RELEASE_NULL(_timelineData);
     }
 
     void ComExtensionData::setActionTag(int actionTag)

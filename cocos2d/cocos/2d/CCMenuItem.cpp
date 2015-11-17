@@ -39,8 +39,12 @@ static int _globalFontSize = kItemSize;
 static std::string _globalFontName = "Marker Felt";
 static bool _globalFontNameRelease = false;
 
+const unsigned int    kCurrentItem = 0xc0c05001;
 const unsigned int    kZoomActionTag = 0xc0c05002;
 
+const unsigned int    kNormalTag = 0x1;
+const unsigned int    kSelectedTag = 0x2;
+const unsigned int    kDisableTag = 0x3;
 //
 // MenuItem
 //
@@ -458,7 +462,7 @@ void MenuItemSprite::setNormalImage(Node* image)
     {
         if (image)
         {
-            addChild(image);
+            addChild(image, 0, kNormalTag);
             image->setAnchorPoint(Vec2(0, 0));
         }
 
@@ -479,7 +483,7 @@ void MenuItemSprite::setSelectedImage(Node* image)
     {
         if (image)
         {
-            addChild(image);
+            addChild(image, 0, kSelectedTag);
             image->setAnchorPoint(Vec2(0, 0));
         }
 
@@ -499,7 +503,7 @@ void MenuItemSprite::setDisabledImage(Node* image)
     {
         if (image)
         {
-            addChild(image);
+            addChild(image, 0, kDisableTag);
             image->setAnchorPoint(Vec2(0, 0));
         }
 
@@ -908,16 +912,17 @@ void MenuItemToggle::setSelectedIndex(unsigned int index)
     if( index != _selectedIndex && _subItems.size() > 0 )
     {
         _selectedIndex = index;
-        if (_selectedItem)
+        MenuItem *currentItem = (MenuItem*)getChildByTag(kCurrentItem);
+        if( currentItem )
         {
-            _selectedItem->removeFromParentAndCleanup(false);
+            currentItem->removeFromParentAndCleanup(false);
         }
 
-        _selectedItem = _subItems.at(_selectedIndex);
-        this->addChild(_selectedItem);
-        Size s = _selectedItem->getContentSize();
+        MenuItem* item = _subItems.at(_selectedIndex);
+        this->addChild(item, 0, kCurrentItem);
+        Size s = item->getContentSize();
         this->setContentSize(s);
-        _selectedItem->setPosition(s.width / 2, s.height / 2);
+        item->setPosition(s.width/2, s.height/2);
     }
 }
 

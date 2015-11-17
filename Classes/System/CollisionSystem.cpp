@@ -14,18 +14,18 @@ void CollisionSystem::init(IMapData* data)
 
 void CollisionSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Render, cp::Physics, cp::Position, cp::AI>())
+    for(auto eid : ecs.join<cp::Render, cp::Collision, cp::Position, cp::AI>())
     {
         auto& cpRender = ecs::get<cp::Render>(eid);
         
         if (cpRender.manualPosMode) continue;
         
         auto& cpPosition = ecs::get<cp::Position>(eid);
-        auto& cpCollision = ecs::get<cp::Physics>(eid);
+        auto& cpCollision = ecs::get<cp::Collision>(eid);
 
-        cpCollision.collisionState = PhysicsComponent::NONE;
+        cpCollision.current = CollisionComponent::CType::NONE;
         
-        if (cpCollision.move.speed == 0)
+        if (!ecs::has<cp::Velocity>(eid))
             continue;
         
         cocos2d::Rect bounds = SysHelper::getBounds(cpPosition, cpCollision);
@@ -34,13 +34,13 @@ void CollisionSystem::tick(double dt)
         if (bounds.origin.x < 0)
         {
             bounds.origin.x = 0;
-            cpPosition.pos.x = - cpCollision.shape.origin.x;
+            cpPosition.pos.x = - cpCollision.rect.origin.x;
         }
         
         if (bounds.origin.y < 0)
         {
             bounds.origin.y = 0;
-            cpPosition.pos.y = -cpCollision.shape.origin.y;
+            cpPosition.pos.y = -cpCollision.rect.origin.y;
         }
         //^^^
         //todo right? top?
@@ -53,19 +53,19 @@ void CollisionSystem::tick(double dt)
         if (this->collisionData->checkCollisionRect(lib::getUnion(bounds, lastBounds),
                                                     cpCollision.category))
         {
-            cpCollision.collisionState = PhysicsComponent::DECOR;
+            cpCollision.current = CollisionComponent::DECOR;
             bounds.origin = this->collisionData->getCollisionPos(
                     bounds, lastBounds, cpCollision.category);
-            cpPosition.pos = bounds.origin - cpCollision.shape.origin;
+            cpPosition.pos = bounds.origin - cpCollision.rect.origin;
         }
         
         //check room objects
-        for(auto oid : ecs.join<cp::Render, cp::Physics, cp::Position>())
+        for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position>())
         {
             if (oid != eid)
             {
                 auto& cpPosition2 = ecs::get<cp::Position>(oid);
-                auto& cpCollision2 = ecs::get<cp::Physics>(oid);
+                auto& cpCollision2 = ecs::get<cp::Collision>(oid);
                 
                 cocos2d::Rect bounds2 = SysHelper::getBounds(cpPosition2, cpCollision2);
                 if (bounds2.intersectsRect(bounds))
@@ -87,12 +87,12 @@ void CollisionSystem::tick(double dt)
                     }
                     else //obstacle
                     {
-                        cpCollision.collisionState = PhysicsComponent::OBJECT;
+                        cpCollision.current = CollisionComponent::CType::OBJECT;
                         
                         auto diff = slide(bounds, bounds2);
                         cpPosition.pos += diff;
                         
-                        if (ecs::get<cp::Physics>(oid).move.speed > 0)
+                        if (ecs::has<cp::Velocity>(oid))
                         {
                             cpPosition2.pos -= diff;
                         }
@@ -105,15 +105,15 @@ void CollisionSystem::tick(double dt)
 }
 
 lib::Box CollisionSystem::bounce(const PositionComponent &cpPos,
-                                 const PhysicsComponent &cpCol,
+                                 const CollisionComponent &cpCol,
                                  const cocos2d::Rect& target)
 {
-    cocos2d::Vec2 pRes = cpPos.lastPos;
-    auto b1 = lib::Box(cpPos.lastPos.x + cpCol.shape.getMinX(),
-                       cpPos.lastPos.y + cpCol.shape.getMinY(),
-                       cpCol.shape.size.width, cpCol.shape.size.height,
-                       cpPos.pos.x - cpPos.lastPos.x,
-                       cpPos.pos.y - cpPos.lastPos.y);
+    cocos2d::Vec2 pRes = cpPos.last;
+    auto b1 = lib::Box(cpPos.last.x + cpCol.rect.getMinX(),
+                       cpPos.last.y + cpCol.rect.getMinY(),
+                       cpCol.rect.size.width, cpCol.rect.size.height,
+                       cpPos.pos.x - cpPos.last.x,
+                       cpPos.pos.y - cpPos.last.y);
     auto b2 = lib::Box(target, {0, 0});
     
     float nX, nY;

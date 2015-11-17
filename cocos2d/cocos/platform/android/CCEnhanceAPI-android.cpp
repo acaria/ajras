@@ -52,7 +52,6 @@ int EnhanceAPI::setResolutionPercent(int n)
     if(JniHelper::getStaticMethodInfo(t, CLASS_NAME, "setResolutionPercent", "(I)I"))
     {
         ret = t.env->CallStaticIntMethod(t.classID, t.methodID, n);
-        t.env->DeleteLocalRef(t.classID);
     }
     return ret;
 }
@@ -64,7 +63,6 @@ int EnhanceAPI::setFPS(int fps)
     if(JniHelper::getStaticMethodInfo(t, CLASS_NAME, "setFPS", "(I)I"))
     {
         ret = t.env->CallStaticIntMethod(t.classID, t.methodID, fps);
-        t.env->DeleteLocalRef(t.classID);
     }
     return ret;
 }
@@ -76,7 +74,6 @@ int EnhanceAPI::fastLoading(int sec)
     if(JniHelper::getStaticMethodInfo(t, CLASS_NAME, "fastLoading", "(I)I"))
     {
         ret = t.env->CallStaticIntMethod(t.classID, t.methodID, sec);
-        t.env->DeleteLocalRef(t.classID);
     }
     return ret;
 }
@@ -88,7 +85,6 @@ int EnhanceAPI::getTemperature()
     if(JniHelper::getStaticMethodInfo(t, CLASS_NAME, "getTemperature", "()I"))
     {
         ret = t.env->CallStaticIntMethod(t.classID, t.methodID);
-        t.env->DeleteLocalRef(t.classID);
     }
     return ret;
 }
@@ -100,7 +96,6 @@ int EnhanceAPI::setLowPowerMode(bool enable)
     if(JniHelper::getStaticMethodInfo(t, CLASS_NAME, "setLowPowerMode", "(Z)I"))
     {
         ret = t.env->CallStaticIntMethod(t.classID, t.methodID, enable);
-        t.env->DeleteLocalRef(t.classID);
     }
     return ret;
 }

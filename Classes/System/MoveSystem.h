@@ -1,11 +1,11 @@
 #pragma once
-#include "BaseSystem.h"
+#include "BaseTickSystem.h"
 #include "ECSGroup.h"
 
-class MoveSystem : public BaseSystem
+class MoveSystem : public BaseTickSystem
 {
 public:
-    MoveSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {}
+    MoveSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
     virtual ~MoveSystem() {}
     
     virtual void tick(double dt) final;

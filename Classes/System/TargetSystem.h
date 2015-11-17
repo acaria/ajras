@@ -1,11 +1,11 @@
 #pragma once
-#include "BaseSystem.h"
+#include "BaseTickSystem.h"
 #include "ECSGroup.h"
 
-class TargetSystem : public BaseSystem
+class TargetSystem : public BaseTickSystem
 {
 public:
-    TargetSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {}
+    TargetSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
     
     void init();
     void tick(double dt) final;

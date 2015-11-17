@@ -22,7 +22,7 @@ namespace cocostudio
     static const char* P_ItemHeight = "itemHeight";
     static const char* P_StartCharMap = "startCharMap";
     
-    static TextAtlasReader* instanceTextAtlasReader = nullptr;
+    static TextAtlasReader* instanceTextAtalsReader = nullptr;
     
     IMPLEMENT_CLASS_NODE_READER_INFO(TextAtlasReader)
     
@@ -38,16 +38,16 @@ namespace cocostudio
     
     TextAtlasReader* TextAtlasReader::getInstance()
     {
-        if (!instanceTextAtlasReader)
+        if (!instanceTextAtalsReader)
         {
-            instanceTextAtlasReader = new (std::nothrow) TextAtlasReader();
+            instanceTextAtalsReader = new (std::nothrow) TextAtlasReader();
         }
-        return instanceTextAtlasReader;
+        return instanceTextAtalsReader;
     }
     
     void TextAtlasReader::destroyInstance()
     {
-        CC_SAFE_DELETE(instanceTextAtlasReader);
+        CC_SAFE_DELETE(instanceTextAtalsReader);
     }
     
     void TextAtlasReader::setPropsFromBinary(cocos2d::ui::Widget *widget, CocoLoader *cocoLoader, stExpCocoNode *cocoNode)

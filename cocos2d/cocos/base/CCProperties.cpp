@@ -422,7 +422,7 @@ char* Properties::readLine(char* output, int num)
     if (eof())
         return nullptr;
 
-    // little optimization: avoid unneeded dereferences
+    // little optimization: avoid uneeded dereferences
     const ssize_t dataIdx = *_dataIdx;
     int i;
 

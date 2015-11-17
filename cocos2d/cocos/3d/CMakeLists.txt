@@ -16,7 +16,6 @@ set(COCOS_3D_SRC
   3d/CCMesh.cpp
   3d/CCMeshSkin.cpp
   3d/CCMeshVertexIndexData.cpp
-  3d/CCMotionStreak3D.cpp
   3d/CCOBB.cpp
   3d/CCObjLoader.cpp
   3d/CCPlane.cpp

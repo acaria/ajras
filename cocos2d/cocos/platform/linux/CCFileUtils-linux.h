@@ -48,7 +48,7 @@ class CC_DLL FileUtilsLinux : public FileUtils
     FileUtilsLinux();
     std::string _writablePath;
 public:
-    /* override functions */
+    /* override funtions */
     bool init();
     virtual std::string getWritablePath() const;
 private:

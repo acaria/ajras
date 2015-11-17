@@ -86,7 +86,7 @@ namespace ui {
                 break;
             }
 
-            //put layout component initialized code here
+            //put layout component initalized code here
 
         } while (0);
         return ret;

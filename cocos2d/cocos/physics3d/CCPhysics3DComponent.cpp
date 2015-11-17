@@ -79,7 +79,7 @@ Physics3DComponent::Physics3DComponent()
 
 void Physics3DComponent::setEnabled(bool b)
 {
-    bool oldBool = _enabled;
+    bool oldBool = b;
     Component::setEnabled(b);
     if (_physics3DObj && oldBool != _enabled)
     {

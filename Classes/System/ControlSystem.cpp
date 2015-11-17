@@ -4,7 +4,7 @@
 #include "SysHelper.h"
 #include "Defines.h"
 
-ControlSystem::ControlSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {
+ControlSystem::ControlSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {
 }
 
 void ControlSystem::tick(double dt)
@@ -12,7 +12,7 @@ void ControlSystem::tick(double dt)
     //selection control
     if (posSelection != nullptr)
     {
-        for(auto eid : ecs.join<cp::Interact, cp::Position, cp::Physics>())
+        for(auto eid : ecs.join<cp::Interact, cp::Position, cp::Collision>())
         {
             auto eRect = lib::inflateRect(SysHelper::getBounds(eid), def::touchTreshold);
             if (eRect.containsPoint(posSelection.Value))
@@ -52,10 +52,10 @@ void ControlSystem::tick(double dt)
                     Log("Action mode is missing");
                     break;
                 case ActionMode::attack:
-                    if (ecs::has<cp::Physics>(tid))
+                    if (ecs::has<cp::Collision>(tid))
                     {
                         auto& cpRender = ecs::get<cp::Render>(tid);
-                        auto& cpCol = ecs::get<cp::Physics>(tid);
+                        auto& cpCol = ecs::get<cp::Collision>(tid);
                         
                         auto pos = cc::Point(
                             cpCol.rect.getMinX() + cpCol.rect.size.width / 2,

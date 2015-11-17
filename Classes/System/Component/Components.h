@@ -2,11 +2,13 @@
 
 #include "ECS.h"
 #include "RenderComponent.h"
+#include "OrientationComponent.h"
 #include "PositionComponent.h"
+#include "VelocityComponent.h"
 #include "StaminaComponent.h"
 #include "ProfileData.h"
 #include "InputComponent.h"
-#include "PhysicsComponent.h"
+#include "CollisionComponent.h"
 #include "MeleeComponent.h"
 #include "HealthComponent.h"
 #include "AIComponent.h"
@@ -21,11 +23,11 @@ namespace cp
     
     using Render = ecs::component<RenderComponent,              1>;
     using Position = ecs::component<PositionComponent,          2>;
-
-
+    using Orientation = ecs::component<OrientationComponent,    3>;
+    using Velocity = ecs::component<VelocityComponent,          4>;
     using Stamina = ecs::component<StaminaComponent,            5>;
     using Input = ecs::component<InputComponent,                6>;
-    using Physics = ecs::component<PhysicsComponent,            7>;
+    using Collision = ecs::component<CollisionComponent,        7>;
     using Gate = ecs::component<GateMap,                        8>;
     using Warp = ecs::component<WarpMap,                        9>;
     using Interact = ecs::component<InteractComponent,          10>;
@@ -57,9 +59,11 @@ namespace cp
         {
             ecs::move<Render>(id, g1, g2);
             ecs::move<Position>(id, g1, g2);
+            ecs::move<Orientation>(id, g1, g2);
+            ecs::move<Velocity>(id, g1, g2);
             ecs::move<Stamina>(id, g1, g2);
             ecs::move<Input>(id, g1, g2);
-            ecs::move<Physics>(id, g1, g2);
+            ecs::move<Collision>(id, g1, g2);
             ecs::move<Gate>(id, g1, g2);
             ecs::move<Warp>(id, g1, g2);
             ecs::move<Interact>(id, g1, g2);
@@ -78,9 +82,11 @@ namespace cp
         {
             ecs::del<Render>(id, group);
             ecs::del<Position>(id, group);
+            ecs::del<Orientation>(id, group);
+            ecs::del<Velocity>(id, group);
             ecs::del<Stamina>(id, group);
             ecs::del<Input>(id, 1);
-            ecs::del<Physics>(id, group);
+            ecs::del<Collision>(id, group);
             ecs::del<Gate>(id, group);
             ecs::del<Warp>(id, group);
             ecs::del<Interact>(id, group);
@@ -99,9 +105,11 @@ namespace cp
         {
             ecs::clearGroup<Render>(group);
             ecs::clearGroup<Position>(group);
+            ecs::clearGroup<Orientation>(group);
+            ecs::clearGroup<Velocity>(group);
             ecs::clearGroup<Stamina>(group);
             ecs::clearGroup<Input>(group);
-            ecs::clearGroup<Physics>(group);
+            ecs::clearGroup<Collision>(group);
             ecs::clearGroup<Gate>(group);
             ecs::clearGroup<Warp>(group);
             ecs::clearGroup<Interact>(group);

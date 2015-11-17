@@ -1,11 +1,11 @@
 #pragma once
-#include "BaseSystem.h"
+#include "BaseTickSystem.h"
 #include "ECSGroup.h"
 
-class UpdaterSystem : public BaseSystem
+class UpdaterSystem : public BaseTickSystem
 {
 public:
-    UpdaterSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {}
+    UpdaterSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
     
     ~UpdaterSystem() {}
     

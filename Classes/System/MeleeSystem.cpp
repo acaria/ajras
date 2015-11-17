@@ -16,7 +16,7 @@ void MeleeSystem::init(IMapData *data)
 void MeleeSystem::tick(double dt)
 {
     std::list<std::list<std::pair<unsigned, unsigned>>> meleeListGroup;
-    for(auto eid : ecs.join<cp::Melee, cp::Mood, cp::Stamina, cp::Physics, cp::Position, cp::Render>())
+    for(auto eid : ecs.join<cp::Melee, cp::Mood, cp::Stamina, cp::Collision, cp::Position, cp::Render>())
     {
         if (!ecs::has<cp::Input>(eid) || !ecs::get<cp::Input>(eid).isActive())
             continue;
@@ -39,7 +39,7 @@ void MeleeSystem::tick(double dt)
             continue;
         
         //check room objects
-        for(auto oid : ecs.join<cp::Render, cp::Physics, cp::Position, cp::Health, cp::Mood, cp::Input>())
+        for(auto oid : ecs.join<cp::Render, cp::Collision, cp::Position, cp::Health, cp::Mood, cp::Input>())
         {
             if (oid == eid) continue;
             
@@ -60,7 +60,7 @@ void MeleeSystem::tick(double dt)
                 {
                     if (this->collision->checkCollisionRay({body.getMidX(), body.getMidY()},
                                                            {bounds.getMidX(), bounds.getMidY()},
-                                                           ecs::get<cp::Physics>(eid).category))
+                                                           ecs::get<cp::Collision>(eid).category))
                         continue;
                         
                     
@@ -151,7 +151,10 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
     
     auto resolutionAnim = cc::Sequence::create(
         cc::CallFunc::create([this, &cpRender2, &cpMelee, oid, moveDir](){
-            ecs::get<cp::Physics>(oid).applyForce(cpMelee.recoil.speed, cpMelee.recoil.duration, moveDir);
+        
+            if (ecs::has<cp::Velocity>(oid))
+                ecs::get<cp::Velocity>(oid).applyForce(cpMelee.recoil.speed, cpMelee.recoil.duration, moveDir);
+        
             cpMelee.enabled = true;
             ecs::get<cp::Health>(oid).damage += cpMelee.damage;
         }),
@@ -206,23 +209,28 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
         cc::DelayTime::create(animDuration * cpMelee.triggerRatio),
         cc::CallFunc::create([this, &cpRender2, &cpMelee, oid, moveDir](){
             auto& cpHealth2 = ecs::get<cp::Health>(oid);
-        
-            auto blinkAction = CocosHelper::blinkActionCreate(
-                {255,50,50}, def::blinkAnim::count * 1000000, def::blinkAnim::duration * 1000000);
-            blinkAction->setTag(def::blinkAnim::tag);
-            cpRender2.sprite->runAction(blinkAction);
-            ecs::get<cp::Physics>(oid).applyForce(cpMelee.recoil.speed, cpMelee.recoil.duration, moveDir);
-            ecs::get<cp::Input>(oid).disable("velocity", [this](unsigned eid) {
-                if (ecs::get<cp::Physics>(eid).velocity == cc::Vec2::ZERO)
-                {
-                    ecs.del<cp::Untargetable>(eid);
-                    ecs::get<cp::Render>(eid).sprite->stopAllActionsByTag(def::blinkAnim::tag);
-                    ecs::get<cp::Render>(eid).sprite->setColor({255,255,255});
-                    return false;
-                }
-                return true;
-            });
-        
+            if (ecs::has<cp::Velocity>(oid))
+            {
+                auto blinkAction = CocosHelper::blinkActionCreate(
+                    {255,50,50}, def::blinkAnim::count * 1000000, def::blinkAnim::duration * 1000000);
+                blinkAction->setTag(def::blinkAnim::tag);
+                cpRender2.sprite->runAction(blinkAction);
+                ecs::get<cp::Velocity>(oid).applyForce(cpMelee.recoil.speed, cpMelee.recoil.duration, moveDir);
+                ecs::get<cp::Input>(oid).disable("velocity", [this](unsigned eid) {
+                    if (ecs::get<cp::Velocity>(eid).velocity == cc::Vec2::ZERO)
+                    {
+                        ecs.del<cp::Untargetable>(eid);
+                        ecs::get<cp::Render>(eid).sprite->stopAllActionsByTag(def::blinkAnim::tag);
+                        ecs::get<cp::Render>(eid).sprite->setColor({255,255,255});
+                        return false;
+                    }
+                    return true;
+                });
+            }
+            else
+            {
+                ecs.del<cp::Untargetable>(oid);
+            }
             cpHealth2.damage += cpMelee.damage;
         }),
         NULL
@@ -251,7 +259,7 @@ Dir MeleeSystem::getAtkDir(unsigned int eid, const MeleeComponent &cpMelee)
 {
     Dir atkDir = Dir::None;
     
-    atkDir = ecs::get<cp::Position>(eid).curDir;
+    atkDir = ecs::has<cp::Orientation>(eid) ? ecs::get<cp::Orientation>(eid).curDir : Dir::None;
         
     switch(cpMelee.type)
     {
@@ -261,7 +269,10 @@ Dir MeleeSystem::getAtkDir(unsigned int eid, const MeleeComponent &cpMelee)
             break;
         }
         case MeleeComponent::DIR: {
-            atkDir = ecs::get<cp::Position>(eid).curDir;
+            if (ecs::has<cp::Orientation>(eid))
+                atkDir = ecs::get<cp::Orientation>(eid).curDir;
+            else
+                Log("invalid dir for meleecomponent type DIR");
             break;
         }
         default:

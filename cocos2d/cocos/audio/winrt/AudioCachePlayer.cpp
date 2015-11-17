@@ -64,6 +64,8 @@ void AudioCache::readDataTask()
         return;
     }
 
+    std::wstring path(_fileFullPath.begin(), _fileFullPath.end());
+
     if (nullptr != _srcReader) {
         delete _srcReader;
         _srcReader = nullptr;

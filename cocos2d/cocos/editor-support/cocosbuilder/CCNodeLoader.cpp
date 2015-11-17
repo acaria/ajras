@@ -575,9 +575,9 @@ SpriteFrame * NodeLoader::parsePropTypeSpriteFrame(Node * pNode, Node * pParent,
     std::string spriteFile = ccbReader->readCachedString();
     
     SpriteFrame *spriteFrame = nullptr;
-    if (!spriteFile.empty())
+    if (spriteFile.length() != 0)
     {
-        if (spriteSheet.empty())
+        if (spriteSheet.length() == 0)
         {
             spriteFile = ccbReader->getCCBRootPath() + spriteFile;
             Texture2D * texture = Director::getInstance()->getTextureCache()->addImage(spriteFile.c_str());
@@ -623,7 +623,7 @@ Animation * NodeLoader::parsePropTypeAnimation(Node * pNode, Node * pParent, CCB
     animation = CCBReader::lastPathComponent(animation.c_str());
     animationFile = CCBReader::lastPathComponent(animationFile.c_str());
     
-    if (!animation.empty()) 
+    if (animation.length() > 0) 
     {
         AnimationCache * animationCache = AnimationCache::getInstance();
         animationCache->addAnimationsWithFile(animationFile.c_str());
@@ -636,7 +636,7 @@ Animation * NodeLoader::parsePropTypeAnimation(Node * pNode, Node * pParent, CCB
 Texture2D * NodeLoader::parsePropTypeTexture(Node * pNode, Node * pParent, CCBReader * ccbReader) {
     std::string spriteFile = ccbReader->getCCBRootPath() + ccbReader->readCachedString();
     
-    if (!spriteFile.empty())
+    if (spriteFile.length() > 0)
     {
         return Director::getInstance()->getTextureCache()->addImage(spriteFile.c_str());
     }
@@ -775,7 +775,7 @@ BlockData * NodeLoader::parsePropTypeBlock(Node * pNode, Node * pParent, CCBRead
             
             if(target != nullptr)
             {
-                if(!selectorName.empty())
+                if(selectorName.length() > 0)
                 {
                     SEL_MenuHandler selMenuHandler = 0;
                     
@@ -856,7 +856,7 @@ BlockControlData * NodeLoader::parsePropTypeBlockControl(Node * pNode, Node * pP
             
             if(target != nullptr)
             {
-                if(!selectorName.empty())
+                if(selectorName.length() > 0)
                 {
                     Control::Handler selControlHandler = 0;
                     

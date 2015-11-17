@@ -663,7 +663,7 @@ Sequence*  CCBAnimationManager::actionForCallbackChannel(CCBSequenceProperty* ch
             
             if(target != nullptr)
             {
-                if(!selectorName.empty())
+                if(selectorName.length() > 0)
                 {
                     SEL_CallFuncN selCallFunc = 0;
                     

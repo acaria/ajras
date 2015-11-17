@@ -809,7 +809,7 @@ MovementData *DataReaderHelper::decodeMovement(tinyxml2::XMLElement *movementXML
 
 
         tinyxml2::XMLElement *parentXml = nullptr;
-        if (!parentName.empty())
+        if (parentName.length() != 0)
         {
             parentXml = movementXML->FirstChildElement(BONE);
 

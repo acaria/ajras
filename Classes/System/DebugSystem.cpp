@@ -5,7 +5,7 @@
 #include "Components.h"
 #include "SysHelper.h"
 
-DebugSystem::DebugSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {
+DebugSystem::DebugSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {
     
 }
 
@@ -36,7 +36,7 @@ void DebugSystem::tick(double dt)
     if (this->debugLayer->getParent() == nullptr)
         this->view->addChild(this->debugLayer);
 
-    for(auto eid : ecs.join<cp::Collision, cp::Position>())
+    for(auto eid : ecs.join<cp::Physics, cp::Position>())
     {
         auto bounds = SysHelper::getBounds(eid);
         
@@ -111,10 +111,10 @@ void DebugSystem::tick(double dt)
         }
     }
     
-    this->purge(ecs.join<cp::Collision, cp::Position>(), collisionSet, collisionMap);
-    this->purge(ecs.join<cp::Collision, cp::Position, cp::Melee>(), meleeSet, meleeMap);
-    this->purge(ecs.join<cp::Collision, cp::Position, cp::Health>(), healthSet, healthMap);
-    this->purge(ecs.join<cp::Collision, cp::Position, cp::AI>(), aiSet, aiMap);
+    this->purge(ecs.join<cp::Physics, cp::Position>(), collisionSet, collisionMap);
+    this->purge(ecs.join<cp::Physics, cp::Position, cp::Melee>(), meleeSet, meleeMap);
+    this->purge(ecs.join<cp::Physics, cp::Position, cp::Health>(), healthSet, healthMap);
+    this->purge(ecs.join<cp::Physics, cp::Position, cp::AI>(), aiSet, aiMap);
 }
 
 cc::Label* DebugSystem::addText(cc::Color3B color, const cc::Rect& bounds, const std::string& txt)

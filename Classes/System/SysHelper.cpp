@@ -2,30 +2,30 @@
 #include "Components.h"
 
 cc::Rect SysHelper::getBounds(const PositionComponent &position,
-                              const CollisionComponent &collision)
+                              const PhysicsComponent &collision)
 {
     return cc::Rect(
-        position.pos.x + collision.rect.origin.x,
-        position.pos.y + collision.rect.origin.y,
-        collision.rect.size.width,
-        collision.rect.size.height
+        position.pos.x + collision.shape.origin.x,
+        position.pos.y + collision.shape.origin.y,
+        collision.shape.size.width,
+        collision.shape.size.height
     );
 }
 
 cc::Rect SysHelper::getLastBounds(const PositionComponent &position,
-                                  const CollisionComponent &collision)
+                                  const PhysicsComponent &collision)
 {
     return cc::Rect(
-        position.last.x + collision.rect.origin.x,
-        position.last.y + collision.rect.origin.y,
-        collision.rect.size.width,
-        collision.rect.size.height);
+        position.lastPos.x + collision.shape.origin.x,
+        position.lastPos.y + collision.shape.origin.y,
+        collision.shape.size.width,
+        collision.shape.size.height);
 }
 
 cc::Rect SysHelper::getBounds(unsigned eid)
 {
-    CCASSERT((ecs::has<cp::Position, cp::Collision>(eid)), "invalid entity for bounds processing");
-    return SysHelper::getBounds(ecs::get<cp::Position>(eid), ecs::get<cp::Collision>(eid));
+    CCASSERT((ecs::has<cp::Position, cp::Physics>(eid)), "invalid entity for bounds processing");
+    return SysHelper::getBounds(ecs::get<cp::Position>(eid), ecs::get<cp::Physics>(eid));
 }
 
 unsigned SysHelper::getNearest(unsigned gid, unsigned int eid, def::mood::Flags moodCat, float maxLength)
@@ -35,7 +35,7 @@ unsigned SysHelper::getNearest(unsigned gid, unsigned int eid, def::mood::Flags 
     
     float nearest = maxDist;
     unsigned targetID = 0;
-    for(auto tid : ecs::join<cp::AI, cp::Position, cp::Collision, cp::Mood>(gid))
+    for(auto tid : ecs::join<cp::AI, cp::Position, cp::Physics, cp::Mood>(gid))
     {
         if (tid == eid)
             continue;

@@ -34,10 +34,18 @@ void RenderComponent::setProfile(ProfileData* profile, LayeredContainer* parent)
                                        this->chooseLayer(this->profile),
                                        this->profile->collisionRect.origin);
     this->busy = false;
+    
+    if (profile->stats != nullptr && profile->stats.Value.move != nullptr)
+    {
+        this->moveAnimation = true;
+        this->orientationAnimation = profile->stats.Value.move.Value.orientation;
+    }
 }
 
 void RenderComponent::setMoveCategory(const std::string &cat)
 {
+    if (this->moveAnimationKey == "_" + cat)
+        return;
     if (this->profile == nullptr)
         return;
     if (this->profile->animCategoryExists(cat))

@@ -1,11 +1,11 @@
 #pragma once
-#include "BaseTickSystem.h"
+#include "BaseSystem.h"
 #include "ECSGroup.h"
 
 class IMapData;
 class LayeredContainer;
 
-class DebugSystem : public BaseTickSystem
+class DebugSystem : public BaseSystem
 {
 public:
     DebugSystem(lib::EcsGroup& ecs);

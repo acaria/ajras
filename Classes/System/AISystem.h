@@ -3,15 +3,15 @@
 class EcsGroup;
 class IMapData;
 
-#include "BaseTickSystem.h"
+#include "BaseSystem.h"
 #include "BehaviourNodes.h"
 #include "Randgine.h"
 #include "Defines.h"
 
-class AISystem : public BaseTickSystem
+class AISystem : public BaseSystem
 {
 public:
-    AISystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs),
+    AISystem(lib::EcsGroup& ecs) : BaseSystem(ecs),
         random(Randgine::instance()->get(Randgine::AI))
     {}
     

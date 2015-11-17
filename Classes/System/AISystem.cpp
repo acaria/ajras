@@ -63,7 +63,7 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid, double dt)
                     
                     float nearest = maxDist;
                     unsigned targetID = 0;
-                    for(auto tid : ecs.join<cp::AI, cp::Position, cp::Collision, cp::Mood>())
+                    for(auto tid : ecs.join<cp::AI, cp::Position, cp::Physics, cp::Mood>())
                     {
                         if (tid == eid)
                             continue;
@@ -104,8 +104,8 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid, double dt)
         }
         case CheckBType::COLLISION:
             assert(node->values.size() == 0); //no params
-            if (!ecs::has<cp::Collision>(eid) ||
-                ecs::get<cp::Collision>(eid).current != CollisionComponent::CType::NONE)
+            if (!ecs::has<cp::Physics>(eid) ||
+                ecs::get<cp::Physics>(eid).collisionState != PhysicsComponent::CollisionType::NONE)
                 return state::FAILURE;
             return state::SUCCESS;
         default:
@@ -248,7 +248,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                         auto &properties = cpAI.board.getFields(nid);
                         if (!lib::hasKey(properties, "target"))
                         {
-                            if (!ecs::has<cp::AI, cp::Position, cp::Collision>(eid))
+                            if (!ecs::has<cp::AI, cp::Position, cp::Physics>(eid))
                                 return state::FAILURE;
                             auto bounds = SysHelper::getBounds(eid);
                             auto sleepZone = roomData->getSleepZone(ecs::get<cp::AI>(eid).sleep, {bounds.getMidX(), bounds.getMidY()});
@@ -256,8 +256,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                                 return state::FAILURE;
                             sleepZone->taken = true;
                             cc::Point pos = {
-                                (sleepZone->bounds.getMidX() - bounds.size.width / 2) - ecs::get<cp::Collision>(eid).rect.origin.x,
-                                (sleepZone->bounds.getMidY() - bounds.size.height / 2) - ecs::get<cp::Collision>(eid).rect.origin.y
+                                (sleepZone->bounds.getMidX() - bounds.size.width / 2) - ecs::get<cp::Physics>(eid).shape.origin.x,
+                                (sleepZone->bounds.getMidY() - bounds.size.height / 2) - ecs::get<cp::Physics>(eid).shape.origin.y
                             };
                             properties["target"] = cc::ValueMap{{"x", cc::Value((int)pos.x)}, {"y", cc::Value((int)pos.y)}};
                         }
@@ -308,7 +308,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     if (!ecs::has<cp::Target, cp::Input>(eid))
                         return state::FAILURE;
                     auto tid = ecs::get<cp::Target>(eid);
-                    if (!ecs::has<cp::Position, cp::Collision>(tid))
+                    if (!ecs::has<cp::Position, cp::Physics>(tid))
                         return state::FAILURE;
                     
                     auto& cpInput = ecs::get<cp::Input>(eid);
@@ -333,7 +333,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
             switch(actionMap[node->values[0]])
             {
                 case ActionBType::TARGET: {
-                    if (!ecs::has<cp::Target, cp::Render, cp::Input, cp::Melee, cp::Collision>(eid))
+                    if (!ecs::has<cp::Target, cp::Render, cp::Input, cp::Melee, cp::Physics>(eid))
                         return state::FAILURE;
                     
                     auto &properties = cpAI.board.getFields(nid);
@@ -341,7 +341,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     if (!lib::hasKey(properties, "target"))
                     {
                         auto tid = ecs::get<cp::Target>(eid);
-                        if (!ecs::has<cp::Position, cp::Collision>(tid))
+                        if (!ecs::has<cp::Position, cp::Physics>(tid))
                             return state::FAILURE;
                         
                         auto bounds = SysHelper::getBounds(eid);
@@ -352,15 +352,15 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                                                             {"y", cc::Value((float)vdir.y)}};
                         properties["time_load"] = std::stod(node->values[1]);
                         properties["time_charge"] = properties["time_load"].asDouble() + std::stod(node->values[2]);
-                        properties["save_ratio"] = ecs::has<cp::Velocity>(eid) ? ecs::get<cp::Velocity>(eid).move.ratio : 1.0;
+                        properties["save_ratio"] = ecs::has<cp::Physics>(eid) ? ecs::get<cp::Physics>(eid).move.ratio : 1.0;
                         ecs::get<cp::Render>(eid).setAnimation("charge_load", -1);
                     }
                     
                     if (properties["time_charge"].asDouble() <= 0/* ||
-                        ecs::get<cp::Collision>(eid).current == CollisionComponent::CType::DECOR*/)
+                        ecs::get<cp::Physics>(eid).current == PhysicsComponent::CType::DECOR*/)
                     {
-                        if (ecs::has<cp::Velocity>(eid))
-                            ecs::get<cp::Velocity>(eid).move.ratio = properties["save_ratio"].asFloat();
+                        if (ecs::has<cp::Physics>(eid))
+                            ecs::get<cp::Physics>(eid).move.ratio = properties["save_ratio"].asFloat();
                         ecs::get<cp::Render>(eid).setAnimation("idle", -1);
                         ecs.del<cp::Untargetable>(eid);
                         ecs::get<cp::Melee>(eid).enabled = false;
@@ -371,8 +371,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                         if (!lib::hasKey(properties, "charging"))
                         {
                             properties["charging"] = true;
-                            if (ecs::has<cp::Velocity>(eid))
-                                ecs::get<cp::Velocity>(eid).move.ratio = 3.0;
+                            if (ecs::has<cp::Physics>(eid))
+                                ecs::get<cp::Physics>(eid).move.ratio = 3.0;
                             ecs.add<cp::Untargetable>(eid) = true;
                             ecs::get<cp::Melee>(eid).enabled = true;
                             ecs::get<cp::Render>(eid).setAnimation("charge_atk", -1);
@@ -403,7 +403,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     RoomData* roomData = dynamic_cast<RoomData*>(this->data);
                     if (roomData)
                     {
-                        if (!ecs::has<cp::Position, cp::Collision>(eid))
+                        if (!ecs::has<cp::Position, cp::Physics>(eid))
                             return state::FAILURE;
                         auto bounds = SysHelper::getBounds(eid);
                         roomData->freeSleepZone(cpAI.sleep,

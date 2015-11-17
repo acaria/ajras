@@ -1,15 +1,15 @@
 #pragma once
-#include "BaseTickSystem.h"
+#include "BaseSystem.h"
 #include "Components.h"
 #include "ECSGroup.h"
 #include "CollisionInfo.h"
 
 class IMapData;
 
-class InteractSystem : public BaseTickSystem
+class InteractSystem : public BaseSystem
 {
 public:
-    InteractSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
+    InteractSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {}
     
     void init(IMapData* data);
     void tick(double dt) final;

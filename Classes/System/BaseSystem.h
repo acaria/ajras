@@ -1,11 +1,11 @@
 #pragma once
 #include "ECSGroup.h"
 
-class BaseTickSystem
+class BaseSystem
 {
 public:
-    BaseTickSystem(lib::EcsGroup& ecs) : ecs(ecs) {}
-    virtual ~BaseTickSystem() {}
+    BaseSystem(lib::EcsGroup& ecs) : ecs(ecs) {}
+    virtual ~BaseSystem() {}
     
     virtual void tick(double dt) = 0;
     virtual void animate(double dt, double tp) = 0;

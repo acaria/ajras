@@ -198,21 +198,14 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
     auto profile = ModelProvider::instance()->profile.get(profileName);
     auto eid = cp::entity::genID();
     ecs::add<cp::Render>(eid, roomIndex).setProfile(profile, view);
-    ecs::get<cp::Render>(eid).sprite->setPosition(pos - ecs::get<cp::Collision>(eid).rect.origin);
-    ecs::add<cp::Collision>(eid, roomIndex).setProfile(profile);
+    ecs::get<cp::Render>(eid).sprite->setPosition(pos - ecs::get<cp::Physics>(eid).shape.origin);
+    ecs::add<cp::Physics>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Input>(eid, roomIndex);
-    ecs::add<cp::Position>(eid, roomIndex).set(pos - ecs::get<cp::Collision>(eid).rect.origin);
+    ecs::add<cp::Position>(eid, roomIndex).set(pos - ecs::get<cp::Physics>(eid).shape.origin);
     
     if (profile->stats != nullptr)
     {
         auto stats = profile->stats.Value;
-        if (stats.move != nullptr)
-        {
-            auto move = stats.move.Value;
-            if (move.orientation)
-                ecs::add<cp::Orientation>(eid, roomIndex);
-            ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
-        }
         
         if (stats.melee != nullptr)
         {

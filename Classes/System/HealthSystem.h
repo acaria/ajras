@@ -1,10 +1,10 @@
 #pragma once
 
 #include "ECSGroup.h"
-#include "BaseTickSystem.h"
+#include "BaseSystem.h"
 #include "Event.h"
 
-class HealthSystem : public BaseTickSystem
+class HealthSystem : public BaseSystem
 {
 public:
     HealthSystem(lib::EcsGroup& ecs);

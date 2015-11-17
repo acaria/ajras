@@ -3,7 +3,7 @@
 class RoomData;
 class IMapData;
 
-#include "BaseTickSystem.h"
+#include "BaseSystem.h"
 #include "ECSGroup.h"
 #include "CoreLib.h"
 #include "SweptAABB.h"
@@ -11,10 +11,10 @@ class IMapData;
 #include "CollisionInfo.h"
 #include "Event.h"
 
-class CollisionSystem : public BaseTickSystem
+class CollisionSystem : public BaseSystem
 {
 public:
-    CollisionSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
+    CollisionSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {}
     virtual ~CollisionSystem();
     
     void init(IMapData* data);
@@ -26,7 +26,7 @@ public:
     
 private:
     lib::Box bounce(const PositionComponent &cpPos,
-                    const CollisionComponent &cpCol,
+                    const PhysicsComponent &cpCol,
                     const cocos2d::Rect& target);
     
     cc::Vec2 slide(const cc::Rect &src,

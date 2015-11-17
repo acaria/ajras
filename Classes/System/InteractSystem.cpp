@@ -105,8 +105,9 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                     cc::CallFunc::create([nid, this](){
                             auto& cpRender = ecs::get<cp::Render>(nid);
                             auto size = cpRender.sprite->getContentSize();
-                            ecs.add<cp::Collision>(nid).set({0, 0, size.width, size.height},
-                                                            CollisionCategory::collectible);
+                            auto& cpPhysics = ecs.add<cp::Physics>(nid);
+                            cpPhysics.shape = {0, 0, size.width, size.height};
+                            cpPhysics.category = CollisionCategory::collectible;
                             ecs.add<cp::Position>(nid).set(cpRender.sprite->getPosition() - (size / 2));
                     }),
                     NULL

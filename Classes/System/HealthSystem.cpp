@@ -1,7 +1,7 @@
 #include "HealthSystem.h"
 #include "Components.h"
 
-HealthSystem::HealthSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {
+HealthSystem::HealthSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {
     
 }
 

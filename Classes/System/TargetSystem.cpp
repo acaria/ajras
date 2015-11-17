@@ -4,10 +4,10 @@
 
 void TargetSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Target, cp::Orientation, cp::Position, cp::Collision>())
+    for(auto eid : ecs.join<cp::Target, cp::Position, cp::Physics>())
     {
         unsigned eid2 = ecs::get<cp::Target>(eid);
-        if (eid2 == 0 || !ecs::has<cp::Position, cp::Collision>(eid2))
+        if (eid2 == 0 || !ecs::has<cp::Position, cp::Physics>(eid2))
             continue;
         
         cc::Rect r1 = SysHelper::getBounds(eid);
@@ -23,8 +23,8 @@ void TargetSystem::tick(double dt)
         else
             odir = pdir.y < 0 ? Dir::Down : Dir::Up;
         
-        ecs::get<cp::Orientation>(eid).curDir = odir;
-        ecs::get<cp::Orientation>(eid).visual = odir.toVec();
+        ecs::get<cp::Position>(eid).curDir = odir;
+        ecs::get<cp::Position>(eid).orientation = odir.toVec();
     }
 }
 

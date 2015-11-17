@@ -6,16 +6,16 @@
 
 std::pair<float, cc::Vec2> TransitSystem::processing(GateInfo info,
                                                      PositionComponent &cpPos,
-                                                     CollisionComponent &cpCol)
+                                                     PhysicsComponent &cpCol)
 {
     float facto = 0;
     cc::Vec2 targetPoint = {0,0};
     
     cc::Rect cplRect = {
-        cpPos.pos.x + cpCol.rect.origin.x,
-        cpPos.pos.y + cpCol.rect.origin.y,
-        cpCol.rect.size.width,
-        cpCol.rect.size.height
+        cpPos.pos.x + cpCol.shape.origin.x,
+        cpPos.pos.y + cpCol.shape.origin.y,
+        cpCol.shape.size.width,
+        cpCol.shape.size.height
     };
     
     if (!info.rect.intersectsRect(cplRect))
@@ -33,15 +33,15 @@ std::pair<float, cc::Vec2> TransitSystem::processing(GateInfo info,
             facto = cRect.size.height / cplRect.size.height;
             if (cplRect.getMidX() > info.rect.getMidX())
             {
-                float xPos = info.rect.getMaxX() - cpCol.rect.size.width;
-                xPos -= facto * (info.rect.size.width - cpCol.rect.size.width) / 2;
-                cpPos.pos.x = MIN(cpPos.pos.x, xPos - cpCol.rect.getMinX());
+                float xPos = info.rect.getMaxX() - cpCol.shape.size.width;
+                xPos -= facto * (info.rect.size.width - cpCol.shape.size.width) / 2;
+                cpPos.pos.x = MIN(cpPos.pos.x, xPos - cpCol.shape.getMinX());
             }
             else if (cplRect.getMidX() < info.rect.getMidX())
             {
                 float xPos = info.rect.getMinX();
-                xPos += facto * (info.rect.size.width - cpCol.rect.size.width) / 2;
-                cpPos.pos.x = MAX(cpPos.pos.x, xPos - cpCol.rect.getMinX());
+                xPos += facto * (info.rect.size.width - cpCol.shape.size.width) / 2;
+                cpPos.pos.x = MAX(cpPos.pos.x, xPos - cpCol.shape.getMinX());
             }
             targetPoint = {cpPos.pos.x, (info.type == GateInfo::Up) ?
                 info.rect.getMaxY() - cplRect.size.height :
@@ -54,15 +54,15 @@ std::pair<float, cc::Vec2> TransitSystem::processing(GateInfo info,
             facto = cRect.size.width / cplRect.size.width;
             if (cplRect.getMidY() > info.rect.getMidY())
             {
-                float yPos = info.rect.getMaxY() - cpCol.rect.size.height;
-                yPos -= facto * (info.rect.size.height - cpCol.rect.size.height) / 2;
-                cpPos.pos.y = MIN(cpPos.pos.y, yPos - cpCol.rect.getMinY());
+                float yPos = info.rect.getMaxY() - cpCol.shape.size.height;
+                yPos -= facto * (info.rect.size.height - cpCol.shape.size.height) / 2;
+                cpPos.pos.y = MIN(cpPos.pos.y, yPos - cpCol.shape.getMinY());
             }
             else if (cplRect.getMidY() < info.rect.getMidY())
             {
                 float yPos = info.rect.getMinY();
-                yPos += facto * (info.rect.size.height - cpCol.rect.size.height) / 2;
-                cpPos.pos.y = MAX(cpPos.pos.y, yPos - cpCol.rect.getMinY());
+                yPos += facto * (info.rect.size.height - cpCol.shape.size.height) / 2;
+                cpPos.pos.y = MAX(cpPos.pos.y, yPos - cpCol.shape.getMinY());
             }
             targetPoint = {(info.type == GateInfo::Left) ? info.rect.getMinX() :
                 (info.rect.getMaxX() - cplRect.size.width), cpPos.pos.y };
@@ -78,10 +78,10 @@ std::pair<float, cc::Vec2> TransitSystem::processing(GateInfo info,
 
 void TransitSystem::tick(double dt)
 {
-    for(auto eid2 : ecs.join<cp::Position, cp::Collision, cp::Input>())
+    for(auto eid2 : ecs.join<cp::Position, cp::Physics, cp::Input>())
     {
         auto& cpPos = ecs::get<cp::Position>(eid2);
-        auto& cpCol = ecs::get<cp::Collision>(eid2);
+        auto& cpCol = ecs::get<cp::Physics>(eid2);
         
         //processing gates
         for(auto eid : ecs.system<cp::Gate>())
@@ -120,7 +120,7 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     auto& render = ecs::get<cp::Render>(eid);
     ecs::get<cp::Input>(eid).forceDisable();
     ecs.del<cp::Position>(eid);
-    ecs::get<cp::Velocity>(eid).reset();
+    ecs::get<cp::Physics>(eid).resetForce();
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, targetPoint),
         cc::CallFunc::create([this, eid, &gateMap](){
@@ -144,7 +144,7 @@ void TransitSystem::warpingEnter(unsigned eid, const cocos2d::Vec2& targetPoint,
     auto& render = ecs::get<cp::Render>(eid);
     ecs::get<cp::Input>(eid).forceDisable();
     ecs.del<cp::Position>(eid);
-    ecs::get<cp::Velocity>(eid).reset();
+    ecs::get<cp::Physics>(eid).resetForce();
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, targetPoint),
         cc::CallFunc::create([this, eid, &warpMap](){

@@ -1,16 +1,16 @@
 #pragma once
 #include "PositionComponent.h"
-#include "CollisionComponent.h"
+#include "PhysicsComponent.h"
 #include "AIComponent.h"
 
 class SysHelper
 {
 public:
     static cocos2d::Rect getBounds(const PositionComponent& position,
-                                   const CollisionComponent& collision);
+                                   const PhysicsComponent& collision);
     
     static cocos2d::Rect getLastBounds(const PositionComponent& position,
-                                       const CollisionComponent& collision);
+                                       const PhysicsComponent& collision);
     
     static cocos2d::Rect getBounds(unsigned eid);
     

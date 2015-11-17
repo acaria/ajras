@@ -110,7 +110,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     cocos2d::Vec2 srcPos, destPos;
     
     nextRoom->extractGateAnimInfo(gate.destGateIndex,
-                                  ecs::get<cp::Collision>(eid).rect,
+                                  ecs::get<cp::Physics>(eid).shape,
                                   /*out*/srcPos,
                                   /*out*/destPos);
     render.sprite->setPosition(srcPos);
@@ -285,19 +285,19 @@ void FloorSystemCtrl::start()
         auto destPos = enterGate.info.getDestPos();
                 
         if (playerData->entityFocus != 0 &&
-            ecs::has<cp::Render, cp::Collision>(playerData->entityFocus))
+            ecs::has<cp::Render, cp::Physics>(playerData->entityFocus))
         {
             unsigned eid = playerData->entityFocus;
             auto& cpRender = ecs::get<cp::Render>(eid);
-            auto& cpCollision = ecs::get<cp::Collision>(eid);
+            auto& cpCollision = ecs::get<cp::Physics>(eid);
             
             cpRender.setMoveAnimation(enterGate.info.getDir(), true);
             
             cpRender.sprite->stopAllActions();
             cpRender.sprite->runAction(cc::Sequence::create(
                 cc::MoveTo::create(duration, {
-                    destPos.x - cpCollision.rect.getMinX() - cpCollision.rect.size.width / 2,
-                    destPos.y - cpCollision.rect.getMinY() - cpCollision.rect.size.height / 2
+                    destPos.x - cpCollision.shape.getMinX() - cpCollision.shape.size.width / 2,
+                    destPos.y - cpCollision.shape.getMinY() - cpCollision.shape.size.height / 2
                 }),
                 cc::CallFunc::create([eid, roomIndex](){
                     auto& cpRender = ecs::get<cp::Render>(eid);
@@ -322,24 +322,23 @@ void FloorSystemCtrl::start()
     auto srcPos = enterGate.info.getSrcPos();
     
     auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
-    auto& cpCollision = ecs::add<cp::Collision>(eid, roomIndex);
+    auto& cpCollision = ecs::add<cp::Physics>(eid, roomIndex);
     
     cpRender.setProfile(profile, roomView);
     cpCollision.setProfile(profile);
     
     ecs::add<cp::Mood>(eid, roomIndex) = def::mood::fromStr(profile->moodCategory);
     ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
-    ecs::add<cp::Velocity>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::Physics>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
-    ecs::add<cp::Orientation>(eid, roomIndex);
     ecs::add<cp::Control>(eid, roomIndex) = playerData->ctrlIndex;
     ecs::add<cp::Gear>(eid, roomIndex) = playerData->inventory;
     ecs::add<cp::Stamina>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
     
     cpRender.sprite->setPosition({
-        srcPos.x - cpCollision.rect.getMidX(),
-        srcPos.y - cpCollision.rect.getMidY()
+        srcPos.x - cpCollision.shape.getMidX(),
+        srcPos.y - cpCollision.shape.getMidY()
     });
     cpRender.sprite->setOpacity(0);
     cpRender.manualPosMode = true;

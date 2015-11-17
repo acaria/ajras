@@ -30,6 +30,10 @@ struct RenderComponent
     
     AnimationData*      getCurAnim();
     std::string         moveAnimationKey = "";
+    
+    //settings
+    bool moveAnimation = false;
+    bool orientationAnimation = false;
  
     //input
     ProfileData*                profile;

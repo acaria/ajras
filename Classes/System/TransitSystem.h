@@ -1,17 +1,17 @@
 #pragma once
-#include "BaseTickSystem.h"
+#include "BaseSystem.h"
 #include "Event.h"
 
 class PositionComponent;
 class GateInfo;
 class GateMap;
 class WarpMap;
-class CollisionComponent;
+class PhysicsComponent;
 
-class TransitSystem : public BaseTickSystem
+class TransitSystem : public BaseSystem
 {
 public:
-    TransitSystem(lib::EcsGroup& ecs) : BaseTickSystem(ecs) {}
+    TransitSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {}
     virtual ~TransitSystem() {}
     
     virtual void tick(double dt) final;
@@ -33,5 +33,5 @@ private:
     
     std::pair<float, cc::Vec2> processing(GateInfo info,
                                           PositionComponent& pos,
-                                          CollisionComponent& col);
+                                          PhysicsComponent& col);
 };

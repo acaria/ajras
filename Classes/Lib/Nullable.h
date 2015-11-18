@@ -135,6 +135,10 @@ public:
         return *this;
     }
     
+    T* operator->() {
+        return &m_value;
+    }
+    
 private:
     bool m_hasValue;
     T m_value;

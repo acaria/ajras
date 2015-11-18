@@ -35,10 +35,10 @@ void RenderComponent::setProfile(ProfileData* profile, LayeredContainer* parent)
                                        this->profile->collisionRect.origin);
     this->busy = false;
     
-    if (profile->stats != nullptr && profile->stats.Value.move != nullptr)
+    if (profile->stats != nullptr && profile->stats->move != nullptr)
     {
         this->moveAnimation = true;
-        this->orientationAnimation = profile->stats.Value.move.Value.orientation;
+        this->orientationAnimation = profile->stats->move.Value.orientation;
     }
 }
 

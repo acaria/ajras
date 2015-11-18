@@ -238,11 +238,11 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
     {
         ecs::add<cp::Interact>(eid, roomIndex).setProfile(profile);
         
-        if (profile->interaction.Value.actionType == ProfileInteractInfo::ActionType::REWARD)
+        if (profile->interaction->actionType == ProfileInteractInfo::ActionType::REWARD)
         {
-            assert(profile->interaction.Value.actionParams != nullptr);
+            assert(profile->interaction->actionParams != nullptr);
             auto collectables = ModelProvider::instance()->collectible.genReward(
-                                                                                 random, profile->interaction.Value.actionParams.Value);
+                random, profile->interaction->actionParams.Value);
             cp::GearComponent reward;
             for(auto collectable : collectables)
             {

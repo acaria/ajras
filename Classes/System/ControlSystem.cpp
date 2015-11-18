@@ -12,12 +12,24 @@ void ControlSystem::tick(double dt)
     //selection control
     if (posSelection != nullptr)
     {
+        bool handled = false;
         for(auto eid : ecs.join<cp::Interact, cp::Position, cp::Physics>())
         {
             auto eRect = lib::inflateRect(SysHelper::getBounds(eid), def::touchTreshold);
             if (eRect.containsPoint(posSelection.Value))
             {
+                handled = true;
                 ecs::get<cp::Interact>(eid).triggerActivation = true;
+                break;
+            }
+        }
+        
+        if (!handled)
+        {
+            for(auto eid : ecs.join<cp::Control, cp::Input>())
+            {
+                handled = true;
+                ecs::get<cp::Input>(eid).goTo = posSelection;
                 break;
             }
         }

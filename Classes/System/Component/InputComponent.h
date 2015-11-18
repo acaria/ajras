@@ -6,7 +6,8 @@
 struct InputComponent
 {
     //output
-    cc::Vec2    direction;
+    cc::Vec2                direction;
+    lib::Nullable<cc::Vec2> goTo;
     
     //internal
     double      chrono = 0;

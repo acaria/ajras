@@ -9,8 +9,8 @@ struct MeleeComponent
     void setProfile(ProfileData* profile)
     {
         assert(profile->stats != nullptr);
-        assert(profile->stats.Value.melee != nullptr);
-        auto melee = profile->stats.Value.melee.Value;
+        assert(profile->stats->melee != nullptr);
+        auto melee = profile->stats->melee.Value;
         enum type meleeType = type::NONE;
         switch(lib::hash(melee.type))
         {

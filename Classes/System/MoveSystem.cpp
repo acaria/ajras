@@ -3,7 +3,7 @@
 
 void MoveSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Physics, cp::Position, cp::Input>())
+    for(auto eid : ecs.join<cp::Physics, cp::Position>())
     {
         //shortcuts
         auto& cpPos = ecs::get<cp::Position>(eid);

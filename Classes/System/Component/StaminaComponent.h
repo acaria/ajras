@@ -7,8 +7,8 @@ struct StaminaComponent
     void setProfile(ProfileData* profile)
     {
         assert(profile->stats != nullptr);
-        assert(profile->stats.Value.health != nullptr);
-        this->max = profile->stats.Value.stamina.Value;
+        assert(profile->stats->health != nullptr);
+        this->max = profile->stats->stamina.Value;
         this->current = this->max;
     }
     

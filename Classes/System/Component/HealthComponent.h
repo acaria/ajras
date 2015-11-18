@@ -6,9 +6,9 @@ struct HealthComponent
     void setProfile(ProfileData* profile)
     {
         assert(profile->stats != nullptr);
-        assert(profile->stats.Value.health != nullptr);
-        this->set(profile->stats.Value.health.Value,
-                  profile->stats.Value.health.Value);
+        assert(profile->stats->health != nullptr);
+        this->set(profile->stats->health.Value,
+                  profile->stats->health.Value);
     }
     
     void set(float maxHP, float HP)

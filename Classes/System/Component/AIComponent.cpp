@@ -16,8 +16,8 @@ void AIComponent::setProfile(ProfileData* profile)
     
     this->sleep = this->mapSleep[profile->sleepCategory];
     
-    if (profile->stats != nullptr && profile->stats.Value.sight != nullptr)
-        this->sightRange = profile->stats.Value.sight.Value.range;
+    if (profile->stats != nullptr && profile->stats->sight != nullptr)
+        this->sightRange = profile->stats->sight->range;
 }
 
 std::map<std::string, AIComponent::eSleep> AIComponent::mapSleep = {

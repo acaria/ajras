@@ -36,9 +36,9 @@ void PhysicsComponent::setProfile(ProfileData* profile)
         Log("unrecognised category:%s", profile->collisionCat.c_str());
 
     //velocity
-    if (profile->stats != nullptr && profile->stats.Value.move != nullptr)
+    if (profile->stats != nullptr && profile->stats->move != nullptr)
     {
-        auto move = profile->stats.Value.move.Value;
+        auto move = profile->stats->move.Value;
         this->accelDuration = move.acceleration;
         this->decelDuration = move.deceleration;
         this->move.speed = move.speed;

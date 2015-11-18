@@ -11,6 +11,7 @@
 #include "HealthComponent.h"
 #include "AIComponent.h"
 #include "InteractComponent.h"
+#include "CommandComponent.h"
 #include "GateMap.h"
 #include "WarpMap.h"
 #include "SlotData.h"
@@ -21,8 +22,7 @@ namespace cp
     
     using Render = ecs::component<RenderComponent,              1>;
     using Position = ecs::component<PositionComponent,          2>;
-
-
+    using Cmd = ecs::component<CommandComponent,                3>;
     using Stamina = ecs::component<StaminaComponent,            5>;
     using Input = ecs::component<InputComponent,                6>;
     using Physics = ecs::component<PhysicsComponent,            7>;
@@ -57,6 +57,7 @@ namespace cp
         {
             ecs::move<Render>(id, g1, g2);
             ecs::move<Position>(id, g1, g2);
+            ecs::move<Cmd>(id, g1, g2);
             ecs::move<Stamina>(id, g1, g2);
             ecs::move<Input>(id, g1, g2);
             ecs::move<Physics>(id, g1, g2);
@@ -78,6 +79,7 @@ namespace cp
         {
             ecs::del<Render>(id, group);
             ecs::del<Position>(id, group);
+            ecs::del<Cmd>(id, group);
             ecs::del<Stamina>(id, group);
             ecs::del<Input>(id, 1);
             ecs::del<Physics>(id, group);
@@ -99,6 +101,7 @@ namespace cp
         {
             ecs::clearGroup<Render>(group);
             ecs::clearGroup<Position>(group);
+            ecs::clearGroup<Cmd>(group);
             ecs::clearGroup<Stamina>(group);
             ecs::clearGroup<Input>(group);
             ecs::clearGroup<Physics>(group);

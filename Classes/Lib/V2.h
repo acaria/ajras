@@ -99,9 +99,24 @@ public:
         return this->x == 0 && this->y == 0;
     }
     
-    bool operator==(v2& v1)
+    bool operator==(const v2& v1)
     {
         return v1.x == x && v1.y == y;
+    }
+    
+    bool operator!=(const v2& v1)
+    {
+        return v1.x != x || v1.y != y;
+    }
+    
+    bool operator<(const v2& v1)
+    {
+        return std::tie(x, y) < std::tie(v1.x, v1.y);
+    }
+    
+    friend bool operator<(const v2& v1, const v2& v2)
+    {
+        return std::tie(v1.x, v1.y) < std::tie(v2.x, v2.y);
     }
     
     v2& normalize() {

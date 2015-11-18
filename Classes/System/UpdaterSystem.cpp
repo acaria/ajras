@@ -29,12 +29,19 @@ void UpdaterSystem::tick(double dt)
         
         if (cpInput.goTo != nullptr)
         {
-            auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
-            cc::Vec2 dir = cpInput.goTo.Value - cc::Vec2(bounds.getMidX(), bounds.getMidY());
-            cpPhy.move.direction = dir.getNormalized();
-            cpPosition.dir = Dir::fromVec(cpPhy.move.direction);
-            if (dir.length() < 2)
-                cpInput.goTo = nullptr;
+            auto target = cpInput.goTo.Value;
+            ecs.add<cp::Cmd>(eid).set([target](unsigned eid){
+                auto& cpPosition = ecs::get<cp::Position>(eid);
+                auto& cpPhy = ecs::get<cp::Physics>(eid);
+                auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
+                cc::Vec2 dir = target - cc::Vec2(bounds.getMidX(), bounds.getMidY());
+                cpPhy.move.direction = dir.getNormalized();
+                cpPosition.dir = Dir::fromVec(cpPhy.move.direction);
+                if (dir.length() < 2)
+                    return true;
+                return false;
+            });
+            cpInput.goTo = nullptr;
         }
         else
         {
@@ -62,5 +69,13 @@ void UpdaterSystem::tick(double dt)
             if (cpStamina.current > cpStamina.max)
                 cpStamina.current = cpStamina.max;
         }
+    }
+    
+    //command batcher
+    auto cmds = ecs.system<cp::Cmd>();
+    for(auto eid : cmds)
+    {
+        if (ecs::get<cp::Cmd>(eid).process(eid))
+            ecs.del<cp::Cmd>(eid);
     }
 }

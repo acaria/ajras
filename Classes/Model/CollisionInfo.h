@@ -8,9 +8,12 @@
 
 class IMapData;
 class DatGrid;
+class NavigationInfo;
 
 class CollisionInfo
 {
+    friend NavigationInfo;
+
 public:
     ~CollisionInfo();
     void reset();

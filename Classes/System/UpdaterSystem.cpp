@@ -23,27 +23,18 @@ void UpdaterSystem::tick(double dt)
         //set orientation
         auto& cpPosition = ecs::get<cp::Position>(eid);
         
-        if (cpInput.orientation != Dir::None)
-        {
-            cpPosition.orientation = cpInput.exactOrientation;
-            cpPosition.lastDir = cpPosition.curDir;
-            
-            if (cpPosition.lastDir != Dir::None && cpInput.orientation.contains(cpPosition.lastDir))
-                cpPosition.curDir = cpPosition.lastDir;
-            else
-                cpPosition.curDir = cpInput.orientation;
-        }
-        
-        //set velocity dir
         if (ecs::has<cp::Physics>(eid))
         {
-            auto& cpVelocity = ecs::get<cp::Physics>(eid);
-            if (cpInput.orientation.uncross(cpInput.lastOrientation))
+            auto& cpPh = ecs::get<cp::Physics>(eid);
+            cpPh.move.direction = cpInput.direction.getNormalized();
+            auto newDir = Dir::fromVec(cpInput.direction);
+            if (newDir != Dir::None)
             {
-                cpInput.lastOrientation = cpInput.orientation;
-                cpVelocity.accelFactor = 0.0f;
+                if (cpPosition.dir == Dir::None)
+                    cpPosition.dir = newDir;
+                else if (!newDir.contains(cpPosition.dir))
+                    cpPosition.dir = newDir;
             }
-            cpVelocity.move.direction = cpInput.direction;
         }
     }
     

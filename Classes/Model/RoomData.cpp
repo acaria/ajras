@@ -24,13 +24,18 @@ RoomData::RoomData(unsigned roomIndex, RoomModel* model) :
         }
     }
     
-    //collisions
     this->collision.init(this);
+    this->navigation.init(this);
 }
 
 CollisionInfo* RoomData::getCol()
 {
     return &collision;
+}
+
+NavigationInfo* RoomData::getNav()
+{
+    return &navigation;
 }
 
 RoomData::SleepZone* RoomData::getSleepZone(AIComponent::eSleep cat,

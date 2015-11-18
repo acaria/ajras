@@ -34,12 +34,12 @@ void ControlSystem::tick(double dt)
          
         if (joyPos[ctrlIndex] != nullptr)
         {
-            cpInput.setDirection(joyPos[ctrlIndex].Value);
+            cpInput.direction = joyPos[ctrlIndex].Value;
         }
         else
         {
-            cpInput.setDirection(this->curDirPressed[ctrlIndex] |
-                (this->curDirReleased[ctrlIndex] & ~this->preDirPressed[ctrlIndex]));
+            cpInput.direction = Dir(this->curDirPressed[ctrlIndex] |
+                (this->curDirReleased[ctrlIndex] & ~this->preDirPressed[ctrlIndex])).toVec();
         }
         
         //selection

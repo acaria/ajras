@@ -6,9 +6,6 @@
 struct InputComponent
 {
     //output
-    Dir         orientation;
-    Dir         lastOrientation;
-    cc::Vec2    exactOrientation;
     cc::Vec2    direction;
     
     //internal
@@ -65,25 +62,6 @@ struct InputComponent
             predicates.erase(itr++);
         }
         enabled = true;
-    }
-    
-    void setDirection(Dir orientation)
-    {
-        this->lastOrientation = this->orientation;
-        this->orientation = orientation;
-        this->exactOrientation = orientation.toVec();
-        this->direction = this->exactOrientation;
-    }
-    
-    void setDirection(cc::Vec2 direction)
-    {
-        this->lastOrientation = this->orientation;
-        if (direction.getLength() > 1.0)
-            this->direction = direction.getNormalized();
-        else
-            this->direction = direction;
-        this->exactOrientation = this->direction;
-        this->orientation = Dir::fromVec(this->direction);
     }
     
 private:

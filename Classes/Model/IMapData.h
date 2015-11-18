@@ -3,6 +3,7 @@
 #include "DataGrid.h"
 #include "BlockInfo.h"
 #include "CollisionInfo.h"
+#include "NavigationInfo.h"
 #include "Event.h"
 
 class IMapData
@@ -15,4 +16,5 @@ public:
     virtual lib::v2u getCoordFromPos(const cocos2d::Vec2& pos) = 0;
     virtual cc::Rect getBounds() = 0;
     virtual CollisionInfo* getCol() = 0;
+    virtual NavigationInfo* getNav() = 0;
 };

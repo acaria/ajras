@@ -229,14 +229,14 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     auto vdir = cc::Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
                     if (vdir.length() < 4)
                     {
-                        cpInput.setDirection(Dir::None);
+                        cpInput.direction = cc::Vec2::ZERO;
                         return state::SUCCESS;
                     }
-                    cpInput.setDirection(vdir.getNormalized());
+                    cpInput.direction = vdir;
                     return state::RUNNING;
                 }
                 case ActionBType::STOP: {
-                    cpInput.setDirection(Dir::None);
+                    cpInput.direction = cc::Vec2::ZERO;
                     return state::SUCCESS;
                 }
                 case ActionBType::SLEEPZONE: {
@@ -268,10 +268,10 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                                              properties["target"].asValueMap()["y"].asInt() - currentPos.y);
                         if (vdir.length() < 5.0)
                         {
-                            cpInput.setDirection(Dir::None);
+                            cpInput.direction = cc::Vec2::ZERO;
                             return state::SUCCESS;
                         }
-                        cpInput.setDirection(vdir);
+                        cpInput.direction = vdir;
                         return state::RUNNING;
                     }
                 }
@@ -287,12 +287,12 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
             switch(actionMap[node->values[0]])
             {
                 case ActionBType::RAND: {
-                    if (cpInput.orientation == Dir::None)
-                        cpInput.setDirection(Dir::rand());
+                    if (cpInput.direction == cc::Vec2::ZERO)
+                        cpInput.direction = Dir::rand().toVec();
                     return state::RUNNING;
                 }
                 case ActionBType::STOP: {
-                    cpInput.setDirection(Dir::None);
+                    cpInput.direction = cc::Vec2::ZERO;
                     return state::SUCCESS;
                 }
                 default:
@@ -317,10 +317,10 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     auto vdir = cc::Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
                     if (vdir.length() < std::stod(node->values[1]))
                     {
-                        cpInput.setDirection(Dir::None);
+                        cpInput.direction = cc::Vec2::ZERO;
                         return state::SUCCESS;
                     }
-                    cpInput.setDirection(vdir);
+                    cpInput.direction = vdir;
                     return state::RUNNING;
                 }
                 default:
@@ -383,7 +383,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                                 properties["target"].asValueMap()["x"].asFloat(),
                                 properties["target"].asValueMap()["y"].asFloat()
                             };
-                            ecs::get<cp::Input>(eid).setDirection(vdir);
+                            ecs::get<cp::Input>(eid).direction = vdir;
                         }
                     }
                     properties["time_charge"] = properties["time_charge"].asDouble() - dt;

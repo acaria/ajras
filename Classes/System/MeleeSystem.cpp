@@ -254,7 +254,7 @@ Dir MeleeSystem::getAtkDir(unsigned int eid, const MeleeComponent &cpMelee)
 {
     Dir atkDir = Dir::None;
     
-    atkDir = ecs::get<cp::Position>(eid).curDir;
+    atkDir = ecs::get<cp::Position>(eid).dir;
         
     switch(cpMelee.type)
     {
@@ -264,7 +264,7 @@ Dir MeleeSystem::getAtkDir(unsigned int eid, const MeleeComponent &cpMelee)
             break;
         }
         case MeleeComponent::DIR: {
-            atkDir = ecs::get<cp::Position>(eid).curDir;
+            atkDir = ecs::get<cp::Position>(eid).dir;
             break;
         }
         default:

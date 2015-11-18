@@ -24,9 +24,7 @@ void RenderSystem::tick(double dt)
             if (cpRender.orientationAnimation)
             {
                 auto& cpPosition = ecs::get<cp::Position>(eid);
-                orientation = Dir::cardinalFromVec(cpPosition.orientation);
-                if (orientation == Dir::None)
-                    orientation = ((cpPosition.curDir != Dir::None) ? cpPosition.curDir : Dir::Down);
+                orientation = ((cpPosition.dir != Dir::None) ? cpPosition.dir : Dir::Down);
             }
             
             cpRender.setMoveAnimation(orientation, !cpPhy.move.direction.isZero());

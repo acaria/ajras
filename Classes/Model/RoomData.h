@@ -7,6 +7,7 @@
 #include "AIComponent.h"
 #include "IMapData.h"
 #include "CollisionInfo.h"
+#include "NavigationInfo.h"
 
 class RoomData : public IMapData
 {
@@ -43,6 +44,7 @@ public:
     virtual cc::Rect getBounds() override;
     virtual lib::v2u getCoordFromPos(const cc::Vec2& pos) override;
     virtual CollisionInfo* getCol() override;
+    virtual NavigationInfo* getNav() override;
     
     //getters
     lib::v2u                    getDim();
@@ -71,5 +73,6 @@ private:
     RoomModel*                            model;
     lib::DataGrid<BlockInfo>              grid;
     std::map<AIComponent::eSleep, std::list<SleepZone>> sleepZones;
-    CollisionInfo collision;
+    CollisionInfo   collision;
+    NavigationInfo  navigation;
 };

@@ -24,6 +24,7 @@ CampData::CampData(const std::string& fileName) :
     }
     
     this->collision.init(this);
+    this->navigation.init(this);
 }
 
 CampData::~CampData()
@@ -43,6 +44,11 @@ lib::DataGrid<BlockInfo>& CampData::getGrid()
 CollisionInfo* CampData::getCol()
 {
     return &collision;
+}
+
+NavigationInfo* CampData::getNav()
+{
+    return &navigation;
 }
 
 cc::Size CampData::getTileSize()

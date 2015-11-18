@@ -5,6 +5,7 @@
 #include "IMapData.h"
 #include "WarpMap.h"
 #include "CollisionInfo.h"
+#include "NavigationInfo.h"
 
 class CampData : public TmxDataModel, public IMapData
 {
@@ -25,11 +26,13 @@ public:
     virtual cc::Rect getBlockBound(const lib::v2u& coord) override;
     virtual lib::v2u getCoordFromPos(const cocos2d::Vec2& pos) override;
     virtual CollisionInfo* getCol() override;
+    virtual NavigationInfo* getNav() override;
     
     std::vector<WarpMap>            warpMapping;
 
 private:
     CollisionInfo                   collision;
+    NavigationInfo                  navigation;
     lib::Random&                    random;
     std::set<std::string>           spriteSheets;
 };

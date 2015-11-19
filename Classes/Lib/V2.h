@@ -156,6 +156,12 @@ bool operator==(const v2<T>& v1, const v2<T>& v2)
     return v1.x == v2.x && v1.y == v2.y;
 }
 
+template <class T>
+bool operator!=(const v2<T>& v1, const v2<T>& v2)
+{
+    return v1.x != v2.x || v1.y != v2.y;
+}
+
 typedef v2<float> v2f;
 typedef v2<double> v2d;
 typedef v2<int> v2i;

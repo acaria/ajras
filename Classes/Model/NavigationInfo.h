@@ -32,7 +32,7 @@ public:
             for(int x = -1; x <= 1; x++)
             for(int y = -1; y <= 1; y++)
             {
-                if (x == y)
+                if (abs(x) == abs(y))
                     continue;
                 if (content.get(node.x + x, node.y + y))
                     result.push_back({(unsigned)(node.x + x),(unsigned)(node.y + y)});

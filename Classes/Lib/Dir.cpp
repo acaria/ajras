@@ -79,10 +79,12 @@ Dir Dir::rand()
 
 Dir Dir::fromVec(cc::Vec2 r)
 {
-    cc::Vec2 v = {
-        roundf(r.x * 10) / 10,
-        roundf(r.y * 10) / 10
-    };
+    //???
+    /*cc::Vec2 v = {
+     roundf(r.x * 10) / 10,
+     roundf(r.y * 10) / 10
+     };*/
+    cc::Vec2 v = r;
     unsigned res = Dir::None;
     
     if (v.x < 0) res |= Dir::Left;
@@ -95,10 +97,12 @@ Dir Dir::fromVec(cc::Vec2 r)
 
 Dir Dir::cardinalFromVec(cc::Vec2 r)
 {
-    cc::Vec2 v = {
+    //???
+    /*cc::Vec2 v = {
         roundf(r.x * 10) / 10,
         roundf(r.y * 10) / 10
-    };
+    };*/
+    cc::Vec2 v = r;
     unsigned res = Dir::None;
     
     if (fabs(v.x) > fabs(v.y))

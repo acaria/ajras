@@ -7,7 +7,7 @@ std::list<cc::Vec2> NavigationInfo::getWaypoints(const cc::Vec2& origin, const c
     std::list<cc::Vec2> result;
     
     auto graph = GridGraph(*data->getCol()->grids[category]);
-    auto path = PathFinding::breadthFirstSearch(graph,
+    auto path = lib::PathFinding::breadthFirstSearch(graph,
             data->getCoordFromPos(origin), data->getCoordFromPos(dest));
 
     if (path != nullptr && path->size() > 0)

@@ -2,6 +2,7 @@
 #include "Components.h"
 #include "IMapData.h"
 #include "SysHelper.h"
+#include "CmdFactory.h"
 
 void UpdaterSystem::init(IMapData* data)
 {
@@ -29,18 +30,11 @@ void UpdaterSystem::tick(double dt)
         
         if (cpInput.goTo != nullptr)
         {
-            auto target = cpInput.goTo.Value;
-            ecs.add<cp::Cmd>(eid).set([target](unsigned eid){
-                auto& cpPosition = ecs::get<cp::Position>(eid);
-                auto& cpPhy = ecs::get<cp::Physics>(eid);
-                auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
-                cc::Vec2 dir = target - cc::Vec2(bounds.getMidX(), bounds.getMidY());
-                cpPhy.move.direction = dir.getNormalized();
-                cpPosition.dir = Dir::fromVec(cpPhy.move.direction);
-                if (dir.length() < 2)
-                    return true;
-                return false;
-            });
+            auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
+            auto wayPoints = this->data->getNav()->getWaypoints(
+                {bounds.getMidX(), bounds.getMidY()}, cpInput.goTo.Value, cpPhy.category);
+            CmdFactory::goTo(this->ecs, eid, wayPoints, 2);
+            
             cpInput.goTo = nullptr;
         }
         else
@@ -71,11 +65,9 @@ void UpdaterSystem::tick(double dt)
         }
     }
     
-    //command batcher
-    auto cmds = ecs.system<cp::Cmd>();
-    for(auto eid : cmds)
+    //update commands
+    for(auto eid : ecs.system<cp::Cmd>())
     {
-        if (ecs::get<cp::Cmd>(eid).process(eid))
-            ecs.del<cp::Cmd>(eid);
+        ecs::get<cp::Cmd>(eid).process(eid, dt);
     }
 }

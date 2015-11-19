@@ -5,6 +5,7 @@
 #include "BehaviourData.h"
 #include "BlockInfo.h"
 #include "RoomData.h"
+#include "CmdFactory.h"
 
 void AISystem::init(IMapData *data)
 {

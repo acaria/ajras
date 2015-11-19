@@ -11,7 +11,7 @@
 #include "HealthComponent.h"
 #include "AIComponent.h"
 #include "InteractComponent.h"
-#include "CommandComponent.h"
+#include "CmdComponent.h"
 #include "GateMap.h"
 #include "WarpMap.h"
 #include "SlotData.h"
@@ -22,7 +22,7 @@ namespace cp
     
     using Render = ecs::component<RenderComponent,              1>;
     using Position = ecs::component<PositionComponent,          2>;
-    using Cmd = ecs::component<CommandComponent,                3>;
+    using Cmd = ecs::component<CmdComponent,                    3>;
     using Stamina = ecs::component<StaminaComponent,            5>;
     using Input = ecs::component<InputComponent,                6>;
     using Physics = ecs::component<PhysicsComponent,            7>;

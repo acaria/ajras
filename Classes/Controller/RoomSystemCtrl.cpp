@@ -146,6 +146,7 @@ void RoomSystemCtrl::loadRoom(LayeredContainer *view, RoomData *data)
     
     //init systems
     collisionSystem.init(data);
+    updaterSystem.init(data);
     interactSystem.init(data);
     meleeSystem.init(data);
     renderSystem.init(data);

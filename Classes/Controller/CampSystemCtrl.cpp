@@ -226,6 +226,7 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
     
     //init systems
     this->controlSystem.init({PlayerData::ctrlIndex});
+    this->updaterSystem.init(data);
     this->renderSystem.init(data);
     this->collisionSystem.init(data);
     this->interactSystem.init(data);

@@ -1,7 +1,7 @@
 #include "NavigationInfo.h"
 #include "IMapData.h"
 
-std::list<cc::Vec2> NavigationInfo::getWaypoints(cc::Vec2 origin, cc::Vec2 dest, CollisionCategory category)
+std::list<cc::Vec2> NavigationInfo::getWaypoints(const cc::Vec2& origin, const cc::Vec2& dest, CollisionCategory category)
 {
     std::list<cc::Vec2> result;
     
@@ -32,10 +32,10 @@ std::list<lib::v2u> NavigationInfo::getNeighborCoords(const lib::v2u& coord, Col
     for(int x = -1; x <= 1; x++)
     for(int y = -1; y <= 1; y++)
     {
-        if (x == 0 && y == 0)
+        if (x == y)
             continue;
         if (grid->get(coord.x + x, coord.y + y))
-            result.push_back({(unsigned)x,(unsigned)y});
+            result.push_back({(unsigned)(coord.x + x),(unsigned)(coord.y + y)});
     }
     
     return result;
@@ -64,12 +64,14 @@ lib::Nullable<std::list<lib::v2u>> NavigationInfo::getPathCoords(lib::v2u from, 
         frontier.pop();
         for(auto coord : this->getNeighborCoords(current, category))
         {
+            if (lib::hasKey(cameFrom, coord))
+                continue;
             frontier.push(coord);
             cameFrom[coord] = current;
         }
     }
     
-    if (frontier.size() == 0)
+    if (cameFrom.size() == 0)
         return nullptr;
     
     std::list<lib::v2u> result;

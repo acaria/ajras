@@ -11,7 +11,9 @@ public:
     void init(IMapData* data);
     
     
-    std::list<cc::Vec2> getWaypoints(cc::Vec2 origin, cc::Vec2 dest, CollisionCategory category);
+    std::list<cc::Vec2> getWaypoints(const cc::Vec2& origin,
+                                     const cc::Vec2& dest,
+                                     CollisionCategory category);
     
     
 private:

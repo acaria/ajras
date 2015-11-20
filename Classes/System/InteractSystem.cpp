@@ -85,7 +85,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                 cpRender.sprite->setPosition(srcPos);
                 cpRender.sprite->setOpacity(0);
                 
-                auto bList = this->collision->getNearEmptyBlocks(srcPos, 2, CollisionCategory::walkable);
+                auto bList = this->collision->getNearEmptyBlocks(srcPos, 2, def::collision::Cat::walkable);
                 auto destRect = bList[cc::random(0, (int)bList.size() - 1)];
                 cc::Point destPos = {
                     destRect.origin.x + (cc::random(0, (int)destRect.size.width)) - srcPos.x,
@@ -107,7 +107,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                             auto size = cpRender.sprite->getContentSize();
                             auto& cpPhysics = ecs.add<cp::Physics>(nid);
                             cpPhysics.shape = {0, 0, size.width, size.height};
-                            cpPhysics.category = CollisionCategory::collectible;
+                            cpPhysics.category = def::collision::Cat::collectible;
                             ecs.add<cp::Position>(nid).set(cpRender.sprite->getPosition() - (size / 2));
                     }),
                     NULL

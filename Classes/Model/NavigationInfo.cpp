@@ -1,12 +1,13 @@
 #include "NavigationInfo.h"
 #include "IMapData.h"
 #include "PathFinding.h"
+#include "NavigationGraph.h"
 
-std::list<cc::Vec2> NavigationInfo::getWaypoints(const cc::Vec2& origin, const cc::Vec2& dest, CollisionCategory category)
+std::list<cc::Vec2> NavigationInfo::getWaypoints(const cc::Vec2& origin, const cc::Vec2& dest, def::collision::Cat category)
 {
     std::list<cc::Vec2> result;
     
-    auto graph = GridGraph(*data->getCol()->grids[category]);
+    auto graph = NavigationGraph(*data->getCol()->grids[category]);
     auto path = lib::PathFinding::aStarSearch(graph,
         data->getCoordFromPos(origin), data->getCoordFromPos(dest));
 

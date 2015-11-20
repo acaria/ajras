@@ -34,7 +34,7 @@ struct PhysicsComponent
 
     //input/collision
     cc::Rect            shape;
-    CollisionCategory   category;
+    def::collision::Cat   category;
     
     //input/velociy
     ForceInfo           move;

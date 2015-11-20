@@ -24,7 +24,7 @@ void CollisionInfo::init(IMapData *map)
 void CollisionInfo::process()
 {
     this->reset();
-    using cat = CollisionCategory;
+    using cat = def::collision::Cat;
     
     lib::v2u dim = {data->getGrid().width, data->getGrid().height};
     
@@ -51,12 +51,12 @@ void CollisionInfo::process()
         }
 }
 
-std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const cc::Point& pos, unsigned int maxDist, CollisionCategory cat)
+std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const cc::Point& pos, unsigned int maxDist, def::collision::Cat cat)
 {
     return this->getNearEmptyBlocks(this->data->getCoordFromPos(pos), maxDist, cat);
 }
 
-std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const lib::v2u &coord, unsigned int maxDist, CollisionCategory cat)
+std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const lib::v2u &coord, unsigned int maxDist, def::collision::Cat cat)
 {
     std::vector<cc::Rect> results;
     for(int j = coord.y - maxDist; j <= coord.y + maxDist; j++)
@@ -141,7 +141,7 @@ CollisionInfo::SweepInfo CollisionInfo::InterpolateDir(const cc::Point& dir, con
     return sweep;
 }
 
-cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::Rect& lastBounds, CollisionCategory cat)
+cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::Rect& lastBounds, def::collision::Cat cat)
 {
     cc::Point dir = destBounds.origin - lastBounds.origin;
     
@@ -174,7 +174,7 @@ cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::R
     return destBounds.origin;
 }
 
-bool CollisionInfo::checkCollisionRect(const cc::Rect &rect, CollisionCategory cat)
+bool CollisionInfo::checkCollisionRect(const cc::Rect &rect, def::collision::Cat cat)
 {
     if (rect.size.width == 0 || rect.size.height == 0)
         return false;
@@ -195,7 +195,7 @@ bool CollisionInfo::checkCollisionRect(const cc::Rect &rect, CollisionCategory c
 
 bool CollisionInfo::checkCollisionRay(const cc::Point& origin,
                                       const cc::Point& dest,
-                                      CollisionCategory cat)
+                                      def::collision::Cat cat)
 {
     auto dir = dest - origin;
     if (dir.x == 0 && dir.y == 0)
@@ -300,7 +300,7 @@ std::list<cc::Rect> CollisionInfo::mergeRectGrids(std::list<cc::Rect> src)
     return res;
 }
 
-std::list<cocos2d::Rect> CollisionInfo::getRectGridCollisions(const cocos2d::Rect& rect, CollisionCategory cat)
+std::list<cocos2d::Rect> CollisionInfo::getRectGridCollisions(const cocos2d::Rect& rect, def::collision::Cat cat)
 {
     auto moveAble = this->grids[cat];
     auto res = std::list<cocos2d::Rect>();
@@ -325,4 +325,15 @@ std::list<cocos2d::Rect> CollisionInfo::getRectGridCollisions(const cocos2d::Rec
     });
     
     return mergedRes;
+}
+
+void CollisionInfo::updateAgent(unsigned int eid, ColCat cat, cc::Vec2 pos, cc::Vec2 dir)
+{
+    if (!lib::hasKey(agents, cat))
+        this->agents[cat] = std::map<unsigned, Agent>();
+    
+    this->agents[cat][eid] = {
+        .pos = pos,
+        .dir = dir
+    };
 }

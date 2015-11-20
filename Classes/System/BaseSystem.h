@@ -1,5 +1,6 @@
 #pragma once
 #include "ECSGroup.h"
+#include "SysHelper.h"
 
 class BaseSystem
 {

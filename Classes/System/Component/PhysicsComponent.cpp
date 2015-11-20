@@ -29,9 +29,9 @@ void PhysicsComponent::setProfile(ProfileData* profile)
     this->shape = profile->collisionRect;
     
     if (profile->collisionCat == "walkable")
-        this->category = CollisionCategory::walkable;
+        this->category = def::collision::Cat::walkable;
     else if (profile->collisionCat == "flyable")
-        this->category = CollisionCategory::flyable;
+        this->category = def::collision::Cat::flyable;
     else
         Log("unrecognised category:%s", profile->collisionCat.c_str());
 

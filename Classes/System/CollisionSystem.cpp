@@ -70,7 +70,7 @@ void CollisionSystem::tick(double dt)
                 cocos2d::Rect bounds2 = SysHelper::getBounds(cpPosition2, cpCollision2);
                 if (bounds2.intersectsRect(bounds))
                 {
-                    if (cpCollision2.category == CollisionCategory::collectible) //collectible
+                    if (cpCollision2.category == def::collision::Cat::collectible) //collectible
                     {
                         if (ecs::has<cp::Gear>(eid) && ecs::has<cp::Collectible>(oid))
                         {

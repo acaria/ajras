@@ -101,15 +101,24 @@ namespace def {
             }
         }
     }
+    
+    namespace collision
+    {
+        enum class Cat
+        {
+            impassable,
+            walkable,
+            flyable,
+            collectible
+        };
+        
+        struct Agent
+        {
+            cc::Vec2 pos;
+            cc::Vec2 dir;
+        };
+    }
 }
-
-enum CollisionCategory
-{
-    impassable,
-    walkable,
-    flyable,
-    collectible
-};
 
 enum class ActionMode
 {

@@ -423,8 +423,6 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
     this->data = data;
     this->playerData = player;
     
-    this->bindSystems(group, roomViews[group], data->rooms[group]);
-    
     cc::Rect bounds = cc::Rect::ZERO;
     for(auto pair : data->rooms)
     {
@@ -454,6 +452,8 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
         
         bounds = bounds.unionWithRect(roomData->getBounds());
     }
+    
+    this->bindSystems(group, roomViews[group], data->rooms[group]);
     
     //too slow!
     /*auto batch = cc::Node::create();

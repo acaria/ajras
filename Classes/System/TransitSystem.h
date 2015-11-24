@@ -11,14 +11,10 @@ class PhysicsComponent;
 class TransitSystem : public BaseSystem
 {
 public:
-    TransitSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {}
     virtual ~TransitSystem() {}
     
     virtual void tick(double dt) final;
     virtual void animate(double dt, double tp) final {}
-    
-    lib::Subject<void(unsigned eid, GateMap gate)> onGateTriggered;
-    lib::Subject<void(unsigned eid, WarpMap warp)> onWarpTriggered;
     
 private:
     

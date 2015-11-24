@@ -23,7 +23,7 @@ public:
     void process();
     void init(IMapData* mapData);
     
-    cc::Point getCollisionPos(const cc::Rect& destBounds, const cc::Rect& lastBounds, ColCat cat);
+    cc::Point getCollisionDiff(const cc::Rect& destBounds, const cc::Rect& lastBounds, ColCat cat);
     bool checkCollisionRect(const cocos2d::Rect& rect, def::collision::Cat cat);
     bool checkCollisionRay(const cc::Point& origin, const cc::Point& dest, ColCat cat);
 
@@ -31,6 +31,13 @@ public:
     std::vector<cc::Rect> getNearEmptyBlocks(const cc::Point& pos, unsigned maxDist, ColCat cat);
     
     void updateAgent(unsigned eid, ColCat cat, cc::Vec2 pos, cc::Vec2 dir);
+    
+    //events
+    lib::Subject<void(unsigned, cc::Vec2 diff)>             onDecorCollision;
+    lib::Subject<void(unsigned, unsigned, cc::Vec2 diff)>   onAgentCollision;
+    
+    //dynamic fields
+    std::map<unsigned, Agent> agents;
     
 private:
     //internal
@@ -40,15 +47,16 @@ private:
         cc::Point   dir;
         cc::Point   tx;
     };
-    SweepInfo InterpolateDir(const cc::Point& dir, const cc::Rect& bounds);
+    SweepInfo interpolateDir(const cc::Point& dir, const cc::Rect& bounds);
     
-    std::list<cocos2d::Rect> getRectGridCollisions(const cocos2d::Rect& rect, ColCat cat);
-    bool needMerge(const cc::Rect& r1, const cc::Rect& r2);
-    std::list<cc::Rect> mergeRectGrids(std::list<cc::Rect> src);
+    void prepare();
+    
+    std::list<cocos2d::Rect>    getRectGridCollisions(const cocos2d::Rect& rect, ColCat cat);
+    bool                        needMerge(const cc::Rect& r1, const cc::Rect& r2);
+    std::list<cc::Rect>         mergeRectGrids(std::list<cc::Rect> src);
 
     //fields
-    std::map<ColCat, lib::DataGrid<bool>*>      grids;
-    std::map<ColCat, std::map<unsigned, Agent>> agents;
+    std::map<ColCat, lib::DataGrid<bool>*>  grids;
     
     IMapData* data;
 };

@@ -114,8 +114,11 @@ namespace def {
         
         struct Agent
         {
-            cc::Vec2 pos;
-            cc::Vec2 dir;
+            unsigned    id;
+            cc::Rect    bounds;
+            cc::Rect    lastBounds;
+            Cat         category;
+            cc::Vec2    velocity;
         };
     }
 }

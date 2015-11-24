@@ -18,5 +18,8 @@ public:
     virtual void onAnimate(double dt, double tickPercent) override;
     
 private:
-    CampSystemCtrl          campSystemCtrl;
+    void registerDispatcher(CampScene& scene);
+
+    CampSystemCtrl                  systemCtrl;
+    std::list<lib::Registration>    systemRegs;
 };

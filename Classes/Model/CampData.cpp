@@ -23,12 +23,36 @@ CampData::CampData(const std::string& fileName) :
         }
     }
     
-    this->collision.init(this);
-    this->navigation.init(this);
+    this->init();
 }
 
 CampData::~CampData()
 {
+}
+
+void CampData::init()
+{
+    //gates
+    for(auto& gate : warpMapping)
+    {
+        cc::Point pos = {gate.info.rect.origin.x, gate.info.rect.origin.y};
+        
+        //change collision data
+        
+        auto gateSrcCoord = getCoordFromPos(pos);
+        auto gateDestCoord = getCoordFromPos({
+            gate.info.rect.getMaxX(),
+            gate.info.rect.getMaxY()});
+        
+        for(int j = gateSrcCoord.y; j < gateDestCoord.y; j++)
+        for(int i = gateSrcCoord.x; i < gateDestCoord.x; i++)
+        {
+            grid.get(i, j).fields[BlockInfo::collision] = "walkable";
+        }
+    }
+    
+    this->collision.init(this);
+    this->navigation.init(this);
 }
 
 CampData* CampData::load(const std::string& filename)

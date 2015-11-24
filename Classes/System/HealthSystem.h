@@ -7,7 +7,6 @@
 class HealthSystem : public BaseSystem
 {
 public:
-    HealthSystem(lib::EcsGroup& ecs);
     virtual ~HealthSystem() {}
     
     //overrides

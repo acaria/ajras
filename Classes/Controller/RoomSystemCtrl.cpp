@@ -7,63 +7,14 @@
 #include "MissionScene.h"
 #include "HealthBar.h"
 #include "GateMap.h"
+#include "SysHelper.h"
 #include "Defines.h"
 
-RoomSystemCtrl::RoomSystemCtrl(): random(Randgine::instance()->get(Randgine::FLOOR)),
-        renderSystem(ecsGroup),
-        collisionSystem(ecsGroup),
-        moveSystem(ecsGroup),
-        transSystem(ecsGroup),
-        updaterSystem(ecsGroup),
-        meleeSystem(ecsGroup),
-        targetSystem(ecsGroup),
-        aiSystem(ecsGroup),
-        healthSystem(ecsGroup),
-#if ECSYSTEM_DEBUG
-        debugSystem(ecsGroup),
-#endif
-        interactSystem(ecsGroup) {
-    this->forwardEvents();
-}
-
-void RoomSystemCtrl::tick(double dt)
+RoomSystemCtrl::RoomSystemCtrl(unsigned group, LayeredContainer* view, RoomData* data, SystemDispatcher& dispatcher):
+        random(Randgine::instance()->get(Randgine::FLOOR)),
+        dispatcher(dispatcher)
 {
-    aiSystem.tick(dt);
-    updaterSystem.tick(dt);
-    targetSystem.tick(dt);
-    moveSystem.tick(dt);
-    meleeSystem.tick(dt);
-    transSystem.tick(dt);
-    collisionSystem.tick(dt);
-    healthSystem.tick(dt);
-    renderSystem.tick(dt);
-    interactSystem.tick(dt);
-#if ECSYSTEM_DEBUG
-    debugSystem.tick(dt);
-#endif
-}
-
-void RoomSystemCtrl::animate(double dt, double tickPercent)
-{
-    aiSystem.animate(dt, tickPercent);
-    updaterSystem.animate(dt, tickPercent);
-    targetSystem.animate(dt, tickPercent);
-    moveSystem.animate(dt, tickPercent);
-    meleeSystem.animate(dt, tickPercent);
-    transSystem.animate(dt, tickPercent);
-    collisionSystem.animate(dt, tickPercent);
-    healthSystem.animate(dt, tickPercent);
-    renderSystem.animate(dt, tickPercent);
-    interactSystem.animate(dt, tickPercent);
-#if ECSYSTEM_DEBUG
-    debugSystem.animate(dt, tickPercent);
-#endif
-}
-
-void RoomSystemCtrl::loadRoom(LayeredContainer *view, RoomData *data)
-{
-    ecsGroup.setID(data->index);
-    
+    ecsGroup.setID(group);
     auto roomIndex = data->index;
     auto grid = data->getContent();
     
@@ -102,13 +53,13 @@ void RoomSystemCtrl::loadRoom(LayeredContainer *view, RoomData *data)
     {
         if (lib::hasKey(obj.properties, "profile"))
         {
-            auto eid = this->loadStaticObject(obj.properties["profile"], obj.pos, data, view);
+            this->loadStaticObject(obj.properties["profile"], obj.pos, data, view);
             //ecs::add<cp::Control>(eid, data->index) = 2;
         }
         else if (lib::hasKey(obj.properties, "zone_type"))
         {
             this->loadZoneObject(obj.properties["zone_type"],
-                {obj.pos.x, obj.pos.y, obj.size.width, obj.size.height}, data, view);
+                                 {obj.pos.x, obj.pos.y, obj.size.width, obj.size.height}, data, view);
         }
         else
         {
@@ -136,29 +87,15 @@ void RoomSystemCtrl::loadRoom(LayeredContainer *view, RoomData *data)
             gateMap.info.rect.getMaxY()});
         
         for(int j = gateSrcCoord.y; j < gateDestCoord.y; j++)
-        for(int i = gateSrcCoord.x; i < gateDestCoord.x; i++)
-        {
-            data->getContent().get(i, j).fields[BlockInfo::collision] = "walkable";
-        }
+            for(int i = gateSrcCoord.x; i < gateDestCoord.x; i++)
+            {
+                data->getContent().get(i, j).fields[BlockInfo::collision] = "walkable";
+            }
     }
-    //hack: gerate collision data after twicks on gates
-    data->getCol()->process();
-    
-    //init systems
-    collisionSystem.init(data);
-    updaterSystem.init(data);
-    interactSystem.init(data);
-    meleeSystem.init(data);
-    renderSystem.init(data);
-    aiSystem.init(data);
-#if ECSYSTEM_DEBUG
-    debugSystem.init(view, data);
-#endif
 }
 
 void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect &bounds, RoomData *data, LayeredContainer *view)
 {
-    auto roomIndex = data->index;
     std::string profileName;
     
     bool process = true;
@@ -270,12 +207,9 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
                                                                    cc::Color3B(252, 168, 50), cc::Color3B(252, 168, 50))));
     }
     
+    dispatcher.onEntityAdded(roomIndex, eid);
+    
     return eid;
-}
-
-CollisionSystem& RoomSystemCtrl::getCollisionSystem()
-{
-    return collisionSystem;
 }
 
 void RoomSystemCtrl::hideObjects(float duration)
@@ -302,14 +236,4 @@ void RoomSystemCtrl::showObjects(float duration)
             ecs::get<cp::Render>(eid).sprite->runAction(cc::FadeIn::create(duration));
         }
     }
-}
-
-void RoomSystemCtrl::forwardEvents()
-{
-    this->eventRegs.push_back(healthSystem.onHealthChanged.registerObserver([this](unsigned eid, int health){
-        this->onHealthChanged(this->ecsGroup.getID(), eid, health);
-    }));
-    this->eventRegs.push_back(transSystem.onGateTriggered.registerObserver([this](unsigned eid, GateMap gate){
-        this->onGateTriggered(this->ecsGroup.getID(), eid, gate);
-    }));
 }

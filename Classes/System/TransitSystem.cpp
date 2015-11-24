@@ -78,13 +78,13 @@ std::pair<float, cc::Vec2> TransitSystem::processing(GateInfo info,
 
 void TransitSystem::tick(double dt)
 {
-    for(auto eid2 : ecs.join<cp::Position, cp::Physics, cp::Input>())
+    for(auto eid2 : context->ecs->join<cp::Position, cp::Physics, cp::Input>())
     {
         auto& cpPos = ecs::get<cp::Position>(eid2);
         auto& cpCol = ecs::get<cp::Physics>(eid2);
         
         //processing gates
-        for(auto eid : ecs.system<cp::Gate>())
+        for(auto eid : context->ecs->system<cp::Gate>())
         {
             auto& cpGate = ecs::get<cp::Gate>(eid);
         
@@ -97,7 +97,7 @@ void TransitSystem::tick(double dt)
         }
         
         //processing warps
-        for(auto eid : ecs.system<cp::Warp>())
+        for(auto eid : context->ecs->system<cp::Warp>())
         {
             auto& cpWarp = ecs::get<cp::Warp>(eid);
             
@@ -119,12 +119,12 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     
     auto& render = ecs::get<cp::Render>(eid);
     ecs::get<cp::Input>(eid).forceDisable();
-    ecs.del<cp::Position>(eid);
+    context->ecs->del<cp::Position>(eid);
     ecs::get<cp::Physics>(eid).resetForce();
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, targetPoint),
         cc::CallFunc::create([this, eid, &gateMap](){
-            this->onGateTriggered(eid, gateMap);
+            this->dispatcher->onGateTriggered(context->ecs->getID(), eid, gateMap);
         }),
         NULL
     ));
@@ -143,12 +143,12 @@ void TransitSystem::warpingEnter(unsigned eid, const cocos2d::Vec2& targetPoint,
     
     auto& render = ecs::get<cp::Render>(eid);
     ecs::get<cp::Input>(eid).forceDisable();
-    ecs.del<cp::Position>(eid);
+    context->ecs->del<cp::Position>(eid);
     ecs::get<cp::Physics>(eid).resetForce();
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, targetPoint),
         cc::CallFunc::create([this, eid, &warpMap](){
-            this->onWarpTriggered(eid, warpMap);
+            this->dispatcher->onWarpTriggered(eid, warpMap);
         }),
         NULL
     ));

@@ -17,10 +17,7 @@ class IMapData;
 class MeleeSystem : public BaseSystem
 {
 public:
-    MeleeSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {}
     virtual ~MeleeSystem() {}
-    
-    void init(IMapData* data);
     
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
@@ -33,5 +30,4 @@ private:
                                     cc::Size range, const Dir& dir);
     
     GameScene* gView;
-    CollisionInfo* collision;
 };

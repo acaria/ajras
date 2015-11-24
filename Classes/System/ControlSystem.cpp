@@ -4,7 +4,34 @@
 #include "SysHelper.h"
 #include "Defines.h"
 
-ControlSystem::ControlSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {
+ControlSystem::ControlSystem(std::list<unsigned> indexes) {
+    this->indexList = indexes;
+    
+    for(auto index : this->indexList)
+    {
+        curDirPressed[index] = Dir::None;
+        curDirReleased[index] = Dir::None;
+        preDirPressed[index] = Dir::None;
+        joyPos[index] = nullptr;
+    }
+    posSelection = nullptr;
+    actionSelection = nullptr;
+}
+
+void ControlSystem::init()
+{
+    using namespace std::placeholders;
+    
+    this->eventRegs.push_back(dispatcher->onStickDirection.registerObserver(
+        std::bind(&ControlSystem::setStickDirection, this, _1, _2)));
+    this->eventRegs.push_back(dispatcher->onKeyPressAction.registerObserver(
+        std::bind(&ControlSystem::setKeyPressAction, this, _1, _2)));
+    this->eventRegs.push_back(dispatcher->onKeyReleaseAction.registerObserver(
+        std::bind(&ControlSystem::setKeyReleaseAction, this, _1, _2)));
+    this->eventRegs.push_back(dispatcher->onSelectionAction.registerObserver(
+        std::bind(&ControlSystem::setSelectionAction, this, _1)));
+    this->eventRegs.push_back(dispatcher->onSelectionPos.registerObserver(
+        std::bind(&ControlSystem::setSelectionPos, this, _1)));
 }
 
 void ControlSystem::tick(double dt)
@@ -13,7 +40,7 @@ void ControlSystem::tick(double dt)
     if (posSelection != nullptr)
     {
         bool handled = false;
-        for(auto eid : ecs.join<cp::Interact, cp::Position, cp::Physics>())
+        for(auto eid : context->ecs->join<cp::Interact, cp::Position, cp::Physics>())
         {
             auto eRect = lib::inflateRect(SysHelper::getBounds(eid), def::touchTreshold);
             if (eRect.containsPoint(posSelection.Value))
@@ -26,7 +53,7 @@ void ControlSystem::tick(double dt)
         
         if (!handled)
         {
-            for(auto eid : ecs.join<cp::Control, cp::Input>())
+            for(auto eid : context->ecs->join<cp::Control, cp::Input>())
             {
                 handled = true;
                 ecs::get<cp::Input>(eid).goTo = posSelection;
@@ -36,7 +63,7 @@ void ControlSystem::tick(double dt)
     }
     
     //moving control
-    for(auto eid : ecs.join<cp::Control, cp::Input, cp::Control>())
+    for(auto eid : context->ecs->join<cp::Control, cp::Input, cp::Control>())
     {
         unsigned ctrlIndex = ecs::get<cp::Control>(eid);
         if (std::find(indexList.begin(), indexList.end(), ctrlIndex) == indexList.end())
@@ -107,21 +134,6 @@ void ControlSystem::clearReleased()
     this->actionSelection = nullptr;
 }
 
-void ControlSystem::init(std::list<unsigned> indexes)
-{
-    this->indexList = indexes;
-    
-    for(auto index : this->indexList)
-    {
-        curDirPressed[index] = Dir::None;
-        curDirReleased[index] = Dir::None;
-        preDirPressed[index] = Dir::None;
-        joyPos[index] = nullptr;
-    }
-    posSelection = nullptr;
-    actionSelection = nullptr;
-}
-
 void ControlSystem::setSelectionAction(ActionMode mode)
 {
     this->actionSelection = mode;
@@ -144,7 +156,8 @@ void ControlSystem::setKeyReleaseAction(unsigned index, int flag)
     this->curDirReleased[index] |= flag;
 }
 
-void ControlSystem::setStickDirection(unsigned index, const lib::Nullable<cc::Vec2>& dir)
+void ControlSystem::setStickDirection(unsigned index,
+                                      const lib::Nullable<cc::Vec2>& dir)
 {
     this->joyPos[index] = dir;
 }

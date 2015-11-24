@@ -1,9 +1,10 @@
 #include "MoveSystem.h"
 #include "Components.h"
+#include "IMapData.h"
 
 void MoveSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Physics, cp::Position>())
+    for(auto eid : context->ecs->join<cp::Physics, cp::Position>())
     {
         //shortcuts
         auto& cpPos = ecs::get<cp::Position>(eid);
@@ -46,6 +47,10 @@ void MoveSystem::tick(double dt)
         if (!cpPhy.velocity.isZero())
         {
             cpPos.pos += cpPhy.velocity;
+        
+            context->data->getCol()->agents[eid].bounds = SysHelper::getBounds(cpPos, cpPhy);
+            context->data->getCol()->agents[eid].lastBounds = SysHelper::getLastBounds(cpPos, cpPhy);
+            context->data->getCol()->agents[eid].velocity = cpPhy.velocity;
         }
     }
 }

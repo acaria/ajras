@@ -9,8 +9,8 @@ void CampMediator::onAddView(CampScene &scene)
     scene.setBgColor(cc::Color3B::BLACK);
     scene.getCam()->setFrameBounds(campData->getBounds());
     
-    campSystemCtrl.load(scene.getCam(), scene.getFrame(), playerData, campData);
-    campSystemCtrl.start();
+    systemCtrl.load(scene.getCam(), scene.getFrame(), playerData, campData);
+    systemCtrl.start();
     
     scene.interface->registerIndex(playerData->ctrlIndex, [playerData](KeyCode code) {
         return playerData->KeyCode2KeyType(code);
@@ -24,43 +24,51 @@ void CampMediator::onAddView(CampScene &scene)
     };
     scene.getEventDispatcher()->addEventListenerWithSceneGraphPriority(kListener, &scene);
     
+    this->registerDispatcher(scene);
+}
+
+void CampMediator::registerDispatcher(CampScene &scene)
+{
+    auto playerData = GameCtrl::instance()->getData().curPlayer();
+    auto campData = GameCtrl::instance()->getData().curCamp();
+    
+    this->systemRegs.clear();
+    auto& dispatcher = this->systemCtrl.getDispatcher();
+    
     //interface events
     unsigned pIndex = playerData->ctrlIndex;
-    this->eventRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
-        [this, pIndex](cc::Vec2 pos){
-            this->campSystemCtrl.getCtrlSystem()->setStickDirection(pIndex, pos);
+    this->systemRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
+            [this, pIndex, &dispatcher](cc::Vec2 pos){
+        dispatcher.onStickDirection(pIndex, pos);
     }));
     
-    this->eventRegs.push_back(scene.interface->getStick()->onRelease.registerObserver(
-        [this, pIndex](){
-            this->campSystemCtrl.getCtrlSystem()->setStickDirection(pIndex, nullptr);
+    this->systemRegs.push_back(scene.interface->getStick()->onRelease.registerObserver(
+            [this, pIndex, &dispatcher](){
+        dispatcher.onStickDirection(pIndex, nullptr);
     }));
     
-    this->eventRegs.push_back(scene.interface->onKeyPressAction.registerObserver(
-        [this](unsigned index, int flag){
-            this->campSystemCtrl.getCtrlSystem()->setKeyPressAction(index, flag);
+    this->systemRegs.push_back(scene.interface->onKeyPressAction.registerObserver(
+            [this, &dispatcher](unsigned index, int flag){
+        dispatcher.onKeyPressAction(index, flag);
     }));
     
-    this->eventRegs.push_back(scene.interface->onKeyReleaseAction.registerObserver(
-        [this](unsigned index, int flag){
-            this->campSystemCtrl.getCtrlSystem()->setKeyReleaseAction(index, flag);
+    this->systemRegs.push_back(scene.interface->onKeyReleaseAction.registerObserver(
+            [this, &dispatcher](unsigned index, int flag){
+        dispatcher.onKeyReleaseAction(index, flag);
     }));
     
-    this->eventRegs.push_back(scene.getCam()->onTouch.registerObserver([this](cc::Point pos){
-        this->campSystemCtrl.getCtrlSystem()->setSelectionPos(pos);
+    this->systemRegs.push_back(scene.getCam()->onTouch.registerObserver(
+            [this, campData, &dispatcher](cc::Point pos){
+        auto localPos = pos - campData->getBounds().origin;
+        dispatcher.onSelectionPos(localPos);
     }));
     
-    this->eventRegs.push_back(scene.getCam()->onSwipe.registerObserver([this](cc::Point pos1,
+    this->systemRegs.push_back(scene.getCam()->onSwipe.registerObserver([this](cc::Point pos1,
                                                                               cc::Point pos2){
         Log("swipe=%f,%f -> %f,%f", pos1.x, pos1.y, pos2.x, pos2.y);
     }));
     
-    //system events
-    this->eventRegs.push_back(campSystemCtrl.onHealthChanged.registerObserver(
-            [this, &scene](unsigned int eid, int health) {
-    }));
-    
-    this->eventRegs.push_back(campSystemCtrl.onWarpTriggered.registerObserver(
+    this->systemRegs.push_back(dispatcher.onWarpTriggered.registerObserver(
             [this](unsigned eid, WarpMap warp) {
         if (warp.keyCmd == "home")
         {
@@ -77,18 +85,18 @@ void CampMediator::onAddView(CampScene &scene)
     }));
 }
 
-
 void CampMediator::onRemoveView(CampScene &scene)
 {
-    campSystemCtrl.clear();
+    systemRegs.clear();
+    systemCtrl.clear();
 }
 
 void CampMediator::onTick(double dt)
 {
-    campSystemCtrl.tick(dt);
+    systemCtrl.tick(dt);
 }
 
 void CampMediator::onAnimate(double dt, double tickPercent)
 {
-    campSystemCtrl.animate(dt, tickPercent);
+    systemCtrl.animate(dt, tickPercent);
 }

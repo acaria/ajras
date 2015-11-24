@@ -1,5 +1,5 @@
+#include "Defines.h"
 #include "SysHelper.h"
-#include "Components.h"
 
 cc::Rect SysHelper::getBounds(const PositionComponent &position,
                               const PhysicsComponent &collision)
@@ -52,4 +52,18 @@ unsigned SysHelper::getNearest(unsigned gid, unsigned int eid, def::mood::Flags 
     }
 
     return targetID;
+}
+
+def::collision::Agent SysHelper::makeAgent(unsigned eid)
+{
+    CCASSERT((ecs::has<cp::Position, cp::Physics>(eid)), "invalid entity for agent processing");
+    auto& cpPos = ecs::get<cp::Position>(eid);
+    auto& cpPhy = ecs::get<cp::Physics>(eid);
+    return def::collision::Agent {
+        .id = eid,
+        .bounds = getBounds(cpPos, cpPhy),
+        .lastBounds = getLastBounds(cpPos, cpPhy),
+        .category = cpPhy.category,
+        .velocity = cpPhy.velocity
+    };
 }

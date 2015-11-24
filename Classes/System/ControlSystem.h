@@ -11,12 +11,11 @@ class ControlSystem : public BaseSystem
 {
 public:
     //ctors
-    ControlSystem(lib::EcsGroup& ecs);
+    ControlSystem(std::list<unsigned> indexes);
     virtual ~ControlSystem() {}
-
-    void init(std::list<unsigned> indexes);
     
     //overrides
+    void init() override;
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
     

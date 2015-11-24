@@ -11,11 +11,8 @@ class IMapData;
 class AISystem : public BaseSystem
 {
 public:
-    AISystem(lib::EcsGroup& ecs) : BaseSystem(ecs),
-        random(Randgine::instance()->get(Randgine::AI))
+    AISystem() : random(Randgine::instance()->get(Randgine::AI))
     {}
-    
-    void init(IMapData* data);
     
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
@@ -73,6 +70,5 @@ private:
         {"stop", ActionBType::STOP}
     };
     
-    IMapData* data;
     lib::Random random;
 };

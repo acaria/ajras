@@ -14,14 +14,21 @@
 
 using namespace std::placeholders;
 
-FloorSystemCtrl::FloorSystemCtrl() : controlSystem(ecsGroup),
-                                     random(Randgine::instance()->get(Randgine::FLOOR))
+FloorSystemCtrl::FloorSystemCtrl() : random(Randgine::instance()->get(Randgine::FLOOR)),
+                                     systemFacade(dispatcher, context)
 {
     
 }
 
+FloorSystemCtrl::~FloorSystemCtrl()
+{
+    this->clear();
+}
+
 void FloorSystemCtrl::clear()
 {
+    this->eventRegs.clear();
+    this->systemFacade.clear();
     for(auto pair : this->roomSystems)
     {
         cp::entity::clear(pair.first);
@@ -34,17 +41,9 @@ void FloorSystemCtrl::clear()
     this->roomViews.clear();
 }
 
-FloorSystemCtrl::~FloorSystemCtrl()
-{
-    this->clear();
-}
-
 void FloorSystemCtrl::tick(double dt)
 {
-    controlSystem.tick(dt);
-    
-    //processing only current room
-    roomSystems[this->data->getCurIdxRoom()]->tick(dt);
+    systemFacade.tick(dt);
 }
 
 void FloorSystemCtrl::animate(double dt, double tickPercent)
@@ -58,33 +57,12 @@ void FloorSystemCtrl::animate(double dt, double tickPercent)
         this->cam->focusTarget(pos);
     }
 
-    controlSystem.animate(dt, tickPercent);
-    
-    //processing only current room
-    roomSystems[data->getCurIdxRoom()]->animate(dt, tickPercent);
+    systemFacade.animate(dt, tickPercent);
 }
 
-void FloorSystemCtrl::registerEvents(RoomSystemCtrl *ctrl)
+SystemDispatcher& FloorSystemCtrl::getDispatcher()
 {
-    this->eventRegs.push_back(ctrl->onHealthChanged.registerObserver(
-        std::bind(&FloorSystemCtrl::healthChanged, this, _1, _2, _3)));
-    
-    this->eventRegs.push_back(ctrl->onGateTriggered.registerObserver([this](
-        unsigned prevRoomIndex, unsigned eid, GateMap  gate){
-        switch(gate.cmd)
-        {
-            case GateMap::CmdType::CHANGE_ROOM:
-                this->onRoomChanged(prevRoomIndex, eid, gate);
-                break;
-            default:
-                break;
-        }
-        this->onGateTriggered(prevRoomIndex, eid, gate);
-    }));
-    
-    this->eventRegs.push_back(ctrl->getCollisionSystem().onGearChanged.registerObserver([this](unsigned eid, const cp::GearComponent& gearList) {
-        this->onGearChanged(eid, gearList);
-    }));
+    return dispatcher;
 }
 
 void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
@@ -93,6 +71,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
 {
     unsigned nextRoomIndex = gate.destRoomIndex;
 
+    dispatcher.onEntityDeleted(prevRoomIndex, eid);
     cp::entity::move(eid, prevRoomIndex, nextRoomIndex);
 
     if (ecs::has<cp::Render>(eid))
@@ -116,9 +95,10 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     render.sprite->setPosition(srcPos);
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveBy::create(duration, destPos - srcPos),
-        cc::CallFunc::create([eid, destPos, nextRoomIndex](){
+        cc::CallFunc::create([eid, destPos, nextRoomIndex, this](){
             ecs::get<cp::Input>(eid).forceEnable();
             ecs::add<cp::Position>(eid, nextRoomIndex).set(destPos);
+            dispatcher.onEntityAdded(nextRoomIndex, eid);
         }),
         NULL
     ));
@@ -131,9 +111,9 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     if (eid == playerData->entityFocus) //change room
     {
         this->roomSystems[prevRoomIndex]->hideObjects(1);
-        //this->gView->interface->clearTarget();
+        dispatcher.onSystemChanged(nextRoomIndex);
         this->data->setCurIdxRoom(nextRoomIndex);
-        ecsGroup.setID(nextRoomIndex);
+        
         
         auto dataRoom = data->getRoomAt(nextRoomIndex);
         
@@ -149,12 +129,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     }
 }
 
-void FloorSystemCtrl::healthChanged(unsigned int roomIndex, unsigned int eid, int health)
-{
-    this->onHealthChanged(roomIndex, eid, health);
-}
-
-cc::Sprite* FloorSystemCtrl::displayMap(FloorData *data)
+/*cc::Sprite* FloorSystemCtrl::displayMap(FloorData *data)
 {
     auto result = cc::Sprite::create();
     
@@ -249,7 +224,7 @@ void FloorSystemCtrl::displayDebug(cc::Node* view, FloorData *data)
                           bounds.getMidY() / 4});
         view->addChild(txt);
     }
-}
+}*/
 
 void FloorSystemCtrl::start()
 {
@@ -345,6 +320,7 @@ void FloorSystemCtrl::start()
     ecs::add<cp::Position>(eid, roomIndex).set(cpRender.sprite->getPosition());
     
     playerData->entityFocus = eid;
+    dispatcher.onEntityAdded(roomIndex, eid);
 }
 
 void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> after)
@@ -378,20 +354,75 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
     }
 }
 
-ControlSystem* FloorSystemCtrl::getCtrlSystem()
+void FloorSystemCtrl::loadSystems()
 {
-    return &this->controlSystem;
+    assert(this->systemFacade.count() == 0);
+    //init systems
+    this->systemFacade.factory<ControlSystem>(std::list<unsigned>(
+        {PlayerData::ctrlIndex, PlayerData::debugIndex}));
+    this->systemFacade.factory<AISystem>();
+    this->systemFacade.factory<UpdaterSystem>();
+    this->systemFacade.factory<TargetSystem>();
+    this->systemFacade.factory<MoveSystem>();
+    this->systemFacade.factory<MeleeSystem>();
+    this->systemFacade.factory<TransitSystem>();
+    this->systemFacade.factory<CollisionSystem>();
+    this->systemFacade.factory<HealthSystem>();
+    this->systemFacade.factory<RenderSystem>();
+    this->systemFacade.factory<InteractSystem>();
+#if ECSYSTEM_DEBUG
+    this->systemFacade.factory<DebugSystem>();
+#endif
+    
+    //bind events
+    this->eventRegs.clear();
+    this->eventRegs.push_back(dispatcher.onGateTriggered.registerObserver(
+            [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate){
+        switch(gate.cmd)
+        {
+            case GateMap::CmdType::CHANGE_ROOM:
+                this->onRoomChanged(prevRoomIndex, eid, gate);
+                break;
+            default:
+                break;
+        }
+    }));
+    
+    this->eventRegs.push_back(dispatcher.onSystemChanged.registerObserver(
+            [this](unsigned group) {
+        context.data = this->data->rooms[group];
+        context.view = roomViews[group];
+        context.ecs->setID(group);
+        dispatcher.onContextChanged();
+    }));
+    
+    this->eventRegs.push_back(dispatcher.onEntityAdded.registerObserver(
+            [this](unsigned group, unsigned eid) {
+        if (ecs::has<cp::Position, cp::Physics>(eid))
+            this->data->getRoomAt(group)->getCol()->agents[eid] = SysHelper::makeAgent(eid);
+    }));
+    
+    this->eventRegs.push_back(dispatcher.onEntityDeleted.registerObserver(
+            [this](unsigned group, unsigned eid) {
+        this->data->getRoomAt(group)->getCol()->agents.erase(eid);
+    }));
 }
 
 void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
                            PlayerData *player, FloorData *data)
 {
+    //init context data
+    unsigned group = data->getCurIdxRoom();
+    this->ecsGroup.setID(group);
+    this->context.ecs = &ecsGroup;
+    this->context.data = data->rooms[group];
+    
     this->view = view;
     this->cam = cam;
     this->data = data;
     this->playerData = player;
-    this->ecsGroup.setID(this->data->getCurIdxRoom());
-    this->controlSystem.init({PlayerData::ctrlIndex, PlayerData::debugIndex});
+    
+    this->loadSystems();
     
     cc::Rect bounds = cc::Rect::ZERO;
     for(auto pair : data->rooms)
@@ -399,13 +430,11 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
         auto roomIndex = pair.first;
         auto roomData = pair.second;
         
-        auto roomSystemCtrl = new RoomSystemCtrl();
-        this->registerEvents(roomSystemCtrl);
-        
         auto layeredNode = cc::create<LayeredContainer>(roomData->getBounds().size);
         layeredNode->retain();
         
-        roomSystemCtrl->loadRoom(layeredNode, roomData);
+        auto roomSystemCtrl = new RoomSystemCtrl(roomIndex, layeredNode, roomData, dispatcher);
+        
         roomSystemCtrl->hideObjects(0);
         
         this->roomViews[roomIndex] = layeredNode;
@@ -425,6 +454,10 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
         bounds = bounds.unionWithRect(roomData->getBounds());
     }
     
+    //init context view
+    this->context.view = roomViews[group];
+    dispatcher.onContextChanged();
+    
     //too slow!
     /*auto batch = cc::Node::create();
     int count = 0;
@@ -442,5 +475,4 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
         count++;
     }
     this->view->addChild(batch);*/
-
 }

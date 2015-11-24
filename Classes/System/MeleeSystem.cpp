@@ -8,15 +8,10 @@
 #include "IMapData.h"
 #include "CocosHelper.h"
 
-void MeleeSystem::init(IMapData *data)
-{
-    this->collision = data->getCol();
-}
-
 void MeleeSystem::tick(double dt)
 {
     std::list<std::list<std::pair<unsigned, unsigned>>> meleeListGroup;
-    for(auto eid : ecs.join<cp::Melee, cp::Mood, cp::Stamina, cp::Physics, cp::Position, cp::Render>())
+    for(auto eid : context->ecs->join<cp::Melee, cp::Mood, cp::Stamina, cp::Physics, cp::Position, cp::Render>())
     {
         if (!ecs::has<cp::Input>(eid) || !ecs::get<cp::Input>(eid).isActive())
             continue;
@@ -39,7 +34,7 @@ void MeleeSystem::tick(double dt)
             continue;
         
         //check room objects
-        for(auto oid : ecs.join<cp::Render, cp::Physics, cp::Position, cp::Health, cp::Mood, cp::Input>())
+        for(auto oid : context->ecs->join<cp::Render, cp::Physics, cp::Position, cp::Health, cp::Mood, cp::Input>())
         {
             if (oid == eid) continue;
             
@@ -58,7 +53,7 @@ void MeleeSystem::tick(double dt)
                 if (cpMelee.atkRect.intersectsRect(bounds) &&
                     ecs::get<cp::Stamina>(eid).current >= cpMelee.stamina)
                 {
-                    if (this->collision->checkCollisionRay({body.getMidX(), body.getMidY()},
+                    if (context->data->getCol()->checkCollisionRay({body.getMidX(), body.getMidY()},
                                                            {bounds.getMidX(), bounds.getMidY()},
                                                            ecs::get<cp::Physics>(eid).category))
                         continue;
@@ -141,11 +136,11 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
         (bounds2.getMidY() - bounds1.getMidY()) / 2 };
     
     cpInput2.disable(1.0);
-    ecs.add<cp::Untargetable>(oid);
+    context->ecs->add<cp::Untargetable>(oid);
     cpRender2.sprite->runAction(cc::Sequence::create(
         CocosHelper::blinkActionCreate({255,50,50}, def::blinkAnim::count / def::blinkAnim::duration, 1.0),
         cc::CallFunc::create([oid, this](){
-            ecs.del<cp::Untargetable>(oid);
+            context->ecs->del<cp::Untargetable>(oid);
         }),
         NULL));
     
@@ -218,7 +213,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
             ecs::get<cp::Input>(oid).disable("velocity", [this](unsigned eid) {
                 if (ecs::get<cp::Physics>(eid).velocity == cc::Vec2::ZERO)
                 {
-                    ecs.del<cp::Untargetable>(eid);
+                    context->ecs->del<cp::Untargetable>(eid);
                     ecs::get<cp::Render>(eid).sprite->stopAllActionsByTag(def::blinkAnim::tag);
                     ecs::get<cp::Render>(eid).sprite->setColor({255,255,255});
                     return false;
@@ -236,8 +231,8 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     );
     cpRender.sprite->runAction(cc::Sequence::create(
         cc::CallFunc::create([eid, oid, this](){
-            ecs.add<cp::Untargetable>(oid) = true;
-            ecs.add<cp::Untargetable>(eid) = true; }),
+            context->ecs->add<cp::Untargetable>(oid) = true;
+            context->ecs->add<cp::Untargetable>(eid) = true; }),
         CocosHelper::blinkActionCreate({50,50,255}, def::blinkAnim::count, def::blinkAnim::duration),
         cc::Spawn::create(
             moveAnim,
@@ -245,7 +240,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
             resolutionAnim,
             NULL),
         cc::CallFunc::create([eid, this](){
-            ecs.del<cp::Untargetable>(eid); }),
+            context->ecs->del<cp::Untargetable>(eid); }),
         NULL)
     );
 }

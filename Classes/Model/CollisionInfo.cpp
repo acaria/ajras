@@ -1,5 +1,6 @@
 #include "CollisionInfo.h"
 #include "IMapData.h"
+#include "CollisionEngine.h"
 
 CollisionInfo::~CollisionInfo()
 {
@@ -19,9 +20,41 @@ void CollisionInfo::reset()
 void CollisionInfo::init(IMapData *map)
 {
     this->data = map;
+    this->prepare();
 }
 
 void CollisionInfo::process()
+{
+    for(auto pair : this->agents)
+    {
+        auto& me = pair.second;
+     
+        if (me.velocity.isZero())
+            continue;
+        if (checkCollisionRect(lib::getUnion(me.bounds, me.lastBounds), me.category))
+        {
+            auto diff = this->getCollisionDiff(me.bounds, me.lastBounds, me.category);
+            if (!diff.isZero())
+                this->onDecorCollision(me.id, diff);
+        }
+        
+        for (auto pair2 : this->agents)
+        {
+            auto& other = pair2.second;
+            
+            if (other.id == me.id) continue;
+            
+            if (me.bounds.intersectsRect(other.bounds))
+            {
+                auto diff = CollisionEngine::slide(me.bounds, other.bounds);
+                if (!diff.isZero())
+                    this->onAgentCollision(me.id, other.id, diff);
+            }
+        }
+    }
+}
+
+void CollisionInfo::prepare()
 {
     this->reset();
     using cat = def::collision::Cat;
@@ -32,23 +65,23 @@ void CollisionInfo::process()
     this->grids[cat::flyable] = new lib::DataGrid<bool>(dim);
     
     for(unsigned j = 0; j < dim.y; j++)
-        for(unsigned i = 0; i < dim.x; i++)
+    for(unsigned i = 0; i < dim.x; i++)
+    {
+        auto fields = data->getGrid().get(i,j).fields;
+        if (fields.find(BlockInfo::PType::collision) != fields.end())
         {
-            auto fields = data->getGrid().get(i,j).fields;
-            if (fields.find(BlockInfo::PType::collision) != fields.end())
+            auto category = fields[BlockInfo::PType::collision];
+            if (category == "walkable")
             {
-                auto category = fields[BlockInfo::PType::collision];
-                if (category == "walkable")
-                {
-                    this->grids[cat::flyable]->get({i, j}) = true;
-                    this->grids[cat::walkable]->get({i, j}) = true;
-                }
-                else if (category == "flyable")
-                    this->grids[cat::flyable]->get({i, j}) = true;
-                else
-                    Log("invalid collision category: %s", category.c_str());
+                this->grids[cat::flyable]->get({i, j}) = true;
+                this->grids[cat::walkable]->get({i, j}) = true;
             }
+            else if (category == "flyable")
+                this->grids[cat::flyable]->get({i, j}) = true;
+            else
+                Log("invalid collision category: %s", category.c_str());
         }
+    }
 }
 
 std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const cc::Point& pos, unsigned int maxDist, def::collision::Cat cat)
@@ -78,7 +111,7 @@ std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const lib::v2u &coord, u
     return results;
 }
 
-CollisionInfo::SweepInfo CollisionInfo::InterpolateDir(const cc::Point& dir, const cc::Rect &bounds)
+CollisionInfo::SweepInfo CollisionInfo::interpolateDir(const cc::Point& dir, const cc::Rect &bounds)
 {
     SweepInfo sweep = {
         .count = 0,
@@ -141,11 +174,11 @@ CollisionInfo::SweepInfo CollisionInfo::InterpolateDir(const cc::Point& dir, con
     return sweep;
 }
 
-cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::Rect& lastBounds, def::collision::Cat cat)
+cc::Point CollisionInfo::getCollisionDiff(const cc::Rect& destBounds, const cc::Rect& lastBounds, def::collision::Cat cat)
 {
     cc::Point dir = destBounds.origin - lastBounds.origin;
     
-    auto sweep = this->InterpolateDir(dir, lastBounds);
+    auto sweep = this->interpolateDir(dir, lastBounds);
     
     int cp = 0;
     for(cc::Point pos = lastBounds.origin + sweep.tx; cp <= sweep.count; cp++, pos += sweep.dir)
@@ -168,10 +201,10 @@ cc::Point CollisionInfo::getCollisionPos(const cc::Rect& destBounds, const cc::R
                 if (!this->checkCollisionRect(bounds, cat))
                     break;
             }
-            return bounds.origin;
+            return destBounds.origin - bounds.origin;
         }
     }
-    return destBounds.origin;
+    return {0,0};
 }
 
 bool CollisionInfo::checkCollisionRect(const cc::Rect &rect, def::collision::Cat cat)
@@ -325,15 +358,4 @@ std::list<cocos2d::Rect> CollisionInfo::getRectGridCollisions(const cocos2d::Rec
     });
     
     return mergedRes;
-}
-
-void CollisionInfo::updateAgent(unsigned int eid, ColCat cat, cc::Vec2 pos, cc::Vec2 dir)
-{
-    if (!lib::hasKey(agents, cat))
-        this->agents[cat] = std::map<unsigned, Agent>();
-    
-    this->agents[cat][eid] = {
-        .pos = pos,
-        .dir = dir
-    };
 }

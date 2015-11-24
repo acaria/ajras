@@ -8,20 +8,17 @@ class LayeredContainer;
 class DebugSystem : public BaseSystem
 {
 public:
-    DebugSystem(lib::EcsGroup& ecs);
+    DebugSystem();
     virtual ~DebugSystem();
-    
-    void init(LayeredContainer *view, IMapData *data);
     
     //overrides
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {};
 
+    virtual void init() override;
 
 private:
 
-    IMapData*           data;
-    LayeredContainer*   view;
     cc::Node* debugLayer = nullptr;
     
     cc::Sprite* addPixel(cc::Color3B color, const cc::Rect& bounds);

@@ -8,8 +8,8 @@ void MissionMediator::onAddView(MissionScene &scene)
     
     scene.setBgColor(floorData->getBgColor());
     
-    floorSystemCtrl.load(scene.getCam(), scene.getFrame(), playerData, floorData);
-    floorSystemCtrl.start();
+    this->systemCtrl.load(scene.getCam(), scene.getFrame(), playerData, floorData);
+    this->systemCtrl.start();
     
     scene.interface->registerIndex(playerData->ctrlIndex, [playerData](KeyCode code) {
         return playerData->KeyCode2KeyType(code);
@@ -54,93 +54,104 @@ void MissionMediator::onAddView(MissionScene &scene)
     };
     scene.getEventDispatcher()->addEventListenerWithSceneGraphPriority(kListener, &scene);
     
+    this->registerDispatcher(scene);
+}
+
+void MissionMediator::registerDispatcher(MissionScene& scene)
+{
+    this->systemRegs.clear();
+    auto& dispatcher = this->systemCtrl.getDispatcher();
+    auto floorData = GameCtrl::instance()->getData().curFloor();
+    auto playerData = GameCtrl::instance()->getData().curPlayer();
+    
     //interface events
     unsigned pIndex = playerData->ctrlIndex;
-    this->eventRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
-        [this, pIndex](cc::Vec2 pos){
-            this->floorSystemCtrl.getCtrlSystem()->setStickDirection(pIndex, pos);
+    this->systemRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
+        [this, pIndex, &dispatcher](cc::Vec2 pos){
+            dispatcher.onStickDirection(pIndex, pos);
     }));
     
-    this->eventRegs.push_back(scene.interface->getStick()->onRelease.registerObserver(
-        [this, pIndex](){
-            this->floorSystemCtrl.getCtrlSystem()->setStickDirection(pIndex, nullptr);
+    this->systemRegs.push_back(scene.interface->getStick()->onRelease.registerObserver(
+        [this, pIndex, &dispatcher](){
+            dispatcher.onStickDirection(pIndex, nullptr);
     }));
     
-    this->eventRegs.push_back(scene.interface->onKeyPressAction.registerObserver(
-        [this](unsigned index, int flag){
-            this->floorSystemCtrl.getCtrlSystem()->setKeyPressAction(index, flag);
+    this->systemRegs.push_back(scene.interface->onKeyPressAction.registerObserver(
+        [this, &dispatcher](unsigned index, int flag){
+            dispatcher.onKeyPressAction(index, flag);
     }));
     
-    this->eventRegs.push_back(scene.interface->onKeyReleaseAction.registerObserver(
-        [this](unsigned index, int flag){
-            this->floorSystemCtrl.getCtrlSystem()->setKeyReleaseAction(index, flag);
+    this->systemRegs.push_back(scene.interface->onKeyReleaseAction.registerObserver(
+        [this, &dispatcher](unsigned index, int flag){
+            dispatcher.onKeyReleaseAction(index, flag);
     }));
     
-    this->eventRegs.push_back(scene.interface->onSetActionMode.registerObserver(
-        [this](ActionMode mode){
-            this->floorSystemCtrl.getCtrlSystem()->setSelectionAction(mode);
+    this->systemRegs.push_back(scene.interface->onSetActionMode.registerObserver(
+        [this, &dispatcher](ActionMode mode){
+            dispatcher.onSelectionAction(mode);
     }));
     
-    this->eventRegs.push_back(scene.getCam()->onTouch.registerObserver([this, floorData](cc::Point pos){
-        auto localPos = pos - floorData->getCurrentRoom()->getBounds().origin;
-        this->floorSystemCtrl.getCtrlSystem()->setSelectionPos(localPos);
+    this->systemRegs.push_back(scene.getCam()->onTouch.registerObserver(
+        [this, &dispatcher, floorData](cc::Point pos){
+            auto localPos = pos - floorData->getCurrentRoom()->getBounds().origin;
+            dispatcher.onSelectionPos(localPos);
     }));
     
-    this->eventRegs.push_back(scene.getCam()->onSwipe.registerObserver([this, floorData](
-            cc::Point pos1, cc::Point pos2){
-        auto localPos1 = pos1 - floorData->getCurrentRoom()->getBounds().origin;
-        auto localPos2 = pos2 - floorData->getCurrentRoom()->getBounds().origin;
-        Log("swipe=%f,%f -> %f,%f", localPos1.x, localPos1.y, localPos2.x, localPos2.y);
+    this->systemRegs.push_back(scene.getCam()->onSwipe.registerObserver(
+        [this, &dispatcher, floorData](cc::Point pos1, cc::Point pos2){
+            auto localPos1 = pos1 - floorData->getCurrentRoom()->getBounds().origin;
+            auto localPos2 = pos2 - floorData->getCurrentRoom()->getBounds().origin;
+            Log("swipe=%f,%f -> %f,%f", localPos1.x, localPos1.y, localPos2.x, localPos2.y);
     }));
     
     //system events
-    this->eventRegs.push_back(floorSystemCtrl.onHealthChanged.registerObserver(
-            [this, &scene](unsigned int roomIndex, unsigned int eid, int health) {
-        if (health == 0)
-        {
-            scene.interface->unsetTargetID(eid);
-        }
-        //if (eid == playerFocus->entityFocus)
-        //{
-        //    this->gView->interface->getHealthBar()->updateProperties(health);
-        //}
+    this->systemRegs.push_back(dispatcher.onHealthChanged.registerObserver(
+        [this, &scene](unsigned int roomIndex, unsigned int eid, int health) {
+            if (health == 0)
+            {
+                scene.interface->unsetTargetID(eid);
+            }
+            //if (eid == playerFocus->entityFocus)
+            //{
+            //    this->gView->interface->getHealthBar()->updateProperties(health);
+            //}
     }));
     
-    this->eventRegs.push_back(floorSystemCtrl.onGateTriggered.registerObserver(
-            [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate) {
-        switch(gate.cmd)
-        {
-            case GateMap::CmdType::ENTER_MAP:
-                GameCtrl::instance()->goToCamp("mission");
+    this->systemRegs.push_back(dispatcher.onGateTriggered.registerObserver(
+        [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate) {
+            switch(gate.cmd)
+            {
+                case GateMap::CmdType::ENTER_MAP:
+                    GameCtrl::instance()->goToCamp("mission");
                 break;
-            case GateMap::CmdType::EXIT_MAP:
-                GameCtrl::instance()->goToCamp("mission");
+                case GateMap::CmdType::EXIT_MAP:
+                    GameCtrl::instance()->goToCamp("mission");
                 break;
-            default:
+                default:
                 break;
-        }
+            }
     }));
     
-    this->eventRegs.push_back(floorSystemCtrl.onGearChanged.registerObserver(
-            [this, playerData, &scene](unsigned eid, const cp::GearComponent& gear) {
-        if (playerData->entityFocus == eid)
-        {
-            scene.interface->getInventoryPanel()->updatePlayer(eid, gear);
-        }
+    this->systemRegs.push_back(dispatcher.onGearChanged.registerObserver(
+        [this, playerData, &scene](unsigned eid, const cp::GearComponent& gear) {
+            if (playerData->entityFocus == eid)
+            {
+                scene.interface->getInventoryPanel()->updatePlayer(eid, gear);
+            }
     }));
 }
 
 void MissionMediator::onRemoveView(MissionScene &scene)
 {
-    floorSystemCtrl.clear();
+    systemCtrl.clear();
 }
 
 void MissionMediator::onTick(double dt)
 {
-    floorSystemCtrl.tick(dt);
+    systemCtrl.tick(dt);
 }
 
 void MissionMediator::onAnimate(double dt, double tickPercent)
 {
-    floorSystemCtrl.animate(dt, tickPercent);
+    systemCtrl.animate(dt, tickPercent);
 }

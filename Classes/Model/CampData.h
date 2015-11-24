@@ -14,6 +14,7 @@ public:
 
     CampData(const std::string& fileName);
     ~CampData();
+    void init();
     
     //getters
     const std::set<std::string>&    getSpriteSheets();

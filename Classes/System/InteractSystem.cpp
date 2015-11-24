@@ -3,14 +3,9 @@
 #include "ModelProvider.h"
 #include "IMapData.h"
 
-void InteractSystem::init(IMapData *data)
-{
-    this->collision = data->getCol();
-}
-
 void InteractSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Interact, cp::Render>())
+    for(auto eid : context->ecs->join<cp::Interact, cp::Render>())
     {
         auto& cpInteract = ecs::get<cp::Interact>(eid);
         if (cpInteract.triggerActivation)
@@ -72,10 +67,10 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             for(auto slot : slots)
             {
                 auto nid = cp::entity::genID();
-                auto& cpCollec = ecs.add<cp::Collectible>(nid);
+                auto& cpCollec = context->ecs->add<cp::Collectible>(nid);
                 cpCollec = slot.content->key;
                 
-                auto& cpRender = ecs.add<cp::Render>(nid);
+                auto& cpRender = context->ecs->add<cp::Render>(nid);
                 cpRender.setFrame(slot.content->spriteFrameName,
                                   ecs::get<cp::Render>(eid).sprite->getContainer(),
                                   def::LayerType::MAIN2);
@@ -85,7 +80,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                 cpRender.sprite->setPosition(srcPos);
                 cpRender.sprite->setOpacity(0);
                 
-                auto bList = this->collision->getNearEmptyBlocks(srcPos, 2, def::collision::Cat::walkable);
+                auto bList = context->data->getCol()->getNearEmptyBlocks(srcPos, 2, def::collision::Cat::walkable);
                 auto destRect = bList[cc::random(0, (int)bList.size() - 1)];
                 cc::Point destPos = {
                     destRect.origin.x + (cc::random(0, (int)destRect.size.width)) - srcPos.x,
@@ -105,10 +100,10 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                     cc::CallFunc::create([nid, this](){
                             auto& cpRender = ecs::get<cp::Render>(nid);
                             auto size = cpRender.sprite->getContentSize();
-                            auto& cpPhysics = ecs.add<cp::Physics>(nid);
+                            auto& cpPhysics = context->ecs->add<cp::Physics>(nid);
                             cpPhysics.shape = {0, 0, size.width, size.height};
                             cpPhysics.category = def::collision::Cat::collectible;
-                            ecs.add<cp::Position>(nid).set(cpRender.sprite->getPosition() - (size / 2));
+                            context->ecs->add<cp::Position>(nid).set(cpRender.sprite->getPosition() - (size / 2));
                     }),
                     NULL
                 ));

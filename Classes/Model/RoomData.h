@@ -69,6 +69,8 @@ public:
     std::list<GateInfo>           crossAreas;
     std::map<unsigned, GateMap>   gateMapping;
     
+    void init();
+    
 private:
     RoomModel*                            model;
     lib::DataGrid<BlockInfo>              grid;

@@ -4,7 +4,7 @@
 
 void TargetSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Target, cp::Position, cp::Physics>())
+    for(auto eid : context->ecs->join<cp::Target, cp::Position, cp::Physics>())
     {
         unsigned eid2 = ecs::get<cp::Target>(eid);
         if (eid2 == 0 || !ecs::has<cp::Position, cp::Physics>(eid2))

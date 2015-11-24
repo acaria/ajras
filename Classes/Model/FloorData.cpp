@@ -231,6 +231,9 @@ FloorData* FloorData::generate(const std::string& filename)
         Log("mapgen: end room is missing");
     }
     
+    for(auto& pair : map->rooms)
+        pair.second->init();
+    
     return map;
 }
 

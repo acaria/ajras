@@ -5,31 +5,11 @@
 #include "ModelProvider.h"
 #include "WarpMap.h"
 
-CampSystemCtrl::CampSystemCtrl() : renderSystem(ecsGroup),
-        collisionSystem(ecsGroup),
-        moveSystem(ecsGroup),
-        transSystem(ecsGroup),
-        updaterSystem(ecsGroup),
-        meleeSystem(ecsGroup),
-        targetSystem(ecsGroup),
-        aiSystem(ecsGroup),
-        interactSystem(ecsGroup),
-        controlSystem(ecsGroup),
-        healthSystem(ecsGroup),
-#if ECSYSTEM_DEBUG
-        debugSystem(ecsGroup),
-#endif
-        random(Randgine::instance()->get(Randgine::CAMP))
+CampSystemCtrl::CampSystemCtrl() :
+        random(Randgine::instance()->get(Randgine::CAMP)),
+        systemFacade(dispatcher, context)
 {
-    ecsGroup.setID(1);
-    this->eventRegs.push_back(healthSystem.onHealthChanged.registerObserver(
-            [this](unsigned eid, int health) {
-        this->onHealthChanged(eid, health);
-    }));
-    this->eventRegs.push_back(transSystem.onWarpTriggered.registerObserver(
-            [this](unsigned eid, WarpMap gate) {
-        this->onWarpTriggered(eid, gate);
-    }));
+    ecsGroup.setID(GROUP_INDEX);
 }
 
 CampSystemCtrl::~CampSystemCtrl()
@@ -39,25 +19,14 @@ CampSystemCtrl::~CampSystemCtrl()
 
 void CampSystemCtrl::clear()
 {
+    this->eventRegs.clear();
+    this->systemFacade.clear();
     cp::entity::clear(this->ecsGroup.getID());
 }
 
 void CampSystemCtrl::tick(double dt)
 {
-    controlSystem.tick(dt);
-    aiSystem.tick(dt);
-    updaterSystem.tick(dt);
-    targetSystem.tick(dt);
-    moveSystem.tick(dt);
-    meleeSystem.tick(dt);
-    transSystem.tick(dt);
-    collisionSystem.tick(dt);
-    healthSystem.tick(dt);
-    renderSystem.tick(dt);
-    interactSystem.tick(dt);
-#if ECSYSTEM_DEBUG
-    debugSystem.tick(dt);
-#endif
+    systemFacade.tick(dt);
 }
 
 void CampSystemCtrl::animate(double dt, double tickPercent)
@@ -70,25 +39,7 @@ void CampSystemCtrl::animate(double dt, double tickPercent)
         this->cam->focusTarget(pos);
     }
     
-    controlSystem.animate(dt, tickPercent);
-    aiSystem.animate(dt, tickPercent);
-    updaterSystem.animate(dt, tickPercent);
-    targetSystem.animate(dt, tickPercent);
-    moveSystem.animate(dt, tickPercent);
-    meleeSystem.animate(dt, tickPercent);
-    transSystem.animate(dt, tickPercent);
-    collisionSystem.animate(dt, tickPercent);
-    healthSystem.animate(dt, tickPercent);
-    renderSystem.animate(dt, tickPercent);
-    interactSystem.animate(dt, tickPercent);
-#if ECSYSTEM_DEBUG
-    debugSystem.animate(dt, tickPercent);
-#endif
-}
-
-ControlSystem* CampSystemCtrl::getCtrlSystem()
-{
-    return &this->controlSystem;
+    systemFacade.animate(dt, tickPercent);
 }
 
 void CampSystemCtrl::start()
@@ -159,14 +110,19 @@ void CampSystemCtrl::start()
         NULL
     ));
 
+    dispatcher.onEntityAdded(ecsGroup.getID(), eid);
+}
+
+SystemDispatcher& CampSystemCtrl::getDispatcher()
+{
+    return dispatcher;
 }
 
 void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
                           PlayerData *player, CampData *data)
 {
-    this->view = view;
     this->mapView = cc::create<LayeredContainer>(data->getBounds().size);
-    this->view->addChild(mapView);
+    view->addChild(mapView);
     
     this->cam = cam;
     this->data = data;
@@ -200,40 +156,54 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
             sprite->setPosition(coord);
         }
     }
-    
+
     //gates
     for(auto warpMap : data->warpMapping)
     {
         auto eid = cp::entity::genID();
         ecsGroup.add<cp::Warp>(eid) = warpMap;
-        cc::Point pos = {warpMap.info.rect.origin.x, warpMap.info.rect.origin.y};
-        
-        //change collision data
-        
-        auto gateSrcCoord = data->getCoordFromPos(pos);
-        auto gateDestCoord = data->getCoordFromPos({
-            warpMap.info.rect.getMaxX(),
-            warpMap.info.rect.getMaxY()});
-        
-        for(int j = gateSrcCoord.y; j < gateDestCoord.y; j++)
-        for(int i = gateSrcCoord.x; i < gateDestCoord.x; i++)
-        {
-            grid.get(i, j).fields[BlockInfo::collision] = "walkable";
-        }
     }
-    //hack: twicks to generate after gates process 
-    this->data->getCol()->process();
+    
+    this->loadSystems(mapView, data);
+}
+
+void CampSystemCtrl::loadSystems(LayeredContainer* view, IMapData* data)
+{
+    //init context
+    this->context.ecs = &ecsGroup;
+    this->context.view = mapView;
+    this->context.data = data;
     
     //init systems
-    this->controlSystem.init({PlayerData::ctrlIndex});
-    this->updaterSystem.init(data);
-    this->renderSystem.init(data);
-    this->collisionSystem.init(data);
-    this->interactSystem.init(data);
-    this->meleeSystem.init(data);
-    this->aiSystem.init(data);
-    
+    assert(this->systemFacade.count() == 0);
+    this->systemFacade.factory<ControlSystem>(std::list<unsigned>({PlayerData::ctrlIndex}));
+    this->systemFacade.factory<AISystem>();
+    this->systemFacade.factory<UpdaterSystem>();
+    this->systemFacade.factory<TargetSystem>();
+    this->systemFacade.factory<MoveSystem>();
+    this->systemFacade.factory<MeleeSystem>();
+    this->systemFacade.factory<TransitSystem>();
+    this->systemFacade.factory<CollisionSystem>();
+    this->systemFacade.factory<HealthSystem>();
+    this->systemFacade.factory<RenderSystem>();
+    this->systemFacade.factory<InteractSystem>();
 #if ECSYSTEM_DEBUG
-    this->debugSystem.init(this->mapView, data);
+    this->systemFacade.factory<DebugSystem>();
 #endif
+
+    //bind events
+    this->eventRegs.clear();
+    
+    this->eventRegs.push_back(dispatcher.onEntityAdded.registerObserver(
+            [this](unsigned group, unsigned eid) {
+        if (ecs::has<cp::Position, cp::Physics>(eid))
+            this->data->getCol()->agents[eid] = SysHelper::makeAgent(eid);
+    }));
+    
+    this->eventRegs.push_back(dispatcher.onEntityDeleted.registerObserver(
+            [this](unsigned group, unsigned eid) {
+        this->data->getCol()->agents.erase(eid);
+    }));
+
+    dispatcher.onContextChanged();
 }

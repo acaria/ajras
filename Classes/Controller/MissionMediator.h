@@ -17,5 +17,8 @@ public:
     virtual void onAnimate(double dt, double tickPercent) override;
     
 private:
-    FloorSystemCtrl             floorSystemCtrl;
+    std::list<lib::Registration> systemRegs;
+    void registerDispatcher(MissionScene &scene);
+
+    FloorSystemCtrl systemCtrl;
 };

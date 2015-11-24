@@ -23,6 +23,29 @@ RoomData::RoomData(unsigned roomIndex, RoomModel* model) :
             });
         }
     }
+}
+
+void RoomData::init()
+{
+    //gates
+    for(auto& pair : gateMapping)
+    {
+        const auto& gate = pair.second;
+        cc::Point pos = {gate.info.rect.origin.x, gate.info.rect.origin.y};
+        
+        //change collision data
+        
+        auto gateSrcCoord = getCoordFromPos(pos);
+        auto gateDestCoord = getCoordFromPos({
+            gate.info.rect.getMaxX(),
+            gate.info.rect.getMaxY()});
+        
+        for(int j = gateSrcCoord.y; j < gateDestCoord.y; j++)
+        for(int i = gateSrcCoord.x; i < gateDestCoord.x; i++)
+        {
+            grid.get(i, j).fields[BlockInfo::collision] = "walkable";
+        }
+    }
     
     this->collision.init(this);
     this->navigation.init(this);

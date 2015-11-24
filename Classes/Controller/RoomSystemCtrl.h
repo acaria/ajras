@@ -1,23 +1,8 @@
 #pragma once
 #include "Defines.h"
 #include "Randgine.h"
-#include "RenderSystem.h"
-#include "CollisionSystem.h"
-#include "TransitSystem.h"
-#include "MeleeSystem.h"
-#include "TargetSystem.h"
-#include "AISystem.h"
-#include "TargetSystem.h"
-#include "UpdaterSystem.h"
-#include "MoveSystem.h"
-#include "InteractSystem.h"
-#include "HealthSystem.h"
-
-#if ECSYSTEM_DEBUG
-#include "DebugSystem.h"
-#endif
-
-#include "Event.h"
+#include "ECSGroup.h"
+#include "SystemDispatcher.h"
 
 class RoomData;
 class LayeredContainer;
@@ -27,9 +12,10 @@ class GateMap;
 class RoomSystemCtrl
 {
 public:
-    RoomSystemCtrl();
-    
-    void loadRoom(LayeredContainer* view, RoomData* data);
+    RoomSystemCtrl(unsigned group,
+                   LayeredContainer* view,
+                   RoomData* data,
+                   SystemDispatcher& dispatcher);
     
     RoomData* changeRoom(unsigned roomIndex, unsigned gateIndex, const std::vector<unsigned>& eids);
 
@@ -39,16 +25,8 @@ public:
     //dispays
     void hideObjects(float duration);
     void showObjects(float duration);
-    
-    //events
-    lib::Subject<void(unsigned roomID, unsigned eid, int health)> onHealthChanged;
-    lib::Subject<void(unsigned roomID, unsigned eid, GateMap gate)> onGateTriggered;
-
-    CollisionSystem& getCollisionSystem();
 
 private:
-
-    void forwardEvents();
     unsigned loadStaticObject(const std::string &profileName,
                               const cc::Point& pos,
                               RoomData *data,
@@ -58,24 +36,7 @@ private:
                         RoomData *data,
                         LayeredContainer *view);
     
-    lib::Random& random;
-    std::vector<lib::Registration> eventRegs;
-
-    //systems
-    RenderSystem    renderSystem;
-    CollisionSystem collisionSystem;
-    MoveSystem      moveSystem;
-    TransitSystem   transSystem;
-    UpdaterSystem   updaterSystem;
-    MeleeSystem     meleeSystem;
-    TargetSystem    targetSystem;
-    AISystem        aiSystem;
-    InteractSystem  interactSystem;
-    HealthSystem    healthSystem;
-#if ECSYSTEM_DEBUG
-    DebugSystem     debugSystem;
-#endif
-    
-    //local ecs
-    lib::EcsGroup   ecsGroup;
+    lib::Random&        random;
+    SystemDispatcher&   dispatcher;
+    lib::EcsGroup       ecsGroup;
 };

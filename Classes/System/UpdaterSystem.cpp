@@ -4,15 +4,10 @@
 #include "SysHelper.h"
 #include "CmdFactory.h"
 
-void UpdaterSystem::init(IMapData* data)
-{
-    this->data = data;
-}
-
 void UpdaterSystem::tick(double dt)
 {
     //update from inputs
-    for(auto eid : ecs.join<cp::Input, cp::Position, cp::Physics>())
+    for(auto eid : context->ecs->join<cp::Input, cp::Position, cp::Physics>())
     {
         auto& cpInput = ecs::get<cp::Input>(eid);
         auto& cpPhy = ecs::get<cp::Physics>(eid);
@@ -31,9 +26,9 @@ void UpdaterSystem::tick(double dt)
         if (cpInput.goTo != nullptr)
         {
             auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
-            auto wayPoints = this->data->getNav()->getWaypoints(
+            auto wayPoints = context->data->getNav()->getWaypoints(
                 {bounds.getMidX(), bounds.getMidY()}, cpInput.goTo.Value, cpPhy.category);
-            CmdFactory::goTo(this->ecs, eid, wayPoints, 2);
+            CmdFactory::goTo(context->ecs, eid, wayPoints, 2);
             
             cpInput.goTo = nullptr;
         }
@@ -52,7 +47,7 @@ void UpdaterSystem::tick(double dt)
     }
     
     //update stamina
-    for(auto eid : ecs.join<cp::Stamina, cp::Input>())
+    for(auto eid : context->ecs->join<cp::Stamina, cp::Input>())
     {
         if (!ecs::get<cp::Input>(eid).isActive())
             continue; //skip disabled
@@ -66,7 +61,7 @@ void UpdaterSystem::tick(double dt)
     }
     
     //update commands
-    for(auto eid : ecs.system<cp::Cmd>())
+    for(auto eid : context->ecs->system<cp::Cmd>())
     {
         ecs::get<cp::Cmd>(eid).process(eid, dt);
     }

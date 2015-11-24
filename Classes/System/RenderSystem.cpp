@@ -4,14 +4,9 @@
 #include "IMapData.h"
 #include "AnimationData.h"
 
-void RenderSystem::init(IMapData *data)
-{
-    this->data = data;
-}
-
 void RenderSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Render, cp::Physics, cp::Input, cp::Position>())
+    for(auto eid : context->ecs->join<cp::Render, cp::Physics, cp::Input, cp::Position>())
     {
         auto &cpRender = ecs::get<cp::Render>(eid);
         auto &cpPhy = ecs::get<cp::Physics>(eid);
@@ -40,7 +35,7 @@ void RenderSystem::tick(double dt)
 
 void RenderSystem::animate(double dt, double tickPercent)
 {
-    for(auto eid : ecs.join<cp::Render, cp::Position>())
+    for(auto eid : context->ecs->join<cp::Render, cp::Position>())
     {
         auto &cpRender = ecs::get<cp::Render>(eid);
         auto &cpPos = ecs::get<cp::Position>(eid);

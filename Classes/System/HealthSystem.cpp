@@ -1,13 +1,9 @@
 #include "HealthSystem.h"
 #include "Components.h"
 
-HealthSystem::HealthSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {
-    
-}
-
 void HealthSystem::tick(double dt)
 {
-    for(auto eid : ecs.join<cp::Health, cp::Render>())
+    for(auto eid : context->ecs->join<cp::Health, cp::Render>())
     {
         auto& cpHealth = ecs::get<cp::Health>(eid);
         auto& cpRender = ecs::get<cp::Render>(eid);
@@ -25,7 +21,8 @@ void HealthSystem::tick(double dt)
                 cpRender.sprite->stopAllActions();
                 cpRender.sprite->setColor({255,255,255});
                 cpRender.setAnimation("death", 1, [eid, this](bool cancel){
-                    cp::entity::remove(eid, ecs.getID());
+                    dispatcher->onEntityDeleted(context->ecs->getID(), eid);
+                    cp::entity::remove(eid, context->ecs->getID());
                 });
             }
         }

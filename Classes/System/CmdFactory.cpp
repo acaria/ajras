@@ -3,10 +3,10 @@
 
 using State = CmdComponent::State;
 
-std::string CmdFactory::goTo(lib::EcsGroup& ecs, unsigned eid, cc::Vec2 target, float nearDistance)
+std::string CmdFactory::goTo(lib::EcsGroup* ecs, unsigned eid, cc::Vec2 target, float nearDistance)
 {
     std::string tagName = "goto";
-    ecs.add<cp::Cmd>(eid).set(tagName, [target, nearDistance](unsigned eid, double dt){
+    ecs->add<cp::Cmd>(eid).set(tagName, [target, nearDistance](unsigned eid, double dt){
         if (!ecs::has<cp::Position, cp::Physics>(eid))
             return State::failure;
         
@@ -25,13 +25,13 @@ std::string CmdFactory::goTo(lib::EcsGroup& ecs, unsigned eid, cc::Vec2 target, 
     return tagName;
 }
 
-std::string CmdFactory::goTo(lib::EcsGroup& ecs,
+std::string CmdFactory::goTo(lib::EcsGroup* ecs,
                              unsigned eid,
                              std::list<cc::Vec2> waypoints,
                              float nearDistance)
 {
     std::string tagName = "goto";
-    ecs.add<cp::Cmd>(eid).set(tagName, [waypoints, nearDistance](unsigned eid, double dt)mutable{
+    ecs->add<cp::Cmd>(eid).set(tagName, [waypoints, nearDistance](unsigned eid, double dt)mutable{
         if (!ecs::has<cp::Position, cp::Physics>(eid))
             return State::failure;
         

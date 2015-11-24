@@ -1,7 +1,6 @@
 #pragma once
-#include "PositionComponent.h"
-#include "PhysicsComponent.h"
-#include "AIComponent.h"
+#include "Components.h"
+#include "Defines.h"
 
 class SysHelper
 {
@@ -17,4 +16,6 @@ public:
     static unsigned getNearest(unsigned gid,unsigned eid,
                                def::mood::Flags moodCat,
                                float maxLength);
+    
+    static def::collision::Agent makeAgent(unsigned eid);
 };

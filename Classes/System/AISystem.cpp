@@ -7,16 +7,11 @@
 #include "RoomData.h"
 #include "CmdFactory.h"
 
-void AISystem::init(IMapData *data)
-{
-    this->data = data;
-}
-
 void AISystem::tick(double dt)
 {
     using namespace std::placeholders;
     
-    for(auto eid : ecs.join<cp::Input, cp::AI, cp::Mood>())
+    for(auto eid : context->ecs->join<cp::Input, cp::AI, cp::Mood>())
     {
         if (ecs::has<cp::Control>(eid))
             continue; //manual
@@ -64,7 +59,7 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid, double dt)
                     
                     float nearest = maxDist;
                     unsigned targetID = 0;
-                    for(auto tid : ecs.join<cp::AI, cp::Position, cp::Physics, cp::Mood>())
+                    for(auto tid : context->ecs->join<cp::AI, cp::Position, cp::Physics, cp::Mood>())
                     {
                         if (tid == eid)
                             continue;
@@ -167,17 +162,17 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     assert(node->values.size() == 2); //params=[category,value]
                     
                     auto moodGroup = this->getMoodGroup(mood, node->values[1]);
-                    auto targetID = SysHelper::getNearest(ecs.getID(), eid, moodGroup, cpAI.sightRange);
+                    auto targetID = SysHelper::getNearest(context->ecs->getID(), eid, moodGroup, cpAI.sightRange);
                     if (targetID != 0)
                     {
-                        ecs.add<cp::Target>(eid) = targetID;
+                        context->ecs->add<cp::Target>(eid) = targetID;
                         return state::SUCCESS;
                     }
                     return state::FAILURE;
                 }
                 case AIComponent::eType::NONE: {
                     assert(node->values.size() == 1); //params=[category]
-                    ecs.del<cp::Target>(eid);
+                    context->ecs->del<cp::Target>(eid);
                     return state::SUCCESS;
                 }
                 default: {
@@ -200,7 +195,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     auto &properties = cpAI.board.getFields(nid);
                     if (!lib::hasKey(properties, "target"))
                     {
-                        auto grid = this->data->getGrid();
+                        auto grid = context->data->getGrid();
                         lib::v2u pos = {
                             random.interval((unsigned)0, grid.width),
                             random.interval((unsigned)0, grid.height - 1)
@@ -223,7 +218,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     
                     auto& cpInput = ecs::get<cp::Input>(eid);
                     auto bounds = SysHelper::getBounds(eid);
-                    auto bounds2 = data->getBlockBound({
+                    auto bounds2 = context->data->getBlockBound({
                         (unsigned)properties["target"].asValueMap()["x"].asInt(),
                         (unsigned)properties["target"].asValueMap()["y"].asInt()
                     });
@@ -241,7 +236,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     return state::SUCCESS;
                 }
                 case ActionBType::SLEEPZONE: {
-                    RoomData* roomData = dynamic_cast<RoomData*>(data);
+                    RoomData* roomData = dynamic_cast<RoomData*>(context->data);
                     if (roomData)
                     {
                         if (!ecs::has<cp::Input>(eid))
@@ -363,7 +358,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                         if (ecs::has<cp::Physics>(eid))
                             ecs::get<cp::Physics>(eid).move.ratio = properties["save_ratio"].asFloat();
                         ecs::get<cp::Render>(eid).setAnimation("idle", -1);
-                        ecs.del<cp::Untargetable>(eid);
+                        context->ecs->del<cp::Untargetable>(eid);
                         ecs::get<cp::Melee>(eid).enabled = false;
                         return state::SUCCESS;
                     }
@@ -374,7 +369,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                             properties["charging"] = true;
                             if (ecs::has<cp::Physics>(eid))
                                 ecs::get<cp::Physics>(eid).move.ratio = 3.0;
-                            ecs.add<cp::Untargetable>(eid) = true;
+                            context->ecs->add<cp::Untargetable>(eid) = true;
                             ecs::get<cp::Melee>(eid).enabled = true;
                             ecs::get<cp::Render>(eid).setAnimation("charge_atk", -1);
                         }
@@ -401,7 +396,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
             switch(actionMap[node->values[0]])
             {
                 case ActionBType::SLEEPZONE: {
-                    RoomData* roomData = dynamic_cast<RoomData*>(this->data);
+                    RoomData* roomData = dynamic_cast<RoomData*>(context->data);
                     if (roomData)
                     {
                         if (!ecs::has<cp::Position, cp::Physics>(eid))

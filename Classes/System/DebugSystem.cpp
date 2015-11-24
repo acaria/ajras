@@ -5,10 +5,6 @@
 #include "Components.h"
 #include "SysHelper.h"
 
-DebugSystem::DebugSystem(lib::EcsGroup& ecs) : BaseSystem(ecs) {
-    
-}
-
 template<class T>
 void DebugSystem::purge(const std::set<unsigned int> &ref,
                         std::set<unsigned int> &destSet,
@@ -30,13 +26,13 @@ void DebugSystem::tick(double dt)
     if (GameCtrl::instance()->getData().debugMode == 0)
     {
         if (this->debugLayer->getParent() != nullptr)
-            this->view->removeChild(this->debugLayer);
+            this->context->view->removeChild(this->debugLayer);
         return;
     }
     if (this->debugLayer->getParent() == nullptr)
-        this->view->addChild(this->debugLayer);
+        this->context->view->addChild(this->debugLayer);
 
-    for(auto eid : ecs.join<cp::Physics, cp::Position>())
+    for(auto eid : context->ecs->join<cp::Physics, cp::Position>())
     {
         auto bounds = SysHelper::getBounds(eid);
         
@@ -111,10 +107,10 @@ void DebugSystem::tick(double dt)
         }
     }
     
-    this->purge(ecs.join<cp::Physics, cp::Position>(), collisionSet, collisionMap);
-    this->purge(ecs.join<cp::Physics, cp::Position, cp::Melee>(), meleeSet, meleeMap);
-    this->purge(ecs.join<cp::Physics, cp::Position, cp::Health>(), healthSet, healthMap);
-    this->purge(ecs.join<cp::Physics, cp::Position, cp::AI>(), aiSet, aiMap);
+    this->purge(context->ecs->join<cp::Physics, cp::Position>(), collisionSet, collisionMap);
+    this->purge(context->ecs->join<cp::Physics, cp::Position, cp::Melee>(), meleeSet, meleeMap);
+    this->purge(context->ecs->join<cp::Physics, cp::Position, cp::Health>(), healthSet, healthMap);
+    this->purge(context->ecs->join<cp::Physics, cp::Position, cp::AI>(), aiSet, aiMap);
 }
 
 cc::Label* DebugSystem::addText(cc::Color3B color, const cc::Rect& bounds, const std::string& txt)
@@ -143,13 +139,25 @@ DebugSystem::~DebugSystem()
         this->debugLayer->release();
 }
 
-void DebugSystem::init(LayeredContainer *view, IMapData *data)
+DebugSystem::DebugSystem() : BaseSystem()
 {
     using KeyCode = cocos2d::EventKeyboard::KeyCode;
-    
-    this->view = view;
-    this->data = data;
-    
     this->debugLayer = cc::Layer::create();
     this->debugLayer->retain();
+}
+
+void DebugSystem::init()
+{
+    this->eventRegs.push_back(dispatcher->onContextChanged.registerObserver([this](){
+        this->debugLayer->removeFromParent();
+        this->debugLayer->removeAllChildren();
+        collisionSet.clear();
+        collisionMap.clear();
+        meleeSet.clear();
+        meleeMap.clear();
+        healthSet.clear();
+        healthMap.clear();
+        aiSet.clear();
+        aiMap.clear();
+    }));
 }

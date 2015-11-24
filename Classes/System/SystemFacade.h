@@ -34,13 +34,6 @@ public:
         list.push_back(std::move(system));
     }
     
-    void clear()
-    {
-        list.clear();
-    }
-    
-    unsigned count() { return list.size(); }
-    
     void tick(double dt);
     void animate(double dt, double tp);
     

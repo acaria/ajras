@@ -9,7 +9,25 @@ CampSystemCtrl::CampSystemCtrl() :
         random(Randgine::instance()->get(Randgine::CAMP)),
         systemFacade(dispatcher, context)
 {
+    //init group
     ecsGroup.setID(GROUP_INDEX);
+    this->context.ecs = &ecsGroup;
+    
+    //init systems
+    this->systemFacade.factory<ControlSystem>(std::list<unsigned>({PlayerData::ctrlIndex}));
+    this->systemFacade.factory<AISystem>();
+    this->systemFacade.factory<UpdaterSystem>();
+    this->systemFacade.factory<TargetSystem>();
+    this->systemFacade.factory<MoveSystem>();
+    this->systemFacade.factory<MeleeSystem>();
+    this->systemFacade.factory<TransitSystem>();
+    this->systemFacade.factory<CollisionSystem>();
+    this->systemFacade.factory<HealthSystem>();
+    this->systemFacade.factory<RenderSystem>();
+    this->systemFacade.factory<InteractSystem>();
+#if ECSYSTEM_DEBUG
+    this->systemFacade.factory<DebugSystem>();
+#endif
 }
 
 CampSystemCtrl::~CampSystemCtrl()
@@ -20,7 +38,6 @@ CampSystemCtrl::~CampSystemCtrl()
 void CampSystemCtrl::clear()
 {
     this->eventRegs.clear();
-    this->systemFacade.clear();
     cp::entity::clear(this->ecsGroup.getID());
 }
 
@@ -128,6 +145,8 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
     this->data = data;
     this->playerData = player;
     
+    this->bindSystems(mapView, data);
+    
     auto& grid = data->getGrid();
     
     for(unsigned j = 0; j < grid.height; j++)
@@ -164,32 +183,15 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
         ecsGroup.add<cp::Warp>(eid) = warpMap;
     }
     
-    this->loadSystems(mapView, data);
+    //systems READY
+    dispatcher.onContextChanged();
 }
 
-void CampSystemCtrl::loadSystems(LayeredContainer* view, IMapData* data)
+void CampSystemCtrl::bindSystems(LayeredContainer* view, IMapData* data)
 {
     //init context
-    this->context.ecs = &ecsGroup;
     this->context.view = mapView;
     this->context.data = data;
-    
-    //init systems
-    assert(this->systemFacade.count() == 0);
-    this->systemFacade.factory<ControlSystem>(std::list<unsigned>({PlayerData::ctrlIndex}));
-    this->systemFacade.factory<AISystem>();
-    this->systemFacade.factory<UpdaterSystem>();
-    this->systemFacade.factory<TargetSystem>();
-    this->systemFacade.factory<MoveSystem>();
-    this->systemFacade.factory<MeleeSystem>();
-    this->systemFacade.factory<TransitSystem>();
-    this->systemFacade.factory<CollisionSystem>();
-    this->systemFacade.factory<HealthSystem>();
-    this->systemFacade.factory<RenderSystem>();
-    this->systemFacade.factory<InteractSystem>();
-#if ECSYSTEM_DEBUG
-    this->systemFacade.factory<DebugSystem>();
-#endif
 
     //bind events
     this->eventRegs.clear();
@@ -204,6 +206,4 @@ void CampSystemCtrl::loadSystems(LayeredContainer* view, IMapData* data)
             [this](unsigned group, unsigned eid) {
         this->data->getCol()->agents.erase(eid);
     }));
-
-    dispatcher.onContextChanged();
 }

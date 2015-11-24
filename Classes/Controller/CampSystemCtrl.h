@@ -37,7 +37,7 @@ private:
     SystemContext       context;
     SystemDispatcher    dispatcher;
     
-    void loadSystems(LayeredContainer* view, IMapData* data);
+    void bindSystems(LayeredContainer* view, IMapData* data);
     
     //local ecs
     lib::EcsGroup   ecsGroup;

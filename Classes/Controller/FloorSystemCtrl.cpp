@@ -17,7 +17,25 @@ using namespace std::placeholders;
 FloorSystemCtrl::FloorSystemCtrl() : random(Randgine::instance()->get(Randgine::FLOOR)),
                                      systemFacade(dispatcher, context)
 {
-    
+    //init group
+    this->context.ecs = &ecsGroup;
+
+    //init systems
+    this->systemFacade.factory<ControlSystem>(std::list<unsigned>(
+        {PlayerData::ctrlIndex, PlayerData::debugIndex}));
+    this->systemFacade.factory<AISystem>();
+    this->systemFacade.factory<UpdaterSystem>();
+    this->systemFacade.factory<TargetSystem>();
+    this->systemFacade.factory<MoveSystem>();
+    this->systemFacade.factory<MeleeSystem>();
+    this->systemFacade.factory<TransitSystem>();
+    this->systemFacade.factory<CollisionSystem>();
+    this->systemFacade.factory<HealthSystem>();
+    this->systemFacade.factory<RenderSystem>();
+    this->systemFacade.factory<InteractSystem>();
+#if ECSYSTEM_DEBUG
+    this->systemFacade.factory<DebugSystem>();
+#endif
 }
 
 FloorSystemCtrl::~FloorSystemCtrl()
@@ -28,7 +46,6 @@ FloorSystemCtrl::~FloorSystemCtrl()
 void FloorSystemCtrl::clear()
 {
     this->eventRegs.clear();
-    this->systemFacade.clear();
     for(auto pair : this->roomSystems)
     {
         cp::entity::clear(pair.first);
@@ -354,25 +371,12 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
     }
 }
 
-void FloorSystemCtrl::loadSystems()
+void FloorSystemCtrl::bindSystems(unsigned group, LayeredContainer* view, IMapData* data)
 {
-    assert(this->systemFacade.count() == 0);
-    //init systems
-    this->systemFacade.factory<ControlSystem>(std::list<unsigned>(
-        {PlayerData::ctrlIndex, PlayerData::debugIndex}));
-    this->systemFacade.factory<AISystem>();
-    this->systemFacade.factory<UpdaterSystem>();
-    this->systemFacade.factory<TargetSystem>();
-    this->systemFacade.factory<MoveSystem>();
-    this->systemFacade.factory<MeleeSystem>();
-    this->systemFacade.factory<TransitSystem>();
-    this->systemFacade.factory<CollisionSystem>();
-    this->systemFacade.factory<HealthSystem>();
-    this->systemFacade.factory<RenderSystem>();
-    this->systemFacade.factory<InteractSystem>();
-#if ECSYSTEM_DEBUG
-    this->systemFacade.factory<DebugSystem>();
-#endif
+    //init context
+    this->ecsGroup.setID(group);
+    this->context.data = data;
+    this->context.view = view;
     
     //bind events
     this->eventRegs.clear();
@@ -413,16 +417,13 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
 {
     //init context data
     unsigned group = data->getCurIdxRoom();
-    this->ecsGroup.setID(group);
-    this->context.ecs = &ecsGroup;
-    this->context.data = data->rooms[group];
     
     this->view = view;
     this->cam = cam;
     this->data = data;
     this->playerData = player;
     
-    this->loadSystems();
+    this->bindSystems(group, roomViews[group], data->rooms[group]);
     
     cc::Rect bounds = cc::Rect::ZERO;
     for(auto pair : data->rooms)
@@ -454,10 +455,6 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
         bounds = bounds.unionWithRect(roomData->getBounds());
     }
     
-    //init context view
-    this->context.view = roomViews[group];
-    dispatcher.onContextChanged();
-    
     //too slow!
     /*auto batch = cc::Node::create();
     int count = 0;
@@ -475,4 +472,7 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
         count++;
     }
     this->view->addChild(batch);*/
+    
+    //systems READY
+    dispatcher.onContextChanged();
 }

@@ -19,9 +19,9 @@ CampSystemCtrl::CampSystemCtrl() :
     this->systemFacade.factory<UpdaterSystem>();
     this->systemFacade.factory<TargetSystem>();
     this->systemFacade.factory<MoveSystem>();
+    this->systemFacade.factory<CollisionSystem>();
     this->systemFacade.factory<MeleeSystem>();
     this->systemFacade.factory<TransitSystem>();
-    this->systemFacade.factory<CollisionSystem>();
     this->systemFacade.factory<HealthSystem>();
     this->systemFacade.factory<RenderSystem>();
     this->systemFacade.factory<InteractSystem>();

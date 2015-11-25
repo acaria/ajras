@@ -19,8 +19,12 @@ public:
 
 private:
 
-    cc::Node* debugLayer = nullptr;
+    cc::Node* zoneLayer = nullptr;
+    cc::DrawNode* drawLayer = nullptr;
     
+    
+    //zone
+    //---------------------------------------------------------------------
     cc::Sprite* addPixel(cc::Color3B color, const cc::Rect& bounds);
     cc::Label* addText(cc::Color3B color, const cc::Rect& bounds, const std::string& txt);
     
@@ -42,4 +46,12 @@ private:
     //AI
     std::set<unsigned>              aiSet;
     std::map<unsigned, cc::Label*>  aiMap;
+    
+    void displayZones();
+    //---------------------------------------------------------------------
+    
+    //draw
+    //---------------------------------------------------------------------
+    void displayDraws();
+    //---------------------------------------------------------------------
 };

@@ -5,6 +5,43 @@
 #include "Components.h"
 #include "SysHelper.h"
 
+DebugSystem::~DebugSystem()
+{
+    if (this->zoneLayer != nullptr)
+        this->zoneLayer->release();
+    if (this->drawLayer != nullptr)
+        this->drawLayer->release();
+}
+
+DebugSystem::DebugSystem() : BaseSystem()
+{
+    using KeyCode = cocos2d::EventKeyboard::KeyCode;
+    
+    this->zoneLayer = cc::Layer::create();
+    this->zoneLayer->retain();
+
+    this->drawLayer = cc::DrawNode::create();
+    this->drawLayer->retain();
+}
+
+void DebugSystem::init()
+{
+    this->eventRegs.push_back(dispatcher->onContextChanged.registerObserver([this](){
+        this->zoneLayer->removeFromParent();
+        this->zoneLayer->removeAllChildren();
+        this->drawLayer->removeFromParent();
+        this->drawLayer->removeAllChildren();
+        collisionSet.clear();
+        collisionMap.clear();
+        meleeSet.clear();
+        meleeMap.clear();
+        healthSet.clear();
+        healthMap.clear();
+        aiSet.clear();
+        aiMap.clear();
+    }));
+}
+
 template<class T>
 void DebugSystem::purge(const std::set<unsigned int> &ref,
                         std::set<unsigned int> &destSet,
@@ -25,19 +62,70 @@ void DebugSystem::tick(double dt)
 {
     if (GameCtrl::instance()->getData().debugMode == 0)
     {
-        if (this->debugLayer->getParent() != nullptr)
-            this->context->view->removeChild(this->debugLayer);
+        if (this->zoneLayer->getParent() != nullptr)
+            this->context->view->removeChild(this->zoneLayer);
+        if (this->drawLayer->getParent() != nullptr)
+            this->context->view->removeChild(this->drawLayer);
         return;
     }
-    if (this->debugLayer->getParent() == nullptr)
-        this->context->view->addChild(this->debugLayer);
+    if (this->zoneLayer->getParent() == nullptr)
+        this->context->view->addChild(this->zoneLayer);
+    if (this->drawLayer->getParent() == nullptr)
+        this->context->view->addChild(this->drawLayer);
 
+    this->displayZones();
+    this->displayDraws();
+}
+
+cc::Label* DebugSystem::addText(cc::Color3B color, const cc::Rect& bounds, const std::string& txt)
+{
+    auto label = cc::Label::createWithTTF("", def::font::mini, 8);
+    label->setPosition({bounds.getMidX(), bounds.getMaxY()});
+    this->zoneLayer->addChild(label);
+    return label;
+}
+
+cc::Sprite* DebugSystem::addPixel(cc::Color3B color, const cc::Rect& bounds)
+{
+    auto pixel = cc::Sprite::createWithSpriteFrameName("pixel.png");
+    pixel->setOpacity(100);
+    pixel->setColor(color);
+    pixel->setAnchorPoint({0,0});
+    pixel->setPosition(bounds.origin);
+    pixel->setScale(bounds.size.width, bounds.size.height);
+    this->zoneLayer->addChild(pixel);
+    return pixel;
+}
+
+void DebugSystem::displayDraws()
+{
+    this->drawLayer->clear();
+    this->drawLayer->setLineWidth(1);
+    
+    for(auto& pair : this->context->data->getCol()->agents)
+    {
+        auto& agent = pair.second;
+        this->drawLayer->drawSolidRect(agent.bounds.origin,
+                                       agent.bounds.origin + agent.bounds.size,
+                                       cc::Color4F(cc::Color4B(0, 255,0,50)));
+        this->drawLayer->drawRect(agent.bounds.origin,
+                                  agent.bounds.origin + agent.bounds.size,
+                                  cc::Color4F(cc::Color4B(0, 255,0,255)));
+        this->drawLayer->drawLine({agent.bounds.getMidX(), agent.bounds.getMidY()},
+                                  {agent.bounds.getMidX() + agent.velocity.x * 10,
+                                   agent.bounds.getMidY() + agent.velocity.y * 10},
+                                  cc::Color4F(cc::Color4B(255, 20,117,255)));
+    }
+}
+
+void DebugSystem::displayZones()
+{
     for(auto eid : context->ecs->join<cp::Physics, cp::Position>())
     {
         auto bounds = SysHelper::getBounds(eid);
         
         //collision
-        if (collisionSet.count(eid) > 0)
+        /*if (collisionSet.count(eid) > 0)
         {
             collisionMap[eid]->setPosition(bounds.origin);
             collisionMap[eid]->setScale(bounds.size.width, bounds.size.height);
@@ -46,7 +134,7 @@ void DebugSystem::tick(double dt)
         {
             collisionMap[eid] = addPixel(cc::Color3B::GREEN, bounds);
             collisionSet.insert(eid);
-        }
+        }*/
         
         //melee
         if (ecs::has<cp::Melee>(eid))
@@ -111,53 +199,4 @@ void DebugSystem::tick(double dt)
     this->purge(context->ecs->join<cp::Physics, cp::Position, cp::Melee>(), meleeSet, meleeMap);
     this->purge(context->ecs->join<cp::Physics, cp::Position, cp::Health>(), healthSet, healthMap);
     this->purge(context->ecs->join<cp::Physics, cp::Position, cp::AI>(), aiSet, aiMap);
-}
-
-cc::Label* DebugSystem::addText(cc::Color3B color, const cc::Rect& bounds, const std::string& txt)
-{
-    auto label = cc::Label::createWithTTF("", def::font::mini, 8);
-    label->setPosition({bounds.getMidX(), bounds.getMaxY()});
-    this->debugLayer->addChild(label);
-    return label;
-}
-
-cc::Sprite* DebugSystem::addPixel(cc::Color3B color, const cc::Rect& bounds)
-{
-    auto pixel = cc::Sprite::createWithSpriteFrameName("pixel.png");
-    pixel->setOpacity(100);
-    pixel->setColor(color);
-    pixel->setAnchorPoint({0,0});
-    pixel->setPosition(bounds.origin);
-    pixel->setScale(bounds.size.width, bounds.size.height);
-    this->debugLayer->addChild(pixel);
-    return pixel;
-}
-
-DebugSystem::~DebugSystem()
-{
-    if (this->debugLayer != nullptr)
-        this->debugLayer->release();
-}
-
-DebugSystem::DebugSystem() : BaseSystem()
-{
-    using KeyCode = cocos2d::EventKeyboard::KeyCode;
-    this->debugLayer = cc::Layer::create();
-    this->debugLayer->retain();
-}
-
-void DebugSystem::init()
-{
-    this->eventRegs.push_back(dispatcher->onContextChanged.registerObserver([this](){
-        this->debugLayer->removeFromParent();
-        this->debugLayer->removeAllChildren();
-        collisionSet.clear();
-        collisionMap.clear();
-        meleeSet.clear();
-        meleeMap.clear();
-        healthSet.clear();
-        healthMap.clear();
-        aiSet.clear();
-        aiMap.clear();
-    }));
 }

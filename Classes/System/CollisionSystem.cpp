@@ -33,6 +33,7 @@ void CollisionSystem::onDecorCollision(unsigned eid, cc::Vec2 diff)
     
     cpPhy.collisionState = PhysicsComponent::DECOR;
     cpPos.pos -= diff;
+    context->data->getCol()->agents[eid].bounds.origin -= diff;
 }
 
 void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff)
@@ -59,10 +60,12 @@ void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff
     {
         cpPhy.collisionState = PhysicsComponent::OBJECT;
         cpPos.pos += diff;
+        context->data->getCol()->agents[eid].bounds.origin += diff;
         
         if (ecs::get<cp::Physics>(tid).move.speed > 0)
         {
             ecs::get<cp::Position>(tid).pos -= diff;
+            context->data->getCol()->agents[tid].bounds.origin -= diff;
         }
     }
 }

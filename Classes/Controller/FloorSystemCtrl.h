@@ -38,7 +38,7 @@ private:
     SystemFacade        systemFacade;
     SystemContext       context;
     SystemDispatcher    dispatcher;
-    void bindSystems(unsigned group, LayeredContainer* view, IMapData* data);
+    void bindSystems();
     //local ecs
     lib::EcsGroup       ecsGroup;
     

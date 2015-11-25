@@ -371,13 +371,8 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
     }
 }
 
-void FloorSystemCtrl::bindSystems(unsigned group, LayeredContainer* view, IMapData* data)
+void FloorSystemCtrl::bindSystems()
 {
-    //init context
-    this->ecsGroup.setID(group);
-    this->context.data = data;
-    this->context.view = view;
-    
     //bind events
     this->eventRegs.clear();
     this->eventRegs.push_back(dispatcher.onGateTriggered.registerObserver(
@@ -423,6 +418,8 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
     this->data = data;
     this->playerData = player;
     
+    this->bindSystems();
+    
     cc::Rect bounds = cc::Rect::ZERO;
     for(auto pair : data->rooms)
     {
@@ -453,8 +450,6 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
         bounds = bounds.unionWithRect(roomData->getBounds());
     }
     
-    this->bindSystems(group, roomViews[group], data->rooms[group]);
-    
     //too slow!
     /*auto batch = cc::Node::create();
     int count = 0;
@@ -473,6 +468,9 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
     }
     this->view->addChild(batch);*/
     
+    this->ecsGroup.setID(group);
+    this->context.data = this->data->getCurrentRoom();
+    this->context.view = this->roomViews[this->data->getCurIdxRoom()];
     //systems READY
     dispatcher.onContextChanged();
 }

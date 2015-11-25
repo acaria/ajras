@@ -394,17 +394,6 @@ void FloorSystemCtrl::bindSystems()
         context.ecs->setID(group);
         dispatcher.onContextChanged();
     }));
-    
-    this->eventRegs.push_back(dispatcher.onEntityAdded.registerObserver(
-            [this](unsigned group, unsigned eid) {
-        if (ecs::has<cp::Position, cp::Physics>(eid))
-            this->data->getRoomAt(group)->getCol()->agents[eid] = SysHelper::makeAgent(eid);
-    }));
-    
-    this->eventRegs.push_back(dispatcher.onEntityDeleted.registerObserver(
-            [this](unsigned group, unsigned eid) {
-        this->data->getRoomAt(group)->getCol()->agents.erase(eid);
-    }));
 }
 
 void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
@@ -417,8 +406,6 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
     this->cam = cam;
     this->data = data;
     this->playerData = player;
-    
-    this->bindSystems();
     
     cc::Rect bounds = cc::Rect::ZERO;
     for(auto pair : data->rooms)
@@ -468,9 +455,11 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
     }
     this->view->addChild(batch);*/
     
+    //init context
     this->ecsGroup.setID(group);
     this->context.data = this->data->getCurrentRoom();
     this->context.view = this->roomViews[this->data->getCurIdxRoom()];
+    this->bindSystems();
     //systems READY
     dispatcher.onContextChanged();
 }

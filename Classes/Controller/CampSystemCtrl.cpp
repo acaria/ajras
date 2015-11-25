@@ -145,8 +145,6 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
     this->data = data;
     this->playerData = player;
     
-    this->bindSystems(mapView, data);
-    
     auto& grid = data->getGrid();
     
     for(unsigned j = 0; j < grid.height; j++)
@@ -182,28 +180,11 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
         auto eid = cp::entity::genID();
         ecsGroup.add<cp::Warp>(eid) = warpMap;
     }
-    
-    //systems READY
-    dispatcher.onContextChanged();
-}
-
-void CampSystemCtrl::bindSystems(LayeredContainer* view, IMapData* data)
-{
+ 
     //init context
     this->context.view = mapView;
     this->context.data = data;
-
-    //bind events
-    this->eventRegs.clear();
     
-    this->eventRegs.push_back(dispatcher.onEntityAdded.registerObserver(
-            [this](unsigned group, unsigned eid) {
-        if (ecs::has<cp::Position, cp::Physics>(eid))
-            this->data->getCol()->agents[eid] = SysHelper::makeAgent(eid);
-    }));
-    
-    this->eventRegs.push_back(dispatcher.onEntityDeleted.registerObserver(
-            [this](unsigned group, unsigned eid) {
-        this->data->getCol()->agents.erase(eid);
-    }));
+    //systems READY
+    dispatcher.onContextChanged();
 }

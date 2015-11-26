@@ -27,30 +27,34 @@ void CollisionInfo::process()
 {
     for(auto pair : this->agents)
     {
-        auto& me = pair.second;
-     
-        if (me.velocity.isZero())
-            continue;
-        if (checkCollisionRect(lib::getUnion(me.bounds, me.lastBounds), me.category))
-        {
-            auto diff = this->getCollisionDiff(me.bounds, me.lastBounds, me.category);
-            if (!diff.isZero())
-                this->onDecorCollision(me.id, diff);
-        }
+        this->processAgent(pair.second);
+    }
+}
+
+void CollisionInfo::processAgent(const Agent &agent)
+{
+    if (agent.bounds.origin == agent.lastBounds.origin)
+        return;
+    
+    for (auto pair2 : this->agents)
+    {
+        auto& other = pair2.second;
         
-        for (auto pair2 : this->agents)
+        if (other.id == agent.id) continue;
+        
+        if (agent.bounds.intersectsRect(other.bounds))
         {
-            auto& other = pair2.second;
-            
-            if (other.id == me.id) continue;
-            
-            if (me.bounds.intersectsRect(other.bounds))
-            {
-                auto diff = CollisionEngine::slide(me.bounds, other.bounds);
-                if (!diff.isZero())
-                    this->onAgentCollision(me.id, other.id, diff);
-            }
+            auto diff = CollisionEngine::slide(agent.bounds, other.bounds);
+            if (!diff.isZero())
+                this->onAgentCollision(agent.id, other.id, diff);
         }
+    }
+    
+    if (checkCollisionRect(lib::getUnion(agent.bounds, agent.lastBounds), agent.category))
+    {
+        auto diff = this->getCollisionDiff(agent.bounds, agent.lastBounds, agent.category);
+        if (!diff.isZero())
+            this->onDecorCollision(agent.id, diff);
     }
 }
 
@@ -111,74 +115,12 @@ std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const lib::v2u &coord, u
     return results;
 }
 
-CollisionInfo::SweepInfo CollisionInfo::interpolateDir(const cc::Point& dir, const cc::Rect &bounds)
-{
-    SweepInfo sweep = {
-        .count = 0,
-        .dir = {0,0},
-        .tx = dir
-    };
-    
-    if (dir.x != 0 && (std::abs(dir.x) / bounds.size.width) > sweep.count)
-    {
-        sweep.count = std::abs(dir.x) / bounds.size.width;
-        sweep.dir = {
-            dir.x / sweep.count,
-            dir.y * bounds.size.width / std::abs(dir.x)
-        };
-        sweep.tx = {
-            fmodf(dir.x, sweep.dir.x),
-            dir.y ? fmodf(dir.y, sweep.dir.y) : 0
-        };
-    }
-    
-    if (dir.y != 0 && (std::abs(dir.y) / bounds.size.height) > sweep.count)
-    {
-        sweep.count = std::abs(dir.y) / bounds.size.height;
-        sweep.dir = {
-            dir.x * bounds.size.height / std::abs(dir.y),
-            dir.y / sweep.count,
-        };
-        sweep.tx = {
-            dir.x ? fmodf(dir.x, sweep.dir.x) : 0,
-            fmodf(dir.y, sweep.dir.y)
-        };
-    }
-    
-    auto tWidth = this->data->getTileSize().width;
-    if (dir.x != 0 && (std::abs(dir.x) / tWidth) > sweep.count)
-    {
-        sweep.count = std::abs(dir.x) / tWidth;
-        sweep.dir = {
-            dir.x / sweep.count,
-            dir.y * tWidth / std::abs(dir.x) };
-        sweep.tx = {
-            fmodf(dir.x, sweep.dir.x),
-            dir.y ? fmodf(dir.y, sweep.dir.y) : 0
-        };
-    }
-    
-    auto tHeight = this->data->getTileSize().height;
-    if (dir.y != 0 && (std::abs(dir.y) / tHeight) > sweep.count)
-    {
-        sweep.count = std::abs(dir.y) / tHeight;
-        sweep.dir = {
-            dir.x * tHeight / std::abs(dir.y),
-            dir.y / sweep.count};
-        sweep.tx = {
-            dir.x ? fmodf(dir.x, sweep.dir.x) : 0,
-            fmodf(dir.y, sweep.dir.y)
-        };
-    }
-    
-    return sweep;
-}
 
 cc::Point CollisionInfo::getCollisionDiff(const cc::Rect& destBounds, const cc::Rect& lastBounds, def::collision::Cat cat)
 {
     cc::Point dir = destBounds.origin - lastBounds.origin;
     
-    auto sweep = this->interpolateDir(dir, lastBounds);
+    auto sweep = CollisionEngine::interpolateDir(dir, lastBounds, data->getTileSize());
     
     int cp = 0;
     for(cc::Point pos = lastBounds.origin + sweep.tx; cp <= sweep.count; cp++, pos += sweep.dir)
@@ -267,72 +209,6 @@ bool CollisionInfo::checkCollisionRay(const cc::Point& origin,
     return false;
 }
 
-bool CollisionInfo::needMerge(const cc::Rect &r1, const cc::Rect &r2)
-{
-    if (r1.size.width != r2.size.width && r1.size.height != r2.size.height)
-        return false;
-    if (r1.size.width == r2.size.width && r1.origin.x == r2.origin.x)
-    {
-        if (r1.getMinY() == r2.getMaxY() || r2.getMinY() == r1.getMaxY())
-            return true;
-    }
-    if (r1.size.height == r2.size.height && r1.origin.y == r2.origin.y)
-    {
-        if (r1.getMinX() == r2.getMaxX() || r2.getMinX() == r1.getMaxX())
-            return true;
-    }
-    
-    return false;
-}
-
-std::list<cc::Rect> CollisionInfo::mergeRectGrids(std::list<cc::Rect> src)
-{
-    struct processInfo
-    {
-        cc::Rect bounds;
-        bool processed;
-    };
-    
-    std::list<processInfo> processList;
-    for(auto bounds : src)
-    {
-        processList.push_back({
-            .bounds = bounds,
-            .processed = false
-        });
-    }
-    
-    std::list<cc::Rect> res;
-    
-    for(auto& info : processList)
-    {
-        if (info.processed)
-            continue;
-        cc::Rect mRect = info.bounds;
-        for(auto& info2 : processList)
-        {
-            auto bounds = info2.bounds;
-            if (needMerge(bounds, mRect))
-            {
-                info2.processed = true;
-                cc::Point origin = {
-                    MIN(bounds.origin.x, mRect.origin.x),
-                    MIN(bounds.origin.y, mRect.origin.y)
-                };
-                mRect = {
-                    origin.x, origin.y,
-                    MAX(bounds.getMaxX(), mRect.getMaxX()) - origin.x,
-                    MAX(bounds.getMaxY(), mRect.getMaxY()) - origin.y
-                };
-            }
-        }
-        res.push_back(mRect);
-        info.processed = true;
-    }
-    
-    return res;
-}
-
 std::list<cocos2d::Rect> CollisionInfo::getRectGridCollisions(const cocos2d::Rect& rect, def::collision::Cat cat)
 {
     auto moveAble = this->grids[cat];
@@ -342,16 +218,16 @@ std::list<cocos2d::Rect> CollisionInfo::getRectGridCollisions(const cocos2d::Rec
     auto downRight = this->data->getCoordFromPos({rect.getMaxX(), rect.getMinY()});
     
     for(unsigned x = upLeft.x; x <= downRight.x; x++)
-    for(unsigned y = downRight.y; y <= upLeft.y; y++)
-    {
-        if (!moveAble->get({x,y}))
+        for(unsigned y = downRight.y; y <= upLeft.y; y++)
         {
-            res.push_back(lib::getIntersection(
-                    this->data->getBlockBound({x, y}), rect));
+            if (!moveAble->get({x,y}))
+            {
+                res.push_back(lib::getIntersection(
+                                                   this->data->getBlockBound({x, y}), rect));
+            }
         }
-    }
     
-    auto mergedRes = this->mergeRectGrids(res);
+    auto mergedRes = CollisionEngine::mergeRectGrids(res);
     
     mergedRes.sort([&rect](const cocos2d::Rect& r1, const cocos2d::Rect& r2){
         return r1.size.width * r1.size.height > r2.size.width * r2.size.height;

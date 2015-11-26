@@ -95,13 +95,19 @@ void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff
     {
         cpPhy.collisionState = PhysicsComponent::OBJECT;
         cpPos.pos += diff;
-        context->data->getCol()->agents[eid].bounds.origin += diff;
+        collisionData->agents[eid].bounds.origin += diff;
         
-        if (ecs::get<cp::Physics>(tid).move.speed > 0)
+        //TODO
+        auto& agent2 = collisionData->agents[tid];
+        agent2.velocity = -diff;
+        ecs::get<cp::Physics>(tid).velocity = agent2.velocity;
+        
+        /*if (!collisionData->checkCollisionRect(agent2.bounds - diff, agent2.category))
         {
             ecs::get<cp::Position>(tid).pos -= diff;
-            context->data->getCol()->agents[tid].bounds.origin -= diff;
-        }
+            agent2.bounds.origin -= diff;
+            agent2.lastBounds = agent2.bounds;
+        }*/
     }
 }
 

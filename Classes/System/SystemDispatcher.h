@@ -13,6 +13,7 @@ struct SystemDispatcher
     lib::Subject<void()>                                          onContextChanged;
     lib::Subject<void(unsigned, unsigned)>                        onEntityAdded;
     lib::Subject<void(unsigned, unsigned)>                        onEntityDeleted;
+    lib::Subject<void(unsigned, unsigned)>                        onEntityPositionChanged;
 
     //control
     lib::Subject<void(unsigned, const lib::Nullable<cc::Vec2>&)>  onStickDirection;

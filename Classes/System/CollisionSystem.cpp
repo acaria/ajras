@@ -46,6 +46,19 @@ void CollisionSystem::init()
             [this](unsigned group, unsigned eid) {
         collisionData->agents.erase(eid);
     }));
+    
+    this->eventRegs.push_back(this->dispatcher->onEntityPositionChanged.registerObserver(
+            [this](unsigned group, unsigned eid) {
+        if(context->ecs->getID() != group ||
+           !ecs::has<cp::Position, cp::Physics>(eid) ||
+           !lib::hasKey(this->collisionData->agents, eid))
+            return;
+        auto& cpPos = ecs::get<cp::Position>(eid);
+        auto& cpPhy = ecs::get<cp::Physics>(eid);
+        this->collisionData->agents[eid].bounds = SysHelper::getBounds(cpPos, cpPhy);
+        this->collisionData->agents[eid].lastBounds = SysHelper::getLastBounds(cpPos, cpPhy);
+        this->collisionData->agents[eid].velocity = cpPhy.velocity;
+    }));
 }
 
 void CollisionSystem::onDecorCollision(unsigned eid, cc::Vec2 diff)

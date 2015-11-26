@@ -47,10 +47,7 @@ void MoveSystem::tick(double dt)
         if (!cpPhy.velocity.isZero())
         {
             cpPos.pos += cpPhy.velocity;
-        
-            context->data->getCol()->agents[eid].bounds = SysHelper::getBounds(cpPos, cpPhy);
-            context->data->getCol()->agents[eid].lastBounds = SysHelper::getLastBounds(cpPos, cpPhy);
-            context->data->getCol()->agents[eid].velocity = cpPhy.velocity;
+            dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
         }
     }
 }

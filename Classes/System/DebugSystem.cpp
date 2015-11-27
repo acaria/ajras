@@ -122,6 +122,8 @@ void DebugSystem::displayZones()
 {
     for(auto eid : context->ecs->join<cp::Physics, cp::Position>())
     {
+        if (!ecs::get<cp::Physics>(eid).enabled) continue;
+        
         auto bounds = SysHelper::getBounds(eid);
         
         //collision

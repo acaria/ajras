@@ -24,9 +24,9 @@
 			<key>speed</key>
 			<string>70</string>
 			<key>deceleration</key>
-			<string>0.2</string>
+			<string>250</string>
 			<key>acceleration</key>
-			<string>0.3</string>
+			<string>200</string>
 		</dict>
 		<key>sight</key>
 		<dict>
@@ -38,7 +38,7 @@
 			<key>type</key>
 			<string>self</string>
 			<key>recoil</key>
-			<string>20,0.075</string>
+			<string>20,1</string>
 			<key>stamina</key>
 			<string>90</string>
 			<key>range</key>

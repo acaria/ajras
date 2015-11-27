@@ -66,6 +66,8 @@ void CollisionSystem::onDecorCollision(unsigned eid, cc::Vec2 diff)
     auto& cpPos = ecs::get<cp::Position>(eid);
     auto& cpPhy = ecs::get<cp::Physics>(eid);
     
+    if (!cpPhy.enabled) return;
+    
     cpPhy.collisionState = PhysicsComponent::DECOR;
     cpPos.pos -= diff;
     context->data->getCol()->agents[eid].bounds.origin -= diff;
@@ -75,6 +77,8 @@ void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff
 {
     auto& cpPos = ecs::get<cp::Position>(eid);
     auto& cpPhy = ecs::get<cp::Physics>(eid);
+    
+    if (!cpPhy.enabled) return;
     
     if (collisionData->agents[tid].category == def::collision::Cat::collectible)
     {

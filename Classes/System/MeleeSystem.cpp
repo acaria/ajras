@@ -13,7 +13,7 @@ void MeleeSystem::tick(double dt)
     std::list<std::list<std::pair<unsigned, unsigned>>> meleeListGroup;
     for(auto eid : context->ecs->join<cp::Melee, cp::Mood, cp::Stamina, cp::Physics, cp::Position, cp::Render>())
     {
-        if (!ecs::has<cp::Input>(eid) || !ecs::get<cp::Input>(eid).isActive())
+        if (!ecs::has<cp::Input>(eid) || !ecs::get<cp::Input>(eid).isActive() || !ecs::get<cp::Physics>(eid).enabled)
             continue;
         
         auto entityMood = ecs::get<cp::Mood>(eid);
@@ -38,7 +38,7 @@ void MeleeSystem::tick(double dt)
         {
             if (oid == eid) continue;
             
-            if (ecs::has<cp::Untargetable>(oid))
+            if (ecs::has<cp::Untargetable>(oid) || !ecs::get<cp::Physics>(oid).enabled)
                 continue;
             //if (ecs::has<cp::Melee>(oid) && !ecs::get<cp::Melee>(oid).enabled)
             //    continue;
@@ -146,7 +146,9 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
     
     auto resolutionAnim = cc::Sequence::create(
         cc::CallFunc::create([this, &cpRender2, &cpMelee, oid, moveDir](){
-            ecs::get<cp::Physics>(oid).applyForce(cpMelee.recoil.speed, cpMelee.recoil.duration, moveDir);
+            /*ecs::get<cp::Physics>(oid).addForce(cpMelee.recoil.speed,
+                                                cpMelee.recoil.duration,
+                                                moveDir);*/
             cpMelee.enabled = true;
             ecs::get<cp::Health>(oid).damage += cpMelee.damage;
         }),
@@ -206,10 +208,12 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
             auto& cpHealth2 = ecs::get<cp::Health>(oid);
         
             auto blinkAction = CocosHelper::blinkActionCreate(
-                {255,50,50}, def::blinkAnim::count * 1000000, def::blinkAnim::duration * 1000000);
+                {255,50,50}, def::blinkAnim::count / def::blinkAnim::duration, 1.0);
             blinkAction->setTag(def::blinkAnim::tag);
             cpRender2.sprite->runAction(blinkAction);
-            ecs::get<cp::Physics>(oid).applyForce(cpMelee.recoil.speed, cpMelee.recoil.duration, moveDir);
+            /*ecs::get<cp::Physics>(oid).addForce(cpMelee.recoil.speed,
+                                                cpMelee.recoil.duration,
+                                                moveDir);
             ecs::get<cp::Input>(oid).disable("velocity", [this](unsigned eid) {
                 if (ecs::get<cp::Physics>(eid).velocity == cc::Vec2::ZERO)
                 {
@@ -219,7 +223,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
                     return false;
                 }
                 return true;
-            });
+            });*/
         
             cpHealth2.damage += cpMelee.damage;
         }),

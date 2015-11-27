@@ -11,8 +11,11 @@ struct PhysicsComponent
 
     struct ForceInfo
     {
-        float       ratio;
-        float       speed;
+        bool        active;
+        float       curSpeed;
+        float       maxSpeed;
+        float       accSpeed;
+        float       decSpeed;
         cc::Vec2    direction;
         float       duration;
     };
@@ -26,27 +29,23 @@ struct PhysicsComponent
 
     void setProfile(const std::string& profileName);
     void setProfile(ProfileData* profileData);
-    void applyForce(float speed, float duration, cc::Vec2 dir);
+    void addForce(float speed, float duration, cc::Vec2 dir);
+    void addForce(float speed, float duration, cc::Vec2 dir,
+                  float accSpeed, float decSpeed);
     
-    double  getMoveSpeed();
-    double  getForceSpeed();
-    void    resetForce();
+    void resetForces();
 
     //input/collision
-    cc::Rect            shape;
-    def::collision::Cat   category;
+    bool                    enabled;
+    cc::Rect                shape;
+    def::collision::Cat     category;
     
-    //input/velociy
-    ForceInfo           move;
-    ForceInfo           force;
-    double              accelDuration = 1.0;
-    double              decelDuration = 1.0;
+    //input/movement
+    ForceInfo               movement;
+    std::list<ForceInfo>    external;
+    float                   weight;
     
     //output
-    CollisionType       collisionState = CollisionType::NONE;
-    cc::Vec2            velocity;
-    
-    //internal
-    double              accelFactor;
-    double              decelFactor;
+    CollisionType           collisionState = CollisionType::NONE;
+    cc::Vec2                velocity;
 };

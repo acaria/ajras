@@ -81,14 +81,16 @@ void TransitSystem::tick(double dt)
     for(auto eid2 : context->ecs->join<cp::Position, cp::Physics, cp::Input>())
     {
         auto& cpPos = ecs::get<cp::Position>(eid2);
-        auto& cpCol = ecs::get<cp::Physics>(eid2);
+        auto& cpPhy = ecs::get<cp::Physics>(eid2);
+        
+        if (!cpPhy.enabled) continue;
         
         //processing gates
         for(auto eid : context->ecs->system<cp::Gate>())
         {
             auto& cpGate = ecs::get<cp::Gate>(eid);
         
-            auto result = this->processing(cpGate.info, cpPos, cpCol);
+            auto result = this->processing(cpGate.info, cpPos, cpPhy);
             if (result.first >= 1)
             {
                 gateringEnter(eid2, result.second, cpGate);
@@ -101,7 +103,7 @@ void TransitSystem::tick(double dt)
         {
             auto& cpWarp = ecs::get<cp::Warp>(eid);
             
-            auto result = this->processing(cpWarp.info, cpPos, cpCol);
+            auto result = this->processing(cpWarp.info, cpPos, cpPhy);
             if (result.first >= 1)
             {
                 warpingEnter(eid2, result.second, cpWarp);
@@ -118,9 +120,7 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     float duration = 0.5f;
     
     auto& render = ecs::get<cp::Render>(eid);
-    ecs::get<cp::Input>(eid).forceDisable();
-    context->ecs->del<cp::Position>(eid);
-    ecs::get<cp::Physics>(eid).resetForce();
+    SysHelper::disableEntity(eid);
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, targetPoint),
         cc::CallFunc::create([this, eid, &gateMap](){
@@ -142,9 +142,7 @@ void TransitSystem::warpingEnter(unsigned eid, const cocos2d::Vec2& targetPoint,
     float duration = 0.5f;
     
     auto& render = ecs::get<cp::Render>(eid);
-    ecs::get<cp::Input>(eid).forceDisable();
-    context->ecs->del<cp::Position>(eid);
-    ecs::get<cp::Physics>(eid).resetForce();
+    SysHelper::disableEntity(eid);
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, targetPoint),
         cc::CallFunc::create([this, eid, &warpMap](){

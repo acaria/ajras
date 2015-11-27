@@ -325,6 +325,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
             }
         }
         case ExecBType::CHARGE: {
+            /*
             assert(node->values.size() == 3); //params=[type, duration_load, duration_charge]
             switch(actionMap[node->values[0]])
             {
@@ -352,8 +353,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                         ecs::get<cp::Render>(eid).setAnimation("charge_load", -1);
                     }
                     
-                    if (properties["time_charge"].asDouble() <= 0/* ||
-                        ecs::get<cp::Physics>(eid).current == PhysicsComponent::CType::DECOR*/)
+                    if (properties["time_charge"].asDouble() <= 0)
                     {
                         if (ecs::has<cp::Physics>(eid))
                             ecs::get<cp::Physics>(eid).move.ratio = properties["save_ratio"].asFloat();
@@ -389,7 +389,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                 default:
                     Log("invalid charge sub parameter: %s", node->values[0].c_str());
                     break;
-            }
+            } */
+            return state::FAILURE;
         }
         case ExecBType::STOP: {
             assert(node->values.size() == 1); //params=[type]

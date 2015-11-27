@@ -4,20 +4,15 @@
 
 PhysicsComponent::PhysicsComponent()
 {
-    //velocity
-    this->accelDuration = 0;
-    this->decelDuration = 0;
+    this->enabled = true;
     
-    this->move = {
-        .ratio = 1.0,
-        .speed = 0,
-        .direction = {0,0},
-        .duration = 0
-    };
-    
-    this->force = {
-        .ratio = 1.0,
-        .speed = 0,
+    //init movement force
+    this->movement = {
+        .curSpeed = 0,
+        .active = false,
+        .maxSpeed = 0,
+        .accSpeed = 0,
+        .decSpeed = 0,
         .direction = {0,0},
         .duration = 0
     };
@@ -39,9 +34,9 @@ void PhysicsComponent::setProfile(ProfileData* profile)
     if (profile->stats != nullptr && profile->stats->move != nullptr)
     {
         auto move = profile->stats->move.Value;
-        this->accelDuration = move.acceleration;
-        this->decelDuration = move.deceleration;
-        this->move.speed = move.speed;
+        this->movement.accSpeed = move.acceleration;
+        this->movement.decSpeed = move.deceleration;
+        this->movement.maxSpeed = move.speed;
     }
 }
 
@@ -50,30 +45,29 @@ void PhysicsComponent::setProfile(const std::string& profileName)
     this->setProfile(ModelProvider::instance()->profile.get(profileName));
 }
 
-void PhysicsComponent::applyForce(float speed, float duration, cc::Vec2 dir)
+void PhysicsComponent::addForce(float speed, float duration, cc::Vec2 dir)
 {
-    force.speed = speed;
-    force.duration = duration;
-    force.direction = dir.getNormalized();
-    decelFactor = 1.0;
-    accelFactor = 1.0;
+    addForce(speed, duration, dir, movement.accSpeed, movement.decSpeed);
 }
 
-double PhysicsComponent::getMoveSpeed()
+void PhysicsComponent::addForce(float speed, float duration, cc::Vec2 dir, float acc, float dec)
 {
-    return move.ratio * move.speed;
+    this->external.push_back({
+        .active = true,
+        .curSpeed = 0,
+        .maxSpeed = speed,
+        .direction = dir.getNormalized(),
+        .duration = duration,
+        .accSpeed = acc,
+        .decSpeed = dec
+    });
 }
 
-double PhysicsComponent::getForceSpeed()
+void PhysicsComponent::resetForces()
 {
-    return force.ratio * force.speed;
-}
-
-void PhysicsComponent::resetForce()
-{
-    accelFactor = 0;
-    decelFactor = 0;
     velocity = {0,0};
-    move.direction = {0,0};
-    force.direction = {0,0};
+    movement.active = false;
+    movement.curSpeed = 0;
+    movement.direction = {0,0};
+    external.clear();
 }

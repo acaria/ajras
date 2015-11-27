@@ -22,11 +22,11 @@
 			<key>orientation</key>
 			<true/>
 			<key>speed</key>
-			<string>80</string>
+			<string>75</string>
 			<key>deceleration</key>
-			<string>0.2</string>
+			<string>250</string>
 			<key>acceleration</key>
-			<string>0.3</string>
+			<string>200</string>
 		</dict>
 		<key>sight</key>
 		<dict>
@@ -38,7 +38,7 @@
 			<key>type</key>
 			<string>dir</string>
 			<key>recoil</key>
-			<string>150,0.075</string>
+			<string>20,1</string>
 			<key>stamina</key>
 			<string>30</string>
 			<key>range</key>

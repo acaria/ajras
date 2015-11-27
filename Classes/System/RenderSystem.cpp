@@ -22,7 +22,7 @@ void RenderSystem::tick(double dt)
                 orientation = ((cpPosition.dir != Dir::None) ? cpPosition.dir : Dir::Down);
             }
             
-            cpRender.setMoveAnimation(orientation, !cpPhy.move.direction.isZero());
+            cpRender.setMoveAnimation(orientation, cpPhy.movement.active);
         }
         
         //update target mode

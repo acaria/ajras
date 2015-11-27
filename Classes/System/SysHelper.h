@@ -18,4 +18,7 @@ public:
                                float maxLength);
     
     static def::collision::Agent makeAgent(unsigned eid);
+    
+    static void enableEntity(unsigned eid);
+    static void disableEntity(unsigned eid);
 };

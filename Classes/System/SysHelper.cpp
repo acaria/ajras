@@ -56,7 +56,7 @@ unsigned SysHelper::getNearest(unsigned gid, unsigned int eid, def::mood::Flags 
 
 def::collision::Agent SysHelper::makeAgent(unsigned eid)
 {
-    CCASSERT((ecs::has<cp::Position, cp::Physics>(eid)), "invalid entity for agent processing");
+    CCASSERT((ecs::has<cp::Position, cp::Physics>(eid)), "invalid entity");
     auto& cpPos = ecs::get<cp::Position>(eid);
     auto& cpPhy = ecs::get<cp::Physics>(eid);
     return def::collision::Agent {
@@ -66,4 +66,31 @@ def::collision::Agent SysHelper::makeAgent(unsigned eid)
         .category = cpPhy.category,
         .velocity = cpPhy.velocity
     };
+}
+
+void SysHelper::enableEntity(unsigned int eid)
+{
+    CCASSERT((ecs::has<cp::Position, cp::Render, cp::Physics>(eid)), "invalid entity");
+    auto& cpRender = ecs::get<cp::Render>(eid);
+    cpRender.manualPosMode = false;
+    cpRender.busy = false;
+    ecs::get<cp::Position>(eid).set(cpRender.sprite->getPosition());
+    ecs::get<cp::Physics>(eid).enabled = true;
+    
+    if (ecs::has<cp::Input>(eid))
+        ecs::get<cp::Input>(eid).forceEnable();
+}
+
+void SysHelper::disableEntity(unsigned int eid)
+{
+    CCASSERT((ecs::has<cp::Position, cp::Render, cp::Physics>(eid)), "invalid entity");
+    auto& cpRender = ecs::get<cp::Render>(eid);
+    auto& cpPhy = ecs::get<cp::Physics>(eid);
+    cpPhy.resetForces();
+    cpPhy.enabled = false;
+    cpRender.manualPosMode = true;
+    cpRender.busy = true;
+    
+    if (ecs::has<cp::Input>(eid))
+        ecs::get<cp::Input>(eid).forceDisable();
 }

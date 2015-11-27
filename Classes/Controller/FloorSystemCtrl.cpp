@@ -112,9 +112,8 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     render.sprite->setPosition(srcPos);
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveBy::create(duration, destPos - srcPos),
-        cc::CallFunc::create([eid, destPos, nextRoomIndex, this](){
-            ecs::get<cp::Input>(eid).forceEnable();
-            ecs::add<cp::Position>(eid, nextRoomIndex).set(destPos);
+        cc::CallFunc::create([eid, nextRoomIndex, this](){
+        SysHelper::enableEntity(eid);
             dispatcher.onEntityAdded(nextRoomIndex, eid);
         }),
         NULL
@@ -270,9 +269,6 @@ void FloorSystemCtrl::start()
     this->showRoom(roomIndex, [this, enterGate]() {
         float duration = 3.0f;
         
-        auto roomData = this->data->getCurrentRoom();
-        auto roomIndex = roomData->index;
-        
         auto srcPos = enterGate.info.getSrcPos();
         auto destPos = enterGate.info.getDestPos();
                 
@@ -291,12 +287,9 @@ void FloorSystemCtrl::start()
                     destPos.x - cpCollision.shape.getMinX() - cpCollision.shape.size.width / 2,
                     destPos.y - cpCollision.shape.getMinY() - cpCollision.shape.size.height / 2
                 }),
-                cc::CallFunc::create([eid, roomIndex](){
-                    auto& cpRender = ecs::get<cp::Render>(eid);
-                    ecs::add<cp::Input>(eid, roomIndex);
-                    ecs::get<cp::Position>(eid).set(cpRender.sprite->getPosition());
-                    cpRender.manualPosMode = false;
-                    cpRender.cancelAnimation();
+                cc::CallFunc::create([eid](){
+                    SysHelper::enableEntity(eid);
+                    ecs::get<cp::Render>(eid).cancelAnimation();
                 }),
                 NULL
             ));
@@ -314,27 +307,31 @@ void FloorSystemCtrl::start()
     auto srcPos = enterGate.info.getSrcPos();
     
     auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
-    auto& cpCollision = ecs::add<cp::Physics>(eid, roomIndex);
+    auto& cpPhy = ecs::add<cp::Physics>(eid, roomIndex);
     
     cpRender.setProfile(profile, roomView);
-    cpCollision.setProfile(profile);
+    cpPhy.setProfile(profile);
     
+    cc::Vec2 pos = {
+        srcPos.x - cpPhy.shape.getMidX(),
+        srcPos.y - cpPhy.shape.getMidY()
+    };
+    
+    ecs::add<cp::Position>(eid, roomIndex).set(pos);
     ecs::add<cp::Mood>(eid, roomIndex) = def::mood::fromStr(profile->moodCategory);
     ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
-    ecs::add<cp::Physics>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Control>(eid, roomIndex) = playerData->ctrlIndex;
     ecs::add<cp::Gear>(eid, roomIndex) = playerData->inventory;
     ecs::add<cp::Stamina>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
+    ecs::add<cp::Input>(eid, roomIndex);
     
-    cpRender.sprite->setPosition({
-        srcPos.x - cpCollision.shape.getMidX(),
-        srcPos.y - cpCollision.shape.getMidY()
-    });
+    cpRender.sprite->setPosition(pos);
     cpRender.sprite->setOpacity(0);
-    cpRender.manualPosMode = true;
-    ecs::add<cp::Position>(eid, roomIndex).set(cpRender.sprite->getPosition());
+    
+    
+    SysHelper::disableEntity(eid);
     
     playerData->entityFocus = eid;
     dispatcher.onEntityAdded(roomIndex, eid);

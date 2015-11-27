@@ -83,25 +83,30 @@ void CampSystemCtrl::start()
     auto profile = ModelProvider::instance()->profile.get(playerData->charProfileName);
     
     auto& cpRender = ecsGroup.add<cp::Render>(eid);
-    auto& cpCollision = ecsGroup.add<cp::Physics>(eid);
+    auto& cpPhy = ecsGroup.add<cp::Physics>(eid);
     
     cpRender.setProfile(profile, this->mapView);
-    cpCollision.setProfile(profile);
+    cpPhy.setProfile(profile);
+    
+    cc::Vec2 pos = {
+        srcPos.x - cpPhy.shape.getMidX(),
+        srcPos.y - cpPhy.shape.getMidY()
+    };
+    
+    cpRender.sprite->setPosition(pos);
+    cpRender.sprite->setOpacity(0);
     
     ecsGroup.add<cp::AI>(eid).setProfile(profile);
     ecsGroup.add<cp::Melee>(eid).setProfile(profile);
     ecsGroup.add<cp::Control>(eid) = playerData->ctrlIndex;
     ecsGroup.add<cp::Gear>(eid) = playerData->inventory;
     ecsGroup.add<cp::Health>(eid).setProfile(profile);
-    cpRender.sprite->setPosition({
-        srcPos.x - cpCollision.shape.getMidX(),
-        srcPos.y - cpCollision.shape.getMidY()
-    });
-    cpRender.sprite->setOpacity(0);
-    cpRender.manualPosMode = true;
-    ecsGroup.add<cp::Position>(eid).set(cpRender.sprite->getPosition());
+    ecsGroup.add<cp::Position>(eid).set(pos);
+    ecsGroup.add<cp::Input>(eid);
     
     playerData->entityFocus = eid;
+    
+    SysHelper::disableEntity(eid);
     
     float duration = 3.0f;
     cpRender.setMoveAnimation(enterWarpRef->info.getDir(), true);
@@ -109,15 +114,12 @@ void CampSystemCtrl::start()
     cpRender.sprite->stopAllActions();
     cpRender.sprite->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, {
-            destPos.x - cpCollision.shape.getMidX(),
-            destPos.y - cpCollision.shape.getMidY()
+            destPos.x - cpPhy.shape.getMidX(),
+            destPos.y - cpPhy.shape.getMidY()
         }),
         cc::CallFunc::create([eid, this](){
-            auto& cpRender = ecs::get<cp::Render>(eid);
-            ecsGroup.add<cp::Input>(eid);
-            ecs::get<cp::Position>(eid).set(cpRender.sprite->getPosition());
-            cpRender.manualPosMode = false;
-            cpRender.cancelAnimation();
+            SysHelper::enableEntity(eid);
+            ecs::get<cp::Render>(eid).cancelAnimation();
         }),
         NULL
     ));

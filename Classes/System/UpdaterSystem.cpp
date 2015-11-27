@@ -15,9 +15,8 @@ void UpdaterSystem::tick(double dt)
         
         if (!cpInput.isActive()) //inhibitor
         {
-            //reset velocity dir
-            cpPhy.move.direction = cc::Vec2::ZERO;
-            cpPhy.move.ratio = 1.0;
+            cpPhy.movement.direction = cc::Vec2::ZERO;
+            cpPhy.movement.active = false;
             continue;
         }
         
@@ -25,6 +24,7 @@ void UpdaterSystem::tick(double dt)
         
         if (cpInput.goTo != nullptr)
         {
+            cpPhy.movement.active = true;
             auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
             auto wayPoints = context->data->getNav()->getWaypoints(
                 {bounds.getMidX(), bounds.getMidY()}, cpInput.goTo.Value, cpPhy.category);
@@ -34,8 +34,15 @@ void UpdaterSystem::tick(double dt)
         }
         else
         {
-            cpPhy.move.direction = cpInput.direction.getNormalized();
-            auto newDir = Dir::fromVec(cpPhy.move.direction);
+            auto direction = cpInput.direction;
+            if (direction.isZero())
+                cpPhy.movement.active = false;
+            else
+            {
+                cpPhy.movement.active = true;
+                cpPhy.movement.direction = direction;
+            }
+            auto newDir = Dir::cardinalFromVec(direction);
             if (newDir != Dir::None)
             {
                 if (cpPosition.dir == Dir::None)

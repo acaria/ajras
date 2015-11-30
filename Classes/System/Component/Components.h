@@ -3,6 +3,7 @@
 #include "ECS.h"
 #include "RenderComponent.h"
 #include "PositionComponent.h"
+#include "OrientationComponent.h"
 #include "StaminaComponent.h"
 #include "ProfileData.h"
 #include "InputComponent.h"
@@ -22,7 +23,8 @@ namespace cp
     
     using Render = ecs::component<RenderComponent,              1>;
     using Position = ecs::component<PositionComponent,          2>;
-    using Cmd = ecs::component<CmdComponent,                    3>;
+    using Orientation = ecs::component<OrientationComponent,    3>;
+    using Cmd = ecs::component<CmdComponent,                    4>;
     using Stamina = ecs::component<StaminaComponent,            5>;
     using Input = ecs::component<InputComponent,                6>;
     using Physics = ecs::component<PhysicsComponent,            7>;
@@ -57,6 +59,7 @@ namespace cp
         {
             ecs::move<Render>(id, g1, g2);
             ecs::move<Position>(id, g1, g2);
+            ecs::move<Orientation>(id, g1, g2);
             ecs::move<Cmd>(id, g1, g2);
             ecs::move<Stamina>(id, g1, g2);
             ecs::move<Input>(id, g1, g2);
@@ -79,6 +82,7 @@ namespace cp
         {
             ecs::del<Render>(id, group);
             ecs::del<Position>(id, group);
+            ecs::del<Orientation>(id, group);
             ecs::del<Cmd>(id, group);
             ecs::del<Stamina>(id, group);
             ecs::del<Input>(id, 1);
@@ -101,6 +105,7 @@ namespace cp
         {
             ecs::clearGroup<Render>(group);
             ecs::clearGroup<Position>(group);
+            ecs::clearGroup<Orientation>(group);
             ecs::clearGroup<Cmd>(group);
             ecs::clearGroup<Stamina>(group);
             ecs::clearGroup<Input>(group);

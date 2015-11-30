@@ -15,8 +15,6 @@ void UpdaterSystem::tick(double dt)
         
         if (!cpInput.isActive()) //inhibitor
         {
-            cpPhy.movement.direction = cc::Vec2::ZERO;
-            cpPhy.movement.active = false;
             continue;
         }
         
@@ -24,7 +22,7 @@ void UpdaterSystem::tick(double dt)
         
         if (cpInput.goTo != nullptr)
         {
-            cpPhy.movement.active = true;
+            cpPhy.fInput().active = true;
             auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
             auto wayPoints = context->data->getNav()->getWaypoints(
                 {bounds.getMidX(), bounds.getMidY()}, cpInput.goTo.Value, cpPhy.category);
@@ -34,21 +32,24 @@ void UpdaterSystem::tick(double dt)
         }
         else
         {
-            auto direction = cpInput.direction;
-            if (direction.isZero())
-                cpPhy.movement.active = false;
+            if (cpInput.direction.isZero())
+                cpPhy.fInput().active = false;
             else
             {
-                cpPhy.movement.active = true;
-                cpPhy.movement.direction = direction;
+                cpPhy.fInput().active = true;
+                cpPhy.fInput().direction = cpInput.direction;
             }
-            auto newDir = Dir::cardinalFromVec(direction);
-            if (newDir != Dir::None)
+            if (ecs::has<cp::Orientation>(eid))
             {
-                if (cpPosition.dir == Dir::None)
-                    cpPosition.dir = newDir;
-                else if (!newDir.contains(cpPosition.dir))
-                    cpPosition.dir = newDir;
+                auto& cpOrientation = ecs::get<cp::Orientation>(eid);
+                auto newDir = Dir::cardinalFromVec(cpInput.direction);
+                if (newDir != Dir::None)
+                {
+                    if (cpOrientation.dir == Dir::None)
+                        cpOrientation.dir = newDir;
+                    else if (!newDir.contains(cpOrientation.dir))
+                        cpOrientation.dir = newDir;
+                }
             }
         }
     }

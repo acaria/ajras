@@ -6,7 +6,6 @@ struct PositionComponent
     PositionComponent() {
         pos = {0, 0};
         lastPos = {0, 0};
-        dir = Dir::None;
     }
     
     void set(const cc::Vec2 &pos)
@@ -17,5 +16,4 @@ struct PositionComponent
     
     cc::Vec2    pos;
     cc::Vec2    lastPos;
-    Dir         dir;
 };

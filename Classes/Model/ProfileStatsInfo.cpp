@@ -6,9 +6,9 @@ ProfileStatsInfo::ProfileStatsInfo(const cc::ValueMap& map)
     {
         auto &mData = map.at("move").asValueMap();
         this->move = {
-            .speed = mData.at("speed").asDouble(),
-            .acceleration = mData.at("acceleration").asDouble(),
-            .deceleration = mData.at("deceleration").asDouble(),
+            .speed = mData.at("speed").asFloat(),
+            .acceleration = mData.at("acceleration").asFloat(),
+            .deceleration = mData.at("deceleration").asFloat(),
             .orientation = mData.at("orientation").asBool()
         };
     }

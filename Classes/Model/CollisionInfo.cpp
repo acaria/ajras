@@ -46,7 +46,7 @@ void CollisionInfo::processAgent(const Agent &agent)
         {
             auto diff = CollisionEngine::slide(agent.bounds, other.bounds);
             if (!diff.isZero())
-                this->onAgentCollision(agent.id, other.id, diff);
+                this->onAgentCollision(agent.id, other.id, diff * (0.999));
         }
     }
     
@@ -54,7 +54,7 @@ void CollisionInfo::processAgent(const Agent &agent)
     {
         auto diff = this->getCollisionDiff(agent.bounds, agent.lastBounds, agent.category);
         if (!diff.isZero())
-            this->onDecorCollision(agent.id, diff);
+            this->onDecorCollision(agent.id, diff * (1.001));
     }
 }
 
@@ -143,7 +143,7 @@ cc::Point CollisionInfo::getCollisionDiff(const cc::Rect& destBounds, const cc::
                 if (!this->checkCollisionRect(bounds, cat))
                     break;
             }
-            return destBounds.origin - bounds.origin;
+            return bounds.origin - destBounds.origin;
         }
     }
     return {0,0};

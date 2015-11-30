@@ -112,8 +112,8 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     render.sprite->setPosition(srcPos);
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveBy::create(duration, destPos - srcPos),
-        cc::CallFunc::create([eid, nextRoomIndex, this](){
-        SysHelper::enableEntity(eid);
+        cc::CallFunc::create([eid, nextRoomIndex, this, &render](){
+            context.ecs->add<cp::Position>(eid).set(render.sprite->getPosition());;
             dispatcher.onEntityAdded(nextRoomIndex, eid);
         }),
         NULL
@@ -279,6 +279,7 @@ void FloorSystemCtrl::start()
             auto& cpRender = ecs::get<cp::Render>(eid);
             auto& cpCollision = ecs::get<cp::Physics>(eid);
             
+            cpRender.busy = true;
             cpRender.setMoveAnimation(enterGate.info.getDir(), true);
             
             cpRender.sprite->stopAllActions();
@@ -287,9 +288,11 @@ void FloorSystemCtrl::start()
                     destPos.x - cpCollision.shape.getMinX() - cpCollision.shape.size.width / 2,
                     destPos.y - cpCollision.shape.getMinY() - cpCollision.shape.size.height / 2
                 }),
-                cc::CallFunc::create([eid](){
-                    SysHelper::enableEntity(eid);
-                    ecs::get<cp::Render>(eid).cancelAnimation();
+                cc::CallFunc::create([eid, this](){
+                    auto& cpRender = ecs::get<cp::Render>(eid);
+                    cpRender.cancelAnimation();
+                    context.ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
+                    dispatcher.onEntityPositionChanged(context.ecs->getID(), eid);
                 }),
                 NULL
             ));
@@ -317,7 +320,7 @@ void FloorSystemCtrl::start()
         srcPos.y - cpPhy.shape.getMidY()
     };
     
-    ecs::add<cp::Position>(eid, roomIndex).set(pos);
+    ecs::add<cp::Orientation>(eid, roomIndex);
     ecs::add<cp::Mood>(eid, roomIndex) = def::mood::fromStr(profile->moodCategory);
     ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
@@ -329,9 +332,6 @@ void FloorSystemCtrl::start()
     
     cpRender.sprite->setPosition(pos);
     cpRender.sprite->setOpacity(0);
-    
-    
-    SysHelper::disableEntity(eid);
     
     playerData->entityFocus = eid;
     dispatcher.onEntityAdded(roomIndex, eid);

@@ -122,21 +122,7 @@ void DebugSystem::displayZones()
 {
     for(auto eid : context->ecs->join<cp::Physics, cp::Position>())
     {
-        if (!ecs::get<cp::Physics>(eid).enabled) continue;
-        
         auto bounds = SysHelper::getBounds(eid);
-        
-        //collision
-        /*if (collisionSet.count(eid) > 0)
-        {
-            collisionMap[eid]->setPosition(bounds.origin);
-            collisionMap[eid]->setScale(bounds.size.width, bounds.size.height);
-        }
-        else
-        {
-            collisionMap[eid] = addPixel(cc::Color3B::GREEN, bounds);
-            collisionSet.insert(eid);
-        }*/
         
         //melee
         if (ecs::has<cp::Melee>(eid))

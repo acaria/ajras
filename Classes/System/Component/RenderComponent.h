@@ -43,7 +43,6 @@ struct RenderComponent
     std::string             curAnimKey;
     double                  elapsedTime;
     bool                    busy = false;
-    bool                    manualPosMode = false;
 
     //output
     LayeredSprite* sprite;

@@ -101,12 +101,10 @@ void CampSystemCtrl::start()
     ecsGroup.add<cp::Control>(eid) = playerData->ctrlIndex;
     ecsGroup.add<cp::Gear>(eid) = playerData->inventory;
     ecsGroup.add<cp::Health>(eid).setProfile(profile);
-    ecsGroup.add<cp::Position>(eid).set(pos);
+    ecsGroup.add<cp::Orientation>(eid);
     ecsGroup.add<cp::Input>(eid);
     
     playerData->entityFocus = eid;
-    
-    SysHelper::disableEntity(eid);
     
     float duration = 3.0f;
     cpRender.setMoveAnimation(enterWarpRef->info.getDir(), true);
@@ -117,9 +115,9 @@ void CampSystemCtrl::start()
             destPos.x - cpPhy.shape.getMidX(),
             destPos.y - cpPhy.shape.getMidY()
         }),
-        cc::CallFunc::create([eid, this](){
-            SysHelper::enableEntity(eid);
-            ecs::get<cp::Render>(eid).cancelAnimation();
+        cc::CallFunc::create([eid, this, &cpRender](){
+            context.ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
+            cpRender.cancelAnimation();
         }),
         NULL
     ));

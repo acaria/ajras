@@ -49,15 +49,14 @@ void CollisionSystem::init()
     
     this->eventRegs.push_back(this->dispatcher->onEntityPositionChanged.registerObserver(
             [this](unsigned group, unsigned eid) {
-        if(context->ecs->getID() != group ||
-           !ecs::has<cp::Position, cp::Physics>(eid) ||
-           !lib::hasKey(this->collisionData->agents, eid))
+        if(context->ecs->getID() != group)
             return;
-        auto& cpPos = ecs::get<cp::Position>(eid);
-        auto& cpPhy = ecs::get<cp::Physics>(eid);
-        this->collisionData->agents[eid].bounds = SysHelper::getBounds(cpPos, cpPhy);
-        this->collisionData->agents[eid].lastBounds = SysHelper::getLastBounds(cpPos, cpPhy);
-        this->collisionData->agents[eid].velocity = cpPhy.velocity;
+        if (!ecs::has<cp::Position, cp::Physics>(eid))
+        {
+            collisionData->agents.erase(eid);
+            return;
+        }
+        this->collisionData->agents[eid] = SysHelper::makeAgent(eid);
     }));
 }
 
@@ -66,19 +65,15 @@ void CollisionSystem::onDecorCollision(unsigned eid, cc::Vec2 diff)
     auto& cpPos = ecs::get<cp::Position>(eid);
     auto& cpPhy = ecs::get<cp::Physics>(eid);
     
-    if (!cpPhy.enabled) return;
-    
     cpPhy.collisionState = PhysicsComponent::DECOR;
-    cpPos.pos -= diff;
-    context->data->getCol()->agents[eid].bounds.origin -= diff;
+    cpPos.pos += diff;
+    context->data->getCol()->agents[eid].bounds.origin += diff;
 }
 
 void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff)
 {
     auto& cpPos = ecs::get<cp::Position>(eid);
     auto& cpPhy = ecs::get<cp::Physics>(eid);
-    
-    if (!cpPhy.enabled) return;
     
     if (collisionData->agents[tid].category == def::collision::Cat::collectible)
     {
@@ -101,10 +96,18 @@ void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff
         cpPos.pos += diff;
         collisionData->agents[eid].bounds.origin += diff;
         
+        auto& cpPhy2 =  ecs::get<cp::Physics>(tid);
+        cpPhy2.fPush().curSpeed = 0;
+        cpPhy2.fPush().accSpeed = 200;
+        cpPhy2.fPush().decSpeed = 250;
+        cpPhy2.fPush().maxSpeed = 45;
+        cpPhy2.fPush().direction = -diff.getNormalized();
+        cpPhy2.fPush().active = true;
+        
         //TODO
-        auto& agent2 = collisionData->agents[tid];
-        agent2.velocity = -diff;
-        ecs::get<cp::Physics>(tid).velocity = agent2.velocity;
+        //auto& agent2 = collisionData->agents[tid];
+        //agent2.velocity = -diff;
+        //ecs::get<cp::Physics>(tid).velocity = agent2.velocity;
         
         /*if (!collisionData->checkCollisionRect(agent2.bounds - diff, agent2.category))
         {

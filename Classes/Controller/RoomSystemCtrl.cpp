@@ -141,6 +141,9 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
     ecs::add<cp::Input>(eid, roomIndex);
     ecs::add<cp::Position>(eid, roomIndex).set(pos - ecs::get<cp::Physics>(eid).shape.origin);
     
+    if (profile->stats->move->orientation)
+        ecs::add<cp::Orientation>(eid, roomIndex);
+    
     if (profile->stats != nullptr)
     {
         auto stats = profile->stats.Value;

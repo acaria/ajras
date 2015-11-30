@@ -4,7 +4,7 @@
 
 void TargetSystem::tick(double dt)
 {
-    for(auto eid : context->ecs->join<cp::Target, cp::Position, cp::Physics>())
+    for(auto eid : context->ecs->join<cp::Target, cp::Position, cp::Orientation>())
     {
         unsigned eid2 = ecs::get<cp::Target>(eid);
         if (eid2 == 0 || !ecs::has<cp::Position, cp::Physics>(eid2))
@@ -23,7 +23,7 @@ void TargetSystem::tick(double dt)
         else
             odir = pdir.y < 0 ? Dir::Down : Dir::Up;
         
-        ecs::get<cp::Position>(eid).dir = odir;
+        ecs::get<cp::Orientation>(eid).set(odir);
     }
 }
 

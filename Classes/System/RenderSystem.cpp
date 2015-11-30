@@ -6,46 +6,40 @@
 
 void RenderSystem::tick(double dt)
 {
-    for(auto eid : context->ecs->join<cp::Render, cp::Physics, cp::Input, cp::Position>())
+    for(auto eid : context->ecs->join<cp::Render, cp::Physics>())
     {
         auto &cpRender = ecs::get<cp::Render>(eid);
         auto &cpPhy = ecs::get<cp::Physics>(eid);
-        //auto &cpInput = ecs::get<cp::Input>(eid);
  
         //processing velocity animations
         if (cpRender.moveAnimation && !cpRender.busy)
         {
             Dir orientation = Dir::None;
-            if (cpRender.orientationAnimation)
+            if (cpRender.orientationAnimation && ecs::has<cp::Orientation>(eid))
             {
-                auto& cpPosition = ecs::get<cp::Position>(eid);
-                orientation = ((cpPosition.dir != Dir::None) ? cpPosition.dir : Dir::Down);
+                auto& cpOrientation = ecs::get<cp::Orientation>(eid);
+                orientation = ((cpOrientation.dir != Dir::None) ? cpOrientation.dir : Dir::Down);
             }
             
-            cpRender.setMoveAnimation(orientation, cpPhy.movement.active);
+            cpRender.setMoveAnimation(orientation, cpPhy.fInput().active);
         }
         
-        //update target mode
-        //if (cpInput.actionMode == ActionMode::attack)
-        //    cpRender.setMoveCategory("melee");
-        //else
         cpRender.setMoveCategory("walk");
     }
 }
 
 void RenderSystem::animate(double dt, double tickPercent)
 {
-    for(auto eid : context->ecs->join<cp::Render, cp::Position>())
+    for(auto eid : context->ecs->system<cp::Render>())
     {
         auto &cpRender = ecs::get<cp::Render>(eid);
-        auto &cpPos = ecs::get<cp::Position>(eid);
         
-        //position
-        if (!cpRender.manualPosMode)
+        if (ecs::has<cp::Position>(eid))
         {
-            cc::Vec2 pos(
-                cpPos.pos.x * tickPercent + cpPos.lastPos.x * (1 - tickPercent),
-                cpPos.pos.y * tickPercent + cpPos.lastPos.y * (1 - tickPercent));
+            auto &cpPos = ecs::get<cp::Position>(eid);
+        
+            cc::Vec2 pos(cpPos.pos.x * tickPercent + cpPos.lastPos.x * (1 - tickPercent),
+                         cpPos.pos.y * tickPercent + cpPos.lastPos.y * (1 - tickPercent));
             cpRender.sprite->setPosition(pos);
         }
         

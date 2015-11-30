@@ -9,9 +9,9 @@ struct ProfileStatsInfo
     ProfileStatsInfo(const cc::ValueMap& map);
     struct Move
     {
-        double          speed;
-        double          acceleration;
-        double          deceleration;
+        float           speed;
+        float           acceleration;
+        float           deceleration;
         bool            orientation;
     };
     

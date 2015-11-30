@@ -4,10 +4,17 @@
 
 PhysicsComponent::PhysicsComponent()
 {
-    this->enabled = true;
+    this->forces[ForceType::INPUT] = {
+        .curSpeed = 0,
+        .active = false,
+        .maxSpeed = 0,
+        .accSpeed = 0,
+        .decSpeed = 0,
+        .direction = {0,0},
+        .duration = -1
+    };
     
-    //init movement force
-    this->movement = {
+    this->forces[ForceType::IMPACT] = {
         .curSpeed = 0,
         .active = false,
         .maxSpeed = 0,
@@ -16,6 +23,31 @@ PhysicsComponent::PhysicsComponent()
         .direction = {0,0},
         .duration = 0
     };
+    
+    this->forces[ForceType::PUSH] = {
+        .curSpeed = 0,
+        .active = false,
+        .maxSpeed = 0,
+        .accSpeed = 0,
+        .decSpeed = 0,
+        .direction = {0,0},
+        .duration = 0
+    };
+}
+
+PhysicsComponent::ForceInfo& PhysicsComponent::fInput()
+{
+    return this->forces[ForceType::INPUT];
+}
+
+PhysicsComponent::ForceInfo& PhysicsComponent::fImpact()
+{
+    return this->forces[ForceType::IMPACT];
+}
+
+PhysicsComponent::ForceInfo& PhysicsComponent::fPush()
+{
+    return this->forces[ForceType::PUSH];
 }
 
 void PhysicsComponent::setProfile(ProfileData* profile)
@@ -34,9 +66,10 @@ void PhysicsComponent::setProfile(ProfileData* profile)
     if (profile->stats != nullptr && profile->stats->move != nullptr)
     {
         auto move = profile->stats->move.Value;
-        this->movement.accSpeed = move.acceleration;
-        this->movement.decSpeed = move.deceleration;
-        this->movement.maxSpeed = move.speed;
+        auto& fMove = this->forces[ForceType::INPUT];
+        fMove.maxSpeed = move.speed;
+        fMove.accSpeed = move.acceleration;
+        fMove.decSpeed = move.deceleration;
     }
 }
 
@@ -45,29 +78,11 @@ void PhysicsComponent::setProfile(const std::string& profileName)
     this->setProfile(ModelProvider::instance()->profile.get(profileName));
 }
 
-void PhysicsComponent::addForce(float speed, float duration, cc::Vec2 dir)
-{
-    addForce(speed, duration, dir, movement.accSpeed, movement.decSpeed);
-}
-
-void PhysicsComponent::addForce(float speed, float duration, cc::Vec2 dir, float acc, float dec)
-{
-    this->external.push_back({
-        .active = true,
-        .curSpeed = 0,
-        .maxSpeed = speed,
-        .direction = dir.getNormalized(),
-        .duration = duration,
-        .accSpeed = acc,
-        .decSpeed = dec
-    });
-}
-
 void PhysicsComponent::resetForces()
 {
-    velocity = {0,0};
-    movement.active = false;
-    movement.curSpeed = 0;
-    movement.direction = {0,0};
-    external.clear();
+    for (auto& pair : forces)
+    {
+        pair.second.active = false;
+        pair.second.curSpeed = 0;
+    }
 }

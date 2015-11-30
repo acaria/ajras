@@ -13,18 +13,16 @@ void MeleeSystem::tick(double dt)
     std::list<std::list<std::pair<unsigned, unsigned>>> meleeListGroup;
     for(auto eid : context->ecs->join<cp::Melee, cp::Mood, cp::Stamina, cp::Physics, cp::Position, cp::Render>())
     {
-        if (!ecs::has<cp::Input>(eid) || !ecs::get<cp::Input>(eid).isActive() || !ecs::get<cp::Physics>(eid).enabled)
+        if (!ecs::has<cp::Input>(eid) || !ecs::get<cp::Input>(eid).isActive())
             continue;
         
         auto entityMood = ecs::get<cp::Mood>(eid);
         auto oppositeMoods = def::mood::getOpponents(entityMood);
         
         auto& cpMelee = ecs::get<cp::Melee>(eid);
-        if (cpMelee.type == MeleeComponent::NONE)
+        if (!cpMelee.enabled || cpMelee.type == MeleeComponent::NONE)
             continue;
-        if (!cpMelee.enabled)
-            continue;
-
+        
         cocos2d::Rect body = SysHelper::getBounds(eid);
         
         Dir atkDir = getAtkDir(eid, cpMelee);
@@ -38,7 +36,7 @@ void MeleeSystem::tick(double dt)
         {
             if (oid == eid) continue;
             
-            if (ecs::has<cp::Untargetable>(oid) || !ecs::get<cp::Physics>(oid).enabled)
+            if (ecs::has<cp::Untargetable>(oid))
                 continue;
             //if (ecs::has<cp::Melee>(oid) && !ecs::get<cp::Melee>(oid).enabled)
             //    continue;
@@ -133,7 +131,7 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
     auto bounds1 = SysHelper::getBounds(eid);
     auto bounds2 = SysHelper::getBounds(oid);
     cc::Vec2 moveDir = { (bounds2.getMidX() - bounds1.getMidX()) / 2,
-        (bounds2.getMidY() - bounds1.getMidY()) / 2 };
+                         (bounds2.getMidY() - bounds1.getMidY()) / 2 };
     
     cpInput2.disable(1.0);
     context->ecs->add<cp::Untargetable>(oid);
@@ -169,8 +167,6 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     auto& cpMelee = ecs::get<cp::Melee>(eid);
  
     cpMelee.enabled = false;
-    auto& cpInput = ecs::get<cp::Input>(eid);
-    auto& cpInput2 = ecs::get<cp::Input>(oid);
     auto& cpRender = ecs::get<cp::Render>(eid);
     auto& cpRender2 = ecs::get<cp::Render>(oid);
     
@@ -179,13 +175,14 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     cc::Vec2 moveDir = { (bounds2.getMidX() - bounds1.getMidX()) / 2,
                          (bounds2.getMidY() - bounds1.getMidY()) / 2 };
     
-    cpRender.manualPosMode = true;
+    context->ecs->del<cp::Position>(eid);
     
     auto animName = cpMelee.animKey.Value + ProfileData::getTagName(atkDir);
     auto animDuration = cpRender.getAnimationDuration(animName);
     
-    cpInput.disable(animDuration + def::blinkAnim::duration);
-    cpInput2.disable(animDuration * cpMelee.triggerRatio + def::blinkAnim::duration + 0.1);
+    ecs::get<cp::Input>(eid).disable(animDuration + def::blinkAnim::duration);
+    ecs::get<cp::Input>(oid).disable(animDuration * cpMelee.triggerRatio +
+                                     def::blinkAnim::duration + 0.1);
     
     auto moveAnim = cc::Sequence::create(
         cc::MoveBy::create(animDuration / 3, moveDir),
@@ -194,11 +191,11 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
         NULL
     );
     
-    auto attackAnim = cc::CallFunc::create([&cpMelee, &cpRender, atkDir](){
+    auto attackAnim = cc::CallFunc::create([&cpMelee, eid, this, &cpRender, atkDir](){
         auto animName = cpMelee.animKey.Value + ProfileData::getTagName(atkDir);
-        cpRender.setAnimation(animName, 1, [&cpMelee, &cpRender](bool canceled){
+        cpRender.setAnimation(animName, 1, [&cpMelee, &cpRender, eid, this](bool canceled){
             cpMelee.enabled = true;
-            cpRender.manualPosMode = false;
+            this->context->ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
         });
     });
     
@@ -253,7 +250,7 @@ Dir MeleeSystem::getAtkDir(unsigned int eid, const MeleeComponent &cpMelee)
 {
     Dir atkDir = Dir::None;
     
-    atkDir = ecs::get<cp::Position>(eid).dir;
+    atkDir = ecs::get<cp::Orientation>(eid).dir;
         
     switch(cpMelee.type)
     {
@@ -263,7 +260,7 @@ Dir MeleeSystem::getAtkDir(unsigned int eid, const MeleeComponent &cpMelee)
             break;
         }
         case MeleeComponent::DIR: {
-            atkDir = ecs::get<cp::Position>(eid).dir;
+            atkDir = ecs::get<cp::Orientation>(eid).dir;
             break;
         }
         default:

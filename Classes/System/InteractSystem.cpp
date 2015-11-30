@@ -75,7 +75,6 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                                   ecs::get<cp::Render>(eid).sprite->getContainer(),
                                   def::LayerType::MAIN2);
                 cc::Point srcPos = {bounds.getMidX(), bounds.getMidY()};
-                cpRender.manualPosMode = true;
                 cpRender.sprite->setAnchorPoint({0.5,0.5});
                 cpRender.sprite->setPosition(srcPos);
                 cpRender.sprite->setOpacity(0);

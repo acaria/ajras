@@ -68,29 +68,25 @@ def::collision::Agent SysHelper::makeAgent(unsigned eid)
     };
 }
 
-void SysHelper::enableEntity(unsigned int eid)
+void SysHelper::enableEntity(unsigned group, unsigned eid)
 {
-    CCASSERT((ecs::has<cp::Position, cp::Render, cp::Physics>(eid)), "invalid entity");
+    CCASSERT((ecs::has<cp::Render, cp::Physics>(eid)), "invalid entity");
     auto& cpRender = ecs::get<cp::Render>(eid);
-    cpRender.manualPosMode = false;
     cpRender.busy = false;
-    ecs::get<cp::Position>(eid).set(cpRender.sprite->getPosition());
-    ecs::get<cp::Physics>(eid).enabled = true;
+    ecs::add<cp::Position>(eid, group).set(cpRender.sprite->getPosition());
     
     if (ecs::has<cp::Input>(eid))
         ecs::get<cp::Input>(eid).forceEnable();
 }
 
-void SysHelper::disableEntity(unsigned int eid)
+void SysHelper::disableEntity(unsigned group, unsigned int eid)
 {
     CCASSERT((ecs::has<cp::Position, cp::Render, cp::Physics>(eid)), "invalid entity");
     auto& cpRender = ecs::get<cp::Render>(eid);
     auto& cpPhy = ecs::get<cp::Physics>(eid);
     cpPhy.resetForces();
-    cpPhy.enabled = false;
-    cpRender.manualPosMode = true;
     cpRender.busy = true;
-    
+    ecs::del<cp::Position>(eid, group);
     if (ecs::has<cp::Input>(eid))
         ecs::get<cp::Input>(eid).forceDisable();
 }

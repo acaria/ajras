@@ -19,6 +19,6 @@ public:
     
     static def::collision::Agent makeAgent(unsigned eid);
     
-    static void enableEntity(unsigned eid);
-    static void disableEntity(unsigned eid);
+    static void enableEntity(unsigned group, unsigned eid);
+    static void disableEntity(unsigned group, unsigned eid);
 };

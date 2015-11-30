@@ -83,8 +83,6 @@ void TransitSystem::tick(double dt)
         auto& cpPos = ecs::get<cp::Position>(eid2);
         auto& cpPhy = ecs::get<cp::Physics>(eid2);
         
-        if (!cpPhy.enabled) continue;
-        
         //processing gates
         for(auto eid : context->ecs->system<cp::Gate>())
         {
@@ -120,7 +118,7 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     float duration = 0.5f;
     
     auto& render = ecs::get<cp::Render>(eid);
-    SysHelper::disableEntity(eid);
+    context->ecs->del<cp::Position>(eid);
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, targetPoint),
         cc::CallFunc::create([this, eid, &gateMap](){
@@ -142,7 +140,7 @@ void TransitSystem::warpingEnter(unsigned eid, const cocos2d::Vec2& targetPoint,
     float duration = 0.5f;
     
     auto& render = ecs::get<cp::Render>(eid);
-    SysHelper::disableEntity(eid);
+    context->ecs->del<cp::Position>(eid);
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveTo::create(duration, targetPoint),
         cc::CallFunc::create([this, eid, &warpMap](){

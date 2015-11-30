@@ -15,8 +15,10 @@ std::string CmdFactory::goTo(lib::EcsGroup* ecs, unsigned eid, cc::Vec2 target, 
         auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
         cc::Vec2 dir = target - cc::Vec2(bounds.getMidX(), bounds.getMidY());
         
-        cpPhy.movement.direction = dir.getNormalized();
-        cpPosition.dir = Dir::cardinalFromVec(cpPhy.movement.direction);
+        cpPhy.fInput().direction = dir.getNormalized();
+        
+        if (ecs::has<cp::Orientation>(eid))
+            ecs::get<cp::Orientation>(eid).set(Dir::cardinalFromVec(cpPhy.fInput().direction));
 
         if (dir.length() < nearDistance)
             return State::success;
@@ -43,8 +45,10 @@ std::string CmdFactory::goTo(lib::EcsGroup* ecs,
         auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
         cc::Vec2 dir = target - cc::Vec2(bounds.getMidX(), bounds.getMidY());
         
-        cpPhy.movement.direction = dir.getNormalized();
-        cpPosition.dir = Dir::cardinalFromVec(cpPhy.movement.direction);
+        cpPhy.fInput().direction = dir.getNormalized();
+        
+        if (ecs::has<cp::Orientation>(eid))
+            ecs::get<cp::Orientation>(eid).set(Dir::cardinalFromVec(cpPhy.fInput().direction));
         
         if (dir.length() < nearDistance)
             waypoints.pop_front();

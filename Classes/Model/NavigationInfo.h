@@ -2,7 +2,6 @@
 
 class IMapData;
 
-#include "CoreLib.h"
 #include "Defines.h"
 #include "DataGrid.h"
 

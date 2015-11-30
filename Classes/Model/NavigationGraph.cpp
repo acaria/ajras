@@ -1,16 +1,22 @@
 #include "NavigationGraph.h"
+#include "CoreLib.h"
 
-NavigationGraph::NavigationGraph(lib::DataGrid<bool>& content):content(content)
+NavigationGraph::NavigationGraph(lib::DataGrid<bool>& content,
+                                 std::list<Agent>& agents,
+                                 const cc::Size& tileSize):
+    content(content), agents(agents), tileSize(tileSize)
 {
 }
 
-bool NavigationGraph::getState(const lib::v2i &coord)
+bool NavigationGraph::check(int x, int y)
 {
-    if (coord.x < 0 || coord.x >= content.width)
-        return false;
-    if (coord.y < 0 || coord.y >= content.height)
-        return false;
-    return content.get(coord.x,coord.y);
+    for(auto agent : agents)
+    {
+        if (agent.bounds.containsPoint({x * tileSize.width + tileSize.width / 2,
+                                        y * tileSize.height + tileSize.height / 2}))
+            return false;
+    }
+    return content.get(x,y);
 }
 
 std::vector<NavigationGraph::Node> NavigationGraph::neighbors(Node node)
@@ -18,13 +24,13 @@ std::vector<NavigationGraph::Node> NavigationGraph::neighbors(Node node)
     std::vector<Node> result;
     
     for(int x = -1; x <= 1; x++)
-        for(int y = -1; y <= 1; y++)
-        {
-            if (abs(x) == abs(y))
-                continue;
-            if (content.get(node.x + x, node.y + y))
-                result.push_back({(unsigned)(node.x + x),(unsigned)(node.y + y)});
-        }
+    for(int y = -1; y <= 1; y++)
+    {
+        if (abs(x) == abs(y))
+            continue;
+        if (check(node.x + x, node.y + y))
+            result.push_back({(unsigned)(node.x + x),(unsigned)(node.y + y)});
+    }
     
     if (result.size() == 4)
     {
@@ -33,7 +39,7 @@ std::vector<NavigationGraph::Node> NavigationGraph::neighbors(Node node)
             {
                 if (abs(x) != abs(y) || (x == 0 && y == 0))
                     continue;
-                if (content.get(node.x + x, node.y + y))
+                if (check(node.x + x, node.y + y))
                     result.push_back({(unsigned)(node.x + x),(unsigned)(node.y + y)});
             }
     }

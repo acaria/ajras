@@ -15,6 +15,7 @@ std::string CmdFactory::goTo(lib::EcsGroup* ecs, unsigned eid, cc::Vec2 target, 
         auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
         cc::Vec2 dir = target - cc::Vec2(bounds.getMidX(), bounds.getMidY());
         
+        cpPhy.fInput().active = true;
         cpPhy.fInput().direction = dir.getNormalized();
         
         if (ecs::has<cp::Orientation>(eid))
@@ -45,6 +46,7 @@ std::string CmdFactory::goTo(lib::EcsGroup* ecs,
         auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
         cc::Vec2 dir = target - cc::Vec2(bounds.getMidX(), bounds.getMidY());
         
+        cpPhy.fInput().active = true;
         cpPhy.fInput().direction = dir.getNormalized();
         
         if (ecs::has<cp::Orientation>(eid))

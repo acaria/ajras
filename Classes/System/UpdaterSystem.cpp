@@ -22,7 +22,6 @@ void UpdaterSystem::tick(double dt)
         
         if (cpInput.goTo != nullptr)
         {
-            cpPhy.fInput().active = true;
             auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
             auto wayPoints = context->data->getNav()->getWaypoints(
                 {bounds.getMidX(), bounds.getMidY()}, cpInput.goTo.Value, cpPhy.category);

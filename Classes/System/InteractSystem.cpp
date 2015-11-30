@@ -89,7 +89,8 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                     cc::DelayTime::create(delay),
                     cc::Spawn::create(
                         cc::FadeIn::create(0.3),
-                        cc::RotateBy::create(0.8, std::rand() % 1000 - 500),
+                        //todo rand
+                        cc::RotateBy::create(0.8, 360),
                         cc::JumpBy::create(0.8, destPos, 10, 2),
                         NULL),
                     NULL
@@ -102,7 +103,11 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                             auto& cpPhysics = context->ecs->add<cp::Physics>(nid);
                             cpPhysics.shape = {0, 0, size.width, size.height};
                             cpPhysics.category = def::collision::Cat::collectible;
-                            context->ecs->add<cp::Position>(nid).set(cpRender.sprite->getPosition() - (size / 2));
+                            auto spos = cpRender.sprite->getPosition() - size / 2;
+                            cpRender.sprite->setAnchorPoint({0,0});
+                            cpRender.sprite->setPosition(spos);
+                            context->ecs->add<cp::Position>(nid).set(spos);
+                            dispatcher->onEntityAdded(context->ecs->getID(), nid);
                     }),
                     NULL
                 ));

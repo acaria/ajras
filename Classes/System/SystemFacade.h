@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BaseSystem.h"
+#include "Random.h"
 #include "SystemContext.h"
 #include "SystemDispatcher.h"
 
@@ -23,14 +24,14 @@
 class SystemFacade
 {
 public:
-    SystemFacade(SystemDispatcher& dispatcher, SystemContext& context);
+    SystemFacade(SystemDispatcher& dispatcher, SystemContext& context, lib::Random& random);
 
     template <typename T, typename ... ARGS>
     void factory(ARGS&&... args)
     {
         static_assert(std::is_base_of<BaseSystem, T>::value, "need inheritance from BaseSystem");
         auto system = std::unique_ptr<T>(new T (std::forward<ARGS>(args)...));
-        system->prepare(&this->context, &this->dispatcher);
+        system->prepare(&this->context, &this->dispatcher, &this->random);
         list.push_back(std::move(system));
     }
     
@@ -40,5 +41,7 @@ public:
 private:
     SystemContext&                          context;
     SystemDispatcher&                       dispatcher;
+    lib::Random&                            random;
+
     std::list<std::unique_ptr<BaseSystem>>  list;
 };

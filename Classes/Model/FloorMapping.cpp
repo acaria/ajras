@@ -4,7 +4,7 @@
 FloorMapping::FloorMapping(unsigned width, unsigned height, std::map<GateInfo::GateType,
              std::pair<std::string, cc::Rect>> gateConfig):
         size(width, height),
-        random(Randgine::instance()->get(Randgine::FLOOR)) {
+        random(Randgine::instance()->get(Randgine::MAP_DATA)) {
     this->gateConfig = gateConfig;
 }
 

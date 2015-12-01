@@ -5,14 +5,12 @@ class IMapData;
 
 #include "BaseSystem.h"
 #include "BehaviourNodes.h"
-#include "Randgine.h"
 #include "Defines.h"
 
 class AISystem : public BaseSystem
 {
 public:
-    AISystem() : random(Randgine::instance()->get(Randgine::AI))
-    {}
+    AISystem() {}
     
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
@@ -69,6 +67,4 @@ private:
         {"target", ActionBType::TARGET},
         {"stop", ActionBType::STOP}
     };
-    
-    lib::Random random;
 };

@@ -7,7 +7,7 @@
 
 CampSystemCtrl::CampSystemCtrl() :
         random(Randgine::instance()->get(Randgine::CAMP)),
-        systemFacade(dispatcher, context)
+        systemFacade(dispatcher, context, random)
 {
     //init group
     ecsGroup.setID(GROUP_INDEX);

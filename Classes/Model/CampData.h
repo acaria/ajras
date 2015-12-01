@@ -34,6 +34,5 @@ public:
 private:
     CollisionInfo                   collision;
     NavigationInfo                  navigation;
-    lib::Random&                    random;
     std::set<std::string>           spriteSheets;
 };

@@ -10,8 +10,8 @@
 #include "SysHelper.h"
 #include "Defines.h"
 
-RoomSystemCtrl::RoomSystemCtrl(unsigned group, LayeredContainer* view, RoomData* data, SystemDispatcher& dispatcher):
-        random(Randgine::instance()->get(Randgine::FLOOR)),
+RoomSystemCtrl::RoomSystemCtrl(unsigned group, LayeredContainer* view, RoomData* data, SystemDispatcher&dispatcher):
+        random(Randgine::instance()->get(Randgine::MISSION)),
         dispatcher(dispatcher)
 {
     ecsGroup.setID(group);
@@ -120,8 +120,8 @@ void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect 
     {
         auto profile = ModelProvider::instance()->profile.get(profileName);
         cc::Point pos = {
-            bounds.origin.x + this->random.interval(0, bounds.size.width - profile->collisionRect.getMaxX()),
-            bounds.origin.y + this->random.interval(0, bounds.size.height - profile->collisionRect.getMaxY())
+            bounds.origin.x + this->random.interval(0.0f, bounds.size.width - profile->collisionRect.getMaxX()),
+            bounds.origin.y + this->random.interval(0.0f, bounds.size.height - profile->collisionRect.getMaxY())
         };
         this->loadStaticObject(profileName, pos, data, view);
     }

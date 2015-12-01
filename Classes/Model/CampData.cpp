@@ -2,7 +2,6 @@
 #include "Randgine.h"
 
 CampData::CampData(const std::string& fileName) :
-    random(Randgine::instance()->get(Randgine::CAMP)),
     TmxDataModel(fileName)
 {
     //hack: only 1 ss per camp

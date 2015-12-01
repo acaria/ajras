@@ -39,7 +39,7 @@ void GameCtrl::goToMainMenu()
     cp::entity::resetID();
     this->gameData.reset();
     
-    Randgine::instance()->setMaster(1);
+    Randgine::instance()->setMaster(2);
     this->gameData.loadPlayer();
     
     CocosHelper::addTexture("ss-main.plist", def::antialias);

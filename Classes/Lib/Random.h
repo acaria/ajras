@@ -9,20 +9,40 @@ public:
     Random() = default;
     Random(std::mt19937::result_type seed) : engine(seed) {}
     
-    template<typename type>
-    type interval(type min, type max)
+    template<typename T>
+    inline T interval(T min, T max)
     {
-        return std::uniform_int_distribution<type>{min, max}(engine);
+        return std::uniform_int_distribution<T>{min, max}(engine);
     }
     
-    int interval(int min, int max)
+    inline int interval(int min, int max)
     {
         return std::uniform_int_distribution<int>{min, max}(engine);
     }
     
-    float ratio()
+    inline float interval(float min, float max)
+    {
+        return std::uniform_real_distribution<float>{min, max}(engine);
+    }
+    
+    inline double interval(double min, double max)
+    {
+        return std::uniform_real_distribution<double>{min, max}(engine);
+    }
+    
+    inline long double interval(long double min, long double max)
+    {
+        return std::uniform_real_distribution<long double>{min, max}(engine);
+    }
+    
+    inline float ratio()
     {
         return std::uniform_real_distribution<float>{0.0f, 1.0f}(engine);
+    }
+    
+    inline float minus1_1()
+    {
+        return std::uniform_real_distribution<float>{-1.0f, 1.0f}(engine);
     }
     
     template <typename element>
@@ -40,7 +60,7 @@ public:
     {
         assert(list.size() > 0);
         auto it = list.begin();
-        auto pos = interval(0, list.size() - 1);
+        int pos = interval(0, list.size() - 1);
         for (int i = 0; i < pos; ++it, i++);
         list.erase(it);
         return *(it);
@@ -50,7 +70,7 @@ public:
     element& select(std::vector<element>& list)
     {
         assert(list.size() > 0);
-        auto pos = interval(0, list.size() - 1);
+        int pos = interval(0, list.size() - 1);
         return list[pos];
     }
     
@@ -63,11 +83,11 @@ public:
         return list[pos];
     }
     
-    template<class bidiiter>
-    bidiiter random_unique(bidiiter begin, bidiiter end, size_t num_random) {
+    template<class iter>
+    iter randomUnique(iter begin, iter end, size_t num_random) {
         size_t left = std::distance(begin, end);
         while (num_random--) {
-            bidiiter r = begin;
+            iter r = begin;
             std::advance(r, std::rand() % left);
             std::swap(*begin, *r);
             ++begin;

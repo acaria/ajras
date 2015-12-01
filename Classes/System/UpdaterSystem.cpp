@@ -1,7 +1,6 @@
 #include "UpdaterSystem.h"
 #include "Components.h"
 #include "IMapData.h"
-#include "SysHelper.h"
 #include "CmdFactory.h"
 
 void UpdaterSystem::tick(double dt)

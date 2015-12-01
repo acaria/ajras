@@ -19,7 +19,7 @@ struct AnimationData
         if (data.find("flipY") != data.end())
             this->flipY = data.at("flipY").asBool();
         
-        unsigned frameCount;
+        unsigned frameCount = 0;
         if (data.find("frameCount") != data.end())
             frameCount = data.at("frameCount").asInt();
         

@@ -6,19 +6,21 @@ class Randgine : public Singleton<Randgine>
 {
 public:
 
-    const long MAX = 1000;
+    const long MAX = 1000000;
     
     enum CAT
     {
-        FLOOR,
+        MAP_DATA,
+        MISSION,
         CAMP,
-        AI,
         _SIZE
     };
     
-    Randgine():randgine() {
+    Randgine():mainEngine()
+    {
+        masterSeed = 0;
         for(int i = 0; i < CAT::_SIZE; i++)
-            subEngines.push_back(lib::Random((std::mt19937::result_type)randgine.interval((long)0, MAX)));
+            subEngines.push_back(lib::Random());
     }
 
     void setMaster(long seed)
@@ -26,11 +28,11 @@ public:
         CCLOG("master seed: %ld", seed);
         masterSeed = seed;
         subSeeds.clear();
-        randgine.getEngine().seed((std::mt19937::result_type)seed);
+        mainEngine.getEngine().seed((std::mt19937::result_type)seed);
         
         for(int i = 0; i < CAT::_SIZE; i++)
         {
-            long subSeed = randgine.interval((long)0, MAX);
+            long subSeed = mainEngine.interval((long)0, MAX);
             subSeeds[static_cast<CAT>(i)] = subSeed;
             subEngines[i].getEngine().seed((std::mt19937::result_type)subSeed);
             CCLOG("subseed n%d: %ld", i + 1, subSeed);
@@ -48,9 +50,12 @@ public:
     }
 
 private:
-    lib::Random randgine;
-    long masterSeed = 0;
-    std::map<CAT, long> subSeeds;
-    
-    std::vector<lib::Random> subEngines;
+
+    //seeds
+    long                        masterSeed;
+    std::map<CAT, long>         subSeeds;
+
+    //engines
+    lib::Random                 mainEngine;
+    std::vector<lib::Random>    subEngines;
 };

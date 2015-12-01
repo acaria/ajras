@@ -91,7 +91,7 @@ std::pair<std::string, cc::Rect> FloorData::subExtractGateInfo(const cc::ValueMa
 }
 
 FloorData::FloorData(const std::string& fileName) :
-    random(Randgine::instance()->get(Randgine::FLOOR))
+    random(Randgine::instance()->get(Randgine::MAP_DATA))
 {
     this->floorMapping = nullptr;
     this->extractInfo(fileName);

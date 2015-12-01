@@ -1,6 +1,5 @@
 #include "RenderSystem.h"
 #include "Components.h"
-#include "SysHelper.h"
 #include "IMapData.h"
 #include "AnimationData.h"
 

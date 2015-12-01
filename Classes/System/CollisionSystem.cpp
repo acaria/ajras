@@ -1,5 +1,4 @@
 #include "CollisionSystem.h"
-#include "SysHelper.h"
 #include "ModelProvider.h"
 #include "IMapData.h"
 

@@ -38,6 +38,11 @@
 jsonxx::assertion(__FILE__,__LINE__,#__VA_ARGS__,bool(__VA_ARGS__)); } while(0)
 
 namespace jsonxx {
+    namespace {
+        namespace json{
+            
+        }
+    }
     
     // Settings
     enum Settings {

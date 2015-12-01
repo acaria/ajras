@@ -50,7 +50,7 @@ public:
     
 private:
     //components
-    lib::Random                   random;
+    lib::Random&                  random;
 
     //internal methods
     GateInfo getOppositeFromGateInfo(GateInfo info);

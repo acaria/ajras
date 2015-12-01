@@ -3,7 +3,6 @@
 #include "AnimationData.h"
 #include "MissionScene.h"
 #include "ControlSystem.h"
-#include "SysHelper.h"
 #include "GameCtrl.h"
 #include "IMapData.h"
 #include "CocosHelper.h"

@@ -1,7 +1,6 @@
 #include "AISystem.h"
 #include "ECSGroup.h"
 #include "Components.h"
-#include "SysHelper.h"
 #include "BehaviourData.h"
 #include "BlockInfo.h"
 #include "RoomData.h"
@@ -197,8 +196,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     {
                         auto grid = context->data->getGrid();
                         lib::v2u pos = {
-                            random.interval((unsigned)0, grid.width),
-                            random.interval((unsigned)0, grid.height - 1)
+                            random->interval((unsigned)0, grid.width),
+                            random->interval((unsigned)0, grid.height - 1)
                         };
                         
                         auto maxCount = 1000;
@@ -207,8 +206,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                               grid.get({pos.x, pos.y}).fields[BlockInfo::collision] != "walkable"))
                         {
                             pos = {
-                                random.interval((unsigned)0, grid.width),
-                                random.interval((unsigned)0, grid.height - 1)
+                                random->interval((unsigned)0, grid.width),
+                                random->interval((unsigned)0, grid.height - 1)
                             };
                         }
                         

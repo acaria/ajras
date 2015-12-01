@@ -1,6 +1,5 @@
 #include "TargetSystem.h"
 #include "Components.h"
-#include "SysHelper.h"
 
 void TargetSystem::tick(double dt)
 {

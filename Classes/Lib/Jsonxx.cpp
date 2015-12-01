@@ -549,6 +549,9 @@ namespace jsonxx {
         
         
         namespace json {
+            std::string remove_last_comma( const std::string &_input );
+            std::string tag( unsigned format, unsigned depth, const std::string &name, const jsonxx::Value &t);
+            
             
             std::string remove_last_comma( const std::string &_input ) {
                 std::string input( _input );
@@ -607,6 +610,11 @@ namespace jsonxx {
         } // namespace jsonxx::anon::json
         
         namespace xml {
+            std::string escape_attrib( const std::string &input );
+            std::string escape_tag( const std::string &input, unsigned format );
+            std::string open_tag( unsigned format, char type, const std::string &name, const std::string &attr = std::string(), const std::string &text = std::string() );
+            std::string close_tag( unsigned format, char type, const std::string &name );
+            std::string tag( unsigned format, unsigned depth, const std::string &name, const jsonxx::Value &t, const std::string &attr = std::string() );
             
             std::string escape_attrib( const std::string &input ) {
                 static std::string map[256], *once = 0;
@@ -658,7 +666,7 @@ namespace jsonxx {
                 return output;
             }
             
-            std::string open_tag( unsigned format, char type, const std::string &name, const std::string &attr = std::string(), const std::string &text = std::string() ) {
+            std::string open_tag( unsigned format, char type, const std::string &name, const std::string &attr, const std::string &text) {
                 std::string tagname;
                 switch( format )
                 {
@@ -747,7 +755,7 @@ namespace jsonxx {
                 }
             }
             
-            std::string tag( unsigned format, unsigned depth, const std::string &name, const jsonxx::Value &t, const std::string &attr = std::string() ) {
+            std::string tag( unsigned format, unsigned depth, const std::string &name, const jsonxx::Value &t, const std::string &attr) {
                 std::stringstream ss;
                 const std::string tab(depth, '\t');
                 

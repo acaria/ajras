@@ -1,6 +1,7 @@
 #pragma once
 #include "ECSGroup.h"
 #include "SysHelper.h"
+#include "Random.h"
 #include "SystemContext.h"
 #include "SystemDispatcher.h"
 
@@ -16,10 +17,11 @@ public:
     virtual void animate(double dt, double tp) = 0;
     
 protected:
-    void prepare(SystemContext* context, SystemDispatcher* dispatcher)
+    void prepare(SystemContext* context, SystemDispatcher* dispatcher, lib::Random* random)
     {
         this->context = context;
         this->dispatcher = dispatcher;
+        this->random = random;
         this->init();
     }
     
@@ -27,5 +29,7 @@ protected:
 
     SystemContext*                  context;
     SystemDispatcher*               dispatcher;
+    lib::Random*                    random;
+    
     std::list<lib::Registration>    eventRegs;
 };

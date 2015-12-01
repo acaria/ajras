@@ -3,7 +3,6 @@
 #include "LayeredContainer.h"
 #include "GameCtrl.h"
 #include "Components.h"
-#include "SysHelper.h"
 
 DebugSystem::~DebugSystem()
 {

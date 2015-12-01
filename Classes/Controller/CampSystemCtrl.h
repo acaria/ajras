@@ -33,6 +33,7 @@ private:
     const unsigned GROUP_INDEX = 1;
     
     //system
+    lib::Random&        random;
     SystemFacade        systemFacade;
     SystemContext       context;
     SystemDispatcher    dispatcher;
@@ -49,8 +50,6 @@ private:
     
     //event
     std::vector<lib::Registration> eventRegs;
-    
-    lib::Random& random;
     
     PlayerData* playerData = nullptr;
 };

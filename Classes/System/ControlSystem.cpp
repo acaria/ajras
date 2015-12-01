@@ -1,7 +1,6 @@
 #include "GameCtrl.h"
 #include "ControlSystem.h"
 #include "Components.h"
-#include "SysHelper.h"
 #include "Defines.h"
 
 ControlSystem::ControlSystem(std::list<unsigned> indexes) {

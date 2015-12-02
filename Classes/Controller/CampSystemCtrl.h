@@ -33,7 +33,6 @@ private:
     const unsigned GROUP_INDEX = 1;
     
     //system
-    lib::Random&        random;
     SystemFacade        systemFacade;
     SystemContext       context;
     SystemDispatcher    dispatcher;

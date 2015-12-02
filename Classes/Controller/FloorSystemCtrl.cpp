@@ -14,8 +14,7 @@
 
 using namespace std::placeholders;
 
-FloorSystemCtrl::FloorSystemCtrl() : random(Randgine::instance()->get(Randgine::MISSION)),
-                                     systemFacade(dispatcher, context, random)
+FloorSystemCtrl::FloorSystemCtrl() : systemFacade(dispatcher, context, Randgine::CAT::MISSION)
 {
     //init group
     this->context.ecs = &ecsGroup;
@@ -30,7 +29,6 @@ FloorSystemCtrl::FloorSystemCtrl() : random(Randgine::instance()->get(Randgine::
     this->systemFacade.factory<MeleeSystem>();
     this->systemFacade.factory<TransitSystem>();
     this->systemFacade.factory<CollisionSystem>();
-    this->systemFacade.factory<HealthSystem>();
     this->systemFacade.factory<RenderSystem>();
     this->systemFacade.factory<InteractSystem>();
 #if ECSYSTEM_DEBUG

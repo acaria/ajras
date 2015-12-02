@@ -14,10 +14,9 @@ void AISystem::tick(double dt)
     {
         if (ecs::has<cp::Control>(eid))
             continue; //manual
-        if (!ecs::get<cp::Input>(eid).isActive())
+        if (!ecs::get<cp::Input>(eid).enabled)
         {
-            if (ecs::get<cp::AI>(eid).processing)
-                ecs::get<cp::AI>(eid).reset();
+            ecs::get<cp::AI>(eid).reset();
             continue; //skip disabled entities
         }
         auto& cpAI = ecs::get<cp::AI>(eid);

@@ -5,9 +5,7 @@
 #include "ModelProvider.h"
 #include "WarpMap.h"
 
-CampSystemCtrl::CampSystemCtrl() :
-        random(Randgine::instance()->get(Randgine::CAMP)),
-        systemFacade(dispatcher, context, random)
+CampSystemCtrl::CampSystemCtrl() : systemFacade(dispatcher, context, Randgine::CAMP)
 {
     //init group
     ecsGroup.setID(GROUP_INDEX);
@@ -22,7 +20,6 @@ CampSystemCtrl::CampSystemCtrl() :
     this->systemFacade.factory<CollisionSystem>();
     this->systemFacade.factory<MeleeSystem>();
     this->systemFacade.factory<TransitSystem>();
-    this->systemFacade.factory<HealthSystem>();
     this->systemFacade.factory<RenderSystem>();
     this->systemFacade.factory<InteractSystem>();
 #if ECSYSTEM_DEBUG

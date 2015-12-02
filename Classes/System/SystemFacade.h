@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BaseSystem.h"
-#include "Random.h"
+#include "Randgine.h"
 #include "SystemContext.h"
 #include "SystemDispatcher.h"
 
@@ -16,7 +16,6 @@
 #include "UpdaterSystem.h"
 #include "MoveSystem.h"
 #include "InteractSystem.h"
-#include "HealthSystem.h"
 #if ECSYSTEM_DEBUG
 #include "DebugSystem.h"
 #endif
@@ -24,7 +23,7 @@
 class SystemFacade
 {
 public:
-    SystemFacade(SystemDispatcher& dispatcher, SystemContext& context, lib::Random& random);
+    SystemFacade(SystemDispatcher& dispatcher, SystemContext& context, Randgine::CAT randCat);
 
     template <typename T, typename ... ARGS>
     void factory(ARGS&&... args)

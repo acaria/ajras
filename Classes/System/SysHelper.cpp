@@ -76,7 +76,7 @@ void SysHelper::enableEntity(unsigned group, unsigned eid)
     ecs::add<cp::Position>(eid, group).set(cpRender.sprite->getPosition());
     
     if (ecs::has<cp::Input>(eid))
-        ecs::get<cp::Input>(eid).forceEnable();
+        ecs::get<cp::Input>(eid).enabled = true;
 }
 
 void SysHelper::disableEntity(unsigned group, unsigned int eid)
@@ -88,5 +88,5 @@ void SysHelper::disableEntity(unsigned group, unsigned int eid)
     cpRender.busy = true;
     ecs::del<cp::Position>(eid, group);
     if (ecs::has<cp::Input>(eid))
-        ecs::get<cp::Input>(eid).forceDisable();
+        ecs::get<cp::Input>(eid).enabled = false;
 }

@@ -39,6 +39,7 @@ void RenderSystem::animate(double dt, double tickPercent)
         
             cc::Vec2 pos(cpPos.pos.x * tickPercent + cpPos.lastPos.x * (1 - tickPercent),
                          cpPos.pos.y * tickPercent + cpPos.lastPos.y * (1 - tickPercent));
+            
             cpRender.sprite->setPosition(pos);
         }
         

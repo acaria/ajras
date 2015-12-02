@@ -26,8 +26,11 @@ struct AIComponent
     
     void reset()
     {
-        processing = false;
-        board.reset();
+        if (processing)
+        {
+            processing = false;
+            board.reset();
+        }
     }
     
     //input

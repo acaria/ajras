@@ -35,7 +35,6 @@ public:
     
 private:
     //system
-    lib::Random&        random;
     SystemFacade        systemFacade;
     SystemContext       context;
     SystemDispatcher    dispatcher;

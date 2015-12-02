@@ -5,17 +5,21 @@
 
 void UpdaterSystem::tick(double dt)
 {
+    //clean removed entities
+    for(auto eid : toRemove)
+    {
+        cp::entity::remove(eid, context->ecs->getID());
+    }
+    
     //update from inputs
     for(auto eid : context->ecs->join<cp::Input, cp::Position, cp::Physics>())
     {
         auto& cpInput = ecs::get<cp::Input>(eid);
-        auto& cpPhy = ecs::get<cp::Physics>(eid);
-        cpInput.updatePredicates(eid, dt);
         
-        if (!cpInput.isActive()) //inhibitor
-        {
+        if (!cpInput.enabled) //inhibitor
             continue;
-        }
+        
+        auto& cpPhy = ecs::get<cp::Physics>(eid);
         
         auto& cpPosition = ecs::get<cp::Position>(eid);
         
@@ -55,7 +59,7 @@ void UpdaterSystem::tick(double dt)
     //update stamina
     for(auto eid : context->ecs->join<cp::Stamina, cp::Input>())
     {
-        if (!ecs::get<cp::Input>(eid).isActive())
+        if (!ecs::get<cp::Input>(eid).enabled)
             continue; //skip disabled
         auto& cpStamina = ecs::get<cp::Stamina>(eid);
         if (cpStamina.current < cpStamina.max)
@@ -70,5 +74,30 @@ void UpdaterSystem::tick(double dt)
     for(auto eid : context->ecs->system<cp::Cmd>())
     {
         ecs::get<cp::Cmd>(eid).process(eid, dt);
+    }
+    
+    //update health
+    for(auto eid : context->ecs->join<cp::Health, cp::Render>())
+    {
+        auto& cpHealth = ecs::get<cp::Health>(eid);
+        auto& cpRender = ecs::get<cp::Render>(eid);
+        
+        if (cpHealth.damage > 0)
+        {
+            cpHealth.hp -= cpHealth.damage;
+            cpHealth.damage = 0;
+            
+            if (cpHealth.hp <= 0)
+            {
+                if (ecs::has<cp::Input>(eid))
+                    ecs::get<cp::Input>(eid).enabled = false;
+                cpRender.sprite->stopAllActions();
+                cpRender.sprite->setColor({255,255,255});
+                cpRender.setAnimation("death", 1, [eid, this](bool cancel){
+                    this->toRemove.push_back(eid);
+                    dispatcher->onEntityDeleted(context->ecs->getID(), eid);
+                });
+            }
+        }
     }
 }

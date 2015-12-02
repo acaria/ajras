@@ -40,14 +40,6 @@ namespace def {
         const std::string normal = "fonts/romulus.ttf";
     };
     
-    //melee
-    namespace blinkAnim
-    {
-        const float duration = 0.3f;
-        const int   count = 3;
-        const int   tag = 99;
-    }
-    
     //AI
     namespace mood
     {
@@ -66,7 +58,7 @@ namespace def {
         inline bool inside(Flags a, Flags  b)
         { return (static_cast<int>(a) & static_cast<int>(b)) != 0; }
         
-        static Flags fromStr(const std::string& str)
+        inline Flags fromStr(const std::string& str)
         {
             if (str == "hostile")
                 return Flags::Hostile;
@@ -77,7 +69,7 @@ namespace def {
             return Flags::Neutral;
         }
         
-        static Flags getOpponents(Flags a)
+        inline Flags getOpponents(Flags a)
         {
             switch(a)
             {
@@ -89,7 +81,7 @@ namespace def {
             }
         }
         
-        static Flags getAllies(Flags a)
+        inline Flags getAllies(Flags a)
         {
             switch(a)
             {

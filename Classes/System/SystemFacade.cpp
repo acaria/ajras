@@ -3,10 +3,11 @@
 #include "LayeredContainer.h"
 #include "IMapData.h"
 
-SystemFacade::SystemFacade(SystemDispatcher& dispatcher, SystemContext& context,
-                           lib::Random& random): dispatcher(dispatcher),
-                                                 context(context),
-                                                 random(random)
+SystemFacade::SystemFacade(SystemDispatcher& dispatcher,
+                           SystemContext& context,
+                           Randgine::CAT randCat): dispatcher(dispatcher),
+                                                   context(context),
+                                                   random(Randgine::instance()->get(randCat))
 {
 }
 

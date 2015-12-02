@@ -10,19 +10,20 @@
 void MeleeSystem::tick(double dt)
 {
     std::list<std::list<std::pair<unsigned, unsigned>>> meleeListGroup;
-    for(auto eid : context->ecs->join<cp::Melee, cp::Mood, cp::Stamina, cp::Physics, cp::Position, cp::Render>())
+    auto entityList = context->ecs->join<cp::Melee, cp::Mood, cp::Physics, cp::Position, cp::Render>();
+    for(auto eid : entityList)
     {
-        if (!ecs::has<cp::Input>(eid) || !ecs::get<cp::Input>(eid).isActive())
+        if (!ecs::has<cp::Input>(eid) || !ecs::get<cp::Input>(eid).enabled)
             continue;
-        
-        auto entityMood = ecs::get<cp::Mood>(eid);
-        auto oppositeMoods = def::mood::getOpponents(entityMood);
         
         auto& cpMelee = ecs::get<cp::Melee>(eid);
         if (!cpMelee.enabled || cpMelee.type == MeleeComponent::NONE)
             continue;
         
-        cocos2d::Rect body = SysHelper::getBounds(eid);
+        auto entityMood = ecs::get<cp::Mood>(eid);
+        auto oppositeMoods = def::mood::getOpponents(entityMood);
+        
+        cc::Rect body = SysHelper::getBounds(eid);
         
         Dir atkDir = getAtkDir(eid, cpMelee);
         cpMelee.atkRect = getAtkRectFromDir(body, cpMelee.range, atkDir);
@@ -31,12 +32,12 @@ void MeleeSystem::tick(double dt)
             continue;
         
         //check room objects
-        for(auto oid : context->ecs->join<cp::Render, cp::Physics, cp::Position, cp::Health, cp::Mood, cp::Input>())
+        for(auto oid : entityList)
         {
             if (oid == eid) continue;
             
-            if (ecs::has<cp::Untargetable>(oid))
-                continue;
+            //if (ecs::has<cp::Untargetable>(oid))
+            //    continue;
             //if (ecs::has<cp::Melee>(oid) && !ecs::get<cp::Melee>(oid).enabled)
             //    continue;
             
@@ -132,10 +133,11 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
     cc::Vec2 moveDir = { (bounds2.getMidX() - bounds1.getMidX()) / 2,
                          (bounds2.getMidY() - bounds1.getMidY()) / 2 };
     
-    cpInput2.disable(1.0);
-    context->ecs->add<cp::Untargetable>(oid);
+    cpInput2.enabled = false;
+    //cpInput2.disable(1.0);
+    //context->ecs->add<cp::Untargetable>(oid);
     cpRender2.sprite->runAction(cc::Sequence::create(
-        CocosHelper::blinkActionCreate({255,50,50}, def::blinkAnim::count / def::blinkAnim::duration, 1.0),
+        CocosHelper::blinkActionCreate({255,50,50}, blinkAnim::count / blinkAnim::duration, 1.0),
         cc::CallFunc::create([oid, this](){
             context->ecs->del<cp::Untargetable>(oid);
         }),
@@ -153,7 +155,7 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
     );
     
     cpRender2.sprite->runAction(
-        CocosHelper::blinkActionCreate({100,255,255}, def::blinkAnim::count, def::blinkAnim::duration)
+        CocosHelper::blinkActionCreate({100,255,255}, blinkAnim::count, blinkAnim::duration)
     );
     cpRender.sprite->runAction(resolutionAnim);
 }
@@ -164,62 +166,81 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
         return;
 
     auto& cpMelee = ecs::get<cp::Melee>(eid);
- 
-    cpMelee.enabled = false;
     auto& cpRender = ecs::get<cp::Render>(eid);
+    
     auto& cpRender2 = ecs::get<cp::Render>(oid);
     
+    //define attack dir
     auto bounds1 = SysHelper::getBounds(eid);
     auto bounds2 = SysHelper::getBounds(oid);
     cc::Vec2 moveDir = { (bounds2.getMidX() - bounds1.getMidX()) / 2,
-                         (bounds2.getMidY() - bounds1.getMidY()) / 2 };
+        (bounds2.getMidY() - bounds1.getMidY()) / 2 };
     
-    context->ecs->del<cp::Position>(eid);
-    
+    //define melee anim
     auto animName = cpMelee.animKey.Value + ProfileData::getTagName(atkDir);
     auto animDuration = cpRender.getAnimationDuration(animName);
     
-    ecs::get<cp::Input>(eid).disable(animDuration + def::blinkAnim::duration);
-    ecs::get<cp::Input>(oid).disable(animDuration * cpMelee.triggerRatio +
-                                     def::blinkAnim::duration + 0.1);
+    //disable both entities attacker + target
+    cpMelee.enabled = false;
+    ecs::get<cp::Melee>(oid).enabled = false;
+    ecs::get<cp::Physics>(eid).resetForces();
+    ecs::get<cp::Physics>(oid).resetForces();
+    ecs::get<cp::Input>(eid).enabled = false;
+    ecs::get<cp::Input>(oid).enabled = false;
     
-    auto moveAnim = cc::Sequence::create(
+    //exclude attacker from systems
+    context->ecs->del<cp::Position>(eid);
+    dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
+    
+    //attacker: estocade anim
+    auto prepareAnim = cc::Sequence::create(
         cc::MoveBy::create(animDuration / 3, moveDir),
         cc::DelayTime::create(animDuration / 3),
         cc::MoveBy::create(animDuration / 3, moveDir)->reverse(),
         NULL
     );
     
+    //attacker: attack anim
     auto attackAnim = cc::CallFunc::create([&cpMelee, eid, this, &cpRender, atkDir](){
         auto animName = cpMelee.animKey.Value + ProfileData::getTagName(atkDir);
         cpRender.setAnimation(animName, 1, [&cpMelee, &cpRender, eid, this](bool canceled){
             cpMelee.enabled = true;
-            this->context->ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
+            context->ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
+            dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
+            ecs::get<cp::Input>(eid).enabled = true;
         });
     });
     
+    //target: resolution anim (success, TODO:fail)
     auto resolutionAnim = cc::Sequence::create(
         cc::DelayTime::create(animDuration * cpMelee.triggerRatio),
-        cc::CallFunc::create([this, &cpRender2, &cpMelee, oid, moveDir](){
+        cc::CallFunc::create([this, eid, oid, moveDir](){
+            //attacker
+            auto& cpMelee = ecs::get<cp::Melee>(eid);
+            //target
+            auto& cpRender2 = ecs::get<cp::Render>(oid);
+            auto& cpPhy2 =  ecs::get<cp::Physics>(oid);
             auto& cpHealth2 = ecs::get<cp::Health>(oid);
+            auto& cpMelee2 = ecs::get<cp::Melee>(oid);
+            auto& cpInput2 = ecs::get<cp::Input>(oid);
         
+            cpMelee2.enabled = true;
+            cpInput2.enabled = true;
+        
+            //blink target
             auto blinkAction = CocosHelper::blinkActionCreate(
-                {255,50,50}, def::blinkAnim::count / def::blinkAnim::duration, 1.0);
-            blinkAction->setTag(def::blinkAnim::tag);
+                {255,50,50}, blinkAnim::count / blinkAnim::duration, 1.0);
+            blinkAction->setTag(blinkAnim::tag);
             cpRender2.sprite->runAction(blinkAction);
-            /*ecs::get<cp::Physics>(oid).addForce(cpMelee.recoil.speed,
-                                                cpMelee.recoil.duration,
-                                                moveDir);
-            ecs::get<cp::Input>(oid).disable("velocity", [this](unsigned eid) {
-                if (ecs::get<cp::Physics>(eid).velocity == cc::Vec2::ZERO)
-                {
-                    context->ecs->del<cp::Untargetable>(eid);
-                    ecs::get<cp::Render>(eid).sprite->stopAllActionsByTag(def::blinkAnim::tag);
-                    ecs::get<cp::Render>(eid).sprite->setColor({255,255,255});
-                    return false;
-                }
-                return true;
-            });*/
+        
+            //apply impact force to target
+            cpPhy2.fImpact().curSpeed = 0;
+            cpPhy2.fImpact().accSpeed = 600;
+            cpPhy2.fImpact().decSpeed = 250;
+            cpPhy2.fImpact().maxSpeed = 200;
+            cpPhy2.fImpact().direction = moveDir.getNormalized();
+            cpPhy2.fImpact().active = true;
+            cpPhy2.fImpact().duration = 0.2;
         
             cpHealth2.damage += cpMelee.damage;
         }),
@@ -227,15 +248,15 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     );
     
     cpRender2.sprite->runAction(
-        CocosHelper::blinkActionCreate({100,255,255}, def::blinkAnim::count, def::blinkAnim::duration)
+        CocosHelper::blinkActionCreate({100,255,255}, blinkAnim::count, blinkAnim::duration)
     );
     cpRender.sprite->runAction(cc::Sequence::create(
-        cc::CallFunc::create([eid, oid, this](){
+        /*cc::CallFunc::create([eid, oid, this](){
             context->ecs->add<cp::Untargetable>(oid) = true;
-            context->ecs->add<cp::Untargetable>(eid) = true; }),
-        CocosHelper::blinkActionCreate({50,50,255}, def::blinkAnim::count, def::blinkAnim::duration),
+            context->ecs->add<cp::Untargetable>(eid) = true; }),*/
+        CocosHelper::blinkActionCreate({50,50,255}, blinkAnim::count, blinkAnim::duration),
         cc::Spawn::create(
-            moveAnim,
+            prepareAnim,
             attackAnim,
             resolutionAnim,
             NULL),
@@ -259,7 +280,8 @@ Dir MeleeSystem::getAtkDir(unsigned int eid, const MeleeComponent &cpMelee)
             break;
         }
         case MeleeComponent::DIR: {
-            atkDir = ecs::get<cp::Orientation>(eid).dir;
+            if (ecs::has<cp::Orientation>(eid))
+                atkDir = ecs::get<cp::Orientation>(eid).dir;
             break;
         }
         default:
@@ -282,7 +304,7 @@ cocos2d::Rect MeleeSystem::getAtkRectFromDir(const cocos2d::Rect& bounds,
         case Dir::Down:
             return cc::Rect(bounds.getMidX() - range.height / 2, bounds.getMinY() - range.width, range.height, range.width);
         case Dir::Up:
-            return cocos2d::Rect(bounds.getMidX() - range.height / 2, bounds.getMaxY(), range.height, range.width);
+            return cc::Rect(bounds.getMidX() - range.height / 2, bounds.getMaxY(), range.height, range.width);
         case Dir::None:
             return cc::Rect(bounds.getMinX() - range.width,
                             bounds.getMinY() - range.height,

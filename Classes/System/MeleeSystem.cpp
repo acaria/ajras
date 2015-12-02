@@ -121,42 +121,57 @@ void MeleeSystem::tick(double dt)
 
 void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
 {
-    auto& cpMelee = ecs::get<cp::Melee>(eid);
-    
-    cpMelee.enabled = false;
-    auto& cpInput2 = ecs::get<cp::Input>(oid);
+    //load attacker components
     auto& cpRender = ecs::get<cp::Render>(eid);
+    auto& cpMelee = ecs::get<cp::Melee>(eid);
+    //load target components
     auto& cpRender2 = ecs::get<cp::Render>(oid);
     
+    //disable both entities attacker + target
+    this->setEntityAvailability(eid, false);
+    this->setEntityAvailability(oid, false);
+    
+    //define attack dir
     auto bounds1 = SysHelper::getBounds(eid);
     auto bounds2 = SysHelper::getBounds(oid);
     cc::Vec2 moveDir = { (bounds2.getMidX() - bounds1.getMidX()) / 2,
                          (bounds2.getMidY() - bounds1.getMidY()) / 2 };
     
-    cpInput2.enabled = false;
-    //cpInput2.disable(1.0);
-    //context->ecs->add<cp::Untargetable>(oid);
-    cpRender2.sprite->runAction(cc::Sequence::create(
+    
+    /*cpRender2.sprite->runAction(cc::Sequence::create(
         CocosHelper::blinkActionCreate({255,50,50}, blinkAnim::count / blinkAnim::duration, 1.0),
         cc::CallFunc::create([oid, this](){
             context->ecs->del<cp::Untargetable>(oid);
         }),
         NULL));
+    */
     
+    //target: resolution anim
     auto resolutionAnim = cc::Sequence::create(
-        cc::CallFunc::create([this, &cpRender2, &cpMelee, oid, moveDir](){
-            /*ecs::get<cp::Physics>(oid).addForce(cpMelee.recoil.speed,
-                                                cpMelee.recoil.duration,
-                                                moveDir);*/
-            cpMelee.enabled = true;
+        cc::CallFunc::create([this, &cpMelee, eid, oid, moveDir](){
+            this->setEntityAvailability(eid, true);
+            this->setEntityAvailability(oid, true);
+        
+            //apply impact force to target
+            auto& cpPhy2 = ecs::get<cp::Physics>(oid);
+            cpPhy2.fImpact().curSpeed = 0;
+            cpPhy2.fImpact().accSpeed = 600;
+            cpPhy2.fImpact().decSpeed = 250;
+            cpPhy2.fImpact().maxSpeed = 150;
+            cpPhy2.fImpact().direction = moveDir.getNormalized();
+            cpPhy2.fImpact().active = true;
+            cpPhy2.fImpact().duration = 0.15;
+        
             ecs::get<cp::Health>(oid).damage += cpMelee.damage;
         }),
         NULL
     );
     
+    //run actions
     cpRender2.sprite->runAction(
-        CocosHelper::blinkActionCreate({100,255,255}, blinkAnim::count, blinkAnim::duration)
+        CocosHelper::blinkActionCreate({255,50,50}, blinkAnim::count, blinkAnim::duration)
     );
+
     cpRender.sprite->runAction(resolutionAnim);
 }
 
@@ -165,9 +180,10 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     if (atkDir == Dir::None)
         return;
 
+    //load attacker components
     auto& cpMelee = ecs::get<cp::Melee>(eid);
     auto& cpRender = ecs::get<cp::Render>(eid);
-    
+    //load target components
     auto& cpRender2 = ecs::get<cp::Render>(oid);
     
     //define attack dir
@@ -181,12 +197,8 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     auto animDuration = cpRender.getAnimationDuration(animName);
     
     //disable both entities attacker + target
-    cpMelee.enabled = false;
-    ecs::get<cp::Melee>(oid).enabled = false;
-    ecs::get<cp::Physics>(eid).resetForces();
-    ecs::get<cp::Physics>(oid).resetForces();
-    ecs::get<cp::Input>(eid).enabled = false;
-    ecs::get<cp::Input>(oid).enabled = false;
+    this->setEntityAvailability(eid, false);
+    this->setEntityAvailability(oid, false);
     
     //exclude attacker from systems
     context->ecs->del<cp::Position>(eid);
@@ -203,11 +215,10 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     //attacker: attack anim
     auto attackAnim = cc::CallFunc::create([&cpMelee, eid, this, &cpRender, atkDir](){
         auto animName = cpMelee.animKey.Value + ProfileData::getTagName(atkDir);
-        cpRender.setAnimation(animName, 1, [&cpMelee, &cpRender, eid, this](bool canceled){
-            cpMelee.enabled = true;
+        cpRender.setAnimation(animName, 1, [&cpRender, eid, this](bool canceled){
+            setEntityAvailability(eid, true);
             context->ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
             dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
-            ecs::get<cp::Input>(eid).enabled = true;
         });
     });
     
@@ -221,11 +232,8 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
             auto& cpRender2 = ecs::get<cp::Render>(oid);
             auto& cpPhy2 =  ecs::get<cp::Physics>(oid);
             auto& cpHealth2 = ecs::get<cp::Health>(oid);
-            auto& cpMelee2 = ecs::get<cp::Melee>(oid);
-            auto& cpInput2 = ecs::get<cp::Input>(oid);
         
-            cpMelee2.enabled = true;
-            cpInput2.enabled = true;
+            this->setEntityAvailability(oid, true);
         
             //blink target
             auto blinkAction = CocosHelper::blinkActionCreate(
@@ -247,23 +255,29 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
         NULL
     );
     
+    //run actions
     cpRender2.sprite->runAction(
         CocosHelper::blinkActionCreate({100,255,255}, blinkAnim::count, blinkAnim::duration)
     );
     cpRender.sprite->runAction(cc::Sequence::create(
-        /*cc::CallFunc::create([eid, oid, this](){
-            context->ecs->add<cp::Untargetable>(oid) = true;
-            context->ecs->add<cp::Untargetable>(eid) = true; }),*/
         CocosHelper::blinkActionCreate({50,50,255}, blinkAnim::count, blinkAnim::duration),
         cc::Spawn::create(
             prepareAnim,
             attackAnim,
             resolutionAnim,
             NULL),
-        cc::CallFunc::create([eid, this](){
-            context->ecs->del<cp::Untargetable>(eid); }),
         NULL)
     );
+}
+
+void MeleeSystem::setEntityAvailability(unsigned int eid, bool enabled)
+{
+    if (!enabled)
+    {
+        ecs::get<cp::Physics>(eid).resetForces();
+    }
+    ecs::get<cp::Melee>(eid).enabled = enabled;
+    ecs::get<cp::Input>(eid).enabled = enabled;
 }
 
 Dir MeleeSystem::getAtkDir(unsigned int eid, const MeleeComponent &cpMelee)

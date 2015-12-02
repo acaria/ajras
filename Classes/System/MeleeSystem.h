@@ -29,4 +29,6 @@ private:
     Dir getAtkDir(unsigned eid, const MeleeComponent& cpMelee);
     cocos2d::Rect getAtkRectFromDir(const cocos2d::Rect& bounds,
                                     cc::Size range, const Dir& dir);
+    
+    void setEntityAvailability(unsigned eid, bool enabled);
 };

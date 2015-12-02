@@ -243,12 +243,12 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
         
             //apply impact force to target
             cpPhy2.fImpact().curSpeed = 0;
-            cpPhy2.fImpact().accSpeed = 600;
+            cpPhy2.fImpact().accSpeed = 800;
             cpPhy2.fImpact().decSpeed = 250;
             cpPhy2.fImpact().maxSpeed = 200;
             cpPhy2.fImpact().direction = moveDir.getNormalized();
             cpPhy2.fImpact().active = true;
-            cpPhy2.fImpact().duration = 0.2;
+            cpPhy2.fImpact().duration = 0.08;
         
             cpHealth2.damage += cpMelee.damage;
         }),

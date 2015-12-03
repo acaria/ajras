@@ -16,15 +16,21 @@ void MoveSystem::tick(double dt)
         auto velocity = cc::Vec2::ZERO;
     
         //apply forces
+        auto maxSpeed = 0;
         for(auto& pair : cpPhy.forces)
         {
             auto& force = pair.second;
             if (!force.active && force.curSpeed == 0)
                 continue;
             if (force.active)
+            {
+                maxSpeed = MAX(maxSpeed, force.maxSpeed);
                 force.curSpeed += force.accSpeed * dt;
+            }
             else
+            {
                 force.curSpeed -= force.decSpeed * dt;
+            }
             force.curSpeed = lib::clamp(force.curSpeed, 0.0f, force.maxSpeed);
             velocity += force.direction.getNormalized() * force.curSpeed * dt;
             
@@ -35,6 +41,10 @@ void MoveSystem::tick(double dt)
                 force.active = (force.duration > 0);
             }
         }
+        
+        //cap velocity
+        if (maxSpeed != 0 && velocity.length() > maxSpeed)
+            velocity = velocity.getNormalized() * maxSpeed;
         
         cpPhy.velocity = velocity;
         

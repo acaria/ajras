@@ -216,9 +216,9 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     auto attackAnim = cc::CallFunc::create([&cpMelee, eid, this, &cpRender, atkDir](){
         auto animName = cpMelee.animKey.Value + ProfileData::getTagName(atkDir);
         cpRender.setAnimation(animName, 1, [&cpRender, eid, this](bool canceled){
-            setEntityAvailability(eid, true);
             context->ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
             dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
+            setEntityAvailability(eid, true);
         });
     });
     
@@ -248,7 +248,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
             cpPhy2.fImpact().maxSpeed = 200;
             cpPhy2.fImpact().direction = moveDir.getNormalized();
             cpPhy2.fImpact().active = true;
-            cpPhy2.fImpact().duration = 0.08;
+            cpPhy2.fImpact().duration = 0.12;
         
             cpHealth2.damage += cpMelee.damage;
         }),

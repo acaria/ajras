@@ -8,6 +8,8 @@
 		<string>bat</string>
 		<key>mood</key>
 		<string>hostile</string>
+		<key>sight</key>
+		<string>75,90</string>
 		<key>sleep</key>
 		<string>bird</string>
 	</dict>
@@ -23,11 +25,6 @@
 			<string>0.2</string>
 			<key>acceleration</key>
 			<string>0.3</string>
-		</dict>
-		<key>sight</key>
-		<dict>
-			<key>range</key>
-			<string>80</string>
 		</dict>
 		<key>melee</key>
 		<dict>

@@ -3,6 +3,8 @@
 #include "CoreLib.h"
 #include "ProfileInteractInfo.h"
 #include "ProfileStatsInfo.h"
+#include "ProfileBehaviourInfo.h"
+#include "Defines.h"
 
 class AnimationData;
 class Dir;
@@ -22,23 +24,18 @@ public:
     std::string     collisionCat;
     cocos2d::Rect   collisionRect;
     
-    //behaviour
-    std::string     behaviourKey;
-    
-    //category
-    std::string     moodCategory = "neutral";
-    std::string     sleepCategory = "none";
-    
     lib::Nullable<ProfileInteractInfo>  interaction;
     lib::Nullable<ProfileStatsInfo>     stats;
+    lib::Nullable<ProfileBehaviourInfo> behaviour;
     
     bool withCollision = false;
-    bool withBehaviour = false;
     
     static std::string getTagName(const Dir& orientation);
     bool animCategoryExists(const std::string& category);
     
     std::string toString();
+    
+    def::mood::Flags getMood();
     
 private:
     std::string path;

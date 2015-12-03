@@ -9,15 +9,10 @@ void AIComponent::setProfile(const std::string &profileName)
 
 void AIComponent::setProfile(ProfileData* profile)
 {
-    if (!profile->behaviourKey.empty())
-    {
-        this->bref = ModelProvider::instance()->behaviour.get(profile->behaviourKey);
-    }
-    
-    this->sleep = this->mapSleep[profile->sleepCategory];
-    
-    if (profile->stats != nullptr && profile->stats->sight != nullptr)
-        this->sightRange = profile->stats->sight->range;
+    assert(profile->behaviour != nullptr);
+    this->bref = ModelProvider::instance()->behaviour.get(profile->behaviour->key);
+    this->sleep = this->mapSleep[profile->behaviour->sleepCategory];
+    this->sightRange = profile->behaviour->sightRange;
 }
 
 std::map<std::string, AIComponent::eSleep> AIComponent::mapSleep = {

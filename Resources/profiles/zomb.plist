@@ -6,6 +6,8 @@
 	<dict>
 		<key>key</key>
 		<string>humanoid</string>
+		<key>sight</key>
+		<string>40,70</string>
 		<key>mood</key>
 		<string>hostile</string>
 		<key>sleep</key>
@@ -27,11 +29,6 @@
 			<string>250</string>
 			<key>acceleration</key>
 			<string>200</string>
-		</dict>
-		<key>sight</key>
-		<dict>
-			<key>range</key>
-			<string>75</string>
 		</dict>
 		<key>melee</key>
 		<dict>

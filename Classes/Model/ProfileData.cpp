@@ -1,7 +1,6 @@
 #include "ProfileData.h"
 #include "AnimationData.h"
 #include "Dir.h"
-#include "Defines.h"
 
 ProfileData::~ProfileData()
 {
@@ -9,6 +8,13 @@ ProfileData::~ProfileData()
     {
         delete this->animationData[anim.first];
     }
+}
+
+def::mood::Flags ProfileData::getMood()
+{
+    if (this->behaviour == nullptr)
+        return def::mood::Neutral;
+    return def::mood::fromStr(this->behaviour->moodCategory);
 }
 
 AnimationData* ProfileData::getDirAnimation(const Dir &orientation,
@@ -88,11 +94,10 @@ std::string ProfileData::toString()
     
     result << "profile: " << this->path << std::endl;
     if (withCollision) result << "collision - ";
-    if (withBehaviour) result << "behaviour - ";
     return result.str();
 }
 
-ProfileData::ProfileData(const std::string &path) : moodCategory("neutral")
+ProfileData::ProfileData(const std::string &path)
 {
     this->path = path;
     auto rawData = cocos2d::FileUtils::getInstance()->getValueMapFromFile(path);
@@ -137,12 +142,6 @@ ProfileData::ProfileData(const std::string &path) : moodCategory("neutral")
     
     if (rawData.find("behaviour") != rawData.end())
     {
-        auto &bData = rawData.at("behaviour").asValueMap();
-        withBehaviour = true;
-        this->behaviourKey = bData["key"].asString();
-        if (bData.find("sleep") != bData.end())
-            this->sleepCategory = bData.at("sleep").asString();
-        if (bData.find("mood") != bData.end())
-            this->moodCategory = bData.at("mood").asString();
+        this->behaviour = ProfileBehaviourInfo(rawData.at("behaviour").asValueMap());
     }
 }

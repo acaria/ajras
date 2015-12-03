@@ -319,7 +319,7 @@ void FloorSystemCtrl::start()
     };
     
     ecs::add<cp::Orientation>(eid, roomIndex);
-    ecs::add<cp::Mood>(eid, roomIndex) = def::mood::fromStr(profile->moodCategory);
+    ecs::add<cp::Mood>(eid, roomIndex) = profile->getMood();
     ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
     ecs::add<cp::Control>(eid, roomIndex) = playerData->ctrlIndex;

@@ -35,7 +35,7 @@ struct AIComponent
     
     //input
     BehaviourData* bref;
-    float sightRange;
+    std::pair<float, float> sightRange;
     eSleep sleep = eSleep::NONE;
     //------
     

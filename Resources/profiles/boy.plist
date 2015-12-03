@@ -8,6 +8,8 @@
 		<string>humanoid</string>
 		<key>mood</key>
 		<string>friendly</string>
+		<key>sight</key>
+		<string>75,90</string>
 		<key>sleep</key>
 		<string>human</string>
 	</dict>
@@ -27,11 +29,6 @@
 			<string>250</string>
 			<key>acceleration</key>
 			<string>200</string>
-		</dict>
-		<key>sight</key>
-		<dict>
-			<key>range</key>
-			<string>75</string>
 		</dict>
 		<key>melee</key>
 		<dict>

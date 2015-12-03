@@ -165,15 +165,12 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
         }
     }
     
-    if (profile->withBehaviour)
+    if (profile->behaviour != nullptr)
     {
         ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
-        ecs::add<cp::Mood>(eid, roomIndex) = def::mood::fromStr(profile->moodCategory);
     }
-    else
-    {
-        ecs::add<cp::Mood>(eid, roomIndex) = def::mood::Neutral;
-    }
+    
+    ecs::add<cp::Mood>(eid, roomIndex) = profile->getMood();
     
     if (profile->interaction != nullptr)
     {
@@ -206,8 +203,8 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
         light->setBlendFunc(cc::BlendFunc::ADDITIVE);
         light->setPosition(pos + cc::Vec2(8, 8));
         light->runAction(cc::RepeatForever::create(Flicker::create(
-                                                                   80.0f, 0.1f, {150, 200}, {0.98, 1.2}, {0.9,1.1},
-                                                                   cc::Color3B(252, 168, 50), cc::Color3B(252, 168, 50))));
+            80.0f, 0.1f, {150, 200}, {0.98, 1.2}, {0.9,1.1},
+            cc::Color3B(252, 168, 50), cc::Color3B(252, 168, 50))));
     }
     
     dispatcher.onEntityAdded(roomIndex, eid);

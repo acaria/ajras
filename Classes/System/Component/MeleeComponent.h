@@ -23,9 +23,10 @@ struct MeleeComponent
             default: Log("unrecognised melee type: %s", melee.type.c_str());
                 break;
         }
+        auto mood = profile->getMood();
         this->set(melee.animKey,
                   meleeType,
-                  def::mood::fromStr(profile->moodCategory),
+                  mood,
                   melee.range,
                   melee.recoil,
                   melee.stamina,

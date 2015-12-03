@@ -51,7 +51,7 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid, double dt)
             {
                 case AIComponent::eType::MOOD: {
                     assert(node->values.size() == 2); //params=[category,value]
-                    auto maxDist = cpAI.sightRange * cpAI.sightRange;
+                    auto maxDist = cpAI.sightRange.first * cpAI.sightRange.first;
                     auto moodGroup = this->getMoodGroup(mood, node->values[1]);
                     auto bounds = SysHelper::getBounds(eid);
                     
@@ -160,7 +160,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     assert(node->values.size() == 2); //params=[category,value]
                     
                     auto moodGroup = this->getMoodGroup(mood, node->values[1]);
-                    auto targetID = SysHelper::getNearest(context->ecs->getID(), eid, moodGroup, cpAI.sightRange);
+                    auto targetID = SysHelper::getNearest(context->ecs->getID(), eid, moodGroup, cpAI.sightRange.second);
                     if (targetID != 0)
                     {
                         context->ecs->add<cp::Target>(eid) = targetID;

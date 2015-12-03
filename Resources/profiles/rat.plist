@@ -4,6 +4,8 @@
 <dict>
 	<key>behaviour</key>
 	<dict>
+		<key>sight</key>
+		<string>75,90</string>
 		<key>key</key>
 		<string>rat</string>
 		<key>mood</key>
@@ -27,11 +29,6 @@
 			<string>250</string>
 			<key>acceleration</key>
 			<string>200</string>
-		</dict>
-		<key>sight</key>
-		<dict>
-			<key>range</key>
-			<string>75</string>
 		</dict>
 		<key>melee</key>
 		<dict>

@@ -115,6 +115,19 @@ void DebugSystem::displayDraws()
                                   {agent.bounds.getMidX() + agent.velocity.x * 10,
                                    agent.bounds.getMidY() + agent.velocity.y * 10},
                                   cc::Color4F(cc::Color4B(255, 20,117,255)));
+        
+        if (ecs::has<cp::AI>(pair.first))
+        {
+            auto& cpAI = ecs::get<cp::AI>(pair.first);
+            this->drawLayer->drawCircle(agent.bounds.origin + agent.bounds.size / 2,
+                                        cpAI.sightRange.first,
+                                        CC_DEGREES_TO_RADIANS(90), 30, false,
+                                        cc::Color4F(cc::Color4B(0, 255, 0, 255)));
+            this->drawLayer->drawCircle(agent.bounds.origin + agent.bounds.size / 2,
+                                        cpAI.sightRange.second,
+                                        CC_DEGREES_TO_RADIANS(90), 30, false,
+                                        cc::Color4F(cc::Color4B(255, 0, 255, 255)));
+        }
     }
 }
 

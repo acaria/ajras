@@ -70,6 +70,8 @@ void CampMediator::registerDispatcher(CampScene &scene)
     
     this->systemRegs.push_back(dispatcher.onWarpTriggered.registerObserver(
             [this](unsigned eid, WarpMap warp) {
+        if (eid != GameCtrl::instance()->getData().curPlayer()->entityFocus)
+            return;
         if (warp.keyCmd == "home")
         {
             GameCtrl::instance()->goToMainMenu();

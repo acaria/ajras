@@ -119,6 +119,8 @@ void MissionMediator::registerDispatcher(MissionScene& scene)
     
     this->systemRegs.push_back(dispatcher.onGateTriggered.registerObserver(
         [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate) {
+            if (eid != GameCtrl::instance()->getData().curPlayer()->entityFocus)
+                return;
             switch(gate.cmd)
             {
                 case GateMap::CmdType::ENTER_MAP:

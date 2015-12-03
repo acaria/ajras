@@ -43,9 +43,9 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid, double dt)
     auto mood = ecs::get<cp::Mood>(eid);
     behaviour::BaseNode* node = cpAI.bref->getNode(nid);
     
-    switch(this->checkMap[node->name])
+    switch(lib::hash(node->name))
     {
-        case CheckBType::NEAR: {
+        case lib::hash("near"): {
             assert(node->values.size() > 0);
             switch(AIComponent::mapType[node->values[0]])
             {
@@ -81,7 +81,7 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid, double dt)
                 }
             }
         }
-        case CheckBType::TIME: {
+        case lib::hash("time"): {
             assert(node->values.size() == 1); //params=[timer]
             auto &properties = cpAI.board.getFields(nid);
             if (!lib::hasKey(properties, "timer"))
@@ -96,7 +96,7 @@ behaviour::nState AISystem::onCheck(unsigned eid, unsigned nid, double dt)
             properties["timer"] = properties["timer"].asDouble() - dt;
             return state::SUCCESS;
         }
-        case CheckBType::COLLISION:
+        case lib::hash("collision"):
             assert(node->values.size() == 0); //no params
             if (!ecs::has<cp::Physics>(eid) ||
                 ecs::get<cp::Physics>(eid).collisionState != PhysicsComponent::CollisionType::NONE)
@@ -131,9 +131,9 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
     auto mood = ecs::get<cp::Mood>(eid);
     behaviour::BaseNode* node = cpAI.bref->getNode(nid);
 
-    switch(this->execMap[node->name])
+    switch(lib::hash(node->name))
     {
-        case ExecBType::ANIM: {
+        case lib::hash("anim"): {
             if (!ecs::has<cp::Render>(eid))
                 return state::FAILURE;
             auto &properties = cpAI.board.getFields(nid);
@@ -152,7 +152,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
             }
             return properties["done"].asBool() ? state::SUCCESS : state::RUNNING;
         }
-        case ExecBType::TARGET: {
+        case lib::hash("target"): {
             assert(node->values.size() > 0);
             switch(AIComponent::mapType[node->values[0]])
             {
@@ -180,13 +180,13 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
             }
         }
         break;
-        case ExecBType::MOVE_TO: {
+        case lib::hash("moveto"): {
             assert(node->values.size() == 1); //params=[type]
             
             auto& cpInput = ecs::get<cp::Input>(eid);
-            switch(actionMap[node->values[0]])
+            switch(lib::hash(node->values[0]))
             {
-                case ActionBType::RAND: {
+                case lib::hash("rand"): {
                     if (!ecs::has<cp::Input>(eid))
                         return state::FAILURE;
                 
@@ -229,11 +229,11 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     cpInput.direction = vdir;
                     return state::RUNNING;
                 }
-                case ActionBType::STOP: {
+                case lib::hash("stop"): {
                     cpInput.direction = cc::Vec2::ZERO;
                     return state::SUCCESS;
                 }
-                case ActionBType::SLEEPZONE: {
+                case lib::hash("sleep_zone"): {
                     RoomData* roomData = dynamic_cast<RoomData*>(context->data);
                     if (roomData)
                     {
@@ -274,18 +274,18 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     break;
             }
         }
-        case ExecBType::MOVE_DIR: {
+        case lib::hash("movedir"): {
             assert(node->values.size() == 1); //params=[type]
             
             auto& cpInput = ecs::get<cp::Input>(eid);
-            switch(actionMap[node->values[0]])
+            switch(lib::hash(node->values[0]))
             {
-                case ActionBType::RAND: {
+                case lib::hash("rand"): {
                     if (cpInput.direction == cc::Vec2::ZERO)
                         cpInput.direction = Dir::rand().toVec();
                     return state::RUNNING;
                 }
-                case ActionBType::STOP: {
+                case lib::hash("stop"): {
                     cpInput.direction = cc::Vec2::ZERO;
                     return state::SUCCESS;
                 }
@@ -294,11 +294,11 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     break;
             }
         }
-        case ExecBType::MOVE_NEAR: {
+        case lib::hash("movenear"): {
             assert(node->values.size() == 2); //params=[type, range]
-            switch(actionMap[node->values[0]])
+            switch(lib::hash(node->values[0]))
             {
-                case ActionBType::TARGET: {
+                case lib::hash("target"): {
                     if (!ecs::has<cp::Target, cp::Input>(eid))
                         return state::FAILURE;
                     auto tid = ecs::get<cp::Target>(eid);
@@ -322,7 +322,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                     break;
             }
         }
-        case ExecBType::CHARGE: {
+        case lib::hash("charge"): {
             /*
             assert(node->values.size() == 3); //params=[type, duration_load, duration_charge]
             switch(actionMap[node->values[0]])
@@ -390,11 +390,11 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
             } */
             return state::FAILURE;
         }
-        case ExecBType::STOP: {
+        case lib::hash("stop"): {
             assert(node->values.size() == 1); //params=[type]
-            switch(actionMap[node->values[0]])
+            switch(lib::hash(node->values[0]))
             {
-                case ActionBType::SLEEPZONE: {
+                case lib::hash("sleep_zone"): {
                     RoomData* roomData = dynamic_cast<RoomData*>(context->data);
                     if (roomData)
                     {

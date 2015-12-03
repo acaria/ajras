@@ -30,14 +30,14 @@ void DebugSystem::init()
         this->zoneLayer->removeAllChildren();
         this->drawLayer->removeFromParent();
         this->drawLayer->removeAllChildren();
-        collisionSet.clear();
-        collisionMap.clear();
         meleeSet.clear();
         meleeMap.clear();
         healthSet.clear();
         healthMap.clear();
         aiSet.clear();
         aiMap.clear();
+        gSet.clear();
+        gMap.clear();
     }));
 }
 
@@ -79,6 +79,7 @@ void DebugSystem::tick(double dt)
 cc::Label* DebugSystem::addText(cc::Color3B color, const cc::Rect& bounds, const std::string& txt)
 {
     auto label = cc::Label::createWithTTF("", def::font::mini, 8);
+    label->getFontAtlas()->setAliasTexParameters();
     label->setPosition({bounds.getMidX(), bounds.getMaxY()});
     this->zoneLayer->addChild(label);
     return label;
@@ -141,15 +142,28 @@ void DebugSystem::displayZones()
         
         unsigned decal = 0;
         
+        auto txt = lib::format("- %u -", eid);
+        if (gSet.count(eid) > 0)
+        {
+            gMap[eid]->setPosition({bounds.getMidX(), bounds.getMaxY() + bounds.size.height + decal});
+            gMap[eid]->setString(txt);
+        }
+        else
+        {
+            gMap[eid] = addText(cc::Color3B::WHITE, bounds, txt);
+            gSet.insert(eid);
+        }
+        decal += 8;
+        
         //health
         if (ecs::has<cp::Health>(eid))
         {
             auto cpHealth = ecs::get<cp::Health>(eid);
-            auto txt = lib::format("hp: %.0f/%.0f", cpHealth.hp, cpHealth.maxHp);
+            auto txt = lib::format("hp:%.0f/%.0f", cpHealth.hp, cpHealth.maxHp);
             if (ecs::has<cp::Stamina>(eid))
             {
                 auto cpStamina = ecs::get<cp::Stamina>(eid);
-                txt += lib::format(" - end:%.1f", cpStamina.current);
+                txt += lib::format("-end:%.1f", cpStamina.current);
             }
             if (healthSet.count(eid) > 0)
             {
@@ -182,8 +196,8 @@ void DebugSystem::displayZones()
         }
     }
     
-    this->purge(context->ecs->join<cp::Physics, cp::Position>(), collisionSet, collisionMap);
     this->purge(context->ecs->join<cp::Physics, cp::Position, cp::Melee>(), meleeSet, meleeMap);
     this->purge(context->ecs->join<cp::Physics, cp::Position, cp::Health>(), healthSet, healthMap);
     this->purge(context->ecs->join<cp::Physics, cp::Position, cp::AI>(), aiSet, aiMap);
+    this->purge(context->ecs->system<cp::Physics>(), gSet, gMap);
 }

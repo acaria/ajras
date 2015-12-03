@@ -47,6 +47,10 @@ private:
     std::set<unsigned>              aiSet;
     std::map<unsigned, cc::Label*>  aiMap;
     
+    //general
+    std::set<unsigned>              gSet;
+    std::map<unsigned, cc::Label*>  gMap;
+    
     void displayZones();
     //---------------------------------------------------------------------
     

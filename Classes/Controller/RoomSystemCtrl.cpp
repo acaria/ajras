@@ -230,7 +230,7 @@ void RoomSystemCtrl::hideObjects(float duration)
 
 void RoomSystemCtrl::showObjects(float duration)
 {
-    for(auto eid : ecsGroup.join<cp::Render, cp::AI>())
+    for(auto eid : ecsGroup.system<cp::Render>())
     {
         if (duration == 0)
             ecs::get<cp::Render>(eid).sprite->setOpacity(255);

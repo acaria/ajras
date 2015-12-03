@@ -137,15 +137,6 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
     cc::Vec2 moveDir = { (bounds2.getMidX() - bounds1.getMidX()) / 2,
                          (bounds2.getMidY() - bounds1.getMidY()) / 2 };
     
-    
-    /*cpRender2.sprite->runAction(cc::Sequence::create(
-        CocosHelper::blinkActionCreate({255,50,50}, blinkAnim::count / blinkAnim::duration, 1.0),
-        cc::CallFunc::create([oid, this](){
-            context->ecs->del<cp::Untargetable>(oid);
-        }),
-        NULL));
-    */
-    
     //target: resolution anim
     auto resolutionAnim = cc::Sequence::create(
         cc::CallFunc::create([this, &cpMelee, eid, oid, moveDir](){

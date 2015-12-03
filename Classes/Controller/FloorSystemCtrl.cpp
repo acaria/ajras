@@ -111,7 +111,7 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveBy::create(duration, destPos - srcPos),
         cc::CallFunc::create([eid, nextRoomIndex, this, &render](){
-            context.ecs->add<cp::Position>(eid).set(render.sprite->getPosition());;
+            context.ecs->add<cp::Position>(eid).set(render.sprite->getPosition());
             dispatcher.onEntityAdded(nextRoomIndex, eid);
         }),
         NULL

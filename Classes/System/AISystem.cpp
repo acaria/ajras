@@ -10,7 +10,7 @@ void AISystem::tick(double dt)
 {
     using namespace std::placeholders;
     
-    for(auto eid : context->ecs->join<cp::Input, cp::AI, cp::Mood>())
+    for(auto eid : context->ecs->join<cp::Input, cp::AI, cp::Mood, cp::Position>())
     {
         if (ecs::has<cp::Control>(eid))
             continue; //manual

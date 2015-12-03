@@ -119,16 +119,18 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     
     auto& render = ecs::get<cp::Render>(eid);
     context->ecs->del<cp::Position>(eid);
-    render.sprite->runAction(cc::Sequence::create(
-        cc::MoveTo::create(duration, targetPoint),
-        cc::CallFunc::create([this, eid, &gateMap](){
-            this->dispatcher->onGateTriggered(context->ecs->getID(), eid, gateMap);
-        }),
-        NULL
-    ));
-    render.sprite->runAction(cc::Sequence::create(
-        cc::TintTo::create(duration / 4, cc::Color3B::BLACK),
-        cc::FadeTo::create(duration / 6, 0),
+    dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
+    render.sprite->runAction(cc::Spawn::create(
+        cc::Sequence::create(
+            cc::MoveTo::create(duration, targetPoint),
+            cc::CallFunc::create([this, eid, &gateMap](){
+                this->dispatcher->onGateTriggered(context->ecs->getID(), eid, gateMap);
+            }),
+            NULL),
+        cc::Sequence::create(
+            cc::TintTo::create(duration / 4, cc::Color3B::BLACK),
+            cc::FadeTo::create(duration / 6, 0),
+            NULL),
         NULL
     ));
 }
@@ -141,16 +143,18 @@ void TransitSystem::warpingEnter(unsigned eid, const cocos2d::Vec2& targetPoint,
     
     auto& render = ecs::get<cp::Render>(eid);
     context->ecs->del<cp::Position>(eid);
-    render.sprite->runAction(cc::Sequence::create(
-        cc::MoveTo::create(duration, targetPoint),
-        cc::CallFunc::create([this, eid, &warpMap](){
-            this->dispatcher->onWarpTriggered(eid, warpMap);
-        }),
-        NULL
-    ));
-    render.sprite->runAction(cc::Sequence::create(
-        cc::TintTo::create(duration / 4, cc::Color3B::BLACK),
-        cc::FadeTo::create(duration / 6, 0),
+    dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
+    render.sprite->runAction(cc::Spawn::create(
+        cc::Sequence::create(
+            cc::MoveTo::create(duration, targetPoint),
+            cc::CallFunc::create([this, eid, &warpMap](){
+                this->dispatcher->onWarpTriggered(eid, warpMap);
+            }),
+            NULL),
+        cc::Sequence::create(
+            cc::TintTo::create(duration / 4, cc::Color3B::BLACK),
+            cc::FadeTo::create(duration / 6, 0),
+            NULL),
         NULL
     ));
 }

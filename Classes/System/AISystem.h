@@ -6,11 +6,14 @@ class IMapData;
 #include "BaseSystem.h"
 #include "BehaviourNodes.h"
 #include "Defines.h"
+#include "AIHelper.h"
 
 class AISystem : public BaseSystem
 {
+    friend AIHelper;
 public:
-    AISystem() {}
+    AISystem() : cmd(this)
+    {}
     
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
@@ -19,6 +22,5 @@ public:
     behaviour::nState onExecute(unsigned eid, unsigned nid, double dt);
     
 private:
-    def::mood::Flags getMoodGroup(def::mood::Flags ref,
-                                  const std::string& moodGroupCat);
+    AIHelper cmd;
 };

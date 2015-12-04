@@ -42,6 +42,12 @@ struct CmdComponent
         }
     }
     
+    void reset()
+    {
+        funcMap.clear();
+        stateMap.clear();
+    }
+    
     std::map<std::string, std::function<State(unsigned, double)>>  funcMap;
     std::map<std::string, State>                                   stateMap;
 };

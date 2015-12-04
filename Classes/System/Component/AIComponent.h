@@ -9,17 +9,6 @@ class ProfileData;
 struct AIComponent
 {
     using state = behaviour::nState;
- 
-    enum class eType
-    {
-        NONE,
-        MOOD
-    };
-    
-    enum class eSleep
-    {
-        NONE, BIRD, HUMAN
-    };
     
     void setProfile(ProfileData* profile);
     void setProfile(const std::string &profileName);
@@ -36,13 +25,10 @@ struct AIComponent
     //input
     BehaviourData* bref;
     std::pair<float, float> sightRange;
-    eSleep sleep = eSleep::NONE;
+    std::string sleep = "none";
     //------
     
     //internal
     behaviour::BoardNode board;
     bool processing = false;
-    
-    static std::map<std::string, eType>     mapType;
-    static std::map<std::string, eSleep>    mapSleep;
 };

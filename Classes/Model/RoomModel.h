@@ -14,8 +14,8 @@ public:
     
     RoomModel(const std::string &fileName) : TmxDataModel(fileName)
     {
-        sleepZones[AIComponent::eSleep::BIRD] = std::list<cc::Rect>();
-        sleepZones[AIComponent::eSleep::HUMAN] = std::list<cc::Rect>();
+        sleepZones["bird"] = std::list<cc::Rect>();
+        sleepZones["human"] = std::list<cc::Rect>();
         
         this->initialize();
     }
@@ -25,7 +25,7 @@ public:
     std::list<cc::Rect>                                         walls;
     
     //additional infos
-    std::map<AIComponent::eSleep, std::list<cc::Rect>>    sleepZones;
+    std::map<std::string, std::list<cc::Rect>>    sleepZones;
 protected:
     void initialize();
 private:

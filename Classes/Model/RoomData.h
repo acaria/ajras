@@ -52,9 +52,9 @@ public:
     std::vector<ObjectInfo>     getModelObjs();
     cc::Vec2                    getPosFromCoord(const lib::v2u& coord);
     std::list<cc::Rect>         getWalls();
-    SleepZone*                  getSleepZone(AIComponent::eSleep cat,
+    SleepZone*                  getSleepZone(const std::string& cat,
                                              const cc::Point& pos);
-    void freeSleepZone(AIComponent::eSleep cat, const cc::Point& pos);
+    void freeSleepZone(const std::string& cat, const cc::Point& pos);
     
     void extractGateAnimInfo(unsigned gateIndex, cc::Rect colRect,
                              cc::Point& srcPos, cc::Point& destPos);
@@ -74,7 +74,7 @@ public:
 private:
     RoomModel*                            model;
     lib::DataGrid<BlockInfo>              grid;
-    std::map<AIComponent::eSleep, std::list<SleepZone>> sleepZones;
+    std::map<std::string, std::list<SleepZone>> sleepZones;
     CollisionInfo   collision;
     NavigationInfo  navigation;
 };

@@ -13,9 +13,9 @@ public:
     
     static cocos2d::Rect getBounds(unsigned eid);
     
-    static unsigned getNearest(unsigned gid,unsigned eid,
-                               def::mood::Flags moodCat,
-                               float maxLength);
+    static lib::Nullable<unsigned> getNearest(unsigned gid,unsigned eid,
+                                              def::mood::Flags moodCat,
+                                              float maxLength);
     
     static def::collision::Agent makeAgent(unsigned eid);
     

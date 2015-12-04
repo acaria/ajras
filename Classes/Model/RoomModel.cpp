@@ -27,7 +27,7 @@ void RoomModel::initialize()
             if (block.fields.find(BlockInfo::sleepZone) != block.fields.end() &&
                 block.fields.find(BlockInfo::sleepCat) != block.fields.end())
             {
-                auto cat = AIComponent::mapSleep[block.fields[BlockInfo::sleepCat]];
+                auto cat = block.fields[BlockInfo::sleepCat];
                 auto blockPos = this->getPosFromCoord({i,j});
                 std::vector<std::string> coord;
                 lib::split(block.fields[BlockInfo::sleepZone], coord, ",", true);

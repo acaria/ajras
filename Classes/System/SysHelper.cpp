@@ -28,7 +28,7 @@ cc::Rect SysHelper::getBounds(unsigned eid)
     return SysHelper::getBounds(ecs::get<cp::Position>(eid), ecs::get<cp::Physics>(eid));
 }
 
-unsigned SysHelper::getNearest(unsigned gid, unsigned int eid, def::mood::Flags moodCat, float maxLength)
+lib::Nullable<unsigned> SysHelper::getNearest(unsigned gid, unsigned int eid, def::mood::Flags moodCat, float maxLength)
 {
     auto maxDist = maxLength * maxLength;
     auto bounds = SysHelper::getBounds(eid);
@@ -50,6 +50,9 @@ unsigned SysHelper::getNearest(unsigned gid, unsigned int eid, def::mood::Flags 
             targetID = tid;
         }
     }
+    
+    if (targetID == 0)
+        return nullptr;
 
     return targetID;
 }

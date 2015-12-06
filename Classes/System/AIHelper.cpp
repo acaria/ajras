@@ -170,7 +170,11 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
     auto& wayPoints = properties["waypoints"].asValueVector();
     
     if (wayPoints.size() == 0)
+    {
+        if (ecs::has<cp::Input>(eid))
+            ecs::get<cp::Input>(eid).direction = cc::Vec2::ZERO;
         return state::SUCCESS;
+    }
     
     auto& vMap = wayPoints.front().asValueMap();
     cc::Point destPos { vMap["x"].asFloat(), vMap["y"].asFloat() };
@@ -195,7 +199,7 @@ behaviour::nState AIHelper::execMoveStop(unsigned eid,
     const std::vector<std::string>& params, Properties& properties)
 {
     assert(params.size() == 1); //params=[category]
-    if (!ecs::has<cp::Input>(eid))
+    if (ecs::has<cp::Input>(eid))
         ecs::get<cp::Input>(eid).direction = cc::Vec2::ZERO;
     return state::SUCCESS;
 }

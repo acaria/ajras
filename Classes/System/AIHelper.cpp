@@ -179,7 +179,7 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
     if (vdir.length() < 4)
         wayPoints.erase(wayPoints.begin());
         
-    ecs::get<cp::Input>(eid).direction = vdir;
+    ecs::get<cp::Input>(eid).direction = vdir.getNormalized();
     
     return state::RUNNING;
 }
@@ -231,7 +231,7 @@ behaviour::nState AIHelper::execMoveToSleepZone(unsigned eid,
             cpInput.direction = cc::Vec2::ZERO;
             return state::SUCCESS;
         }
-        cpInput.direction = vdir;
+        cpInput.direction = vdir.getNormalized();
         return state::RUNNING;
     }
     return state::FAILURE;
@@ -245,7 +245,7 @@ behaviour::nState AIHelper::execMoveDirRand(unsigned eid,
         return state::FAILURE;
     auto& cpInput = ecs::get<cp::Input>(eid);
     if (cpInput.direction == cc::Vec2::ZERO)
-        cpInput.direction = Dir::rand().toVec();
+        cpInput.direction = Dir::rand().toVec().getNormalized();
     return state::SUCCESS;
 }
 
@@ -268,7 +268,7 @@ behaviour::nState AIHelper::execMoveNearTarget(unsigned eid,
         cpInput.direction = cc::Vec2::ZERO;
         return state::SUCCESS;
     }
-    cpInput.direction = vdir;
+    cpInput.direction = vdir.getNormalized();
     return state::RUNNING;
 }
 

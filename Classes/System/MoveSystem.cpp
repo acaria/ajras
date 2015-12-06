@@ -32,7 +32,8 @@ void MoveSystem::tick(double dt)
                 force.curSpeed -= force.decSpeed * dt;
             }
             force.curSpeed = lib::clamp(force.curSpeed, 0.0f, force.maxSpeed);
-            velocity += force.direction.getNormalized() * force.curSpeed * dt;
+            assert(force.direction.getLength() <= 1.01);
+            velocity += force.direction * force.curSpeed * dt;
             
             if (force.duration != -1)
             {

@@ -205,7 +205,7 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                                 properties["target"].asValueMap()["x"].asFloat(),
                                 properties["target"].asValueMap()["y"].asFloat()
                             };
-                            ecs::get<cp::Input>(eid).direction = vdir;
+                            ecs::get<cp::Input>(eid).direction = vdir.getNormalized();
                         }
                     }
                     properties["time_charge"] = properties["time_charge"].asDouble() - dt;

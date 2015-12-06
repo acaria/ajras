@@ -11,6 +11,12 @@ void UpdaterSystem::tick(double dt)
         cp::entity::remove(eid, context->ecs->getID());
     }
     
+    //update commands
+    for(auto eid : context->ecs->system<cp::Cmd>())
+    {
+        ecs::get<cp::Cmd>(eid).process(eid, dt);
+    }
+    
     //update from inputs
     for(auto eid : context->ecs->join<cp::Input, cp::Position, cp::Physics>())
     {
@@ -68,12 +74,6 @@ void UpdaterSystem::tick(double dt)
             if (cpStamina.current > cpStamina.max)
                 cpStamina.current = cpStamina.max;
         }
-    }
-    
-    //update commands
-    for(auto eid : context->ecs->system<cp::Cmd>())
-    {
-        ecs::get<cp::Cmd>(eid).process(eid, dt);
     }
     
     //update health

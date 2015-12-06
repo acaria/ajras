@@ -35,7 +35,7 @@ std::string CmdFactory::goTo(lib::EcsGroup* ecs,
 {
     std::string tagName = "goto";
     ecs->add<cp::Cmd>(eid).set(tagName, [waypoints, nearDistance](unsigned eid, double dt)mutable{
-        if (!ecs::has<cp::Position, cp::Physics>(eid))
+        if (!ecs::has<cp::Position, cp::Physics, cp::Input>(eid))
             return State::failure;
         
         if (waypoints.size() == 0)
@@ -45,12 +45,8 @@ std::string CmdFactory::goTo(lib::EcsGroup* ecs,
         auto& cpPhy = ecs::get<cp::Physics>(eid);
         auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
         cc::Vec2 dir = target - cc::Vec2(bounds.getMidX(), bounds.getMidY());
-        
-        cpPhy.fInput().active = true;
-        cpPhy.fInput().direction = dir.getNormalized();
-        
-        if (ecs::has<cp::Orientation>(eid))
-            ecs::get<cp::Orientation>(eid).set(Dir::cardinalFromVec(cpPhy.fInput().direction));
+        //hack for decelerations
+        ecs::get<cp::Input>(eid).direction = dir.getNormalized() * MIN(1.0, dir.length() / 5);
         
         if (dir.length() < nearDistance)
             waypoints.pop_front();

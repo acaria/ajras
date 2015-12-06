@@ -10,4 +10,8 @@ struct InputComponent
     lib::Nullable<cc::Vec2> goTo;
     
     bool enabled = true;
+    
+#if ECSYSTEM_DEBUG
+    std::list<cc::Point> wayPoints;
+#endif
 };

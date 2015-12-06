@@ -116,17 +116,31 @@ void DebugSystem::displayDraws()
                                    agent.bounds.getMidY() + agent.velocity.y * 10},
                                   cc::Color4F(cc::Color4B(255, 20,117,255)));
         
+        cc::Point agentPivot = agent.bounds.origin + agent.bounds.size / 2;
+        
         if (ecs::has<cp::AI>(pair.first))
         {
             auto& cpAI = ecs::get<cp::AI>(pair.first);
-            this->drawLayer->drawCircle(agent.bounds.origin + agent.bounds.size / 2,
+            this->drawLayer->drawCircle(agentPivot,
                                         cpAI.sightRange.first,
                                         CC_DEGREES_TO_RADIANS(90), 30, false,
                                         cc::Color4F(cc::Color4B(0, 255, 0, 255)));
-            this->drawLayer->drawCircle(agent.bounds.origin + agent.bounds.size / 2,
+            this->drawLayer->drawCircle(agentPivot,
                                         cpAI.sightRange.second,
                                         CC_DEGREES_TO_RADIANS(90), 30, false,
                                         cc::Color4F(cc::Color4B(255, 0, 255, 255)));
+        }
+        
+        if (ecs::has<cp::Input>(pair.first))
+        {
+            auto& wayPoints = ecs::get<cp::Input>(pair.first).wayPoints;
+            cc::Point origin = agentPivot;
+            for(auto destPoint : wayPoints)
+            {
+                this->drawLayer->drawLine(origin, destPoint, cc::Color4F::WHITE);
+                this->drawLayer->drawSolidCircle(destPoint, 2, 0, 10, cc::Color4F::WHITE);
+                origin = destPoint;
+            }
         }
     }
 }

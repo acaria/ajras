@@ -148,6 +148,9 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
             
             if (wayPoints.size() > 0)
             {
+#if ECSYSTEM_DEBUG
+                ecs::get<cp::Input>(eid).wayPoints = wayPoints;
+#endif
                 cc::ValueVector wayPointsVec = linq::from(wayPoints) >>
                     linq::select([](cc::Point coord) {
                         return cc::Value(cc::ValueMap{{"x", cc::Value((int)coord.x)},
@@ -155,7 +158,6 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
                 }) >> linq::to_vector();
 
                 properties["waypoints"] = wayPointsVec;
-                
                 break;
             }
         }
@@ -166,6 +168,7 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
     }
     
     auto& wayPoints = properties["waypoints"].asValueVector();
+    
     if (wayPoints.size() == 0)
         return state::SUCCESS;
     
@@ -177,8 +180,12 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
     cc::Vec2 vdir { destPos.x - bounds.getMidX(), destPos.y - bounds.getMidY() };
     
     if (vdir.length() < 4)
+    {
         wayPoints.erase(wayPoints.begin());
-        
+#if ECSYSTEM_DEBUG
+        ecs::get<cp::Input>(eid).wayPoints.pop_front();
+#endif
+    }
     ecs::get<cp::Input>(eid).direction = vdir.getNormalized();
     
     return state::RUNNING;
@@ -231,7 +238,7 @@ behaviour::nState AIHelper::execMoveToSleepZone(unsigned eid,
             cpInput.direction = cc::Vec2::ZERO;
             return state::SUCCESS;
         }
-        cpInput.direction = vdir.getNormalized();
+        cpInput.direction = vdir.getNormalized() * MIN(1.0, vdir.length() / 5);
         return state::RUNNING;
     }
     return state::FAILURE;

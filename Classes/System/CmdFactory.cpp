@@ -40,6 +40,9 @@ std::string CmdFactory::goTo(lib::EcsGroup* ecs,
         
         if (waypoints.size() == 0)
             return State::success;
+#if ECSYSTEM_DEBUG
+        ecs::get<cp::Input>(eid).wayPoints = waypoints;
+#endif
         auto target = waypoints.front();
         auto& cpPosition = ecs::get<cp::Position>(eid);
         auto& cpPhy = ecs::get<cp::Physics>(eid);
@@ -49,7 +52,12 @@ std::string CmdFactory::goTo(lib::EcsGroup* ecs,
         ecs::get<cp::Input>(eid).direction = dir.getNormalized() * MIN(1.0, dir.length() / 5);
         
         if (dir.length() < nearDistance)
+        {
             waypoints.pop_front();
+#if ECSYSTEM_DEBUG
+            ecs::get<cp::Input>(eid).wayPoints.pop_front();
+#endif
+        }
         return State::inProgress;
     });
     return tagName;

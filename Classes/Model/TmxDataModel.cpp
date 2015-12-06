@@ -88,14 +88,21 @@ TmxDataModel::TmxDataModel(const std::string &fileName) : grid(0,0)
                     {
                         for(const auto &prop : tileProperties[tileIndex])
                         {
-                            if (prop.first == "collision")
-                                this->grid.get({c, r}).fields[BlockInfo::collision] = prop.second;
-                            else if (prop.first == "sleep_zone")
-                                this->grid.get({c, r}).fields[BlockInfo::sleepZone] = prop.second;
-                            else if (prop.first == "sleep_cat")
-                                this->grid.get({c, r}).fields[BlockInfo::sleepCat] = prop.second;
-                            else
-                                Log("invalid property name: %s", prop.first.c_str());
+                            switch(lib::hash(prop.first))
+                            {
+                                case lib::hash("collision"):
+                                    this->grid[{c, r}].fields[BlockInfo::collision] = prop.second;
+                                    break;
+                                case lib::hash("sleep_zone"):
+                                    this->grid[{c, r}].fields[BlockInfo::sleepZone] = prop.second;
+                                    break;
+                                case lib::hash("sleep_cat"):
+                                    this->grid[{c, r}].fields[BlockInfo::sleepCat] = prop.second;
+                                    break;
+                                default:
+                                    Log("invalid property name: %s", prop.first.c_str());
+                                    break;
+                            }
                         }
                     }
                 }

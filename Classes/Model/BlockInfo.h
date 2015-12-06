@@ -6,7 +6,8 @@ struct BlockInfo {
         fgTileName,
         collision,
         sleepZone,
-        sleepCat
+        sleepCat,
+        gating
     };
 
     std::map<PType, std::string>  fields;

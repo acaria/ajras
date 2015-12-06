@@ -18,7 +18,7 @@ class CollisionInfo
     friend NavigationInfo;
 
 public:
-    ~CollisionInfo();
+    ~CollisionInfo() {}
     void process();
     void init(IMapData* mapData);
     
@@ -27,6 +27,7 @@ public:
 
     std::vector<cc::Rect> getNearEmptyBlocks(const lib::v2u& coord, unsigned maxDist, ColCat cat);
     std::vector<cc::Rect> getNearEmptyBlocks(const cc::Point& pos, unsigned maxDist, ColCat cat);
+    std::vector<lib::v2u> getAllFreeCoords(ColCat cat);
     
     //events
     lib::Subject<void(unsigned, cc::Vec2 diff)>             onDecorCollision;
@@ -45,7 +46,7 @@ private:
     std::list<cocos2d::Rect>    getRectGridCollisions(const cocos2d::Rect& rect, ColCat cat);
     
     //fields
-    std::map<ColCat, lib::DataGrid<bool>*>  grids;
+    std::map<ColCat, lib::DataGrid<bool>>   grids;
     
     IMapData* data;
 };

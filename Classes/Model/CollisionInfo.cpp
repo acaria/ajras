@@ -2,18 +2,8 @@
 #include "IMapData.h"
 #include "CollisionEngine.h"
 
-CollisionInfo::~CollisionInfo()
-{
-    this->reset();
-}
-
 void CollisionInfo::reset()
 {
-    for(auto pair : this->grids)
-    {
-        if (pair.second != nullptr)
-            delete pair.second;
-    }
     this->grids.clear();
 }
 
@@ -65,8 +55,8 @@ void CollisionInfo::prepare()
     
     lib::v2u dim = {data->getGrid().width, data->getGrid().height};
     
-    this->grids[cat::walkable] = new lib::DataGrid<bool>(dim);
-    this->grids[cat::flyable] = new lib::DataGrid<bool>(dim);
+    this->grids[cat::walkable] = lib::DataGrid<bool>(dim);
+    this->grids[cat::flyable] = lib::DataGrid<bool>(dim);
     
     for(unsigned j = 0; j < dim.y; j++)
     for(unsigned i = 0; i < dim.x; i++)
@@ -77,15 +67,38 @@ void CollisionInfo::prepare()
             auto category = fields[BlockInfo::PType::collision];
             if (category == "walkable")
             {
-                this->grids[cat::flyable]->get({i, j}) = true;
-                this->grids[cat::walkable]->get({i, j}) = true;
+                this->grids[cat::flyable][{i, j}] = true;
+                this->grids[cat::walkable][{i, j}] = true;
             }
             else if (category == "flyable")
-                this->grids[cat::flyable]->get({i, j}) = true;
+                this->grids[cat::flyable][{i, j}] = true;
             else
                 Log("invalid collision category: %s", category.c_str());
         }
     }
+}
+
+std::vector<lib::v2u> CollisionInfo::getAllFreeCoords(ColCat cat)
+{
+    auto result = std::vector<lib::v2u>();
+    
+    auto& grid = this->grids[cat];
+    for(unsigned j = 0; j < grid.height; j++)
+    for(unsigned i = 0; i < grid.width; i++)
+    {
+        //check statics, exclude gates
+        if (!grid[{i,j}])
+            continue;
+        if (lib::hasKey(data->getGrid()[{i,j}].fields, BlockInfo::gating))
+            continue;
+        
+        //todo: check agents
+        //...
+        
+        result.push_back({i,j});
+    }
+    
+    return result;
 }
 
 std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const cc::Point& pos, unsigned int maxDist, def::collision::Cat cat)
@@ -106,7 +119,7 @@ std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const lib::v2u &coord, u
         
         if (i == coord.x && j == coord.y)
             continue;
-        if (this->grids[cat]->get({(unsigned)i, (unsigned)j}))
+        if (this->grids[cat][{(unsigned)i, (unsigned)j}])
             results.push_back(data->getBlockBound({(unsigned)i,(unsigned)j}));
     }
     
@@ -161,7 +174,7 @@ bool CollisionInfo::checkCollisionRect(const cc::Rect &rect, def::collision::Cat
     for(unsigned x = downLeft.x; x <= upRight.x; x++)
     for(unsigned y = downLeft.y; y <= upRight.y; y++)
     {
-        if (!moveAble->get(x, y))
+        if (!moveAble[{x, y}])
             return true;
     }
 
@@ -175,7 +188,7 @@ bool CollisionInfo::checkCollisionRay(const cc::Point& origin,
     auto dir = dest - origin;
     if (dir.x == 0 && dir.y == 0)
         return false;
-    auto moveAble = this->grids[cat];
+    auto& moveAble = this->grids[cat];
     cc::Point p1 = origin;
     cc::Point p2 = origin + dir;
     auto downLeft = this->data->getCoordFromPos({MIN(p1.x, p2.x), MIN(p1.y, p2.y)});
@@ -190,7 +203,7 @@ bool CollisionInfo::checkCollisionRay(const cc::Point& origin,
     for(unsigned x = downLeft.x; x <= upRight.x; x++)
     for(unsigned y = downLeft.y; y <= upRight.y; y++)
     {
-        if (!moveAble->get(x, y))
+        if (!moveAble[{x, y}])
         {
             cc::Rect bounds = this->data->getBlockBound({x,y});
             float t1 = (bounds.getMinX() - origin.x) * dirFrac.x;
@@ -220,7 +233,7 @@ std::list<cocos2d::Rect> CollisionInfo::getRectGridCollisions(const cocos2d::Rec
     for(unsigned x = upLeft.x; x <= downRight.x; x++)
         for(unsigned y = downRight.y; y <= upLeft.y; y++)
         {
-            if (!moveAble->get({x,y}))
+            if (!moveAble[{x,y}])
             {
                 res.push_back(lib::getIntersection(
                                                    this->data->getBlockBound({x, y}), rect));

@@ -12,6 +12,8 @@ template<typename VALUE>
 class DataGrid
 {
 public:
+    DataGrid() : DataGrid(0,0) {}
+
     DataGrid(const DataGrid& r) :   width(r.width),
                                     height(r.height),
                                     content(r.content)

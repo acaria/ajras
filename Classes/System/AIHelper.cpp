@@ -125,45 +125,62 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
 {
     assert(params.size() == 1); //params=[category]
     
-    if (!ecs::has<cp::Input>(eid))
+    if (!ecs::has<cp::Input, cp::Physics>(eid))
         return state::FAILURE;
     
-    if (!lib::hasKey(properties, "target"))
+    auto& cpPhy = ecs::get<cp::Physics>(eid);
+    
+    if (!lib::hasKey(properties, "waypoints"))
     {
-        auto grid = system->context->data->getGrid();
-        lib::v2u pos = {
-            system->random->interval((unsigned)0, grid.width),
-            system->random->interval((unsigned)0, grid.height - 1)
-        };
+        auto originBounds = SysHelper::getBounds(eid);
+        auto coords = system->context->data->getCol()->getAllFreeCoords(cpPhy.category);
         
-        auto maxCount = 1000;
-        while(maxCount-- > 0 &&
-              (!lib::hasKey(grid.get({pos.x, pos.y}).fields, BlockInfo::collision) ||
-               grid.get({pos.x, pos.y}).fields[BlockInfo::collision] != "walkable"))
+        do
         {
-            pos = {
-                system->random->interval((unsigned)0, grid.width),
-                system->random->interval((unsigned)0, grid.height - 1)
-            };
+            auto coord = system->random->pick(/*ref*/coords);
+            //convert coords to positions
+            auto destBounds = system->context->data->getBlockBound(coord);
+            
+            auto wayPoints = system->context->data->getNav()->getWaypoints(
+                {originBounds.getMidX(), originBounds.getMidY()},
+                {destBounds.getMidX(), destBounds.getMidY()},
+                cpPhy.category);
+            
+            if (wayPoints.size() > 0)
+            {
+                cc::ValueVector wayPointsVec = linq::from(wayPoints) >>
+                    linq::select([](cc::Point coord) {
+                        return cc::Value(cc::ValueMap{{"x", cc::Value((int)coord.x)},
+                                                      {"y", cc::Value((int)coord.y)}});
+                }) >> linq::to_vector();
+
+                properties["waypoints"] = wayPointsVec;
+                
+                break;
+            }
         }
+        while(coords.size() > 0);
         
-        properties["target"] = cc::ValueMap{{"x", cc::Value((int)pos.x)},
-            {"y", cc::Value((int)pos.y)}};
+        if (!lib::hasKey(properties, "waypoints"))
+            return state::FAILURE;
     }
     
-    auto& cpInput = ecs::get<cp::Input>(eid);
-    auto bounds = SysHelper::getBounds(eid);
-    auto bounds2 = system->context->data->getBlockBound({
-        (unsigned)properties["target"].asValueMap()["x"].asInt(),
-        (unsigned)properties["target"].asValueMap()["y"].asInt()
-    });
-    auto vdir = cc::Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
-    if (vdir.length() < 4)
-    {
-        cpInput.direction = cc::Vec2::ZERO;
+    auto& wayPoints = properties["waypoints"].asValueVector();
+    if (wayPoints.size() == 0)
         return state::SUCCESS;
-    }
-    cpInput.direction = vdir;
+    
+    auto& vMap = wayPoints.front().asValueMap();
+    cc::Point destPos { vMap["x"].asFloat(), vMap["y"].asFloat() };
+    
+    auto bounds = SysHelper::getBounds(eid);
+    
+    cc::Vec2 vdir { destPos.x - bounds.getMidX(), destPos.y - bounds.getMidY() };
+    
+    if (vdir.length() < 4)
+        wayPoints.erase(wayPoints.begin());
+        
+    ecs::get<cp::Input>(eid).direction = vdir;
+    
     return state::RUNNING;
 }
 

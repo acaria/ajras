@@ -4,7 +4,9 @@
 #include "NavigationGraph.h"
 #include "CoreLib.h"
 
-std::list<cc::Vec2> NavigationInfo::getWaypoints(const cc::Vec2& origin, const cc::Vec2& dest, def::collision::Cat category)
+std::list<cc::Vec2> NavigationInfo::getWaypoints(const cc::Vec2& origin,
+                                                 const cc::Vec2& dest,
+                                                 def::collision::Cat category)
 {
     std::list<cc::Vec2> result;
     
@@ -15,7 +17,7 @@ std::list<cc::Vec2> NavigationInfo::getWaypoints(const cc::Vec2& origin, const c
             return agent.category == category; })
         >> linq::to_list();
     
-    auto graph = NavigationGraph(*data->getCol()->grids[category], agents, data->getTileSize());
+    auto graph = NavigationGraph(data->getCol()->grids[category], agents, data->getTileSize());
     
     auto path = lib::PathFinding::aStarSearch(graph,
                                               data->getCoordFromPos(origin),

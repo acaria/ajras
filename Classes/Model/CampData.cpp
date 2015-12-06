@@ -43,10 +43,11 @@ void CampData::init()
             gate.info.rect.getMaxX(),
             gate.info.rect.getMaxY()});
         
-        for(int j = gateSrcCoord.y; j < gateDestCoord.y; j++)
-        for(int i = gateSrcCoord.x; i < gateDestCoord.x; i++)
+        for(unsigned j = gateSrcCoord.y; j < gateDestCoord.y; j++)
+        for(unsigned i = gateSrcCoord.x; i < gateDestCoord.x; i++)
         {
-            grid.get(i, j).fields[BlockInfo::collision] = "walkable";
+            grid[{i, j}].fields[BlockInfo::collision] = "walkable";
+            grid[{i, j}].fields[BlockInfo::gating] = "gate";
         }
     }
     

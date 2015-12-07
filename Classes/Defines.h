@@ -30,6 +30,11 @@ namespace def {
     
     //data
     enum class TriggerMode { ONCE, ALWAYS };
+    struct SleepZone
+    {
+        cc::Rect    bounds;
+        bool        taken;
+    };
     
     //view
     enum class LayerType : int { BG, MAIN1, MAIN2, FG};

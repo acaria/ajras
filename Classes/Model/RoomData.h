@@ -2,14 +2,15 @@
 
 #include "RoomModel.h"
 #include "GateMap.h"
-#include "DataGrid.h"
-#include "V2.h"
+#include "CoreLib.h"
 #include "AIComponent.h"
 #include "IMapData.h"
+#include "ISleepZones.h"
 #include "CollisionInfo.h"
 #include "NavigationInfo.h"
+#include "Defines.h"
 
-class RoomData : public IMapData
+class RoomData : public IMapData, public ISleepZones
 {
 public:
 
@@ -26,12 +27,6 @@ public:
         cc::Point                       pos;
         std::pair<unsigned, unsigned>   nbGates;
         RoomType                        profile;
-    };
-    
-    struct SleepZone
-    {
-        cc::Rect    bounds;
-        bool        taken;
     };
     
     //ctors
@@ -52,9 +47,9 @@ public:
     std::vector<ObjectInfo>     getModelObjs();
     cc::Vec2                    getPosFromCoord(const lib::v2u& coord);
     std::list<cc::Rect>         getWalls();
-    SleepZone*                  getSleepZone(const std::string& cat,
-                                             const cc::Point& pos);
-    void freeSleepZone(const std::string& cat, const cc::Point& pos);
+    def::SleepZone*             getSleepZone(const std::string& cat,
+                                             const cc::Point& pos) override;
+    void freeSleepZone(const std::string& cat, const cc::Point& pos) override;
     
     void extractGateAnimInfo(unsigned gateIndex, cc::Rect colRect,
                              cc::Point& srcPos, cc::Point& destPos);
@@ -72,9 +67,9 @@ public:
     void init();
     
 private:
-    RoomModel*                            model;
-    lib::DataGrid<BlockInfo>              grid;
-    std::map<std::string, std::list<SleepZone>> sleepZones;
+    RoomModel*                                          model;
+    lib::DataGrid<BlockInfo>                            grid;
+    std::map<std::string, std::list<def::SleepZone>>    sleepZones;
     CollisionInfo   collision;
     NavigationInfo  navigation;
 };

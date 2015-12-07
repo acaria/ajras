@@ -4,11 +4,9 @@
 #include "BlockInfo.h"
 #include "CollisionInfo.h"
 #include "NavigationInfo.h"
-#include "Event.h"
 
-class IMapData
+struct IMapData
 {
-public:
     virtual ~IMapData() {}
     virtual lib::DataGrid<BlockInfo>& getGrid() = 0;
     virtual cc::Size getTileSize() = 0;

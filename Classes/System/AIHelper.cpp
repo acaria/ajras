@@ -209,8 +209,8 @@ behaviour::nState AIHelper::execMoveToSleepZone(unsigned eid,
 {
     assert(params.size() == 1); //params=[category]
     //dirty cast
-    RoomData* roomData = dynamic_cast<RoomData*>(system->context->data);
-    if (roomData)
+    auto sleepZoneData = dynamic_cast<ISleepZones*>(system->context->data);
+    if (sleepZoneData)
     {
         if (!ecs::has<cp::Input>(eid))
             return state::FAILURE;
@@ -219,8 +219,8 @@ behaviour::nState AIHelper::execMoveToSleepZone(unsigned eid,
             if (!ecs::has<cp::AI, cp::Position, cp::Physics>(eid))
                 return state::FAILURE;
             auto bounds = SysHelper::getBounds(eid);
-            auto sleepZone = roomData->getSleepZone(ecs::get<cp::AI>(eid).sleep,
-                                                    {bounds.getMidX(), bounds.getMidY()});
+            auto sleepZone = sleepZoneData->getSleepZone(ecs::get<cp::AI>(eid).sleep,
+                                                         {bounds.getMidX(), bounds.getMidY()});
             if (sleepZone == nullptr)
                 return state::FAILURE;
             sleepZone->taken = true;
@@ -288,14 +288,13 @@ behaviour::nState AIHelper::execStopSleepZone(unsigned eid,
 {
     assert(params.size() == 1); //params=[category]
     auto& cpAI = ecs::get<cp::AI>(eid);
-    RoomData* roomData = dynamic_cast<RoomData*>(system->context->data);
-    if (roomData)
+    auto sleepZonesData = dynamic_cast<ISleepZones*>(system->context->data);
+    if (sleepZonesData)
     {
         if (!ecs::has<cp::Position, cp::Physics>(eid))
             return state::FAILURE;
         auto bounds = SysHelper::getBounds(eid);
-        roomData->freeSleepZone(cpAI.sleep,
-                                {bounds.getMidX(), bounds.getMidY()});
+        sleepZonesData->freeSleepZone(cpAI.sleep, {bounds.getMidX(), bounds.getMidY()});
     }
     return state::SUCCESS;
 }

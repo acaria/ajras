@@ -1,5 +1,4 @@
 #pragma once
-#include "ScreenLog.h"
 #include "TickCtrl.h"
 #include "BaseMediator.h"
 #include "EventScene.h"
@@ -50,8 +49,6 @@ protected:
             cMediator->triggerRemoveView(*scene);
             this->currentMediator = nullptr;
         }));
-        
-        //this->screenLog->attachToScene(scene);
         
         if (firstTime)
         {

@@ -25,7 +25,7 @@ public:
 
     void setMaster(long seed)
     {
-        CCLOG("master seed: %ld", seed);
+        Log("master seed: %ld", seed);
         masterSeed = seed;
         subSeeds.clear();
         mainEngine.getEngine().seed((std::mt19937::result_type)seed);
@@ -35,7 +35,7 @@ public:
             long subSeed = mainEngine.interval((long)0, MAX);
             subSeeds[static_cast<CAT>(i)] = subSeed;
             subEngines[i].getEngine().seed((std::mt19937::result_type)subSeed);
-            CCLOG("subseed n%d: %ld", i + 1, subSeed);
+            Log("subseed n%d: %ld", i + 1, subSeed);
         }
     }
     

@@ -3,7 +3,8 @@
 #define kTraceBehaviours 0
 
 #define ECSYSTEM_DEBUG 1
-#define GINFO_DEBUG 1
+#define HEADER_DEBUG 1
+#define FOOTER_DEBUG 1
 
 namespace def {
 

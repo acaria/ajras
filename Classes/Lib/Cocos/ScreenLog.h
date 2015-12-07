@@ -1,11 +1,9 @@
-#ifndef __ajras__ScreenLog__
-#define __ajras__ScreenLog__
+#pragma once
 
 #include <stdio.h>
 
 #include <string>
 #include <vector>
-#include "cocos2d.h"
 
 #define LL_FATAL    0x01
 #define LL_ERROR    0x02
@@ -14,10 +12,13 @@
 #define LL_DEBUG    0x10
 #define LL_TRACE    0x20
 
-#define SCREENLOG_NUM_LINES             44
-#define SCREENLOG_START_HEIGHT_PERCENT  0.11
+#define SCREENLOG_NUM_LINES             50
+#define SCREENLOG_START_HEIGHT_PERCENT  0.001
 #define SCREENLOG_PRINT_BUFFER_SIZE     8192
 #define SCREENLOG_LAYER_LEVEL           1000
+
+namespace lib
+{
 
 class screenLogMessage {
     friend class ScreenLog;
@@ -68,7 +69,7 @@ public:
     void attachToScene(cocos2d::Scene* scene);
     
     screenLogMessage* log(int level, const char* msg, ...);
-    void setMessageText(screenLogMessage* slm, const char *p_str, ...);
+    bool setMessageText(screenLogMessage* slm, const char *p_str, ...);
     
     void update(float dt);
     void moveLabelsUp(int maxIndex);
@@ -101,5 +102,4 @@ public:
     }
 };
 
-
-#endif /* defined(__ajras__ScreenLog__) */
+}

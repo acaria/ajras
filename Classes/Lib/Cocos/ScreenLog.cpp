@@ -1,11 +1,8 @@
 #include "ScreenLog.h"
 #include "Any.h"
 
-double getTimeMillis() {
-    timeval time;
-    gettimeofday(&time, NULL);
-    return (double)(time.tv_sec * 1000 + time.tv_usec / 1000);
-}
+namespace lib
+{
 
 ScreenLog::ScreenLog()
 {
@@ -75,13 +72,13 @@ screenLogMessage* ScreenLog::log(int p_level, const char *p_str, ...)
     screenLogMessage *slm = new screenLogMessage(this);
     slm->m_level = p_level;
     slm->m_text = this->printBuffer;
-    slm->m_timestamp = getTimeMillis();
+    slm->m_timestamp = this->m_timeout;
     m_messages.push_back(slm);
     
     return slm;
 }
 
-void ScreenLog::setMessageText(screenLogMessage *slm, const char *p_str, ...)
+bool ScreenLog::setMessageText(screenLogMessage *slm, const char *p_str, ...)
 {
     ScopeLock lock(&m_contentMutex);
     
@@ -94,7 +91,7 @@ void ScreenLog::setMessageText(screenLogMessage *slm, const char *p_str, ...)
         }
     }
     if (!messageStillExists )
-        return;
+        return false;
     
     va_list t_va;
     va_start (t_va, p_str);
@@ -102,7 +99,9 @@ void ScreenLog::setMessageText(screenLogMessage *slm, const char *p_str, ...)
     va_end (t_va);
     
     slm->setLabelText(this->printBuffer);
-    slm->m_timestamp = getTimeMillis();
+    slm->m_timestamp = this->m_timeout;
+    
+    return true;
 }
 
 void ScreenLog::update(float dt)
@@ -115,14 +114,17 @@ void ScreenLog::update(float dt)
             moveLabelsUp(i);
     }
     
-    double now = getTimeMillis();
     int c = 0;
     for (int i = m_messages.size()-1; i >= 0; i--) {
         screenLogMessage *slm = m_messages[i];
-        if (now - slm->m_timestamp > m_timeout || c > (2*SCREENLOG_NUM_LINES)) {
+        if (slm->m_timestamp <= 0 || c > (2*SCREENLOG_NUM_LINES)) {
             removeChild(slm->m_label,true);
             delete slm;
             m_messages.erase( m_messages.begin() + i );
+        }
+        else
+        {
+            slm->m_timestamp -= dt * 1000;
         }
         c++;
     }
@@ -168,7 +170,7 @@ void screenLogMessage::createLabel()
 {
     float screenHeightPixels = cocos2d::Director::getInstance()->getWinSize().height;
     float fontSize =  screenHeightPixels / (float)SCREENLOG_NUM_LINES - 1;
-    m_label = cocos2d::Label::createWithSystemFont(m_text.c_str(), m_layer->m_fontFile, fontSize);
+    m_label = cocos2d::Label::createWithTTF(m_text.c_str(), m_layer->m_fontFile, fontSize);
     m_label->setAnchorPoint(cocos2d::Point(0,0));
     
     switch ( m_level ) {
@@ -202,4 +204,6 @@ bool screenLogMessage::checkLabel()
     }
     
     return false;
+}
+
 }

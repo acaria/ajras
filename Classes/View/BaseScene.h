@@ -17,7 +17,7 @@ public:
         }
         else
         {
-            CCLOG("cannot create scene");
+            Log("cannot create scene");
             delete pRet;
             pRet = nullptr;
             return nullptr;

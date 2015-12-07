@@ -12,12 +12,24 @@ GameCtrl::GameCtrl():tick(std::bind(&GameCtrl::onTick, this, _1),
                      scene(&tick)
 
 {
-    log.setLevelMask(LL_DEBUG | LL_INFO | LL_TRACE | LL_WARNING | LL_ERROR | LL_FATAL);
-    log.setTimeoutSeconds(15);
+#if FOOTER_DEBUG
+    logger.setLevelMask(LL_DEBUG | LL_INFO | LL_TRACE | LL_WARNING | LL_ERROR | LL_FATAL);
+    logger.setFontFile(def::font::normal);
+    logger.setTimeoutSeconds(15);
     
-#if GINFO_DEBUG
-    this->debugInfo = cc::create<DebugInfoLayer>();
-    this->debugInfo->retain();
+    this->eventRegs.push_back(scene.onSceneChanged.registerObserver([this](EventScene* scene){
+        logger.attachToScene(scene);
+    }));
+#endif
+    
+#if HEADER_DEBUG
+    this->debugHeader = cc::create<DebugInfoLayer>();
+    this->debugHeader->retain();
+    
+    this->eventRegs.push_back(scene.onSceneChanged.registerObserver([this](EventScene* scene){
+        this->debugHeader->removeFromParent();
+        scene->addChild(this->debugHeader);
+    }));
 #endif
     
 }
@@ -29,7 +41,6 @@ GameCtrl::~GameCtrl()
 void GameCtrl::start()
 {
     this->goToMainMenu();
-    
     //this->goToMission();
     //this->goToCamp();
 }
@@ -74,13 +85,8 @@ void GameCtrl::goToMission()
 
 void GameCtrl::onTick(double dt)
 {
-#if GINFO_DEBUG
-    if (this->debugInfo->getParent() != scene.getCurScene())
-    {
-      this->debugInfo->removeFromParent();
-      scene.getCurScene()->addChild(this->debugInfo);
-    }
-    this->debugInfo->update();
+#if HEADER_DEBUG
+    this->debugHeader->update();
 #endif
 
     auto mediator = scene.getCurMediator();

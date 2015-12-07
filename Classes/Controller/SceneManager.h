@@ -12,8 +12,9 @@ public:
     void go2Mission();
     void go2Camp();
     
-    BaseMediator* getCurMediator();
-    EventScene*   getCurScene();
+    lib::Subject<void(EventScene*)> onSceneChanged;
+    
+    BaseMediator*   getCurMediator();
 
 protected:
 
@@ -49,6 +50,8 @@ protected:
             cMediator->triggerRemoveView(*scene);
             this->currentMediator = nullptr;
         }));
+        
+        this->onSceneChanged(scene);
         
         if (firstTime)
         {

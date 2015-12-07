@@ -72,7 +72,7 @@ TmxDataModel::TmxDataModel(const std::string &fileName) : grid(0,0)
                 
                 if (tileNames.find(tileIndex) == tileNames.end())
                 {
-                    CCLOG("incorrect tileindex=%d", tileIndex);
+                    Log("incorrect tileindex=%d", tileIndex);
                 }
                 else
                 {
@@ -119,7 +119,7 @@ TmxDataModel::TmxDataModel(const std::string &fileName) : grid(0,0)
                 unsigned tileIndex = object.get<jsonxx::Number>("gid");
                 if (tileNames.find(tileIndex) == tileNames.end())
                 {
-                    CCLOG("incorrect tileindex=%d", tileIndex);
+                    Log("incorrect tileindex=%d", tileIndex);
                 }
                 
                 ObjectInfo res = {

@@ -57,7 +57,7 @@ void CampMediator::registerDispatcher(CampScene &scene)
     
     this->systemRegs.push_back(scene.getCam()->onSwipe.registerObserver([this](cc::Point pos1,
                                                                               cc::Point pos2){
-        Log("swipe=%f,%f -> %f,%f", pos1.x, pos1.y, pos2.x, pos2.y);
+        GameCtrl::log("swipe=%f,%f -> %f,%f", pos1.x, pos1.y, pos2.x, pos2.y);
     }));
     
     this->systemRegs.push_back(dispatcher.onWarpTriggered.registerObserver(

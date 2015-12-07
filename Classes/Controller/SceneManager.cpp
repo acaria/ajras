@@ -30,8 +30,3 @@ BaseMediator* SceneManager::getCurMediator()
 {
     return currentMediator;
 }
-
-EventScene* SceneManager::getCurScene()
-{
-    return currentScene;
-}

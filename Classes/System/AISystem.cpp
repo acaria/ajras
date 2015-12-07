@@ -30,10 +30,9 @@ void AISystem::tick(double dt)
             return this->onExecute(eid, nid, dt);
         };
         
-        auto status = cpAI.bref->getRootNode()->visit(cpAI.board);
+        auto status = cpAI.bref->getRootNode()->visit(cpAI.board, dt);
         if (status != behaviour::nState::RUNNING)
             cpAI.reset();
-        //CCASSERT(status == behaviour::nState::RUNNING, "corrupted behaviours loop");
     }
 }
 

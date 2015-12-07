@@ -68,7 +68,7 @@ namespace behaviour
                 delete finally;
         }
     
-        virtual nState visit(BoardNode& board) = 0;
+        virtual nState visit(BoardNode& board, double dt) = 0;
     
         unsigned id;
         std::string name = "";
@@ -125,7 +125,7 @@ namespace behaviour
     {
         RepeatNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
         
-        nState visit(BoardNode& board)
+        nState visit(BoardNode& board, double dt)
         {
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
             {
@@ -139,7 +139,7 @@ namespace behaviour
                     return SUCCESS;
                 }
             }
-            board.states[id] = this->children[0]->visit(board);
+            board.states[id] = this->children[0]->visit(board, dt);
             return RUNNING;
         }
         
@@ -158,7 +158,7 @@ namespace behaviour
     {
         FinallyNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
         
-        nState visit(BoardNode& board)
+        nState visit(BoardNode& board, double dt)
         {
 #if kTraceBehaviours
             Log("FinallyNode: %s", this->toStr().c_str());
@@ -169,7 +169,7 @@ namespace behaviour
             board.states[id] = RUNNING;
             for(auto node : children)
             {
-                if (node->visit(board) == RUNNING)
+                if (node->visit(board, dt) == RUNNING)
                     return RUNNING;
             }
             board.states[id] = SUCCESS;
@@ -181,7 +181,7 @@ namespace behaviour
     {
         SequenceNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
     
-        nState visit(BoardNode& board)
+        nState visit(BoardNode& board, double dt)
         {
 #if kTraceBehaviours
             Log("SequenceNode: %s", this->toStr().c_str());
@@ -194,7 +194,7 @@ namespace behaviour
                     (board.states.find(finally->id) == board.states.end() ||
                     board.states[finally->id] != SUCCESS))
                 {
-                    board.states[finally->id] = finally->visit(board);
+                    board.states[finally->id] = finally->visit(board, dt);
                     return RUNNING;
                 }
                 
@@ -204,7 +204,7 @@ namespace behaviour
             board.states[id] = RUNNING;
             for(auto node : children)
             {
-                auto state = node->visit(board);
+                auto state = node->visit(board, dt);
             
                 if (state == FAILURE)
                 {
@@ -224,7 +224,7 @@ namespace behaviour
     {
         SelectorNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
     
-        nState visit(BoardNode& board)
+        nState visit(BoardNode& board, double dt)
         {
 #if kTraceBehaviours
             Log("SelectorNode: %s", this->toStr().c_str());
@@ -235,7 +235,7 @@ namespace behaviour
             board.states[id] = RUNNING;
             for(auto node : children)
             {
-                auto state = node->visit(board);
+                auto state = node->visit(board, dt);
             
                 if (state == SUCCESS)
                 {
@@ -255,7 +255,7 @@ namespace behaviour
     {
         UntilNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
         
-        nState visit(BoardNode& board)
+        nState visit(BoardNode& board, double dt)
         {
 #if kTraceBehaviours
             Log("UntilNode: %s", this->toStr().c_str());
@@ -267,7 +267,7 @@ namespace behaviour
             auto untilState = board.onCheck(this->id);
             if (untilState == SUCCESS)
             {
-                auto actionState = this->children[0]->visit(board);
+                auto actionState = this->children[0]->visit(board, dt);
                 if (actionState != RUNNING)
                 {
                     board.states[this->id] = actionState;
@@ -287,7 +287,7 @@ namespace behaviour
     {
         WaitNode(unsigned id, BaseNode* parent) : BaseNode(id, parent) {}
         
-        nState visit(BoardNode& board)
+        nState visit(BoardNode& board, double dt)
         {
 #if kTraceBehaviours
             Log("WaitNode: %s", this->toStr().c_str());
@@ -298,13 +298,15 @@ namespace behaviour
             
             auto &properties = board.getFields(this->id);
             if (!lib::hasKey(properties, "timer"))
-                properties["timer"] = lib::now();
-            if (lib::now() - properties["timer"].asDouble() > std::stod(this->name))
+                properties["timer"] = std::stod(this->name);
+            if (properties["timer"].asDouble() <= 0)
             {
+                //timeout
                 board.states[this->id] = SUCCESS;
                 properties.erase("timer");
                 return SUCCESS;
             }
+            properties["timer"] = properties["timer"].asDouble() - dt;
             return RUNNING;
         }
     };
@@ -317,7 +319,7 @@ namespace behaviour
                                                                          inverse(inverse)
         {}
     
-        nState visit(BoardNode& board)
+        nState visit(BoardNode& board, double dt)
         {
 #if kTraceBehaviours
             //Log("CheckNode: %s", this->toStr().c_str());
@@ -343,7 +345,7 @@ namespace behaviour
         ActionNode(unsigned id, BaseNode* parent, bool redo = false) : BaseNode(id, parent),
                                                                        redo(redo) {}
     
-        nState visit(BoardNode& board)
+        nState visit(BoardNode& board, double dt)
         {
 #if kTraceBehaviours
             Log("ActionNode: %s", this->toStr().c_str());

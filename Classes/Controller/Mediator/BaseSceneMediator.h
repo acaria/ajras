@@ -1,6 +1,6 @@
 #pragma once
 #include "BaseMediator.h"
-#include "cocos2d.h"
+#include "GameCtrl.h"
 
 #define STRINGIFY(x) #x
 
@@ -19,6 +19,13 @@ public:
     
     void triggerAddView(cocos2d::Scene& scene) override
     {
+        auto kListener = cc::EventListenerKeyboard::create();
+        kListener->onKeyReleased = [this](KeyCode code, cocos2d::Event *event) {
+            if (code == KeyCode::KEY_GRAVE)
+                GameCtrl::instance()->getData().toggleDebug();
+        };
+        scene.getEventDispatcher()->addEventListenerWithSceneGraphPriority(kListener, &scene);
+        
         onAddView((Scene&)scene);
     }
     

@@ -36,12 +36,8 @@ void MeleeSystem::tick(double dt)
         {
             if (oid == eid) continue;
             
-            //if (ecs::has<cp::Untargetable>(oid))
-            //    continue;
-            //if (ecs::has<cp::Melee>(oid) && !ecs::get<cp::Melee>(oid).enabled)
-            //    continue;
-            
-            //check disabled input for oid????
+            if (ecs::has<cp::Input>(oid) && !ecs::get<cp::Input>(oid).enabled)
+                continue;
             
             if ((!ecs::has<cp::Target>(eid) || ecs::get<cp::Target>(eid) == oid) &&
                 def::mood::inside(ecs::get<cp::Mood>(oid), oppositeMoods))

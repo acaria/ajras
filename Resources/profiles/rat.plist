@@ -15,20 +15,20 @@
 	</dict>
 	<key>stats</key>
 	<dict>
-		<key>health</key>
-		<string>3</string>
-		<key>stamina</key>
-		<string>90</string>
-		<key>move</key>
+		<key>physics</key>
 		<dict>
-			<key>orientation</key>
-			<true/>
-			<key>speed</key>
-			<string>70</string>
-			<key>deceleration</key>
-			<string>250</string>
 			<key>acceleration</key>
 			<string>200</string>
+			<key>deceleration</key>
+			<string>250</string>
+			<key>speed</key>
+			<string>70</string>
+			<key>weight</key>
+			<string>80</string>
+			<key>rect</key>
+			<string>3,0,9,10</string>
+			<key>cat</key>
+			<string>walkable</string>
 		</dict>
 		<key>melee</key>
 		<dict>
@@ -41,6 +41,12 @@
 			<key>range</key>
 			<string>3,3</string>
 		</dict>
+		<key>orientation</key>
+		<true/>
+		<key>health</key>
+		<string>3</string>
+		<key>stamina</key>
+		<string>90</string>
 	</dict>
 	<key>animations</key>
 	<dict>
@@ -145,13 +151,6 @@
 				</dict>
 			</dict>
 		</dict>
-	</dict>
-	<key>collision</key>
-	<dict>
-		<key>rect</key>
-		<string>3,0,9,10</string>
-		<key>cat</key>
-		<string>walkable</string>
 	</dict>
 </dict>
 </plist>

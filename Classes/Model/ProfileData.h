@@ -20,20 +20,12 @@ public:
                                     const std::string& key);
     AnimationData*  getKeyAnimation(const std::string& key);
     
-    //collision
-    std::string     collisionCat;
-    cocos2d::Rect   collisionRect;
-    
     lib::Nullable<ProfileInteractInfo>  interaction;
     lib::Nullable<ProfileStatsInfo>     stats;
     lib::Nullable<ProfileBehaviourInfo> behaviour;
     
-    bool withCollision = false;
-    
     static std::string getTagName(const Dir& orientation);
     bool animCategoryExists(const std::string& category);
-    
-    std::string toString();
     
     def::mood::Flags getMood();
     

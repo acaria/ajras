@@ -30,15 +30,20 @@ void RenderComponent::setProfile(ProfileData* profile, LayeredContainer* parent)
     this->setAnimation("idle", -1);
     //set default walk animation
     this->setMoveCategory("walk");
+    
+    cc::Vec2 zMargin {0,0};
+    if (this->profile->stats != nullptr && this->profile->stats->physics != nullptr)
+        zMargin = this->profile->stats->physics->bounds.origin;
+    
     this->sprite = parent->createChild(getCurAnim()->frameNames.at(0),
                                        this->chooseLayer(this->profile),
-                                       this->profile->collisionRect.origin);
+                                       zMargin);
     this->busy = false;
     
-    if (profile->stats != nullptr && profile->stats->move != nullptr)
+    if (profile->stats != nullptr)
     {
-        this->moveAnimation = true;
-        this->orientationAnimation = profile->stats->move.Value.orientation;
+        this->moveAnimation = profile->stats->physics != nullptr;
+        this->orientationAnimation = profile->stats->orientation;
     }
 }
 
@@ -100,13 +105,14 @@ void RenderComponent::setMoveAnimation(const Dir &orientation, bool moving)
 
 def::LayerType RenderComponent::chooseLayer(ProfileData* profile)
 {
-    if (profile != nullptr && profile->withCollision)
+    if (profile != nullptr && profile->stats != nullptr && profile->stats->physics != nullptr)
     {
-        if (profile->collisionCat == "walkable")
-            return def::LayerType::MAIN1;
-        if (profile->collisionCat == "flyable")
-            return def::LayerType::MAIN2;
-        return def::LayerType::FG;
+        switch(lib::hash(profile->stats->physics->category))
+        {
+            case lib::hash("walkable"): return def::LayerType::MAIN1;
+            case lib::hash("flyable"): return def::LayerType::MAIN2;
+            default: return def::LayerType::FG;
+        }
     }
     return def::LayerType::BG;
 }

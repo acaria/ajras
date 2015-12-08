@@ -87,10 +87,10 @@ RoomSystemCtrl::RoomSystemCtrl(unsigned group, LayeredContainer* view, RoomData*
             gateMap.info.rect.getMaxY()});
         
         for(int j = gateSrcCoord.y; j < gateDestCoord.y; j++)
-            for(int i = gateSrcCoord.x; i < gateDestCoord.x; i++)
-            {
-                data->getContent().get(i, j).fields[BlockInfo::collision] = "walkable";
-            }
+        for(int i = gateSrcCoord.x; i < gateDestCoord.x; i++)
+        {
+            data->getContent().get(i, j).fields[BlockInfo::collision] = "walkable";
+        }
     }
 }
 
@@ -119,9 +119,11 @@ void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect 
     if (process)
     {
         auto profile = ModelProvider::instance()->profile.get(profileName);
+        assert(profile->stats != nullptr && profile->stats->physics != nullptr);
+        auto& colRect = profile->stats->physics->bounds;
         cc::Point pos = {
-            bounds.origin.x + this->random.interval(0.0f, bounds.size.width - profile->collisionRect.getMaxX()),
-            bounds.origin.y + this->random.interval(0.0f, bounds.size.height - profile->collisionRect.getMaxY())
+            bounds.origin.x + random.interval(0.0f, bounds.size.width - colRect.getMaxX()),
+            bounds.origin.y + random.interval(0.0f, bounds.size.height - colRect.getMaxY())
         };
         this->loadStaticObject(profileName, pos, data, view);
     }
@@ -141,7 +143,7 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
     ecs::add<cp::Input>(eid, roomIndex);
     ecs::add<cp::Position>(eid, roomIndex).set(pos - ecs::get<cp::Physics>(eid).shape.origin);
     
-    if (profile->stats->move->orientation)
+    if (profile->stats->orientation)
         ecs::add<cp::Orientation>(eid, roomIndex);
     
     if (profile->stats != nullptr)

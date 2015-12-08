@@ -2,22 +2,22 @@
 
 ProfileStatsInfo::ProfileStatsInfo(const cc::ValueMap& map)
 {
-    if (map.find("move") != map.end())
+    if (map.find("physics") != map.end())
     {
-        auto &mData = map.at("move").asValueMap();
-        this->move = {
+        auto &mData = map.at("physics").asValueMap();
+        
+        //extract bounds
+        std::vector<std::string> split;
+        lib::split(mData.at("rect").asString(), split, ", ");
+        
+        this->physics = {
             .speed = mData.at("speed").asFloat(),
             .acceleration = mData.at("acceleration").asFloat(),
             .deceleration = mData.at("deceleration").asFloat(),
-            .orientation = mData.at("orientation").asBool()
-        };
-    }
-    
-    if (map.find("sight") != map.end())
-    {
-        auto &siData = map.at("sight").asValueMap();
-        this->sight = {
-            .range = siData.at("range").asDouble()
+            .bounds = cc::Rect(std::stoi(split[0]), std::stoi(split[1]),
+                               std::stoi(split[2]), std::stoi(split[3])),
+            .category = mData.at("cat").asString(),
+            .weight = mData.at("weight").asFloat()
         };
     }
     
@@ -56,5 +56,10 @@ ProfileStatsInfo::ProfileStatsInfo(const cc::ValueMap& map)
     if (map.find("stamina") != map.end())
     {
         this->stamina = map.at("stamina").asFloat();
+    }
+    
+    if (map.find("orientation") != map.end())
+    {
+        this->orientation = map.at("orientation").asBool();
     }
 }

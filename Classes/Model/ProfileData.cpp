@@ -88,15 +88,6 @@ void ProfileData::extractAnims(const std::string& rootKey,
     }
 }
 
-std::string ProfileData::toString()
-{
-    std::stringstream result;
-    
-    result << "profile: " << this->path << std::endl;
-    if (withCollision) result << "collision - ";
-    return result.str();
-}
-
 ProfileData::ProfileData(const std::string &path)
 {
     this->path = path;
@@ -105,29 +96,6 @@ ProfileData::ProfileData(const std::string &path)
     if (rawData.find("animations") != rawData.end())
     {
         this->extractAnims("", rawData.at("animations").asValueMap());
-    }
-    
-    collisionCat = "walkable";
-    collisionRect = cc::Rect::ZERO;
-    
-    if (rawData.find("collision") != rawData.end())
-    {
-        withCollision = true;
-        auto &cData = rawData.at("collision").asValueMap();
-        if (cData.find("rect") != cData.end())
-        {
-            std::vector<std::string> split;
-            lib::split(cData.at("rect").asString(), split, ", ");
-            this->collisionRect = cocos2d::Rect(std::stoi(split[0]),
-                                                std::stoi(split[1]),
-                                                std::stoi(split[2]),
-                                                std::stoi(split[3]));
-        }
-        
-        if (cData.find("cat") != cData.end())
-        {
-            this->collisionCat = cData.at("cat").asString();
-        }
     }
     
     if (rawData.find("interaction") != rawData.end())

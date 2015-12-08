@@ -15,20 +15,20 @@
 	</dict>
 	<key>stats</key>
 	<dict>
-		<key>health</key>
-		<string>99</string>
-		<key>stamina</key>
-		<string>100</string>
-		<key>move</key>
+		<key>physics</key>
 		<dict>
-			<key>orientation</key>
-			<true/>
-			<key>speed</key>
-			<string>75</string>
-			<key>deceleration</key>
-			<string>250</string>
 			<key>acceleration</key>
 			<string>200</string>
+			<key>deceleration</key>
+			<string>250</string>
+			<key>speed</key>
+			<string>75</string>
+			<key>weight</key>
+			<string>80</string>
+			<key>rect</key>
+			<string>15,8,11,11</string>
+			<key>cat</key>
+			<string>walkable</string>
 		</dict>
 		<key>melee</key>
 		<dict>
@@ -45,13 +45,12 @@
 			<key>trigger_ratio</key>
 			<string>0.5</string>
 		</dict>
-	</dict>
-	<key>collision</key>
-	<dict>
-		<key>rect</key>
-		<string>15,8,11,11</string>
-		<key>cat</key>
-		<string>walkable</string>
+		<key>orientation</key>
+		<true/>
+		<key>health</key>
+		<string>99</string>
+		<key>stamina</key>
+		<string>100</string>
 	</dict>
 	<key>animations</key>
 	<dict>

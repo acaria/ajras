@@ -1,23 +1,21 @@
 #pragma once
 
 #include "CoreLib.h"
+#include "Defines.h"
 
 struct ProfileStatsInfo
 {
     ProfileStatsInfo() {}
     
     ProfileStatsInfo(const cc::ValueMap& map);
-    struct Move
+    struct Physics
     {
-        float           speed;
-        float           acceleration;
-        float           deceleration;
-        bool            orientation;
-    };
-    
-    struct Sight
-    {
-        double range;
+        float                       speed;
+        float                       acceleration;
+        float                       deceleration;
+        cc::Rect                    bounds;
+        std::string                 category;
+        float                       weight;
     };
     
     struct Recoil
@@ -36,9 +34,9 @@ struct ProfileStatsInfo
         float                      triggerRatio;
     };
     
-    lib::Nullable<Move>     move;
-    lib::Nullable<Sight>    sight;
+    lib::Nullable<Physics>  physics;
     lib::Nullable<Melee>    melee;
     lib::Nullable<float>    health;
     lib::Nullable<float>    stamina;
+    bool orientation = false;
 };

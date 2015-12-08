@@ -52,25 +52,29 @@ PhysicsComponent::ForceInfo& PhysicsComponent::fPush()
 
 void PhysicsComponent::setProfile(ProfileData* profile)
 {
+    assert(profile->stats != nullptr && profile->stats->physics != nullptr);
     //collision
-    this->shape = profile->collisionRect;
+    auto& physics = profile->stats->physics;
+    this->shape = physics->bounds;
     
-    if (profile->collisionCat == "walkable")
-        this->category = def::collision::Cat::walkable;
-    else if (profile->collisionCat == "flyable")
-        this->category = def::collision::Cat::flyable;
-    else
-        Log("unrecognised category:%s", profile->collisionCat.c_str());
-
-    //velocity
-    if (profile->stats != nullptr && profile->stats->move != nullptr)
+    switch(lib::hash(physics->category))
     {
-        auto move = profile->stats->move.Value;
-        auto& fMove = this->forces[ForceType::INPUT];
-        fMove.maxSpeed = move.speed;
-        fMove.accSpeed = move.acceleration;
-        fMove.decSpeed = move.deceleration;
+        case lib::hash("walkable"):
+            this->category = def::collision::Cat::walkable;
+            break;
+        case lib::hash("flyable"):
+            this->category = def::collision::Cat::flyable;
+            break;
+        default:
+            Log("unrecognised category:%s", physics->category.c_str());
+            break;
     }
+
+    //movement
+    auto& fMove = this->forces[ForceType::INPUT];
+    fMove.maxSpeed = physics->speed;
+    fMove.accSpeed = physics->acceleration;
+    fMove.decSpeed = physics->deceleration;
 }
 
 void PhysicsComponent::setProfile(const std::string& profileName)

@@ -6,6 +6,7 @@
 #include "GameCtrl.h"
 #include "IMapData.h"
 #include "CocosHelper.h"
+#include "CmdFactory.h"
 
 void MeleeSystem::tick(double dt)
 {
@@ -139,6 +140,8 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
             this->setEntityAvailability(eid, true);
             this->setEntityAvailability(oid, true);
         
+            ecs::get<cp::Input>(oid).enabled = false;
+        
             //apply impact force to target
             auto& cpPhy2 = ecs::get<cp::Physics>(oid);
             cpPhy2.fImpact().curSpeed = 0;
@@ -150,6 +153,10 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
             cpPhy2.fImpact().duration = 0.15;
         
             ecs::get<cp::Health>(oid).damage += cpMelee.damage;
+        }),
+        cc::DelayTime::create(0.15),
+        cc::CallFunc::create([this, eid, oid](){
+            ecs::get<cp::Input>(oid).enabled = true;
         }),
         NULL
     );
@@ -220,8 +227,6 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
             auto& cpPhy2 =  ecs::get<cp::Physics>(oid);
             auto& cpHealth2 = ecs::get<cp::Health>(oid);
         
-            this->setEntityAvailability(oid, true);
-        
             //blink target
             auto blinkAction = CocosHelper::blinkActionCreate(
                 {255,50,50}, blinkAnim::count / blinkAnim::duration, 1.0);
@@ -238,6 +243,10 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
             cpPhy2.fImpact().duration = 0.12;
         
             cpHealth2.damage += cpMelee.damage;
+        
+            CmdFactory::delay(context->ecs, oid, 0.3, [this, oid]{
+                this->setEntityAvailability(oid, true);
+            });
         }),
         NULL
     );

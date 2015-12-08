@@ -9,45 +9,42 @@ struct CmdComponent
         inProgress
     };
     
-    void set(const std::string& tag, const std::function<State(unsigned eid, double dt)>& command)
+    struct CmdElement
     {
-        this->funcMap[tag] = command;
-        this->stateMap[tag] = State::inProgress;
-    }
+        std::function<State(unsigned eid, double dt)> onProcess;
+        std::function<void()> onSuccess;
+        std::function<void()> onFailure;
+    };
     
-    State get(const std::string& tag)
+    void set(const std::string& tag,
+             const std::function<State(unsigned eid, double dt)>& command,
+             const std::function<void()>& onSuccess = nullptr,
+             const std::function<void()>& onFailure = nullptr)
     {
-        if (!lib::hasKey(stateMap, tag))
-            return State::failure;
-        return stateMap[tag];
-    }
-    
-    unsigned countInProgress()
-    {
-        unsigned count = 0;
-        for(auto pair : stateMap)
-        {
-            if (pair.second == State::inProgress)
-                count++;
-        }
-        return count;
+        this->funcMap[tag] = { command, onSuccess, onFailure };
     }
     
     void process(unsigned eid, double dt)
     {
-        for(auto& pair : stateMap)
+        for(auto it = funcMap.begin(); it != funcMap.end(); /*no increment*/)
         {
-            if (pair.second == State::inProgress)
-                pair.second = funcMap[pair.first](eid, dt);
+            auto& el = it->second;
+            switch(el.onProcess(eid, dt))
+            {
+                case State::success:
+                    if (el.onSuccess != nullptr) el.onSuccess();
+                    it = funcMap.erase(it);
+                    break;
+                case State::failure:
+                    if (el.onFailure != nullptr) el.onFailure();
+                    it = funcMap.erase(it);
+                    break;
+                case State::inProgress:
+                    ++it;
+                    break;
+            }
         }
     }
     
-    void reset()
-    {
-        funcMap.clear();
-        stateMap.clear();
-    }
-    
-    std::map<std::string, std::function<State(unsigned, double)>>  funcMap;
-    std::map<std::string, State>                                   stateMap;
+    std::map<std::string, CmdElement>   funcMap;
 };

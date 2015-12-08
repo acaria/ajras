@@ -3,10 +3,9 @@
 
 using State = CmdComponent::State;
 
-std::string CmdFactory::goTo(lib::EcsGroup* ecs, unsigned eid, cc::Vec2 target, float nearDistance)
+void CmdFactory::goTo(lib::EcsGroup* ecs, unsigned eid, cc::Vec2 target, float nearDistance)
 {
-    std::string tagName = "goto";
-    ecs->add<cp::Cmd>(eid).set(tagName, [target, nearDistance](unsigned eid, double dt){
+    ecs->add<cp::Cmd>(eid).set("goto", [target, nearDistance](unsigned eid, double dt){
         if (!ecs::has<cp::Position, cp::Physics>(eid))
             return State::failure;
         
@@ -25,16 +24,14 @@ std::string CmdFactory::goTo(lib::EcsGroup* ecs, unsigned eid, cc::Vec2 target, 
             return State::success;
         return State::inProgress;
     });
-    return tagName;
 }
 
-std::string CmdFactory::goTo(lib::EcsGroup* ecs,
-                             unsigned eid,
-                             std::list<cc::Vec2> waypoints,
-                             float nearDistance)
+void CmdFactory::goTo(lib::EcsGroup* ecs,
+                      unsigned eid,
+                      std::list<cc::Vec2> waypoints,
+                      float nearDistance)
 {
-    std::string tagName = "goto";
-    ecs->add<cp::Cmd>(eid).set(tagName, [waypoints, nearDistance](unsigned eid, double dt)mutable{
+    ecs->add<cp::Cmd>(eid).set("goto", [waypoints, nearDistance](unsigned eid, double dt) mutable {
         if (!ecs::has<cp::Position, cp::Physics, cp::Input>(eid))
             return State::failure;
         
@@ -60,5 +57,17 @@ std::string CmdFactory::goTo(lib::EcsGroup* ecs,
         }
         return State::inProgress;
     });
-    return tagName;
+}
+
+void CmdFactory::delay(lib::EcsGroup* ecs, unsigned int eid,
+                       double timeInterval, const std::function<void()>& success)
+{
+    static long id = 1;
+    ecs->add<cp::Cmd>(eid).set(std::to_string(id++),
+            [timeInterval](unsigned eid, double dt) mutable {
+        if (timeInterval <= 0)
+            return State::success;
+        timeInterval -= dt;
+        return State::inProgress;
+    }, success);
 }

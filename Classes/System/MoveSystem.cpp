@@ -24,6 +24,7 @@ void MoveSystem::tick(double dt)
                 continue;
             if (force.active)
             {
+                //maxSpeed = (maxSpeed == 0) ? force.maxSpeed : MIN(maxSpeed, force.maxSpeed);
                 maxSpeed = MAX(maxSpeed, force.maxSpeed);
                 force.curSpeed += force.accSpeed * dt;
             }

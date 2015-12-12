@@ -28,26 +28,28 @@ bool AppDelegate::applicationDidFinishLaunching() {
 #endif
         director->setOpenGLView(glview);
     }
-
+    
+    //retrieve device size
     cc::Size frameSize = glview->getFrameSize();
-    cc::Size resourceSize;
+
+    //define design size
+    glview->setDesignResolutionSize(def::designResolutionSize.width,
+                                    def::designResolutionSize.height,
+                                    ResolutionPolicy::NO_BORDER);
     
     std::vector<std::string> searchPaths;
     
-    if (frameSize.height > def::sdResolutionSize.height)
+    //define resource size
+    cc::Size resourceSize;
+    for(auto resource : def::resourceList)
     {
-        searchPaths.push_back("hd");
-        searchPaths.push_back("sd");
-        resourceSize = def::hdResolutionSize;
+        if (frameSize.height > resource.select.height)
+        {
+            searchPaths.push_back(resource.directory);
+            resourceSize = resource.size;
+            break;
+        }
     }
-    else
-    {
-        searchPaths.push_back("sd");
-        resourceSize = def::sdResolutionSize;
-    }
-    
-    glview->setDesignResolutionSize(def::designResolutionSize.width, def::designResolutionSize.height,
-                                    ResolutionPolicy::NO_BORDER);
     director->setContentScaleFactor(resourceSize.height / def::designResolutionSize.height);
     cc::FileUtils::getInstance()->setSearchPaths(searchPaths);
 

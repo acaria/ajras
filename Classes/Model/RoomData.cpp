@@ -96,10 +96,7 @@ void RoomData::freeSleepZone(const std::string& cat, const cc::Point &pos)
 
 cc::Rect RoomData::getBounds()
 {
-    return cocos2d::Rect(position.x,
-                         position.y,
-                         model->totalSize.x,
-                         model->totalSize.y);
+    return cocos2d::Rect(position.x, position.y, model->totalSize.width, model->totalSize.height);
 }
 
 cc::Vec2 RoomData::getPosFromCoord(const lib::v2u& coord)
@@ -129,7 +126,7 @@ lib::DataGrid<BlockInfo>& RoomData::getGrid()
 
 cc::Size RoomData::getTileSize()
 {
-    return {(float)this->model->tileSize.x, (float)this->model->tileSize.y};
+    return {this->model->tileSize.width, this->model->tileSize.height};
 }
 
 cc::Rect RoomData::getBlockBound(const lib::v2u& coord)

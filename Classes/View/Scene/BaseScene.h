@@ -15,13 +15,11 @@ public:
             pRet->autorelease();
             return pRet;
         }
-        else
-        {
-            Log("cannot create scene");
-            delete pRet;
-            pRet = nullptr;
-            return nullptr;
-        }
+        
+        Log("cannot create scene");
+        delete pRet;
+        pRet = nullptr;
+        return nullptr;
     }
     
     virtual bool init() override { return cocos2d::Scene::init(); };

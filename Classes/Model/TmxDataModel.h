@@ -17,8 +17,8 @@ public:
     std::vector<ObjectInfo>      objs;
     lib::DataGrid<BlockInfo>     grid;
     
-    lib::v2u        tileSize; //sizeof a tile case (in pxl)
-    lib::v2u        totalSize; //sizeof the room (in pxl)
+    cc::Size        tileSize; //sizeof a tile case (in pxl)
+    cc::Size        totalSize; //sizeof the room (in pxl)
     
     std::string     name;
     

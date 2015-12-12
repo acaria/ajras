@@ -15,7 +15,11 @@ void RenderComponent::setFrame(const std::string &frameName,
 {
     this->moveAnimationKey = "";
     this->profile = nullptr;
-    this->sprite = parent->createChild(frameName, layerType);
+    
+    this->sprite = new SpriteEx();
+    this->sprite->initWithSpriteFrameName(frameName);
+    parent->add(this->sprite , layerType);
+    this->sprite->release();
 }
 
 void RenderComponent::setProfile(const std::string &profileName,
@@ -28,16 +32,18 @@ void RenderComponent::setProfile(ProfileData* profile, LayeredContainer* parent)
 {
     this->profile = profile;
     this->setAnimation("idle", -1);
-    //set default walk animation
+    //set default walk animation, def::LayerType::FG);
+    
     this->setMoveCategory("walk");
     
     cc::Vec2 zMargin {0,0};
     if (this->profile->stats != nullptr && this->profile->stats->physics != nullptr)
         zMargin = this->profile->stats->physics->bounds.origin;
     
-    this->sprite = parent->createChild(getCurAnim()->frameNames.at(0),
-                                       this->chooseLayer(this->profile),
-                                       zMargin);
+    this->sprite = new SpriteEx();
+    this->sprite->initWithSpriteFrameName(getCurAnim()->frameNames.at(0));
+    parent->add(this->sprite, this->chooseLayer(this->profile), zMargin);
+    this->sprite->release();
     this->busy = false;
     
     if (profile->stats != nullptr)

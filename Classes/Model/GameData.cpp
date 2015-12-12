@@ -46,6 +46,17 @@ void GameData::loadCamp()
     assert(camp);
 }
 
+void GameData::loadShaders()
+{
+    auto fragSource = (GLchar*)cc::__String::createWithContentsOfFile(
+        cc::FileUtils::getInstance()->fullPathForFilename("shaders/blend.fsh").c_str())->getCString();
+    
+    auto program =cc::GLProgram::createWithByteArrays(cc::ccPositionTextureColor_noMVP_vert,
+                                                      fragSource);
+    
+    cc::GLProgramCache::getInstance()->addGLProgram(program, "blend");
+}
+
 void GameData::loadMission()
 {
     if (this->floor != nullptr)

@@ -10,8 +10,16 @@ namespace def {
 
     //app
     const cc::Size designResolutionSize = {1024, 768};
-    const cc::Size sdResolutionSize = {480, 320};
-    const cc::Size hdResolutionSize = {1024, 768};
+    
+    typedef struct {
+        cc::Size select;
+        cc::Size size;
+        char directory[100];
+    } Resource;
+    
+    const std::list<Resource> resourceList = {
+        {{0,0},         {1024, 768},     "hd"},
+    };
 
     //config
     const bool  antialias = false;

@@ -42,7 +42,7 @@ void RenderSystem::animate(double dt, double tickPercent)
             
             cpRender.sprite->setPosition(pos);
         }
-        
+
         //animation
         auto animData = cpRender.getCurAnim();
         //CCASSERT(animData != nullptr, cpRender.curAnimKey.c_str());

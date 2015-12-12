@@ -77,7 +77,7 @@ NavigationInfo* CampData::getNav()
 
 cc::Size CampData::getTileSize()
 {
-    return {(float)this->tileSize.x, (float)this->tileSize.y};
+    return {(float)this->tileSize.width, (float)this->tileSize.height};
 }
 
 cc::Rect CampData::getBlockBound(const lib::v2u& coord)
@@ -98,7 +98,7 @@ lib::v2u CampData::getDim()
 cc::Rect CampData::getBounds()
 {
     return {
-        0, 0, (float)totalSize.x, (float)totalSize.y
+        0, 0, (float)totalSize.width, (float)totalSize.height
     };
 }
 

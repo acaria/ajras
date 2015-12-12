@@ -5,6 +5,7 @@ class ProfileData;
 
 #include "Defines.h"
 #include "LayeredContainer.h"
+#include "SpriteEx.h"
 
 struct RenderComponent
 {
@@ -45,5 +46,5 @@ struct RenderComponent
     bool                    busy = false;
 
     //output
-    LayeredSprite* sprite;
+    SpriteEx* sprite;
 };

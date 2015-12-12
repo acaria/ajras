@@ -159,15 +159,21 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
             }
             
             auto coord = data->getPosFromCoord({i,j});
-            auto sprite = this->mapView->createChild(properties[BlockInfo::bgTileName], rl);
+            auto sprite = new SpriteEx();
+            sprite->initWithSpriteFrameName(properties[BlockInfo::bgTileName]);
             sprite->setPosition(coord);
+            this->mapView->add(sprite, rl);
+            sprite->release();
         }
         
         if (properties.find(BlockInfo::fgTileName) != properties.end())
         {
             auto coord = data->getPosFromCoord({i,j});
-            auto sprite = this->mapView->createChild(properties[BlockInfo::fgTileName], def::LayerType::FG);
+            auto sprite = new SpriteEx();
+            sprite->initWithSpriteFrameName(properties[BlockInfo::fgTileName]);
             sprite->setPosition(coord);
+            this->mapView->add(sprite, def::LayerType::FG);
+            sprite->release();
         }
     }
 

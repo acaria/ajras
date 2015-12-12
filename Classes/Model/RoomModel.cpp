@@ -10,8 +10,7 @@ RoomModel* RoomModel::create(const std::string &fileName)
 void RoomModel::initialize()
 {
     //todo: define walls for non rectangular rooms
-    this->walls.push_back({0, 0,
-        (float)this->totalSize.x, (float)this->totalSize.y});
+    this->walls.push_back({0, 0, this->totalSize.width, this->totalSize.height});
     
     //processing cross areas
     for(unsigned j = 0; j < this->grid.height; j++)

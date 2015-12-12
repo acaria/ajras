@@ -20,8 +20,8 @@ FloorSystemCtrl::FloorSystemCtrl() : systemFacade(dispatcher, context, Randgine:
     this->context.ecs = &ecsGroup;
 
     //init systems
-    this->systemFacade.factory<ControlSystem>(std::list<unsigned>(
-        {PlayerData::ctrlIndex, PlayerData::debugIndex}));
+    this->systemFacade.factory<ControlSystem>(
+        std::list<unsigned>({PlayerData::ctrlIndex, PlayerData::debugIndex}));
     this->systemFacade.factory<AISystem>();
     this->systemFacade.factory<UpdaterSystem>();
     this->systemFacade.factory<TargetSystem>();
@@ -91,8 +91,18 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
 
     if (ecs::has<cp::Render>(eid))
     {
-        ecs::get<cp::Render>(eid).sprite->switchContainer(
-            this->roomViews[nextRoomIndex]);
+        auto& sprite = ecs::get<cp::Render>(eid).sprite;
+        auto container = this->roomViews[nextRoomIndex];
+        if (sprite->getParent() != nullptr)
+        {
+            auto lType = static_cast<def::LayerType>(sprite->getParent()->getTag());
+            sprite->removeFromParentAndCleanup(false);
+            container->add(sprite, lType);
+        }
+        else //orphelin, cannot retrieve layertype
+        {
+            container->add(sprite, def::LayerType::BG);
+        }
     }
     
     auto nextRoom = data->getRoomAt(nextRoomIndex);
@@ -418,7 +428,7 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
         this->roomViews[roomIndex] = layeredNode;
         this->roomSystems[roomIndex] = roomSystemCtrl;
 
-        auto preview = layeredNode->getShoot(
+        auto preview = layeredNode->createShot(
             roomData->getBounds().size.width, roomData->getBounds().size.height);
         this->roomPreviews[roomIndex] = preview;
         

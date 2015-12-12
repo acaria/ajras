@@ -36,15 +36,22 @@ RoomSystemCtrl::RoomSystemCtrl(unsigned group, LayeredContainer* view, RoomData*
                 }
                 
                 auto coord = data->getPosFromCoord({i,j});
-                auto sprite = view->createChild(properties[BlockInfo::bgTileName], rl);
+                auto sprite = new SpriteEx();
+                sprite->initWithSpriteFrameName(properties[BlockInfo::bgTileName]);
                 sprite->setPosition(coord);
+                view->add(sprite, rl);
+                sprite->release();
             }
             
             if (properties.find(BlockInfo::fgTileName) != properties.end())
             {
                 auto coord = data->getPosFromCoord({i,j});
-                auto sprite = view->createChild(properties[BlockInfo::fgTileName], def::LayerType::FG);
+                auto sprite = new SpriteEx();
+                sprite->initWithSpriteFrameName(properties[BlockInfo::fgTileName]);
                 sprite->setPosition(coord);
+                
+                view->add(sprite, def::LayerType::FG);
+                sprite->release();
             }
         }
     
@@ -76,8 +83,11 @@ RoomSystemCtrl::RoomSystemCtrl(unsigned group, LayeredContainer* view, RoomData*
         
         //view
         cc::Point pos = {gateMap.info.rect.origin.x, gateMap.info.rect.origin.y};
-        auto sprite = view->createChild(gateMap.tileName + ".png", def::LayerType::BG);
+        auto sprite = new SpriteEx();
+        sprite->initWithSpriteFrameName(gateMap.tileName + ".png");
         sprite->setPosition(pos);
+        view->add(sprite, def::LayerType::BG);
+        sprite->release();
         
         //change collision data
         
@@ -199,7 +209,9 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
     {
         ecs::get<cp::Render>(eid).setAnimation("activated", -1);
         
-        auto light = view->createChild("grad_ellipse.png", def::LayerType::FG);
+        auto light = new SpriteEx();
+        light->initWithSpriteFrameName("grad_ellipse.png");
+        view->add(light, def::LayerType::FG);
         //light->setOpacity(120);
         light->setColor(cc::Color3B(252, 195, 159));
         light->setBlendFunc(cc::BlendFunc::ADDITIVE);
@@ -207,6 +219,7 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
         light->runAction(cc::RepeatForever::create(Flicker::create(
             80.0f, 0.1f, {150, 200}, {0.98, 1.2}, {0.9,1.1},
             cc::Color3B(252, 168, 50), cc::Color3B(252, 168, 50))));
+        light->release();
     }
     
     dispatcher.onEntityAdded(roomIndex, eid);

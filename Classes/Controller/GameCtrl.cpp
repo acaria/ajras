@@ -31,7 +31,9 @@ GameCtrl::GameCtrl():tick(std::bind(&GameCtrl::onTick, this, _1),
         scene->addChild(this->debugHeader);
     }));
 #endif
-    
+
+    //load shaders
+    gameData.loadShaders();
 }
 
 GameCtrl::~GameCtrl()

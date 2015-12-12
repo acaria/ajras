@@ -1,11 +1,11 @@
 #pragma once
 
 #include "NodeRenderer.h"
-#include "LayeredSprite.h"
 #include "Defines.h"
 
 class LayeredContainer : public cc::Node
 {
+    using Base = cc::Node;
 public:
     bool init() override
     {
@@ -16,11 +16,12 @@ public:
     bool init(cc::Size size);
     
     int getZOrder(const cc::Vec2& pos);
-    NodeRenderer* getShoot(int w, int h);
+    NodeRenderer* createShot(int w, int h);
     
-    LayeredSprite* createChild(const std::string& frameName, def::LayerType type, cc::Point zMargin = {0,0});
-    
+    //getters
     cc::Layer* get(def::LayerType type);
+    
+    void add(cc::Node* node, def::LayerType type, const cc::Point& zMargin = {0,0});
     
 private:
     cc::Layer* bg;

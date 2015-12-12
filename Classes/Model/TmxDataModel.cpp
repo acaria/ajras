@@ -13,10 +13,11 @@ TmxDataModel::TmxDataModel(const std::string &fileName) : grid(0,0)
     this->grid = {(unsigned)o.get<jsonxx::Number>("width"),
         (unsigned)o.get<jsonxx::Number>("height")};
     
-    this->tileSize = {(unsigned)o.get<jsonxx::Number>("tilewidth"),
-                      (unsigned)o.get<jsonxx::Number>("tileheight")};
+    this->tileSize.setSize(o.get<jsonxx::Number>("tilewidth"),
+                           o.get<jsonxx::Number>("tileheight"));
     
-    this->totalSize = {grid.width * tileSize.x, grid.height * tileSize.y};
+    this->totalSize.setSize(grid.width * tileSize.width,
+                            grid.height * tileSize.height);
     
     this->name = fileName;
     
@@ -127,7 +128,7 @@ TmxDataModel::TmxDataModel(const std::string &fileName) : grid(0,0)
                     .type = object.get<jsonxx::String>("type"),
                     .pos = {
                         (float)object.get<jsonxx::Number>("x"),
-                        this->totalSize.y - (float)object.get<jsonxx::Number>("y")
+                        this->totalSize.height - (float)object.get<jsonxx::Number>("y")
                     },
                     .size = {
                         (float)object.get<jsonxx::Number>("width"),
@@ -159,16 +160,16 @@ TmxDataModel::TmxDataModel(const std::string &fileName) : grid(0,0)
 
 cocos2d::Rect TmxDataModel::getRectCoord(const lib::v2u& pos)
 {
-    return {(float)pos.x * tileSize.x, (float)pos.y * tileSize.y,
-            (float)tileSize.x, (float)tileSize.y};
+    return {pos.x * tileSize.width, pos.y * tileSize.height,
+            tileSize.width, tileSize.height};
 }
 
 cocos2d::Vec2 TmxDataModel::getPosFromCoord(const lib::v2u& coord)
 {
-    return {(float)(coord.x * tileSize.x), (float)(coord.y * tileSize.y)};
+    return {coord.x * tileSize.width, coord.y * tileSize.height};
 }
 
 lib::v2u TmxDataModel::getCoordFromPos(const cocos2d::Vec2& pos)
 {
-    return {(unsigned)pos.x / tileSize.x, (unsigned)pos.y / tileSize.y};
+    return {(unsigned)(pos.x / tileSize.width), (unsigned)(pos.y / tileSize.height)};
 }

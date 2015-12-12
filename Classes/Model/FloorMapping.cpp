@@ -136,14 +136,14 @@ std::list<cc::Point> FloorMapping::extractPositions(RoomModel* model,
         
         std::list<std::pair<cc::Point, cc::Rect>> data;
         cc::Rect bestSize = {0, 0, this->size.width, this->size.height};
-        for(auto j = rectFinal.origin.y; j <= rectFinal.getMaxY(); j += model->tileSize.y)
-            for(auto i = rectFinal.origin.x; i <= rectFinal.getMaxX(); i += model->tileSize.x)
+        for(auto j = rectFinal.origin.y; j <= rectFinal.getMaxY(); j += model->tileSize.height)
+            for(auto i = rectFinal.origin.x; i <= rectFinal.getMaxX(); i += model->tileSize.width)
             {
                 cc::Point roomPos = {i - gateRelDest.rect.origin.x, j - gateRelDest.rect.origin.y};
                 if (this->checkRoom(roomPos, model))
                 {
                     auto candidateRect = cc::Rect(roomPos.x, roomPos.y,
-                                                  model->totalSize.x, model->totalSize.y).unionWithRect(this->totalBounds);
+                        model->totalSize.width, model->totalSize.height).unionWithRect(this->totalBounds);
                     if ((candidateRect.size.width + candidateRect.size.height) <=
                         (bestSize.size.width + bestSize.size.height))
                     {

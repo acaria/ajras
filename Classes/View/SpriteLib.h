@@ -1,7 +1,11 @@
 #pragma once
 
-class SpriteBlend : public cc::Sprite
+#include "SpriteEx.h"
+
+class SpriteBlend : public SpriteEx
 {
+    using Base = SpriteEx;
+    
 public:
     //overrides
     virtual bool initWithTexture(cc::Texture2D* texture,
@@ -14,5 +18,16 @@ public:
     
 private:
     cc::CustomCommand customCmd;
+};
+
+class SpriteGrayScale : public SpriteEx
+{
+    using Base = SpriteEx;
+    
+public:
+    //overrides
+    virtual bool initWithTexture(cc::Texture2D* texture,
+                                 const cc::Rect& rect,
+                                 bool _rotated) override;
 };
 

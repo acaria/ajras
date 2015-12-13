@@ -68,9 +68,9 @@ void DebugSystem::tick(double dt)
         return;
     }
     if (this->zoneLayer->getParent() == nullptr)
-        this->context->view->addChild(this->zoneLayer);
+        this->context->view->addChild(this->zoneLayer, 100);
     if (this->drawLayer->getParent() == nullptr)
-        this->context->view->addChild(this->drawLayer);
+        this->context->view->addChild(this->drawLayer, 100);
 
     this->displayZones();
     this->displayDraws();

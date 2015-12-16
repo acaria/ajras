@@ -2,6 +2,7 @@
 #include "Components.h"
 #include "IMapData.h"
 #include "AnimationData.h"
+#include "GameCtrl.h"
 
 void RenderSystem::tick(double dt)
 {
@@ -41,6 +42,13 @@ void RenderSystem::animate(double dt, double tickPercent)
                          cpPos.pos.y * tickPercent + cpPos.lastPos.y * (1 - tickPercent));
             
             cpRender.sprite->setPosition(pos);
+            
+            auto curPlayer = GameCtrl::instance()->getData().curPlayer();
+            if (ecs::has<cp::Control>(eid) && ecs::get<cp::Control>(eid) == curPlayer->ctrlIndex)
+            {
+                auto p = cpRender.sprite->convertToWorldSpace({0,0});
+                GameCtrl::instance()->getEffects().setLightPos({p.x, p.y, 100.0f});
+            }
         }
 
         //animation

@@ -8,7 +8,6 @@ class GameData
 {
 public:
     ~GameData();
-    void loadShaders(); 
     void loadPlayer();
     void loadCamp();
     void loadMission();

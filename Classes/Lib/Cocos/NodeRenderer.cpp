@@ -1,8 +1,10 @@
 #include "NodeRenderer.h"
+#include "SpriteLib.h"
 
 NodeRenderer* NodeRenderer::create(cc::Node* node, int w, int h)
 {
     NodeRenderer* renderer = new (std::nothrow) NodeRenderer();
+    renderer->setSprite(new SpriteGrayScale());
     if(renderer && renderer->initWithNode(node, w, h))
     {
         renderer->autorelease();
@@ -30,6 +32,11 @@ bool NodeRenderer::initWithNode(cc::Node *node, int w, int h)
     this->addChild(node);
     this->getSprite()->setAnchorPoint({0,0});
     this->getSprite()->setBlendFunc({GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA});
+    
+    /*auto ps = cc::GLProgramState::getOrCreateWithGLProgram(
+        cc::GLProgramCache::getInstance()->getGLProgram("greyscale"));
+    this->getSprite()->setGLProgramState(ps);
+    */
     
     this->renderChildren();
     

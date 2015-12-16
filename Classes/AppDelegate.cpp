@@ -53,7 +53,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setContentScaleFactor(resourceSize.height / def::designResolutionSize.height);
     cc::FileUtils::getInstance()->setSearchPaths(searchPaths);
 
-    Log("\n{\n\tscreenSize: %.1f %.1f\n\tresourceSize: %.1f %.1f\n\tdesignSize: %.1f %.1f\n\tscale factor: %.1f\n\tframeRect: %.1f,%.1f,%.1f,%.1f}\n",
+    Log("{\n\tscreenSize: %.1f %.1f\n\tresourceSize: %.1f %.1f\n\tdesignSize: %.1f %.1f\n\tscale factor: %.1f\n\tframeRect: %.1f,%.1f,%.1f,%.1f\n}\n",
           frameSize.width, frameSize.height,
           resourceSize.width, resourceSize.height,
           def::designResolutionSize.width, def::designResolutionSize.height,

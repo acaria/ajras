@@ -1,33 +1,38 @@
 #pragma once
 
+#include "ShaderSprite.h"
 #include "SpriteEx.h"
 
-class SpriteBlend : public SpriteEx
+class SpriteBlend : public ShaderSprite<SpriteEx>
 {
-    using Base = SpriteEx;
-    
 public:
-    //overrides
-    virtual bool initWithTexture(cc::Texture2D* texture,
-                                 const cc::Rect& rect,
-                                 bool _rotated) override;
-    virtual void draw(cc::Renderer *renderer,
-                      const cc::Mat4 &transform, uint32_t flags) override;
+    SpriteBlend() : ShaderSprite("blend", true) {};
     
-    void onDraw();
-    
-private:
-    cc::CustomCommand customCmd;
+protected:
+    virtual void setCustomUniforms(cc::GLProgramState* glState,
+                                   const cc::Mat4 &transform,
+                                   uint32_t flags) override;
 };
 
-class SpriteGrayScale : public SpriteEx
+class SpriteGrayScale : public ShaderSprite<SpriteEx>
 {
-    using Base = SpriteEx;
-    
 public:
-    //overrides
-    virtual bool initWithTexture(cc::Texture2D* texture,
-                                 const cc::Rect& rect,
-                                 bool _rotated) override;
+    SpriteGrayScale() : ShaderSprite("greyscale", false) {}
 };
 
+class SpriteTest : public ShaderSprite<SpriteEx>
+{
+public:
+    SpriteTest() : ShaderSprite("test", false) {}
+};
+
+class SpriteLight : public ShaderSprite<SpriteEx>
+{
+public:
+    SpriteLight() : ShaderSprite("light", true) {}
+    
+protected:
+    virtual void setCustomUniforms(cc::GLProgramState* glState,
+                                   const cc::Mat4 &transform,
+                                   uint32_t flags) override;
+};

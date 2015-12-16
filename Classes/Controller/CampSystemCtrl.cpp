@@ -4,6 +4,7 @@
 #include "PlayerData.h"
 #include "ModelProvider.h"
 #include "WarpMap.h"
+#include "SpriteLib.h"
 
 CampSystemCtrl::CampSystemCtrl() : systemFacade(dispatcher, context, Randgine::CAMP)
 {
@@ -183,6 +184,8 @@ void CampSystemCtrl::load(GameCamera *cam, cc::Node *view,
         auto eid = cp::entity::genID();
         ecsGroup.add<cp::Warp>(eid) = warpMap;
     }
+ 
+    this->mapView->rasterizeBg();
  
     //init context
     this->context.view = mapView;

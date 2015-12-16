@@ -2,6 +2,8 @@
 
 #include "NodeRenderer.h"
 #include "Defines.h"
+#include "ShaderLayer.h"
+#include "SpriteLib.h"
 
 class LayeredContainer : public cc::Node
 {
@@ -22,6 +24,7 @@ public:
     cc::Layer* get(def::LayerType type);
     
     void add(cc::Node* node, def::LayerType type, const cc::Point& zMargin = {0,0});
+    void rasterizeBg();
     
 private:
     cc::Layer* bg;

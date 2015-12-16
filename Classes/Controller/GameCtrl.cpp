@@ -33,7 +33,10 @@ GameCtrl::GameCtrl():tick(std::bind(&GameCtrl::onTick, this, _1),
 #endif
 
     //load shaders
-    gameData.loadShaders();
+    shaders.load();
+    
+    shaders.setLightConfig(cc::Color3B::WHITE, cc::Color3B(127,127,127), 2.0, 200, 0.5f);
+    shaders.setLightPos({200,200,100});
 }
 
 GameCtrl::~GameCtrl()
@@ -42,6 +45,9 @@ GameCtrl::~GameCtrl()
 
 void GameCtrl::start()
 {
+    //CocosHelper::addTexture("ss-main.plist", def::antialias);
+    //this->scene.go2Test();
+    
     this->goToMainMenu();
     //this->goToMission();
     //this->goToCamp();
@@ -106,4 +112,9 @@ void GameCtrl::onAnimate(double dt, double tickPercent)
 GameData& GameCtrl::getData()
 {
     return this->gameData;
+}
+
+ShaderManager& GameCtrl::getEffects()
+{
+    return this->shaders;
 }

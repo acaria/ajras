@@ -1,33 +1,10 @@
 #include "SpriteLib.h"
+#include "GameCtrl.h"
 
-bool SpriteBlend::initWithTexture(cc::Texture2D *texture, const cc::Rect &rect, bool _rotated)
+void SpriteBlend::setCustomUniforms(cc::GLProgramState* glState,
+                                    const cc::Mat4 &transform,
+                                    uint32_t flags)
 {
-    auto ret = Base::initWithTexture(texture, rect, _rotated);
-    
-    auto ps = cc::GLProgramState::getOrCreateWithGLProgram(
-            cc::GLProgramCache::getInstance()->getGLProgram("blend"));
-    this->setGLProgramState(ps);
-    
-    this->customCmd.init(_globalZOrder);
-    this->customCmd.func = std::bind(&SpriteBlend::onDraw, this);
-    
-    return ret;
-}
-
-void SpriteBlend::draw(cc::Renderer *renderer, const cc::Mat4 &transform, uint32_t flags)
-{
-    if (this->getGLProgramState())
-    {
-        renderer->addCommand(&customCmd);
-    }
-    
-    Sprite::draw(renderer, transform, flags);
-}
-
-void SpriteBlend::onDraw()
-{
-    auto ps = this->getGLProgramState();
-    
     auto texSize = this->getTexture()->getContentSizeInPixels();
     auto texRect = this->getTextureRect();
     
@@ -39,13 +16,37 @@ void SpriteBlend::onDraw()
     //ps->setUniformVec2("spriteFrameSize", this->getTexture()->getContentSizeInPixels());
 }
 
-bool SpriteGrayScale::initWithTexture(cc::Texture2D *texture, const cc::Rect &rect, bool _rotated)
+void SpriteLight::setCustomUniforms(cc::GLProgramState *gls,
+                                    const cc::Mat4 &transform,
+                                    uint32_t flags)
 {
-    auto ret = Base::initWithTexture(texture, rect, _rotated);
+    auto lightPos = GameCtrl::instance()->getEffects().getLightPos();
+
+    //dynamics
+    gls->setUniformVec2("u_contentSize", this->getContentSize());
     
-    auto ps = cc::GLProgramState::getOrCreateWithGLProgram(
-            cc::GLProgramCache::getInstance()->getGLProgram("greyscale"));
-    this->setGLProgramState(ps);
+    cc::Point posRelToSprite = PointApplyAffineTransform(
+            cc::Point(lightPos.x, lightPos.y), this->getWorldToNodeAffineTransform());
+    gls->setUniformVec3("u_lightPos", cc::Vec3(posRelToSprite.x, posRelToSprite.y, lightPos.z));
     
-    return ret;
+    //gls->setUniformTexture("u_normals", normalmap);
+    
+    cc::SpriteFrame *frame = this->getSpriteFrame();
+    cc::Size untrimmedSize = frame->getOriginalSize();
+    cc::Size trimmedSize = frame->getRect().size;
+    cc::Vec2 framePos = frame->getRect().origin;
+    cc::Size texSize = frame->getTexture()->getContentSize();
+    
+    // set sprite position in sheet
+    gls->setUniformVec2("u_spritePosInSheet", {framePos.x / texSize.width,
+                                               framePos.y / texSize.height});
+    gls->setUniformVec2("u_spriteSizeRelToSheet", {untrimmedSize.width / texSize.width,
+                                                   untrimmedSize.height / texSize.height});
+    gls->setUniformInt("u_spriteRotated", frame->isRotated());
+    
+    // set offset of trimmed sprite
+    cc::Vec2 bottomLeft = frame->getOffset() + (untrimmedSize - trimmedSize) / 2;
+    cc::Vec2 cornerOffset = frame->isRotated() ? cc::Vec2(bottomLeft.y, bottomLeft.x)
+        : cc::Vec2(bottomLeft.x, untrimmedSize.height - trimmedSize.height - bottomLeft.y);
+    gls->setUniformVec2("u_spriteOffset", cornerOffset);
 }

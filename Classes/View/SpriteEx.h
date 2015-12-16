@@ -7,7 +7,9 @@ class LayeredContainer;
 class SpriteEx : public cc::Sprite
 {
     using Base = cc::Sprite;
+
 public:
+    virtual ~SpriteEx(){}
     void setContainer(LayeredContainer* container, cc::Point zMargin);
     
     //overrides

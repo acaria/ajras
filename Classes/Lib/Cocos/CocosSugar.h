@@ -43,3 +43,7 @@ namespace cc = cocos2d;
 #else
 #define Log(...) cocos2d::log(__VA_ARGS__)
 #endif
+
+#define PROPERTY(varType, varName, funName) CC_SYNTHESIZE(varType, varName, funName)
+#define PROPERTY_READ(varType, varName, funName) CC_SYNTHESIZE_READONLY(varType, varName, funName)
+#define PROPERTY_REF(varType, varName, funName) CC_SYNTHESIZE_READONLY_PASS_BY_REF(varType, varName, funName)

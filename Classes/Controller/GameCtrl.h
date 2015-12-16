@@ -7,6 +7,7 @@
 #include "GameData.h"
 #include "DebugInfoLayer.h"
 #include "Event.h"
+#include "ShaderManager.h"
 
 class RoomData;
 class FloorData;
@@ -27,7 +28,8 @@ public:
     void goToMission();
     
     //accessors
-    GameData&   getData();
+    GameData&       getData();
+    ShaderManager&  getEffects();
     TickCtrl    tick;
 
     //trace && debug
@@ -52,6 +54,7 @@ public:
 
 protected:
     SceneManager    scene;
+    ShaderManager   shaders;
 
 private:
     template<typename ... Args>

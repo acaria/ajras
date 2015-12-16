@@ -1,5 +1,7 @@
 #include "LayeredContainer.h"
 #include "SpriteEx.h"
+#include "ShaderLayer.h"
+#include "SpriteLib.h"
 
 bool LayeredContainer::init(cc::Size size)
 {
@@ -26,6 +28,16 @@ bool LayeredContainer::init(cc::Size size)
     this->size = size;
     
     return true;
+}
+
+void LayeredContainer::rasterizeBg()
+{
+    this->bg->retain();
+    Base::removeChild(bg);
+    
+    auto bgPlan = NodeRenderer::create(this->bg, size.width, size.height);
+    Base::addChild(bgPlan, 1);
+    this->bg->release();
 }
 
 NodeRenderer* LayeredContainer::createShot(int w, int h)

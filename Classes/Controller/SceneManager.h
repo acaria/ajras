@@ -11,6 +11,7 @@ public:
     void go2MainMenu();
     void go2Mission();
     void go2Camp();
+    void go2Test();
     
     lib::Subject<void(EventScene*)> onSceneChanged;
     

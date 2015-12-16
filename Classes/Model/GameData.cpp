@@ -46,28 +46,6 @@ void GameData::loadCamp()
     assert(camp);
 }
 
-void GameData::loadShaders()
-{
-    std::list<std::tuple<std::string, std::string, std::string>> list = {
-        {"blend",       "shaders/default.vsh",      "shaders/blend.fsh"},
-        {"greyscale",   "shaders/default.vsh",      "shaders/greyscale.fsh"}
-    };
-    auto fu = cc::FileUtils::getInstance();
-    
-    for (auto& t : list)
-    {
-        auto vStr = fu->getStringFromFile(fu->fullPathForFilename(std::get<1>(t)));
-        GLchar* vSrc = (GLchar*)vStr.c_str();
-
-        auto fStr = fu->getStringFromFile(fu->fullPathForFilename(std::get<2>(t)));
-        GLchar* fSrc = (GLchar*)fStr.c_str();
-
-        auto program = cc::GLProgram::createWithByteArrays(vSrc, fSrc);
-        
-        cc::GLProgramCache::getInstance()->addGLProgram(program, std::get<0>(t));
-    }
-}
-
 void GameData::loadMission()
 {
     if (this->floor != nullptr)

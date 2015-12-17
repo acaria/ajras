@@ -19,7 +19,7 @@ void BufferedFrame::visit(cc::Renderer *renderer,
 {
     if (this->active)
     {
-        this->buffer->beginWithClear(0, 0, 0, 1.0);
+        this->buffer->beginWithClear(0, 0, 0, 0);
         cc::Mat4 localTransform;
         parentTransform.translate(-fBounds.origin.x, -fBounds.origin.y, 0, &localTransform);
         Base::visit(renderer, localTransform, parentFlags);
@@ -50,12 +50,18 @@ bool BufferedFrame::init(const cc::Rect& fBounds)
     this->buffer->retain();
     
     //init display
-    this->display = cc::Sprite::createWithTexture(this->buffer->getSprite()->getTexture());
+    this->display = cc::create<cc::Sprite>();
+    this->display->retain();
+    this->initDisplay();
+    
+    return true;
+}
+
+void BufferedFrame::initDisplay()
+{
+    this->display->setTexture(this->buffer->getSprite()->getTexture());
     this->display->setTextureRect({0,0,fBounds.size.width,fBounds.size.height});
     this->display->setPosition({0,0});
     this->display->setFlippedY(true);
     this->display->setAnchorPoint({0,0});
-    this->display->retain();
-    
-    return true;
 }

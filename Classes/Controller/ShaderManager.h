@@ -11,5 +11,6 @@ public:
                         float cutOffRadius,
                         float halfRadius);
     
+    PROPERTY(cc::Rect, frame, Frame);
     PROPERTY(cc::Vec3, lightPos, LightPos);
 };

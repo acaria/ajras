@@ -1,7 +1,5 @@
 #include "LayeredContainer.h"
 #include "SpriteEx.h"
-#include "ShaderLayer.h"
-#include "SpriteLib.h"
 
 bool LayeredContainer::init(cc::Size size)
 {

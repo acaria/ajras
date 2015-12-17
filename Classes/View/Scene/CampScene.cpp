@@ -1,5 +1,7 @@
 #include "CampScene.h"
 #include "Defines.h"
+#include "SpriteLib.h"
+#include "GameCtrl.h"
 
 CampScene::~CampScene()
 {
@@ -33,8 +35,11 @@ bool CampScene::init()
     this->canvas->setSize(canvasRect.size);
     this->addChild(canvas);
     
+    GameCtrl::instance()->getEffects().setFrame(canvasRect);
+    
     this->frame = cc::create<BufferedFrame>(canvasRect);
     this->frame->setActive(def::postProcessing);
+    this->frame->setPostProcess<BufferLight>();
     this->canvas->addChild(this->frame);
     
     this->interface = cc::create<CampInterface>();

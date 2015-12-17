@@ -10,8 +10,6 @@
 #include "SysHelper.h"
 #include "Defines.h"
 
-#include "SpriteLib.h"
-
 RoomSystemCtrl::RoomSystemCtrl(unsigned group, LayeredContainer* view, RoomData* data, SystemDispatcher&dispatcher):
         random(Randgine::instance()->get(Randgine::MISSION)),
         dispatcher(dispatcher)
@@ -38,7 +36,7 @@ RoomSystemCtrl::RoomSystemCtrl(unsigned group, LayeredContainer* view, RoomData*
                 }
                 
                 auto coord = data->getPosFromCoord({i,j});
-                auto sprite = new SpriteLight();
+                auto sprite = new SpriteEx();
                 sprite->initWithSpriteFrameName(properties[BlockInfo::bgTileName]);
                 sprite->setPosition(coord);
                 view->add(sprite, rl);

@@ -2,8 +2,6 @@
 
 #include "NodeRenderer.h"
 #include "Defines.h"
-#include "ShaderLayer.h"
-#include "SpriteLib.h"
 
 class LayeredContainer : public cc::Node
 {

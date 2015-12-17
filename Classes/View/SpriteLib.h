@@ -36,3 +36,14 @@ protected:
                                    const cc::Mat4 &transform,
                                    uint32_t flags) override;
 };
+
+class BufferLight : public ShaderSprite<SpriteEx>
+{
+public:
+    BufferLight() : ShaderSprite("light", true) {}
+    
+protected:
+    virtual void setCustomUniforms(cc::GLProgramState* glState,
+                                   const cc::Mat4 &transform,
+                                   uint32_t flags) override;
+};

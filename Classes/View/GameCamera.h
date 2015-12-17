@@ -5,7 +5,7 @@
 class GameCamera
 {
 private:
-    const int CAMERA_ID = 1;
+    const int   CAMERA_ID = 1;
     const float MIN_SCALE = 0.8;
     const float MAX_SCALE = 1.8;
     const float FOCUS_MARGIN = 50.0;

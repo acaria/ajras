@@ -24,6 +24,7 @@ namespace def {
     //config
     const bool  antialias = false;
     const bool  showFPS = false;
+    const bool  postProcessing = true;
     const float updatesPerSecond = 60.0f;
     const float idealInterval = 1.0f / updatesPerSecond;
     const float ticksPerSecond = 60;

@@ -34,8 +34,8 @@ bool MissionScene::init()
     this->canvas->setSize(canvasRect.size);
     this->addChild(canvas);
     
-    this->frame = cc::create<ViewNode>();
-    this->frame->setAnchorPoint({0,0});
+    this->frame = cc::create<BufferedFrame>(canvasRect);
+    this->frame->setActive(def::postProcessing);
     this->canvas->addChild(this->frame);
     
     this->interface = cc::create<MissionInterface>();

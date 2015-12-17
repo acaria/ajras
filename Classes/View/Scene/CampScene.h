@@ -4,7 +4,7 @@
 #include "BaseScene.h"
 #include "Event.h"
 #include "GameCamera.h"
-#include "ViewNode.h"
+#include "BufferedFrame.h"
 
 class CampScene : public BaseScene<CampScene>
 {
@@ -29,6 +29,6 @@ private:
     
     //layers
     cc::ui::Layout* canvas = nullptr;
-    ViewNode* frame = nullptr;
+    BufferedFrame* frame = nullptr;
     GameCamera* camera = nullptr;
 };

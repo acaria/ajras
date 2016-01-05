@@ -11,6 +11,7 @@
 #include "ModelProvider.h"
 #include "RenderComponent.h"
 #include "PlayerData.h"
+#include "CmdFactory.h"
 
 using namespace std::placeholders;
 
@@ -80,9 +81,8 @@ SystemDispatcher& FloorSystemCtrl::getDispatcher()
     return dispatcher;
 }
 
-void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
-                                    unsigned eid,
-                                    GateMap  gate)
+void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid,
+                                       const GateMap& gate)
 {
     unsigned nextRoomIndex = gate.destRoomIndex;
 
@@ -134,23 +134,31 @@ void FloorSystemCtrl::onRoomChanged(unsigned prevRoomIndex,
     
     if (eid == playerData->entityFocus) //change room
     {
-        this->roomSystems[prevRoomIndex]->hideObjects(1);
-        dispatcher.onSystemChanged(nextRoomIndex);
-        this->data->setCurIdxRoom(nextRoomIndex);
-        
-        
-        auto dataRoom = data->getRoomAt(nextRoomIndex);
-        
-        //move camera
-        auto bounds = dataRoom->getBounds();
-        this->cam->moveTarget(destPos + bounds.origin, 1);
-        this->showRoom(nextRoomIndex, nullptr);
-
-        render.sprite->runAction(cc::Sequence::create(cc::DelayTime::create(duration / 2),
+        this->switchRoom(prevRoomIndex, nextRoomIndex, eid, destPos);
+        //TODO wtf
+        /*render.sprite->runAction(cc::Sequence::create(
+            cc::DelayTime::create(duration / 2),
             cc::FadeTo::create(duration / 2, 255),
             NULL
-        ));
+        ));*/
     }
+}
+
+void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex,
+                                 unsigned eid, cc::Vec2 destPos)
+{
+    this->roomSystems[fromRoomIndex]->hideObjects(1);
+    dispatcher.onSystemChanged(toRoomIndex);
+    this->data->setCurIdxRoom(toRoomIndex);
+    
+    auto dataRoom = data->getRoomAt(toRoomIndex);
+    
+    //move camera
+    auto bounds = dataRoom->getBounds();
+    this->cam->moveTarget(destPos + bounds.origin, 1);
+
+    this->showRoom(toRoomIndex, nullptr);
+    CmdFactory::lightCfg(context.ecs, 0.2, def::shader::LightParam::brightness, 1);
 }
 
 /*cc::Sprite* FloorSystemCtrl::displayMap(FloorData *data)
@@ -301,6 +309,7 @@ void FloorSystemCtrl::start()
                     cpRender.cancelAnimation();
                     context.ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
                     dispatcher.onEntityPositionChanged(context.ecs->getID(), eid);
+                    CmdFactory::lightCfg(context.ecs, 0.2, def::shader::LightParam::brightness, 1);
                 }),
                 NULL
             ));
@@ -385,7 +394,22 @@ void FloorSystemCtrl::bindSystems()
         switch(gate.cmd)
         {
             case GateMap::CmdType::CHANGE_ROOM:
-                this->onRoomChanged(prevRoomIndex, eid, gate);
+                this->changeEntityRoom(prevRoomIndex, eid, gate);
+                break;
+            default:
+                break;
+        }
+    }));
+    
+    this->eventRegs.push_back(dispatcher.onGateEnter.registerObserver(
+    [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate){
+        switch(gate.cmd)
+        {
+            case GateMap::CmdType::CHANGE_ROOM:
+                if (eid == playerData->entityFocus) //change room
+                {
+                    CmdFactory::lightCfg(context.ecs, 0.2, def::shader::LightParam::brightness, 0);
+                }
                 break;
             default:
                 break;

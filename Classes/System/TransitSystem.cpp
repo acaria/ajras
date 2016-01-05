@@ -119,6 +119,7 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     
     auto& render = ecs::get<cp::Render>(eid);
     context->ecs->del<cp::Position>(eid);
+    dispatcher->onGateEnter(context->ecs->getID(), eid, gateMap);
     dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
     render.sprite->runAction(cc::Spawn::create(
         cc::Sequence::create(

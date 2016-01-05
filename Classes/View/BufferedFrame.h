@@ -24,11 +24,6 @@ public:
     {
         static_assert(std::is_base_of<cc::Sprite, ShaderSprite>::value,
                       "ShaderSprite must inherit from Sprite");
-        /*if (this->display != nullptr)
-        {
-            delete this->display;
-            this->display = nullptr;
-        }*/
         this->display->release();
         this->display = cc::create<ShaderSprite>();
         this->display->retain();

@@ -24,6 +24,7 @@ struct SystemDispatcher
     
     //system
     lib::Subject<void(unsigned, unsigned, int)>                   onHealthChanged;
+    lib::Subject<void(unsigned, unsigned, GateMap)>               onGateEnter;
     lib::Subject<void(unsigned, unsigned, GateMap)>               onGateTriggered;
     lib::Subject<void(unsigned, WarpMap)>                         onWarpTriggered;
     lib::Subject<void(unsigned, const cp::GearComponent&)>        onGearChanged;

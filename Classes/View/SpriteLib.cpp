@@ -64,8 +64,8 @@ void BufferLight::setCustomUniforms(cc::GLProgramState *gls,
     //dynamics
     gls->setUniformVec2("u_contentSize", this->getContentSize());
     
-    cc::Point posRelToSprite = PointApplyAffineTransform(
-                                                         cc::Point(lightPos.x, lightPos.y), this->getWorldToNodeAffineTransform());
+    cc::Point posRelToSprite = PointApplyAffineTransform(cc::Point(lightPos.x, lightPos.y),
+                                                         this->getWorldToNodeAffineTransform());
     gls->setUniformVec3("u_lightPos", cc::Vec3(posRelToSprite.x, posRelToSprite.y, lightPos.z));
     
     //gls->setUniformTexture("u_normals", normalmap);

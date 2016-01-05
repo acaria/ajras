@@ -29,7 +29,8 @@ public:
     void tick(double dt);
     void animate(double dt, double tickPercent);
     
-    void onRoomChanged(unsigned nextRoomIndex, unsigned eid, GateMap gate);
+    void changeEntityRoom(unsigned nextRoomIndex, unsigned eid, const GateMap& gate);
+    void switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex, unsigned eid, cc::Vec2 destPos);
     
     SystemDispatcher& getDispatcher();
     

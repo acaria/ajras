@@ -6,6 +6,8 @@
 #define HEADER_DEBUG 1
 #define FOOTER_DEBUG 1
 
+
+
 namespace def {
 
     //app
@@ -126,6 +128,27 @@ namespace def {
             cc::Rect    lastBounds;
             Cat         category;
             cc::Vec2    velocity;
+        };
+    }
+    
+    namespace shader
+    {
+        enum class LightParam
+        {
+            lightColor,
+            ambiantColor,
+            brightness,
+            cutOffRadius,
+            halfRadius,
+        };
+        
+        struct LightConfig
+        {
+            cc::Color3B lightColor;
+            cc::Color3B ambiantColor;
+            float brightness;
+            float cutOffRadius;
+            float halfRadius;
         };
     }
 }

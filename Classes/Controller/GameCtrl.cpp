@@ -34,9 +34,6 @@ GameCtrl::GameCtrl():tick(std::bind(&GameCtrl::onTick, this, _1),
 
     //load shaders
     shaders.load();
-    
-    shaders.setLightConfig(cc::Color3B::WHITE, cc::Color3B(127,127,127), 2.0, 200, 0.5f);
-    shaders.setLightPos({200,200,100});
 }
 
 GameCtrl::~GameCtrl()
@@ -67,6 +64,7 @@ void GameCtrl::goToMainMenu()
 
 void GameCtrl::goToCamp(std::string startKey)
 {
+    this->shaders.resetLightConfig();
     this->gameData.loadCamp();
     this->gameData.curPlayer()->startCampKey = startKey;
     
@@ -80,6 +78,7 @@ void GameCtrl::goToCamp(std::string startKey)
 
 void GameCtrl::goToMission()
 {
+    this->shaders.resetLightConfig();
     this->gameData.loadMission();
     
     for(auto ss : this->gameData.curFloor()->getSpriteSheets())

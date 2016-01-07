@@ -6,12 +6,14 @@
 	<dict>
 		<key>light</key>
 		<dict>
+			<key>depth</key>
+			<string>100</string>
 			<key>lightColor</key>
 			<string>255,255,255</string>
 			<key>ambiantColor</key>
 			<string>180,180,180</string>
 			<key>brightness</key>
-			<string>0</string>
+			<string>2</string>
 			<key>cutOffRadius</key>
 			<string>150</string>
 			<key>halfRadius</key>

@@ -146,11 +146,11 @@ void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
     });
 }
 
-void CmdFactory::lightPos(lib::EcsGroup* ecs, float duration, const cc::Vec3& dest)
+void CmdFactory::lightPos(lib::EcsGroup* ecs, float duration, const cc::Vec2& dest)
 {
     auto eid = GameCtrl::instance()->getData().curPlayer()->entityFocus;
     
-    cc::Vec3 from = GameCtrl::instance()->getEffects().getLightPos();
+    cc::Vec2 from = GameCtrl::instance()->getEffects().getLightPos();
     
     float inc = 1 / (def::ticksPerSecond * duration);
     float amount = 0;
@@ -160,10 +160,10 @@ void CmdFactory::lightPos(lib::EcsGroup* ecs, float duration, const cc::Vec3& de
             return State::success;
                                    
         amount += inc;
-        GameCtrl::instance()->getEffects().setLightPos(cc::Vec3(
+        GameCtrl::instance()->getEffects().setLightPos(cc::Vec2(
             from.x * (1 - amount) + dest.x * amount,
-            from.y * (1 - amount) + dest.y * amount,
-            from.z * (1 - amount) + dest.z * amount));
+            from.y * (1 - amount) + dest.y * amount
+        ));
                                    
         return State::inProgress;
     });
@@ -185,7 +185,7 @@ void CmdFactory::lightPos(lib::EcsGroup* ecs, unsigned eid, float duration,
                                    
         amount += inc;
         auto p = sprite->convertToWorldSpace(margin);
-        GameCtrl::instance()->getEffects().setLightPos({p.x, p.y, 100.0f});
+        GameCtrl::instance()->getEffects().setLightPos({p.x, p.y});
         return State::inProgress;
     });
 }
@@ -199,7 +199,7 @@ void CmdFactory::lightFollow(lib::EcsGroup* ecs, unsigned eid, const cc::Vec2& m
     ecs->add<cp::Cmd>(eid).setTick("lightfollow",
             [sprite, margin](unsigned eid, double dt) mutable {
         auto p = sprite->convertToWorldSpace(margin);
-        GameCtrl::instance()->getEffects().setLightPos({p.x, p.y, 100.0f});
+        GameCtrl::instance()->getEffects().setLightPos({p.x, p.y});
         return State::inProgress;
     });
 }

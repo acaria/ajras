@@ -159,8 +159,12 @@ void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex,
 
     this->showRoom(toRoomIndex, nullptr);
     
-    CmdFactory::lightCfg(context.ecs, 0.5, def::shader::LightParam::brightness, 1);
-    CmdFactory::lightCfg(context.ecs, 0.5, def::shader::LightParam::cutOffRadius, 150);
+    CmdFactory::lightCfg(context.ecs, 0.5,
+                         def::shader::LightParam::brightness,
+                         data->getLightConfig().brightness);
+    CmdFactory::lightCfg(context.ecs, 0.5,
+                         def::shader::LightParam::cutOffRadius,
+                         data->getLightConfig().cutOffRadius);
 }
 
 /*cc::Sprite* FloorSystemCtrl::displayMap(FloorData *data)
@@ -311,7 +315,9 @@ void FloorSystemCtrl::start()
                     cpRender.cancelAnimation();
                     context.ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
                     dispatcher.onEntityPositionChanged(context.ecs->getID(), eid);
-                    CmdFactory::lightCfg(context.ecs, 0.5, def::shader::LightParam::brightness, 1);
+                    CmdFactory::lightCfg(context.ecs, 0.5,
+                                         def::shader::LightParam::brightness,
+                                         data->getLightConfig().brightness);
                     CmdFactory::lightFollow(context.ecs, eid, {0,0});
                 }),
                 NULL

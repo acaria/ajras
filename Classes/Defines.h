@@ -140,6 +140,7 @@ namespace def {
             brightness,
             cutOffRadius,
             halfRadius,
+            depth
         };
         
         struct LightConfig
@@ -149,6 +150,7 @@ namespace def {
             float brightness = 0.f;
             float cutOffRadius = 150.f;
             float halfRadius = 0.2f;
+            float depth = 100.f;
         };
     }
 }

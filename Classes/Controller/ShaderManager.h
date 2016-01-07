@@ -21,7 +21,7 @@ public:
     void setLightParam(const def::shader::LightParam& param, const cc::Color3B& value);
     
     PROPERTY(cc::Rect, frame,    Frame);
-    PROPERTY(cc::Vec3, lightPos, LightPos);
+    PROPERTY(cc::Vec2, lightPos, LightPos);
     
 private:
     def::shader::LightConfig lightConfig;

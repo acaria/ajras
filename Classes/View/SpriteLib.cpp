@@ -21,13 +21,14 @@ void SpriteLight::setCustomUniforms(cc::GLProgramState *gls,
                                     uint32_t flags)
 {
     auto lightPos = GameCtrl::instance()->getEffects().getLightPos();
+    auto lightCfg = GameCtrl::instance()->getEffects().getLightConfig();
 
     //dynamics
     gls->setUniformVec2("u_contentSize", this->getContentSize());
     
     cc::Point posRelToSprite = PointApplyAffineTransform(
             cc::Point(lightPos.x, lightPos.y), this->getWorldToNodeAffineTransform());
-    gls->setUniformVec3("u_lightPos", cc::Vec3(posRelToSprite.x, posRelToSprite.y, lightPos.z));
+    gls->setUniformVec3("u_lightPos", cc::Vec3(posRelToSprite.x, posRelToSprite.y, lightCfg.depth));
     
     //gls->setUniformTexture("u_normals", normalmap);
     
@@ -56,9 +57,10 @@ void BufferLight::setCustomUniforms(cc::GLProgramState *gls,
                                     uint32_t flags)
 {
     auto lightPos = GameCtrl::instance()->getEffects().getLightPos();
+    auto lightCfg = GameCtrl::instance()->getEffects().getLightConfig();
     auto frameBounds = GameCtrl::instance()->getEffects().getFrame();
     
-    lightPos = { lightPos.x - frameBounds.origin.x, lightPos.y - frameBounds.origin.y, lightPos.z};
+    lightPos = { lightPos.x - frameBounds.origin.x, lightPos.y - frameBounds.origin.y};
     lightPos.y = frameBounds.size.height - lightPos.y;
     
     //dynamics
@@ -66,7 +68,8 @@ void BufferLight::setCustomUniforms(cc::GLProgramState *gls,
     
     cc::Point posRelToSprite = PointApplyAffineTransform(cc::Point(lightPos.x, lightPos.y),
                                                          this->getWorldToNodeAffineTransform());
-    gls->setUniformVec3("u_lightPos", cc::Vec3(posRelToSprite.x, posRelToSprite.y, lightPos.z));
+    gls->setUniformVec3("u_lightPos",
+                        cc::Vec3(posRelToSprite.x, posRelToSprite.y, lightCfg.depth));
     
     //gls->setUniformTexture("u_normals", normalmap);
     

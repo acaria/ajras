@@ -6,6 +6,7 @@ class RoomModel;
 #include "RoomData.h"
 #include "FloorMapping.h"
 #include "Random.h"
+#include "Defines.h"
 
 using GateConfig = std::map<GateInfo::GateType, std::pair<std::string, cc::Rect>>;
 using ModelMap = std::map<std::string, RoomModel*>;
@@ -19,9 +20,7 @@ public:
     FloorData(const std::string& fileName);
     ~FloorData();
     
-    RoomData* addRoom(RoomModel* data,
-                      const RoomData::Config& config);
-    void setCurIdxRoom(unsigned roomIndex);
+    RoomData* addRoom(RoomModel* data, const RoomData::Config& config);
     
     RoomData*                       getRoomAt(unsigned idx);
     RoomData*                       getCurrentRoom();
@@ -31,13 +30,14 @@ public:
     FloorMapping*                   floorMapping;
     
     const ModelVector               getModels(const std::string& cat);
-    unsigned                        getCurIdxRoom();
-    cc::Color3B                     getBgColor();
-    std::vector<std::string>&       getBgTiles();
+    
+    PROPERTY(unsigned, curIdxRoom, CurIdxRoom);
+    PROPERTY_READ(cc::Color3B, bgColor, BgColor);
+    PROPERTY_READ(std::vector<std::string>, bgTiles, BgTiles);
+    PROPERTY_READ(def::shader::LightConfig, lightConfig, LightConfig);
     
 private:
     void                            extractInfo(const std::string& name);
-    unsigned                        curIdxRoom;
     
     ModelMap                            modelLib;
     std::map<std::string, ModelVector>  modelCategory;
@@ -46,9 +46,6 @@ private:
     
     std::set<std::string>           spriteSheets;
     void                            computeDepth(RoomData* room);
-    
-    cc::Color3B                     bgColor;
-    std::vector<std::string>        bgTiles;
     
     std::pair<unsigned, unsigned>   depthConfig;
     std::pair<unsigned, unsigned>   sizeConfig;

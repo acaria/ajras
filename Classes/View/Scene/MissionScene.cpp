@@ -28,8 +28,8 @@ bool MissionScene::init()
     this->addChild(back);
 
     this->canvas = cc::ui::Layout::create();
-    //this->canvas->setBackGroundColorType(cc::ui::HBox::BackGroundColorType::SOLID);
-    //this->canvas->setBackGroundColor(back->getColor());
+    this->canvas->setBackGroundColorType(cc::ui::HBox::BackGroundColorType::SOLID);
+    this->canvas->setBackGroundColor(back->getColor());
     this->canvas->setLayoutType(cc::ui::Layout::Type::RELATIVE);
     this->canvas->setClippingEnabled(true);
     this->canvas->setPosition(canvasRect.origin);

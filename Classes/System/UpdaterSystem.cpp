@@ -3,6 +3,15 @@
 #include "IMapData.h"
 #include "CmdFactory.h"
 
+void UpdaterSystem::animate(double dt, double tp)
+{
+    //update commands
+    for(auto eid : context->ecs->system<cp::Cmd>())
+    {
+        ecs::get<cp::Cmd>(eid).processAnimate(eid, dt);
+    }
+}
+
 void UpdaterSystem::tick(double dt)
 {
     //clean removed entities
@@ -14,7 +23,7 @@ void UpdaterSystem::tick(double dt)
     //update commands
     for(auto eid : context->ecs->system<cp::Cmd>())
     {
-        ecs::get<cp::Cmd>(eid).process(eid, dt);
+        ecs::get<cp::Cmd>(eid).processTick(eid, dt);
     }
     
     //update from inputs

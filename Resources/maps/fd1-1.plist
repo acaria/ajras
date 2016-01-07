@@ -2,6 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>effect</key>
+	<dict>
+		<key>light</key>
+		<dict>
+			<key>lightColor</key>
+			<string>255,255,255</string>
+			<key>ambiantColor</key>
+			<string>180,180,180</string>
+			<key>brightness</key>
+			<string>0</string>
+			<key>cutOffRadius</key>
+			<string>150</string>
+			<key>halfRadius</key>
+			<string>0.2</string>
+		</dict>
+	</dict>
 	<key>design</key>
 	<dict>
 		<key>ss</key>

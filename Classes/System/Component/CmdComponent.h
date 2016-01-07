@@ -16,15 +16,34 @@ struct CmdComponent
         std::function<void()> onFailure;
     };
     
-    void set(const std::string& tag,
+    void setTick(const std::string& tag,
              const std::function<State(unsigned eid, double dt)>& command,
              const std::function<void()>& onSuccess = nullptr,
              const std::function<void()>& onFailure = nullptr)
     {
-        this->funcMap[tag] = { command, onSuccess, onFailure };
+        this->funcTickMap[tag] = { command, onSuccess, onFailure };
     }
     
-    void process(unsigned eid, double dt)
+    void setAnimate(const std::string& tag,
+                    const std::function<State(unsigned eid, double dt)>& command,
+                    const std::function<void()>& onSuccess = nullptr,
+                    const std::function<void()>& onFailure = nullptr)
+    {
+        this->funcAnimateMap[tag] = { command, onSuccess, onFailure };
+    }
+    
+    void processAnimate(unsigned eid, double dt)
+    {
+        process(funcAnimateMap, eid, dt);
+    }
+    
+    void processTick(unsigned eid, double dt)
+    {
+        process(funcTickMap, eid, dt);
+    }
+    
+private:
+    void process(std::map<std::string, CmdElement>& funcMap, unsigned eid, double dt)
     {
         for(auto it = funcMap.begin(); it != funcMap.end(); /*no increment*/)
         {
@@ -45,6 +64,7 @@ struct CmdComponent
             }
         }
     }
-    
-    std::map<std::string, CmdElement>   funcMap;
+
+    std::map<std::string, CmdElement>   funcTickMap;
+    std::map<std::string, CmdElement>   funcAnimateMap;
 };

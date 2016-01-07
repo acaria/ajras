@@ -158,7 +158,9 @@ void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex,
     this->cam->moveTarget(destPos + bounds.origin, 1);
 
     this->showRoom(toRoomIndex, nullptr);
-    CmdFactory::lightCfg(context.ecs, 0.2, def::shader::LightParam::brightness, 1);
+    
+    CmdFactory::lightCfg(context.ecs, 0.5, def::shader::LightParam::brightness, 1);
+    CmdFactory::lightCfg(context.ecs, 0.5, def::shader::LightParam::cutOffRadius, 150);
 }
 
 /*cc::Sprite* FloorSystemCtrl::displayMap(FloorData *data)
@@ -309,7 +311,8 @@ void FloorSystemCtrl::start()
                     cpRender.cancelAnimation();
                     context.ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
                     dispatcher.onEntityPositionChanged(context.ecs->getID(), eid);
-                    CmdFactory::lightCfg(context.ecs, 0.2, def::shader::LightParam::brightness, 1);
+                    CmdFactory::lightCfg(context.ecs, 0.5, def::shader::LightParam::brightness, 1);
+                    CmdFactory::lightFollow(context.ecs, eid, {0,0});
                 }),
                 NULL
             ));
@@ -408,7 +411,8 @@ void FloorSystemCtrl::bindSystems()
             case GateMap::CmdType::CHANGE_ROOM:
                 if (eid == playerData->entityFocus) //change room
                 {
-                    CmdFactory::lightCfg(context.ecs, 0.2, def::shader::LightParam::brightness, 0);
+                    CmdFactory::lightCfg(context.ecs, 0.5, def::shader::LightParam::brightness, 0);
+                    CmdFactory::lightCfg(context.ecs, 0.5, def::shader::LightParam::cutOffRadius, 0);
                 }
                 break;
             default:
@@ -465,6 +469,14 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
         
         bounds = bounds.unionWithRect(roomData->getBounds());
     }
+    
+    cam->setFrameBounds(bounds);
+    
+    auto bgLayer = cc::LayerColor::create(cc::Color4B(data->getBgColor()),
+                                          bounds.size.width, bounds.size.height);
+    bgLayer->setAnchorPoint({0,0});
+    bgLayer->setPosition(bounds.origin);
+    view->addChild(bgLayer, 0);
     
     //too slow!
     /*auto batch = cc::Node::create();

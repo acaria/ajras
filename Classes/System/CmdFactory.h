@@ -19,4 +19,8 @@ public:
                          float duration,
                          const def::shader::LightParam& param,
                          const cc::Color3B& value);
+    static void lightPos(lib::EcsGroup* ecs, float duration, const cc::Vec3& dest);
+    static void lightPos(lib::EcsGroup* ecs, unsigned eid, float duration,
+                         const cc::Vec2& margin);
+    static void lightFollow(lib::EcsGroup* ecs, unsigned eid, const cc::Vec2& margin);
 };

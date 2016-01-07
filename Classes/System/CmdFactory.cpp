@@ -7,7 +7,7 @@ using State = CmdComponent::State;
 
 void CmdFactory::goTo(lib::EcsGroup* ecs, unsigned eid, cc::Vec2 target, float nearDistance)
 {
-    ecs->add<cp::Cmd>(eid).set("goto", [target, nearDistance](unsigned eid, double dt){
+    ecs->add<cp::Cmd>(eid).setTick("goto", [target, nearDistance](unsigned eid, double dt){
         if (!ecs::has<cp::Position, cp::Physics>(eid))
             return State::failure;
         
@@ -33,7 +33,7 @@ void CmdFactory::goTo(lib::EcsGroup* ecs,
                       std::list<cc::Vec2> waypoints,
                       float nearDistance)
 {
-    ecs->add<cp::Cmd>(eid).set("goto", [waypoints, nearDistance](unsigned eid, double dt) mutable {
+    ecs->add<cp::Cmd>(eid).setTick("goto", [waypoints, nearDistance](unsigned eid, double dt) mutable {
         if (!ecs::has<cp::Position, cp::Physics, cp::Input>(eid))
             return State::failure;
         
@@ -94,7 +94,7 @@ void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
     
     float inc = 1 / (def::ticksPerSecond * duration);
     float amount = 0;
-    ecs->add<cp::Cmd>(eid).set(tag,
+    ecs->add<cp::Cmd>(eid).setTick(tag,
             [param, current, value, amount, inc](unsigned eid, double dt) mutable {
         if (amount >= 1.0)
             return State::success;
@@ -133,7 +133,7 @@ void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
     
     float inc = 1 / (def::ticksPerSecond * duration);
     float amount = 0;
-    ecs->add<cp::Cmd>(eid).set(tag,
+    ecs->add<cp::Cmd>(eid).setTick(tag,
             [current, value, inc, amount, param](unsigned eid, double dt) mutable {
         if (amount >= 1.0)
             return State::success;
@@ -146,12 +146,69 @@ void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
     });
 }
 
+void CmdFactory::lightPos(lib::EcsGroup* ecs, float duration, const cc::Vec3& dest)
+{
+    auto eid = GameCtrl::instance()->getData().curPlayer()->entityFocus;
+    
+    cc::Vec3 from = GameCtrl::instance()->getEffects().getLightPos();
+    
+    float inc = 1 / (def::ticksPerSecond * duration);
+    float amount = 0;
+    ecs->add<cp::Cmd>(eid).setTick("lightposition",
+            [from, dest, inc, amount](unsigned eid, double dt) mutable {
+        if (amount >= 1.0)
+            return State::success;
+                                   
+        amount += inc;
+        GameCtrl::instance()->getEffects().setLightPos(cc::Vec3(
+            from.x * (1 - amount) + dest.x * amount,
+            from.y * (1 - amount) + dest.y * amount,
+            from.z * (1 - amount) + dest.z * amount));
+                                   
+        return State::inProgress;
+    });
+}
 
-void CmdFactory::delay(lib::EcsGroup* ecs, unsigned int eid,
+void CmdFactory::lightPos(lib::EcsGroup* ecs, unsigned eid, float duration,
+                          const cc::Vec2& margin)
+{
+    if (!ecs::has<cp::Render>(eid))
+        return;
+    auto sprite = ecs::get<cp::Render>(eid).sprite;
+    
+    float inc = 1 / (def::ticksPerSecond * duration);
+    float amount = 0;
+    ecs->add<cp::Cmd>(eid).setTick("lightposition",
+            [sprite, inc, amount, margin](unsigned eid, double dt) mutable {
+        if (amount >= 1.0)
+            return State::success;
+                                   
+        amount += inc;
+        auto p = sprite->convertToWorldSpace(margin);
+        GameCtrl::instance()->getEffects().setLightPos({p.x, p.y, 100.0f});
+        return State::inProgress;
+    });
+}
+
+void CmdFactory::lightFollow(lib::EcsGroup* ecs, unsigned eid, const cc::Vec2& margin)
+{
+    if (!ecs::has<cp::Render>(eid))
+        return;
+    auto sprite = ecs::get<cp::Render>(eid).sprite;
+    
+    ecs->add<cp::Cmd>(eid).setTick("lightfollow",
+            [sprite, margin](unsigned eid, double dt) mutable {
+        auto p = sprite->convertToWorldSpace(margin);
+        GameCtrl::instance()->getEffects().setLightPos({p.x, p.y, 100.0f});
+        return State::inProgress;
+    });
+}
+
+void CmdFactory::delay(lib::EcsGroup* ecs, unsigned eid,
                        double timeInterval, const std::function<void()>& success)
 {
     static long id = 1;
-    ecs->add<cp::Cmd>(eid).set(std::to_string(id++),
+    ecs->add<cp::Cmd>(eid).setTick(std::to_string(id++),
             [timeInterval](unsigned eid, double dt) mutable {
         if (timeInterval <= 0)
             return State::success;

@@ -64,8 +64,8 @@ void GameCtrl::goToMainMenu()
 
 void GameCtrl::goToCamp(std::string startKey)
 {
-    this->shaders.resetLightConfig();
     this->gameData.loadCamp();
+    this->shaders.setLightConfig(def::shader::LightConfig());
     this->gameData.curPlayer()->startCampKey = startKey;
     
     for(auto ss : this->gameData.curCamp()->getSpriteSheets())
@@ -78,8 +78,8 @@ void GameCtrl::goToCamp(std::string startKey)
 
 void GameCtrl::goToMission()
 {
-    this->shaders.resetLightConfig();
     this->gameData.loadMission();
+    this->shaders.setLightConfig(this->gameData.curFloor()->getLightConfig());
     
     for(auto ss : this->gameData.curFloor()->getSpriteSheets())
     {

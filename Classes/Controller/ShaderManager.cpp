@@ -111,9 +111,13 @@ const def::shader::LightConfig& ShaderManager::getLightConfig()
     return lightConfig;
 }
 
-void ShaderManager::resetLightConfig()
+void ShaderManager::setLightConfig(const def::shader::LightConfig &config)
 {
-    this->setLightConfig(cc::Color3B::WHITE, cc::Color3B(127,127,127), 0, 200, 0.5f);
+    this->setLightConfig(config.lightColor,
+                         config.ambiantColor,
+                         config.brightness,
+                         config.cutOffRadius,
+                         config.halfRadius);
 }
 
 void ShaderManager::setLightConfig(const cc::Color3B &lightColor,
@@ -122,13 +126,11 @@ void ShaderManager::setLightConfig(const cc::Color3B &lightColor,
                                    float cutOffRadius,
                                    float halfRadius)
 {
-    this->lightConfig = {
-        .lightColor = lightColor,
-        .ambiantColor = ambiantColor,
-        .brightness = brightness,
-        .cutOffRadius = cutOffRadius,
-        .halfRadius = halfRadius
-    };
+    this->lightConfig.lightColor = lightColor;
+    this->lightConfig.ambiantColor = ambiantColor;
+    this->lightConfig.brightness = brightness;
+    this->lightConfig.cutOffRadius = cutOffRadius;
+    this->lightConfig.halfRadius = halfRadius;
 
     auto gls = cc::GLProgramCache::getInstance()->getGLProgram("light");
     if (gls == nullptr)

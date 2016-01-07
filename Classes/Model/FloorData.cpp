@@ -22,6 +22,38 @@ void FloorData::extractInfo(const std::string &name)
     this->startNbGates.first = std::stoi(minMaxStartNbGates[0]);
     this->startNbGates.second = std::stoi(minMaxStartNbGates[1]);
     
+    //effect
+    if (rawData.find("effect") != rawData.end())
+    {
+        auto effect = rawData.at("effect").asValueMap();
+        if (effect.find("light") != effect.end())
+        {
+            auto light = effect.at("light").asValueMap();
+            if (light.find("lightColor") != light.end())
+            {
+                auto lightColor = std::vector<std::string>();
+                lib::split(light.at("lightColor").asString(), lightColor, ",", true);
+                this->lightConfig.lightColor = cc::Color3B(std::stoi(lightColor[0]),
+                                                           std::stoi(lightColor[1]),
+                                                           std::stoi(lightColor[2]));
+            }
+            if (light.find("ambiantColor") != light.end())
+            {
+                auto ambiantColor = std::vector<std::string>();
+                lib::split(light.at("ambiantColor").asString(), ambiantColor, ",", true);
+                this->lightConfig.ambiantColor = cc::Color3B(std::stoi(ambiantColor[0]),
+                                                             std::stoi(ambiantColor[1]),
+                                                             std::stoi(ambiantColor[2]));
+            }
+            if (light.find("brightness") != light.end())
+                this->lightConfig.brightness = light.at("brightness").asFloat();
+            if (light.find("cutOffRadius") != light.end())
+                this->lightConfig.cutOffRadius = light.at("cutOffRadius").asFloat();
+            if (light.find("halfRadius") != light.end())
+                this->lightConfig.halfRadius = light.at("halfRadius").asFloat();
+        }
+    }
+    
     //design
     CCASSERT(rawData.find("design") != rawData.end(), "invalid map data");
     auto design = rawData.at("design").asValueMap();
@@ -347,17 +379,6 @@ RoomData* FloorData::addRoom(RoomModel* model, const RoomData::Config& config)
     return room;
 }
 
-void FloorData::setCurIdxRoom(unsigned int roomIndex)
-{
-    CCASSERT(lib::hasKey(rooms, roomIndex), "room is missing");
-    this->curIdxRoom = roomIndex;
-}
-
-unsigned FloorData::getCurIdxRoom()
-{
-    return this->curIdxRoom;
-}
-
 RoomData* FloorData::getRoomAt(unsigned int idx)
 {
     CCASSERT(lib::hasKey(rooms, idx), "room is missing");
@@ -368,16 +389,6 @@ RoomData* FloorData::getCurrentRoom()
 {
     CCASSERT(lib::hasKey(rooms, this->curIdxRoom), "room is missing");
     return this->rooms[curIdxRoom];
-}
-
-cc::Color3B FloorData::getBgColor()
-{
-    return this->bgColor;
-}
-
-std::vector<std::string>& FloorData::getBgTiles()
-{
-    return this->bgTiles;
 }
 
 const std::set<std::string>& FloorData::getSpriteSheets()

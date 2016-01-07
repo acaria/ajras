@@ -144,11 +144,11 @@ namespace def {
         
         struct LightConfig
         {
-            cc::Color3B lightColor;
-            cc::Color3B ambiantColor;
-            float brightness;
-            float cutOffRadius;
-            float halfRadius;
+            cc::Color3B lightColor = {255,255,255};
+            cc::Color3B ambiantColor = {180,180,180};
+            float brightness = 0.f;
+            float cutOffRadius = 150.f;
+            float halfRadius = 0.2f;
         };
     }
 }

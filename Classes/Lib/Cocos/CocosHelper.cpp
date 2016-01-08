@@ -26,3 +26,12 @@ cc::ActionInterval* CocosHelper::blinkActionCreate(const cc::Color3B& color, uns
             NULL),
         count);
 }
+
+void CocosHelper::setRecursiveCascadeOpacity(cc::Node *node, bool value)
+{
+    node->setCascadeOpacityEnabled(true);
+    for(auto child : node->getChildren())
+    {
+        setRecursiveCascadeOpacity(child, value);
+    }
+}

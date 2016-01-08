@@ -222,9 +222,32 @@ void GameCamera::unfocus()
 
 void GameCamera::moveTarget(cocos2d::Vec2 pos, float duration)
 {
-    this->curPosition.x = pos.x;
-    this->curPosition.y = pos.y;
-
+    if (focus.enabled)
+    {
+        this->curPosition = {
+            lib::clamp(pos.x,
+                       focus.target.x + FOCUS_MARGIN - centerPos.x / 2 / curScale,
+                       focus.target.x - FOCUS_MARGIN + centerPos.x / 2 / curScale),
+            lib::clamp(pos.y,
+                       focus.target.y + FOCUS_MARGIN - centerPos.y / 2 / curScale,
+                       focus.target.y - FOCUS_MARGIN + centerPos.y / 2 / curScale)
+        };
+    }
+    else
+    {
+        this->curPosition = pos;
+    }
+    
+    if (!frameRect.equals(cc::Rect::ZERO))
+    {
+        this->curPosition = {
+            lib::clamp(this->curPosition.x, frameRect.origin.x + centerPos.x / curScale,
+                       frameRect.getMaxX() - (centerPos.x / curScale)),
+            lib::clamp(this->curPosition.y, frameRect.origin.y + centerPos.y / curScale,
+                       frameRect.getMaxY() - (centerPos.y / curScale))
+        };
+    }
+    
     moving = true;
     auto action = cc::Sequence::create(
         cc::EaseInOut::create(cc::MoveTo::create(duration, centerPos - curPosition * curScale), 5),

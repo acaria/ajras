@@ -8,4 +8,6 @@ public:
     static cc::ActionInterval* blinkActionCreate(const cc::Color3B& color,
                                                  unsigned count,
                                                  float duration);
+    
+    static void setRecursiveCascadeOpacity(cc::Node* node, bool value);
 };

@@ -48,7 +48,8 @@ void RenderComponent::setProfile(ProfileData* profile, LayeredContainer* parent)
     
     if (profile->stats != nullptr)
     {
-        this->moveAnimation = profile->stats->physics != nullptr;
+        this->moveAnimation = profile->stats->physics != nullptr &&
+                              profile->stats->physics->speed != 0;
         this->orientationAnimation = profile->stats->orientation;
     }
 }

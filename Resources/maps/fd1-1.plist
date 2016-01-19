@@ -2,6 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>res</key>
+	<dict>
+		<key>tex</key>
+		<array>
+			<string>bg_stone1.png</string>
+		</array>
+		<key>ss</key>
+		<array>
+			<string>dungeon1</string>
+		</array>
+	</dict>
 	<key>effect</key>
 	<dict>
 		<key>light</key>
@@ -22,10 +33,6 @@
 	</dict>
 	<key>design</key>
 	<dict>
-		<key>ss</key>
-		<array>
-			<string>dungeon1</string>
-		</array>
 		<key>warp</key>
 		<dict>
 			<key>left</key>
@@ -90,7 +97,7 @@
 		</dict>
 		<key>bg_tiles</key>
 		<array>
-			<string>floor_tile_fill_1.png</string>
+			<string>bg_stone1.png</string>
 		</array>
 		<key>bg_color</key>
 		<string>163,160,143</string>

@@ -478,8 +478,25 @@ void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
     
     cam->setFrameBounds(bounds);
     
-    auto bgLayer = cc::LayerColor::create(cc::Color4B(data->getBgColor()),
-                                          bounds.size.width, bounds.size.height);
+    cc::Node* bgLayer;
+    if (data->getTextures().size() > 0) //back texture
+    {
+        auto& rand = Randgine::instance()->get(Randgine::CAT::MISSION);
+        auto bgTiles = data->getBgTiles();
+        auto texName = rand.select(bgTiles);
+        
+        auto tex = cc::Director::getInstance()->getTextureCache()->getTextureForKey(texName);
+        assert(tex != nullptr);
+        cc::Texture2D::TexParams tp = { GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT };
+        tex->setTexParameters(tp);
+        bgLayer = cc::Sprite::createWithTexture(tex,
+            {0,0,bounds.size.width, bounds.size.height});
+    }
+    else //back color
+    {
+        bgLayer = cc::LayerColor::create(cc::Color4B(data->getBgColor()),
+                                         bounds.size.width, bounds.size.height);
+    }
     bgLayer->setAnchorPoint({0,0});
     bgLayer->setPosition(bounds.origin);
     view->addChild(bgLayer, 0);

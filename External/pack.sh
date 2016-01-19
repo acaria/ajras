@@ -49,5 +49,8 @@ else
 		      --opt RGBA8888 \
         ${PDIR}/External/assets/${d}/*
     done
+    echo "transfering extra ressources..."
+    cp -R ${PDIR}/External/extra/* ${PDIR}/Resources-iOS
+    cp -R ${PDIR}/External/extra/* ${PDIR}/Resources-android
 fi
 exit 0

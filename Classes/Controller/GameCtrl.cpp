@@ -58,7 +58,7 @@ void GameCtrl::goToMainMenu()
     Randgine::instance()->setMaster(2);
     this->gameData.loadPlayer();
     
-    CocosHelper::addTexture("ss-main.plist", def::antialias);
+    CocosHelper::addSpriteSheet("ss-main.plist", def::antialias);
     this->scene.go2MainMenu();
 }
 
@@ -69,9 +69,7 @@ void GameCtrl::goToCamp(std::string startKey)
     this->gameData.curPlayer()->startCampKey = startKey;
     
     for(auto ss : this->gameData.curCamp()->getSpriteSheets())
-    {
-        CocosHelper::addTexture("ss-" + ss + ".plist", def::antialias);
-    }
+        CocosHelper::addSpriteSheet("ss-" + ss + ".plist", def::antialias);
     
     this->scene.go2Camp();
 }
@@ -82,10 +80,10 @@ void GameCtrl::goToMission()
     this->shaders.setLightConfig(this->gameData.curFloor()->getLightConfig());
     
     for(auto ss : this->gameData.curFloor()->getSpriteSheets())
-    {
-        CocosHelper::addTexture("ss-" + ss + ".plist", def::antialias);
-    }
-    CocosHelper::addTexture("ss-gui_mission.plist", def::antialias);
+        CocosHelper::addSpriteSheet("ss-" + ss + ".plist", def::antialias);
+    for(auto tex : this->gameData.curFloor()->getTextures())
+        CocosHelper::addTexture(tex, def::antialias);
+    CocosHelper::addSpriteSheet("ss-gui_mission.plist", def::antialias);
     
     this->scene.go2Mission();
 }

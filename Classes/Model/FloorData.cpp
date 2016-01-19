@@ -54,6 +54,23 @@ void FloorData::extractInfo(const std::string &name)
         }
     }
     
+    //ressources
+    CCASSERT(rawData.find("res") != rawData.end(), "invalid map data");
+    auto res = rawData.at("res").asValueMap();
+    
+    CCASSERT(res.find("ss") != res.end(), "invalid ss data");
+    for(auto ss : res.at("ss").asValueVector())
+    {
+        this->spriteSheets.insert(ss.asString());
+    }
+    if (res.find("tex") != res.end())
+    {
+        for(auto tex : res.at("tex").asValueVector())
+        {
+            this->textures.insert(tex.asString());
+        }
+    }
+    
     //design
     CCASSERT(rawData.find("design") != rawData.end(), "invalid map data");
     auto design = rawData.at("design").asValueMap();
@@ -73,11 +90,6 @@ void FloorData::extractInfo(const std::string &name)
     for(auto element : design.at("warp").asValueMap())
     {
         this->warpConfig[GateInfo::typeFromStr(element.first)] = this->subExtractGateInfo(element.second.asValueMap());
-    }
-    CCASSERT(design.find("ss") != design.end(), "invalid ss data");
-    for(auto ss : design.at("ss").asValueVector())
-    {
-        this->spriteSheets.insert(ss.asString());
     }
     
     //rooms
@@ -389,9 +401,4 @@ RoomData* FloorData::getCurrentRoom()
 {
     CCASSERT(lib::hasKey(rooms, this->curIdxRoom), "room is missing");
     return this->rooms[curIdxRoom];
-}
-
-const std::set<std::string>& FloorData::getSpriteSheets()
-{
-    return this->spriteSheets;
 }

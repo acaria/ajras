@@ -1,6 +1,23 @@
 #include "CocosHelper.h"
 
-void CocosHelper::addTexture(const std::string& plistFileName, bool antialias)
+void CocosHelper::addTexture(const std::string& texFileName, bool antialias)
+{
+    auto textureCache = cc::Director::getInstance()->getTextureCache();
+    
+    std::string fullPath = cc::FileUtils::getInstance()->fullPathForFilename(texFileName);
+    
+    auto tex = textureCache->addImage(fullPath);
+    assert(tex != nullptr);
+    if (tex != nullptr)
+    {
+        if (antialias)
+            tex->setAntiAliasTexParameters();
+        else
+            tex->setAliasTexParameters();
+    }
+}
+
+void CocosHelper::addSpriteSheet(const std::string& plistFileName, bool antialias)
 {
     cc::SpriteFrameCache::getInstance()->addSpriteFramesWithFile(plistFileName);
     

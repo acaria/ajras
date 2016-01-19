@@ -24,7 +24,6 @@ public:
     
     RoomData*                       getRoomAt(unsigned idx);
     RoomData*                       getCurrentRoom();
-    const std::set<std::string>&    getSpriteSheets();
     std::map<unsigned, RoomData*>   rooms;
     
     FloorMapping*                   floorMapping;
@@ -32,6 +31,8 @@ public:
     const ModelVector               getModels(const std::string& cat);
     
     PROPERTY(unsigned, curIdxRoom, CurIdxRoom);
+    PROPERTY_READ(std::set<std::string>, spriteSheets, SpriteSheets);
+    PROPERTY_READ(std::set<std::string>, textures, Textures);
     PROPERTY_READ(cc::Color3B, bgColor, BgColor);
     PROPERTY_READ(std::vector<std::string>, bgTiles, BgTiles);
     PROPERTY_READ(def::shader::LightConfig, lightConfig, LightConfig);
@@ -44,7 +45,6 @@ private:
     
     static RoomModel*               pickModel(ModelVector& modelList);
     
-    std::set<std::string>           spriteSheets;
     void                            computeDepth(RoomData* room);
     
     std::pair<unsigned, unsigned>   depthConfig;

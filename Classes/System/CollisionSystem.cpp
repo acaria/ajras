@@ -85,7 +85,7 @@ void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff
                 SlotData::addCollectible(cpGear, collectible);
                 ecs::get<cp::Render>(tid).sprite->removeFromParent();
                 cp::entity::remove(tid, context->ecs->getID());
-                this->onGearChanged(eid, cpGear);
+                dispatcher->onGearChanged(eid, cpGear);
             }
         }
     }

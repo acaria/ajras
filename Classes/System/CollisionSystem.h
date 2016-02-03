@@ -24,8 +24,6 @@ public:
     void onDecorCollision(unsigned eid, cc::Vec2 diff);
     void onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff);
     
-    lib::Subject<void(unsigned, const cp::GearComponent&)> onGearChanged;
-    
 private:
     
     //properties

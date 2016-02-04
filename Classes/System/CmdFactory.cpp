@@ -64,7 +64,7 @@ void CmdFactory::goTo(lib::EcsGroup* ecs,
 void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
                           const def::shader::LightParam& param, float value)
 {
-    auto eid = GameCtrl::instance()->getData().curPlayer()->entityFocus;
+    auto eid = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
     auto lightCfg = GameCtrl::instance()->getEffects().getLightConfig();
     
     float current = 0;
@@ -110,7 +110,7 @@ void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
 void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
                           const def::shader::LightParam& param, const cc::Color3B& value)
 {
-    auto eid = GameCtrl::instance()->getData().curPlayer()->entityFocus;
+    auto eid = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
     auto lightCfg = GameCtrl::instance()->getEffects().getLightConfig();
     
     cc::Color3B current;
@@ -148,7 +148,7 @@ void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
 
 void CmdFactory::lightPos(lib::EcsGroup* ecs, float duration, const cc::Vec2& dest)
 {
-    auto eid = GameCtrl::instance()->getData().curPlayer()->entityFocus;
+    auto eid = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
     
     cc::Vec2 from = GameCtrl::instance()->getEffects().getLightPos();
     

@@ -4,30 +4,19 @@
 void MissionMediator::onAddView(MissionScene &scene)
 {
     auto floorData = GameCtrl::instance()->getData().curFloor();
-    auto playerData = GameCtrl::instance()->getData().curPlayer();
+    auto playerData = GameCtrl::instance()->getData().getPlayerData();
     
     scene.setBgColor(floorData->getBgColor());
     
     this->systemCtrl.load(scene.getCam(), scene.getFrame(), playerData, floorData);
     this->systemCtrl.start();
     
-    scene.interface->registerIndex(playerData->ctrlIndex, [playerData](KeyCode code) {
-        return playerData->KeyCode2KeyType(code);
-    });
-    
-    scene.interface->registerIndex(playerData->debugIndex, [](KeyCode code) {
-        switch(code)
-        {
-            case KeyCode::KEY_K: return CtrlKeyType::down;
-            case KeyCode::KEY_I: return CtrlKeyType::up;
-            case KeyCode::KEY_L: return CtrlKeyType::right;
-            case KeyCode::KEY_J: return CtrlKeyType::left;
-            default: return CtrlKeyType::none;
-        }
-    });
-    
-    scene.interface->getInventoryPanel()->registerPlayer(playerData->entityFocus,
-                                                         playerData->inventory);
+    if (playerData->entities.size() > 0) //take only the leader (first one)
+    {
+        auto playerEntity = playerData->entities.front();
+        scene.interface->getInventoryPanel()->registerPlayer(playerEntity.entityID,
+                                                             playerEntity.inventory);
+    }
     
     //view events
     this->eventRegs.push_back(scene.onEnterAfterTransition.registerObserver([](){
@@ -55,39 +44,73 @@ void MissionMediator::registerDispatcher(MissionScene& scene)
     this->systemRegs.clear();
     auto& dispatcher = this->systemCtrl.getDispatcher();
     auto floorData = GameCtrl::instance()->getData().curFloor();
-    auto playerData = GameCtrl::instance()->getData().curPlayer();
+    auto playerData = GameCtrl::instance()->getData().getPlayerData();
     
     //interface events
-    unsigned pIndex = playerData->ctrlIndex;
     this->systemRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
-        [this, pIndex, &dispatcher](cc::Vec2 pos){
-            dispatcher.onStickDirection(pIndex, pos);
+            [&dispatcher](cc::Vec2 pos){
+        dispatcher.onStickDirection(def::CTRL1, pos);
     }));
     
     this->systemRegs.push_back(scene.interface->getStick()->onRelease.registerObserver(
-        [this, pIndex, &dispatcher](){
-            dispatcher.onStickDirection(pIndex, nullptr);
+            [&dispatcher](){
+        dispatcher.onStickDirection(def::CTRL1, nullptr);
     }));
     
     this->systemRegs.push_back(scene.interface->onKeyPressAction.registerObserver(
-        [this, &dispatcher](unsigned index, int flag){
-            dispatcher.onKeyPressAction(index, flag);
+            [&scene, playerData, &dispatcher](KeyCode code){
+        auto pair = playerData->KeyCode2KeyType(code);
+        if (pair.first != 0 || pair.second == CtrlKeyType::none)
+        {
+            switch(pair.second)
+            {
+                case CtrlKeyType::sel1:
+                    scene.interface->setActionMode(ActionMode::team);
+                    break;
+                case CtrlKeyType::sel2:
+                    scene.interface->setActionMode(ActionMode::inventorize);
+                    break;
+                case CtrlKeyType::sel3:
+                    scene.interface->setActionMode(ActionMode::map);
+                    break;
+                case CtrlKeyType::down:
+                case CtrlKeyType::up:
+                case CtrlKeyType::left:
+                case CtrlKeyType::right:
+                {
+                    Dir dir = Dir::fromCtrlKeyType(pair.second);
+                    
+                    if (dir != Dir::None) //key direction
+                        dispatcher.onKeyPressDirection(pair.first, dir.getRaw());
+                    break;
+                }
+                default: break;
+            }
+            
+        }
     }));
     
     this->systemRegs.push_back(scene.interface->onKeyReleaseAction.registerObserver(
-        [this, &dispatcher](unsigned index, int flag){
-            dispatcher.onKeyReleaseAction(index, flag);
+            [playerData, &dispatcher](KeyCode code){
+        auto pair = playerData->KeyCode2KeyType(code);
+        if (pair.first != 0 || pair.second == CtrlKeyType::none)
+        {
+            Dir dir = Dir::fromCtrlKeyType(pair.second);
+                    
+            if (dir != Dir::None)
+                dispatcher.onKeyReleaseDirection(pair.first, dir.getRaw());
+        }
     }));
     
     this->systemRegs.push_back(scene.interface->onSetActionMode.registerObserver(
-        [this, &dispatcher](ActionMode mode){
-            dispatcher.onSelectionAction(mode);
+            [this, &dispatcher](ActionMode mode){
+        dispatcher.onSelectionAction(mode);
     }));
     
     this->systemRegs.push_back(scene.getCam()->onTouch.registerObserver(
-        [this, &dispatcher, floorData](cc::Point pos){
-            auto localPos = pos - floorData->getCurrentRoom()->getBounds().origin;
-            dispatcher.onSelectionPos(localPos);
+            [this, &dispatcher, floorData](cc::Point pos){
+        auto localPos = pos - floorData->getCurrentRoom()->getBounds().origin;
+        dispatcher.onSelectionPos(localPos);
     }));
     
     this->systemRegs.push_back(scene.getCam()->onSwipe.registerObserver(
@@ -112,7 +135,7 @@ void MissionMediator::registerDispatcher(MissionScene& scene)
     
     this->systemRegs.push_back(dispatcher.onGateTriggered.registerObserver(
         [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate) {
-            if (eid != GameCtrl::instance()->getData().curPlayer()->entityFocus)
+            if (eid != GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID())
                 return;
             switch(gate.cmd)
             {
@@ -129,7 +152,7 @@ void MissionMediator::registerDispatcher(MissionScene& scene)
     
     this->systemRegs.push_back(dispatcher.onGearChanged.registerObserver(
         [this, playerData, &scene](unsigned eid, const cp::GearComponent& gear) {
-            if (playerData->entityFocus == eid)
+            if (playerData->getEntityFocusID() == eid)
             {
                 scene.interface->getInventoryPanel()->updatePlayer(eid, gear);
             }

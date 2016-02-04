@@ -21,8 +21,7 @@ FloorSystemCtrl::FloorSystemCtrl() : systemFacade(dispatcher, context, Randgine:
     this->context.ecs = &ecsGroup;
 
     //init systems
-    this->systemFacade.factory<ControlSystem>(
-        std::list<unsigned>({PlayerData::ctrlIndex, PlayerData::debugIndex}));
+    this->systemFacade.factory<ControlSystem>(std::list<unsigned>(PlayerData::getCtrlIdxList()));
     this->systemFacade.factory<AISystem>();
     this->systemFacade.factory<UpdaterSystem>();
     this->systemFacade.factory<TargetSystem>();
@@ -65,9 +64,10 @@ void FloorSystemCtrl::tick(double dt)
 void FloorSystemCtrl::animate(double dt, double tickPercent)
 {
     //focus entity
-    if (playerData->entityFocus != 0 && ecs::has<cp::Render>(playerData->entityFocus))
+    if (playerData->getEntityFocusID() != 0 &&
+        ecs::has<cp::Render>(playerData->getEntityFocusID()))
     {
-        auto& cpRender = ecs::get<cp::Render>(playerData->entityFocus);
+        auto& cpRender = ecs::get<cp::Render>(playerData->getEntityFocusID());
         auto pos = this->data->getCurrentRoom()->position +
             cpRender.sprite->getPosition() + cpRender.sprite->getContentSize() / 2;
         this->cam->focusTarget(pos);
@@ -132,7 +132,7 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid,
         NULL
     ));
     
-    if (eid == playerData->entityFocus) //change room
+    if (eid == playerData->getEntityFocusID()) //change room
     {
         this->switchRoom(prevRoomIndex, nextRoomIndex, eid, destPos);
         //TODO wtf
@@ -293,13 +293,13 @@ void FloorSystemCtrl::start()
         
         auto srcPos = enterGate.info.getSrcPos();
         auto destPos = enterGate.info.getDestPos();
-                
-        if (playerData->entityFocus != 0 &&
-            ecs::has<cp::Render, cp::Physics>(playerData->entityFocus))
+        
+        unsigned focusID = playerData->getEntityFocusID();
+        
+        if (focusID != 0 && ecs::has<cp::Render, cp::Physics>(focusID))
         {
-            unsigned eid = playerData->entityFocus;
-            auto& cpRender = ecs::get<cp::Render>(eid);
-            auto& cpCollision = ecs::get<cp::Physics>(eid);
+            auto& cpRender = ecs::get<cp::Render>(focusID);
+            auto& cpCollision = ecs::get<cp::Physics>(focusID);
             
             cpRender.busy = true;
             cpRender.setMoveAnimation(enterGate.info.getDir(), true);
@@ -310,15 +310,15 @@ void FloorSystemCtrl::start()
                     destPos.x - cpCollision.shape.getMinX() - cpCollision.shape.size.width / 2,
                     destPos.y - cpCollision.shape.getMinY() - cpCollision.shape.size.height / 2
                 }),
-                cc::CallFunc::create([eid, this](){
-                    auto& cpRender = ecs::get<cp::Render>(eid);
+                cc::CallFunc::create([focusID, this](){
+                    auto& cpRender = ecs::get<cp::Render>(focusID);
                     cpRender.cancelAnimation();
-                    context.ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
-                    dispatcher.onEntityPositionChanged(context.ecs->getID(), eid);
+                    context.ecs->add<cp::Position>(focusID).set(cpRender.sprite->getPosition());
+                    dispatcher.onEntityPositionChanged(context.ecs->getID(), focusID);
                     CmdFactory::lightCfg(context.ecs, 0.5,
                                          def::shader::LightParam::brightness,
                                          data->getLightConfig().brightness);
-                    CmdFactory::lightFollow(context.ecs, eid, {0,0});
+                    CmdFactory::lightFollow(context.ecs, focusID, {0,0});
                 }),
                 NULL
             ));
@@ -330,37 +330,15 @@ void FloorSystemCtrl::start()
         }
     });
     
-    //create player
-    auto eid = cp::entity::genID();
-    auto profile = ModelProvider::instance()->profile.get(playerData->charProfileName);
-    auto srcPos = enterGate.info.getSrcPos();
-    
-    auto& cpRender = ecs::add<cp::Render>(eid, roomIndex);
-    auto& cpPhy = ecs::add<cp::Physics>(eid, roomIndex);
-    
-    cpRender.setProfile(profile, roomView);
-    cpPhy.setProfile(profile);
-    
-    cc::Vec2 pos = {
-        srcPos.x - cpPhy.shape.getMidX(),
-        srcPos.y - cpPhy.shape.getMidY()
-    };
-    
-    ecs::add<cp::Orientation>(eid, roomIndex);
-    ecs::add<cp::Mood>(eid, roomIndex) = profile->getMood();
-    ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
-    ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
-    ecs::add<cp::Control>(eid, roomIndex) = playerData->ctrlIndex;
-    ecs::add<cp::Gear>(eid, roomIndex) = playerData->inventory;
-    ecs::add<cp::Stamina>(eid, roomIndex).setProfile(profile);
-    ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
-    ecs::add<cp::Input>(eid, roomIndex);
-    
-    cpRender.sprite->setPosition(pos);
-    cpRender.sprite->setOpacity(0);
-    
-    playerData->entityFocus = eid;
-    dispatcher.onEntityAdded(roomIndex, eid);
+    //create player entities
+    for(auto& playerEntity : playerData->entities)
+    {
+        auto eid = SysHelper::createPlayerEntity(roomView,
+                                                 roomIndex,
+                                                 enterGate.info.getSrcPos(), playerEntity);
+        playerEntity.entityID = eid;
+        dispatcher.onEntityAdded(roomIndex, eid);
+    }
 }
 
 void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> after)
@@ -415,10 +393,12 @@ void FloorSystemCtrl::bindSystems()
         switch(gate.cmd)
         {
             case GateMap::CmdType::CHANGE_ROOM:
-                if (eid == playerData->entityFocus) //change room
+                if (eid == playerData->getEntityFocusID()) //change room
                 {
-                    CmdFactory::lightCfg(context.ecs, 0.5, def::shader::LightParam::brightness, 0);
-                    CmdFactory::lightCfg(context.ecs, 0.5, def::shader::LightParam::cutOffRadius, 0);
+                    CmdFactory::lightCfg(context.ecs, 0.5,
+                                         def::shader::LightParam::brightness, 0);
+                    CmdFactory::lightCfg(context.ecs, 0.5,
+                                         def::shader::LightParam::cutOffRadius, 0);
                 }
                 break;
             default:

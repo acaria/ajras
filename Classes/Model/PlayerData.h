@@ -2,32 +2,31 @@
 
 #include "Defines.h"
 #include "CoreLib.h"
-#include "SlotData.h"
+#include "PlayerEntity.h"
+#include "Dir.h"
 
-using KeyCode = cocos2d::EventKeyboard::KeyCode;
+using KeyCode = cc::EventKeyboard::KeyCode;
 
 struct PlayerData
 {
-    static const unsigned ctrlIndex = 1;
-    static const unsigned debugIndex = 2;
+    //def
+    using keysBindingMap = std::map<unsigned, std::map<CtrlKeyType, std::set<KeyCode>>>;
+    
+    //helpers
+    static PlayerData* createDefault();
+    static std::list<unsigned> getCtrlIdxList();
     
     ~PlayerData();
-    
-    //inventory
-    std::list<SlotData> inventory;
-    
-    //entity binding
-    unsigned entityFocus = 0;
     
     //camp config
     std::string startCampKey = "home";
     
-    //profiles
-    std::string charProfileName;
-    
     //keyboard
-    CtrlKeyType ctrlKeyType;
-    std::map<CtrlKeyType, std::set<KeyCode>> keysDefList;
-
-    CtrlKeyType KeyCode2KeyType(KeyCode code);
+    keysBindingMap keysDefList;
+    std::pair<unsigned, CtrlKeyType> KeyCode2KeyType(KeyCode code);
+    
+    //entities main=0, sub>0
+    std::list<PlayerEntity> entities;
+    
+    unsigned getEntityFocusID();
 };

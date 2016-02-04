@@ -14,7 +14,6 @@ public:
     void save();
     void reset();
     
-    PlayerData* curPlayer();
     FloorData*  curFloor();
     CampData*   curCamp();
     
@@ -22,9 +21,10 @@ public:
     int debugMode = 0;
     void toggleDebug();
     
+    PROPERTY_READ(PlayerData*, playerData, PlayerData);
+    
 private:
 //dynamics
-    PlayerData* player = nullptr;
     FloorData*  floor = nullptr;
     CampData*   camp = nullptr;
 };

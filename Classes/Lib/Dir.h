@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Defines.h"
+
 class Dir
 {
 public:
@@ -31,6 +33,7 @@ public:
     
     static Dir rand();
     static Dir fromVec(cc::Vec2 v);
+    static Dir fromCtrlKeyType(CtrlKeyType keyType);
     static Dir cardinalFromVec(cc::Vec2 r);
 
 private:

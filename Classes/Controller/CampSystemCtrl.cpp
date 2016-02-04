@@ -13,7 +13,7 @@ CampSystemCtrl::CampSystemCtrl() : systemFacade(dispatcher, context, Randgine::C
     this->context.ecs = &ecsGroup;
     
     //init systems
-    this->systemFacade.factory<ControlSystem>(std::list<unsigned>({PlayerData::ctrlIndex}));
+    this->systemFacade.factory<ControlSystem>(PlayerData::getCtrlIdxList());
     this->systemFacade.factory<AISystem>();
     this->systemFacade.factory<UpdaterSystem>();
     this->systemFacade.factory<TargetSystem>();
@@ -47,9 +47,10 @@ void CampSystemCtrl::tick(double dt)
 void CampSystemCtrl::animate(double dt, double tickPercent)
 {
     //focus entity
-    if (playerData->entityFocus != 0 && ecs::has<cp::Render>(playerData->entityFocus))
+    unsigned focusID = playerData->getEntityFocusID();
+    if (focusID != 0 && ecs::has<cp::Render>(focusID))
     {
-        auto& cpRender = ecs::get<cp::Render>(playerData->entityFocus);
+        auto& cpRender = ecs::get<cp::Render>(focusID);
         auto pos = cpRender.sprite->getPosition() + cpRender.sprite->getContentSize() / 2;
         this->cam->focusTarget(pos);
     }
@@ -77,33 +78,16 @@ void CampSystemCtrl::start()
     auto destPos = enterWarpRef->info.getDestPos();
     
     //create player
-    auto eid = cp::entity::genID();
-    auto profile = ModelProvider::instance()->profile.get(playerData->charProfileName);
+    for(auto& playerEntity : playerData->entities)
+    {
+        auto eid = SysHelper::createPlayerEntity(this->mapView, ecsGroup.getID(),
+                                                 enterWarpRef->info.getSrcPos(), playerEntity);
     
-    auto& cpRender = ecsGroup.add<cp::Render>(eid);
-    auto& cpPhy = ecsGroup.add<cp::Physics>(eid);
+        playerEntity.entityID = eid;
+        dispatcher.onEntityAdded(ecsGroup.getID(), eid);
+    }
     
-    cpRender.setProfile(profile, this->mapView);
-    cpPhy.setProfile(profile);
-    
-    cc::Vec2 pos = {
-        srcPos.x - cpPhy.shape.getMidX(),
-        srcPos.y - cpPhy.shape.getMidY()
-    };
-    
-    cpRender.sprite->setPosition(pos);
-    cpRender.sprite->setOpacity(0);
-    
-    ecsGroup.add<cp::AI>(eid).setProfile(profile);
-    ecsGroup.add<cp::Melee>(eid).setProfile(profile);
-    ecsGroup.add<cp::Control>(eid) = playerData->ctrlIndex;
-    ecsGroup.add<cp::Gear>(eid) = playerData->inventory;
-    ecsGroup.add<cp::Health>(eid).setProfile(profile);
-    ecsGroup.add<cp::Orientation>(eid);
-    ecsGroup.add<cp::Input>(eid);
-    
-    playerData->entityFocus = eid;
-    
+    /*
     float duration = 3.0f;
     cpRender.setMoveAnimation(enterWarpRef->info.getDir(), true);
     
@@ -124,8 +108,7 @@ void CampSystemCtrl::start()
         cc::FadeTo::create(duration / 4, 255),
         NULL
     ));
-
-    dispatcher.onEntityAdded(ecsGroup.getID(), eid);
+     */
 }
 
 SystemDispatcher& CampSystemCtrl::getDispatcher()

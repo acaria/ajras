@@ -23,10 +23,10 @@ void ControlSystem::init()
     
     this->eventRegs.push_back(dispatcher->onStickDirection.registerObserver(
         std::bind(&ControlSystem::setStickDirection, this, _1, _2)));
-    this->eventRegs.push_back(dispatcher->onKeyPressAction.registerObserver(
-        std::bind(&ControlSystem::setKeyPressAction, this, _1, _2)));
-    this->eventRegs.push_back(dispatcher->onKeyReleaseAction.registerObserver(
-        std::bind(&ControlSystem::setKeyReleaseAction, this, _1, _2)));
+    this->eventRegs.push_back(dispatcher->onKeyPressDirection.registerObserver(
+        std::bind(&ControlSystem::setKeyPressDirection, this, _1, _2)));
+    this->eventRegs.push_back(dispatcher->onKeyReleaseDirection.registerObserver(
+        std::bind(&ControlSystem::setKeyReleaseDirection, this, _1, _2)));
     this->eventRegs.push_back(dispatcher->onSelectionAction.registerObserver(
         std::bind(&ControlSystem::setSelectionAction, this, _1)));
     this->eventRegs.push_back(dispatcher->onSelectionPos.registerObserver(
@@ -62,7 +62,7 @@ void ControlSystem::tick(double dt)
     }
     
     //moving control
-    for(auto eid : context->ecs->join<cp::Control, cp::Input, cp::Control>())
+    for(auto eid : context->ecs->join<cp::Input, cp::Control>())
     {
         unsigned ctrlIndex = ecs::get<cp::Control>(eid);
         if (std::find(indexList.begin(), indexList.end(), ctrlIndex) == indexList.end())
@@ -143,16 +143,16 @@ void ControlSystem::setSelectionPos(cc::Point p)
     this->posSelection = p;
 }
 
-void ControlSystem::setKeyPressAction(unsigned index, int flag)
+void ControlSystem::setKeyPressDirection(unsigned index, int dir)
 {
-    this->curDirPressed[index] |= flag;
-    this->curDirReleased[index] &= ~flag;
+    this->curDirPressed[index] |= dir;
+    this->curDirReleased[index] &= ~dir;
 }
 
-void ControlSystem::setKeyReleaseAction(unsigned index, int flag)
+void ControlSystem::setKeyReleaseDirection(unsigned index, int dir)
 {
-    this->curDirPressed[index] &= ~flag;
-    this->curDirReleased[index] |= flag;
+    this->curDirPressed[index] &= ~dir;
+    this->curDirReleased[index] |= dir;
 }
 
 void ControlSystem::setStickDirection(unsigned index,

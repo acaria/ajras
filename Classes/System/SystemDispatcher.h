@@ -17,8 +17,8 @@ struct SystemDispatcher
 
     //control
     lib::Subject<void(unsigned, const lib::Nullable<cc::Vec2>&)>  onStickDirection;
-    lib::Subject<void(unsigned, int)>                             onKeyPressAction;
-    lib::Subject<void(unsigned, int)>                             onKeyReleaseAction;
+    lib::Subject<void(unsigned, int)>                             onKeyPressDirection;
+    lib::Subject<void(unsigned, int)>                             onKeyReleaseDirection;
     lib::Subject<void(ActionMode)>                                onSelectionAction;
     lib::Subject<void(cc::Point)>                                 onSelectionPos;
     

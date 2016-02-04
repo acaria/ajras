@@ -28,11 +28,6 @@ MissionInterface::~MissionInterface()
     this->targetFriend->release();
 }
 
-void MissionInterface::registerIndex(unsigned index, const KeyCode2TypeFunc& onKeyCode2KeyType)
-{
-    this->controlMap[index] = onKeyCode2KeyType;
-}
-
 HealthBar* MissionInterface::getHealthBar()
 {
     return this->healthBar;
@@ -343,78 +338,11 @@ bool MissionInterface::init()
     //keyboard
     auto kListener = cc::EventListenerKeyboard::create();
     kListener->onKeyPressed = [this](KeyCode code, cocos2d::Event *event) {
-        for(auto el : this->controlMap)
-        {
-            assert(el.second);
-            int toAdd = Dir::None;
-        
-            switch(el.second(code))
-            {
-                case CtrlKeyType::none:
-                    break;
-                case CtrlKeyType::left:
-                    toAdd = Dir::Left;
-                    break;
-                case CtrlKeyType::right:
-                    toAdd = Dir::Right;
-                    break;
-                case CtrlKeyType::up:
-                    toAdd = Dir::Up;
-                    break;
-                case CtrlKeyType::down:
-                    toAdd = Dir::Down;
-                    break;
-                case CtrlKeyType::autoselect:
-                //todo
-                /*
-                 if (player->entityFocus != 0)
-                 {
-                 auto tid = SysHelper::getNearest(ecs.getID(),
-                 player->entityFocus,
-                 AIComponent::eMood::HOSTILE,
-                 500.0);
-                 if (tid != 0)
-                 {
-                 entitySelection[player->ctrlIndex] = tid;
-                 }
-                 }
-                 */
-                    break;
-                case CtrlKeyType::sel1:
-                    this->setActionMode(ActionMode::team);
-                    break;
-                case CtrlKeyType::sel2:
-                    this->setActionMode(ActionMode::inventorize);
-                    break;
-                case CtrlKeyType::sel3:
-                    this->setActionMode(ActionMode::map);
-                    break;
-            }
-            this->onKeyPressAction(el.first, toAdd);
-        }
+        this->onKeyPressAction(code);
     };
     
     kListener->onKeyReleased = [this](KeyCode code, cocos2d::Event *event) {
-        for(auto el : this->controlMap)
-        {
-            assert(el.second);
-            int toDel = Dir::None;
-        
-            switch(el.second(code))
-            {
-                default:
-                    break;
-                case CtrlKeyType::left: toDel = Dir::Left;
-                    break;
-                case CtrlKeyType::right: toDel = Dir::Right;
-                    break;
-                case CtrlKeyType::up: toDel = Dir::Up;
-                    break;
-                case CtrlKeyType::down: toDel = Dir::Down;
-                    break;
-            }
-            this->onKeyReleaseAction(el.first, toDel);
-        }
+        this->onKeyReleaseAction(code);
     };
     
     auto tListener = cc::EventListenerTouchOneByOne::create();

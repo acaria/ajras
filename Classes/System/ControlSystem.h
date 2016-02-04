@@ -21,8 +21,8 @@ public:
     
     void setSelectionAction(ActionMode mode);
     void setSelectionPos(cc::Point p);
-    void setKeyPressAction(unsigned index, int flag);
-    void setKeyReleaseAction(unsigned index, int flag);
+    void setKeyPressDirection(unsigned index, int dir);
+    void setKeyReleaseDirection(unsigned index, int dir);
     void setStickDirection(unsigned index, const lib::Nullable<cc::Vec2>& dir);
     
 private:

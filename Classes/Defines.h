@@ -10,6 +10,9 @@
 
 namespace def {
 
+    const unsigned CTRL1 = 1;
+    const unsigned CTRL2 = 2;
+
     //app
     const cc::Size designResolutionSize = {1024, 768};
     

@@ -1,5 +1,6 @@
 #pragma once
 #include "Components.h"
+#include "PlayerEntity.h"
 #include "Defines.h"
 
 class SysHelper
@@ -21,4 +22,9 @@ public:
     
     static void enableEntity(unsigned group, unsigned eid);
     static void disableEntity(unsigned group, unsigned eid);
+    
+    static unsigned createPlayerEntity(LayeredContainer* parent,
+                                       unsigned group,
+                                       cc::Vec2 srcPos,
+                                       PlayerEntity entity);
 };

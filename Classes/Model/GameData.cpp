@@ -4,37 +4,10 @@
 
 void GameData::loadPlayer()
 {
-    if (this->player != nullptr)
-        delete this->player;
+    if (this->playerData != nullptr)
+        delete this->playerData;
     
-    //player --
-    this->player = new PlayerData();
-    this->player->charProfileName = "boy2";
-    this->player->keysDefList[CtrlKeyType::left] = {KeyCode::KEY_LEFT_ARROW, KeyCode::KEY_A};
-    this->player->keysDefList[CtrlKeyType::right] = {KeyCode::KEY_RIGHT_ARROW, KeyCode::KEY_D};
-    this->player->keysDefList[CtrlKeyType::up] = {KeyCode::KEY_UP_ARROW, KeyCode::KEY_W};
-    this->player->keysDefList[CtrlKeyType::down] = {KeyCode::KEY_DOWN_ARROW, KeyCode::KEY_S};
-    this->player->keysDefList[CtrlKeyType::autoselect] = {KeyCode::KEY_SPACE};
-    this->player->keysDefList[CtrlKeyType::sel1] = {KeyCode::KEY_1};
-    this->player->keysDefList[CtrlKeyType::sel2] = {KeyCode::KEY_2};
-    this->player->keysDefList[CtrlKeyType::sel3] = {KeyCode::KEY_3};
-    
-    //player inventory
-    this->player->inventory.push_back({
-        .quantity = 0, .content = nullptr
-    });
-    this->player->inventory.push_back({
-        .quantity = 0, .content = nullptr
-    });this->player->inventory.push_back({
-        .quantity = 0, .content = nullptr
-    });this->player->inventory.push_back({
-        .quantity = 0, .content = nullptr
-    });this->player->inventory.push_back({
-        .quantity = 0, .content = nullptr
-    });this->player->inventory.push_back({
-        .quantity = 0, .content = nullptr
-    });
-    
+    this->playerData = PlayerData::createDefault();
 }
 
 void GameData::loadCamp()
@@ -69,10 +42,10 @@ void GameData::reset()
         floor = nullptr;
     }
     
-    if (this->player != nullptr)
+    if (this->playerData != nullptr)
     {
-        delete player;
-        player = nullptr;
+        delete playerData;
+        playerData = nullptr;
     }
     
     if(this->camp != nullptr)
@@ -90,11 +63,6 @@ GameData::~GameData()
 void GameData::toggleDebug()
 {
     this->debugMode = ++debugMode % 2;
-}
-
-PlayerData* GameData::curPlayer()
-{
-    return player;
 }
 
 FloorData* GameData::curFloor()

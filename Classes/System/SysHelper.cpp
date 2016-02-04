@@ -1,5 +1,6 @@
 #include "Defines.h"
 #include "SysHelper.h"
+#include "ModelProvider.h"
 
 cc::Rect SysHelper::getBounds(const PositionComponent &position,
                               const PhysicsComponent &collision)
@@ -92,4 +93,41 @@ void SysHelper::disableEntity(unsigned group, unsigned int eid)
     ecs::del<cp::Position>(eid, group);
     if (ecs::has<cp::Input>(eid))
         ecs::get<cp::Input>(eid).enabled = false;
+}
+
+unsigned SysHelper::createPlayerEntity(LayeredContainer* parent,
+                                       unsigned group,
+                                       cc::Vec2 srcPos,
+                                       PlayerEntity entity)
+{
+    auto eid = cp::entity::genID();
+    auto profile = ModelProvider::instance()->profile.get(entity.profileName);
+    
+    auto& cpRender = ecs::add<cp::Render>(eid, group);
+    auto& cpPhy = ecs::add<cp::Physics>(eid, group);
+    
+    cpRender.setProfile(profile, parent);
+    cpPhy.setProfile(profile);
+    
+    cc::Vec2 pos = {
+        srcPos.x - cpPhy.shape.getMidX(),
+        srcPos.y - cpPhy.shape.getMidY()
+    };
+    
+    ecs::add<cp::Orientation>(eid, group);
+    ecs::add<cp::Mood>(eid, group) = profile->getMood();
+    ecs::add<cp::Melee>(eid, group).setProfile(profile);
+    if (entity.ctrlIndex != 0)
+        ecs::add<cp::Control>(eid, group) = entity.ctrlIndex;
+    else
+        ecs::add<cp::AI>(eid, group).setProfile(profile);
+    ecs::add<cp::Gear>(eid, group) = entity.inventory;
+    ecs::add<cp::Stamina>(eid, group).setProfile(profile);
+    ecs::add<cp::Health>(eid, group).setProfile(profile);
+    ecs::add<cp::Input>(eid, group);
+    
+    cpRender.sprite->setPosition(pos);
+    cpRender.sprite->setOpacity(0);
+    
+    return eid;
 }

@@ -13,15 +13,10 @@ class MissionInterface : public cc::Node
 private:
     
 public:
-    using KeyCode2TypeFunc = std::function<CtrlKeyType(KeyCode)>;
-
     MissionInterface();
     virtual ~MissionInterface();
     
     virtual bool init() override;
-    
-    void registerIndex(unsigned playerIndex,
-                       const KeyCode2TypeFunc& onKeyCode2KeyType);
     
     void        setTargetID(unsigned eid,
                     bool friendly,
@@ -41,13 +36,13 @@ public:
     StickControl*   getStick();
     
     //events
-    lib::Subject<void(unsigned, int)> onKeyPressAction;
-    lib::Subject<void(unsigned, int)> onKeyReleaseAction;
+    lib::Subject<void(KeyCode key)> onKeyPressAction;
+    lib::Subject<void(KeyCode key)> onKeyReleaseAction;
     lib::Subject<void(ActionMode)>    onSetActionMode;
     
-private:
-    std::map<unsigned, KeyCode2TypeFunc> controlMap;
+    void                            setActionMode(ActionMode action);
     
+private:
     cc::ui::Scale9Sprite*           actionSelection;
     
     cc::Sprite*                     actionTeam;
@@ -64,7 +59,6 @@ private:
     
     InventoryPanel*                 inventoryPanel;
     
-    void                            setActionMode(ActionMode action);
     void                            setActionPanel(ActionMode action);
     
     unsigned curTargetEntityID = 0;

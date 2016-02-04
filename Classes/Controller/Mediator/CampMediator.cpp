@@ -4,7 +4,7 @@
 void CampMediator::onAddView(CampScene &scene)
 {
     auto campData = GameCtrl::instance()->getData().curCamp();
-    auto playerData = GameCtrl::instance()->getData().curPlayer();
+    auto playerData = GameCtrl::instance()->getData().getPlayerData();
     
     scene.setBgColor(cc::Color3B::BLACK);
     scene.getCam()->setFrameBounds(campData->getBounds());
@@ -12,41 +12,50 @@ void CampMediator::onAddView(CampScene &scene)
     systemCtrl.load(scene.getCam(), scene.getFrame(), playerData, campData);
     systemCtrl.start();
     
-    scene.interface->registerIndex(playerData->ctrlIndex, [playerData](KeyCode code) {
-        return playerData->KeyCode2KeyType(code);
-    });
-    
     this->registerDispatcher(scene);
 }
 
 void CampMediator::registerDispatcher(CampScene &scene)
 {
-    auto playerData = GameCtrl::instance()->getData().curPlayer();
+    auto playerData = GameCtrl::instance()->getData().getPlayerData();
     auto campData = GameCtrl::instance()->getData().curCamp();
     
     this->systemRegs.clear();
     auto& dispatcher = this->systemCtrl.getDispatcher();
     
     //interface events
-    unsigned pIndex = playerData->ctrlIndex;
     this->systemRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
-            [this, pIndex, &dispatcher](cc::Vec2 pos){
-        dispatcher.onStickDirection(pIndex, pos);
+            [&dispatcher](cc::Vec2 pos){
+        dispatcher.onStickDirection(def::CTRL1, pos);
     }));
     
     this->systemRegs.push_back(scene.interface->getStick()->onRelease.registerObserver(
-            [this, pIndex, &dispatcher](){
-        dispatcher.onStickDirection(pIndex, nullptr);
+            [&dispatcher](){
+        dispatcher.onStickDirection(def::CTRL1, nullptr);
     }));
     
     this->systemRegs.push_back(scene.interface->onKeyPressAction.registerObserver(
-            [this, &dispatcher](unsigned index, int flag){
-        dispatcher.onKeyPressAction(index, flag);
+            [playerData, &dispatcher](KeyCode code){
+        auto pair = playerData->KeyCode2KeyType(code);
+        if (pair.first != 0 || pair.second == CtrlKeyType::none)
+        {
+            Dir dir = Dir::fromCtrlKeyType(pair.second);
+            
+            if (dir != Dir::None) //key direction
+                dispatcher.onKeyPressDirection(pair.first, dir.getRaw());
+        }
     }));
     
     this->systemRegs.push_back(scene.interface->onKeyReleaseAction.registerObserver(
-            [this, &dispatcher](unsigned index, int flag){
-        dispatcher.onKeyReleaseAction(index, flag);
+            [playerData, &dispatcher](KeyCode code){
+        auto pair = playerData->KeyCode2KeyType(code);
+        if (pair.first != 0 || pair.second == CtrlKeyType::none)
+        {
+            Dir dir = Dir::fromCtrlKeyType(pair.second);
+            
+            if (dir != Dir::None)
+                dispatcher.onKeyReleaseDirection(pair.first, dir.getRaw());
+        }
     }));
     
     this->systemRegs.push_back(scene.getCam()->onTouch.registerObserver(
@@ -61,8 +70,8 @@ void CampMediator::registerDispatcher(CampScene &scene)
     }));
     
     this->systemRegs.push_back(dispatcher.onWarpTriggered.registerObserver(
-            [this](unsigned eid, WarpMap warp) {
-        if (eid != GameCtrl::instance()->getData().curPlayer()->entityFocus)
+            [&playerData](unsigned eid, WarpMap warp) {
+        if (eid != playerData->getEntityFocusID())
             return;
         if (warp.keyCmd == "home")
         {

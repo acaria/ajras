@@ -66,7 +66,7 @@ void GameCtrl::goToCamp(std::string startKey)
 {
     this->gameData.loadCamp();
     this->shaders.setLightConfig(def::shader::LightConfig());
-    this->gameData.curPlayer()->startCampKey = startKey;
+    this->gameData.getPlayerData()->startCampKey = startKey;
     
     for(auto ss : this->gameData.curCamp()->getSpriteSheets())
         CocosHelper::addSpriteSheet("ss-" + ss + ".plist", def::antialias);

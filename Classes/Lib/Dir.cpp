@@ -95,6 +95,20 @@ Dir Dir::fromVec(cc::Vec2 r)
     return res;
 }
 
+Dir Dir::fromCtrlKeyType(CtrlKeyType keyType)
+{
+    switch(keyType)
+    {
+        case CtrlKeyType::left: return Dir::Left;
+        case CtrlKeyType::right: return Dir::Right;
+        case CtrlKeyType::down: return Dir::Down;
+        case CtrlKeyType::up: return Dir::Up;
+        default: break;
+    }
+    
+    return Dir::None;
+}
+
 Dir Dir::cardinalFromVec(cc::Vec2 r)
 {
     //???

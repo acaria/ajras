@@ -9,7 +9,6 @@ void MissionMediator::onAddView(MissionScene &scene)
     scene.setBgColor(floorData->getBgColor());
     
     this->systemCtrl.load(scene.getCam(), scene.getFrame(), playerData, floorData);
-    this->systemCtrl.start();
     
     if (playerData->entities.size() > 0) //take only the leader (first one)
     {

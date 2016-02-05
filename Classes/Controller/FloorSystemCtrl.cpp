@@ -264,7 +264,139 @@ void FloorSystemCtrl::displayDebug(cc::Node* view, FloorData *data)
     }
 }*/
 
-void FloorSystemCtrl::start()
+void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> after)
+{
+    assert(lib::hasKey(this->roomViews, roomIndex));
+    
+    if (!lib::hasKey(this->roomPreviews, roomIndex))
+    {
+        this->roomSystems[roomIndex]->showObjects(0.5);
+        if (after != nullptr)
+            after();
+    }
+    else
+    {
+        auto preview = this->roomPreviews[roomIndex];
+        this->roomPreviews.erase(roomIndex);
+        
+        auto view = this->roomViews[roomIndex];
+        
+        preview->getSprite()->runAction(cc::Sequence::create(
+            cc::FadeTo::create(1, 255),
+            cc::CallFunc::create([this, view, preview, roomIndex](){
+                this->view->removeChild(preview);
+                this->view->addChild(view);
+                view->release();
+                this->roomSystems[roomIndex]->showObjects(0.5);
+            }),
+            cc::CallFunc::create(after),
+            NULL
+        ));
+    }
+}
+
+void FloorSystemCtrl::bindSystems()
+{
+    //bind events
+    this->eventRegs.clear();
+    this->eventRegs.push_back(dispatcher.onGateTriggered.registerObserver(
+            [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate){
+        switch(gate.cmd)
+        {
+            case GateMap::CmdType::CHANGE_ROOM:
+                this->changeEntityRoom(prevRoomIndex, eid, gate);
+                break;
+            default:
+                break;
+        }
+    }));
+    
+    this->eventRegs.push_back(dispatcher.onGateEnter.registerObserver(
+    [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate){
+        switch(gate.cmd)
+        {
+            case GateMap::CmdType::CHANGE_ROOM:
+                if (eid == playerData->getEntityFocusID()) //change room
+                {
+                    CmdFactory::lightCfg(context.ecs, 0.5,
+                                         def::shader::LightParam::brightness, 0);
+                    CmdFactory::lightCfg(context.ecs, 0.5,
+                                         def::shader::LightParam::cutOffRadius, 0);
+                }
+                break;
+            default:
+                break;
+        }
+    }));
+    
+    this->eventRegs.push_back(dispatcher.onSystemChanged.registerObserver(
+            [this](unsigned group) {
+        context.data = this->data->rooms[group];
+        context.view = roomViews[group];
+        context.ecs->setID(group);
+        dispatcher.onContextChanged();
+    }));
+}
+
+void FloorSystemCtrl::loadLevel()
+{
+    cc::Rect bounds = cc::Rect::ZERO;
+    for(auto pair : data->rooms)
+    {
+        auto roomIndex = pair.first;
+        auto roomData = pair.second;
+        
+        auto layeredNode = cc::create<LayeredContainer>(roomData->getBounds().size);
+        layeredNode->retain();
+        
+        auto roomSystemCtrl = new RoomSystemCtrl(roomIndex, layeredNode, roomData, dispatcher);
+        
+        roomSystemCtrl->hideObjects(0);
+        
+        this->roomViews[roomIndex] = layeredNode;
+        this->roomSystems[roomIndex] = roomSystemCtrl;
+        
+        auto preview = layeredNode->createShot(roomData->getBounds().size.width,
+                                               roomData->getBounds().size.height);
+        this->roomPreviews[roomIndex] = preview;
+        
+        layeredNode->setPosition(roomData->position);
+        preview->setPosition(roomData->position);
+        preview->getSprite()->setOpacity(0);
+        
+        this->view->addChild(preview, 1);
+        preview->setOpacity(0);
+        
+        bounds = bounds.unionWithRect(roomData->getBounds());
+    }
+    
+    cam->setFrameBounds(bounds);
+    
+    cc::Node* bgLayer;
+    if (data->getTextures().size() > 0) //back texture
+    {
+        auto& rand = Randgine::instance()->get(Randgine::CAT::MISSION);
+        auto bgTiles = data->getBgTiles();
+        auto texName = rand.select(bgTiles);
+        
+        auto tex = cc::Director::getInstance()->getTextureCache()->getTextureForKey(texName);
+        assert(tex != nullptr);
+        cc::Texture2D::TexParams tp = { GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT };
+        tex->setTexParameters(tp);
+        bgLayer = cc::Sprite::createWithTexture(tex,
+                                                {0,0,bounds.size.width, bounds.size.height});
+    }
+    else //back color
+    {
+        bgLayer = cc::LayerColor::create(cc::Color4B(data->getBgColor()),
+                                         bounds.size.width, bounds.size.height);
+    }
+    bgLayer->setAnchorPoint({0,0});
+    bgLayer->setPosition(bounds.origin);
+    view->addChild(bgLayer, 0);
+}
+
+void FloorSystemCtrl::loadEntities()
 {
     auto roomIndex = this->data->getCurIdxRoom();
     auto camRect = data->getCurrentRoom()->getBounds();
@@ -341,169 +473,24 @@ void FloorSystemCtrl::start()
     }
 }
 
-void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> after)
-{
-    assert(lib::hasKey(this->roomViews, roomIndex));
-    
-    if (!lib::hasKey(this->roomPreviews, roomIndex))
-    {
-        this->roomSystems[roomIndex]->showObjects(0.5);
-        if (after != nullptr)
-            after();
-    }
-    else
-    {
-        auto preview = this->roomPreviews[roomIndex];
-        this->roomPreviews.erase(roomIndex);
-        
-        auto view = this->roomViews[roomIndex];
-        
-        preview->getSprite()->runAction(cc::Sequence::create(
-            cc::FadeTo::create(1, 255),
-            cc::CallFunc::create([this, view, preview, roomIndex](){
-                this->view->removeChild(preview);
-                this->view->addChild(view);
-                view->release();
-                this->roomSystems[roomIndex]->showObjects(0.5);
-            }),
-            cc::CallFunc::create(after),
-            NULL
-        ));
-    }
-}
-
-void FloorSystemCtrl::bindSystems()
-{
-    //bind events
-    this->eventRegs.clear();
-    this->eventRegs.push_back(dispatcher.onGateTriggered.registerObserver(
-            [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate){
-        switch(gate.cmd)
-        {
-            case GateMap::CmdType::CHANGE_ROOM:
-                this->changeEntityRoom(prevRoomIndex, eid, gate);
-                break;
-            default:
-                break;
-        }
-    }));
-    
-    this->eventRegs.push_back(dispatcher.onGateEnter.registerObserver(
-    [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate){
-        switch(gate.cmd)
-        {
-            case GateMap::CmdType::CHANGE_ROOM:
-                if (eid == playerData->getEntityFocusID()) //change room
-                {
-                    CmdFactory::lightCfg(context.ecs, 0.5,
-                                         def::shader::LightParam::brightness, 0);
-                    CmdFactory::lightCfg(context.ecs, 0.5,
-                                         def::shader::LightParam::cutOffRadius, 0);
-                }
-                break;
-            default:
-                break;
-        }
-    }));
-    
-    this->eventRegs.push_back(dispatcher.onSystemChanged.registerObserver(
-            [this](unsigned group) {
-        context.data = this->data->rooms[group];
-        context.view = roomViews[group];
-        context.ecs->setID(group);
-        dispatcher.onContextChanged();
-    }));
-}
-
 void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,
                            PlayerData *player, FloorData *data)
 {
-    //init context data
-    unsigned group = data->getCurIdxRoom();
-    
+    //init vars
     this->view = view;
     this->cam = cam;
     this->data = data;
     this->playerData = player;
     
-    cc::Rect bounds = cc::Rect::ZERO;
-    for(auto pair : data->rooms)
-    {
-        auto roomIndex = pair.first;
-        auto roomData = pair.second;
-        
-        auto layeredNode = cc::create<LayeredContainer>(roomData->getBounds().size);
-        layeredNode->retain();
-        
-        auto roomSystemCtrl = new RoomSystemCtrl(roomIndex, layeredNode, roomData, dispatcher);
-        
-        roomSystemCtrl->hideObjects(0);
-        
-        this->roomViews[roomIndex] = layeredNode;
-        this->roomSystems[roomIndex] = roomSystemCtrl;
-
-        auto preview = layeredNode->createShot(
-            roomData->getBounds().size.width, roomData->getBounds().size.height);
-        this->roomPreviews[roomIndex] = preview;
-        
-        layeredNode->setPosition(roomData->position);
-        preview->setPosition(roomData->position);
-        preview->getSprite()->setOpacity(0);
-        
-        this->view->addChild(preview, 1);
-        preview->setOpacity(0);
-        
-        bounds = bounds.unionWithRect(roomData->getBounds());
-    }
-    
-    cam->setFrameBounds(bounds);
-    
-    cc::Node* bgLayer;
-    if (data->getTextures().size() > 0) //back texture
-    {
-        auto& rand = Randgine::instance()->get(Randgine::CAT::MISSION);
-        auto bgTiles = data->getBgTiles();
-        auto texName = rand.select(bgTiles);
-        
-        auto tex = cc::Director::getInstance()->getTextureCache()->getTextureForKey(texName);
-        assert(tex != nullptr);
-        cc::Texture2D::TexParams tp = { GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT };
-        tex->setTexParameters(tp);
-        bgLayer = cc::Sprite::createWithTexture(tex,
-            {0,0,bounds.size.width, bounds.size.height});
-    }
-    else //back color
-    {
-        bgLayer = cc::LayerColor::create(cc::Color4B(data->getBgColor()),
-                                         bounds.size.width, bounds.size.height);
-    }
-    bgLayer->setAnchorPoint({0,0});
-    bgLayer->setPosition(bounds.origin);
-    view->addChild(bgLayer, 0);
-    
-    //too slow!
-    /*auto batch = cc::Node::create();
-    int count = 0;
-    for(auto j = 0; j < bounds.size.height; j+= def::blockSize)
-        for(auto i = 0; i < bounds.size.width; i += def::blockSize)
-    {
-        if (random.ratio() > 0.1)
-            continue;
-        auto bgName = random.select(data->getBgTiles());
-        auto floorTile = cc::Sprite::createWithSpriteFrameName(bgName);
-        floorTile->getTexture()->setAliasTexParameters();
-        floorTile->setAnchorPoint({0,0});
-        floorTile->setPosition({bounds.origin.x + i, bounds.origin.y + j});
-        batch->addChild(floorTile);
-        count++;
-    }
-    this->view->addChild(batch);*/
+    this->loadLevel();
     
     //init context
-    this->ecsGroup.setID(group);
+    this->ecsGroup.setID(data->getCurIdxRoom());
     this->context.data = this->data->getCurrentRoom();
     this->context.view = this->roomViews[this->data->getCurIdxRoom()];
     this->bindSystems();
     //systems READY
     dispatcher.onContextChanged();
+    
+    this->loadEntities();
 }

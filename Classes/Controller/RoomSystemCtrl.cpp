@@ -66,7 +66,7 @@ RoomSystemCtrl::RoomSystemCtrl(unsigned group, LayeredContainer* view, RoomData*
         else if (lib::hasKey(obj.properties, "zone_type"))
         {
             this->loadZoneObject(obj.properties["zone_type"],
-                                 {obj.pos.x, obj.pos.y, obj.size.width, obj.size.height}, data, view);
+                {obj.pos.x, obj.pos.y, obj.size.width, obj.size.height}, data, view);
         }
         else
         {
@@ -132,8 +132,8 @@ void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect 
         assert(profile->stats != nullptr && profile->stats->physics != nullptr);
         auto& colRect = profile->stats->physics->bounds;
         cc::Point pos = {
-            bounds.origin.x + random.interval(0.0f, bounds.size.width - colRect.getMaxX()),
-            bounds.origin.y + random.interval(0.0f, bounds.size.height - colRect.getMaxY())
+            bounds.origin.x + (int)random.interval(0.0f, bounds.size.width - colRect.getMaxX()),
+            bounds.origin.y + (int)random.interval(0.0f, bounds.size.height - colRect.getMaxY())
         };
         this->loadStaticObject(profileName, pos, data, view);
     }
@@ -147,11 +147,13 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
     auto roomIndex = data->index;
     auto profile = ModelProvider::instance()->profile.get(profileName);
     auto eid = cp::entity::genID();
-    ecs::add<cp::Render>(eid, roomIndex).setProfile(profile, view);
-    ecs::get<cp::Render>(eid).sprite->setPosition(pos - ecs::get<cp::Physics>(eid).shape.origin);
     ecs::add<cp::Physics>(eid, roomIndex).setProfile(profile);
+    auto spritePos = pos - ecs::get<cp::Physics>(eid).shape.origin;
+    ecs::add<cp::Render>(eid, roomIndex).setProfile(profile, view);
+    
+    ecs::get<cp::Render>(eid).sprite->setPosition(spritePos);
+    ecs::add<cp::Position>(eid, roomIndex).set(spritePos);
     ecs::add<cp::Input>(eid, roomIndex);
-    ecs::add<cp::Position>(eid, roomIndex).set(pos - ecs::get<cp::Physics>(eid).shape.origin);
     
     if (profile->stats->orientation)
         ecs::add<cp::Orientation>(eid, roomIndex);

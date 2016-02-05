@@ -43,8 +43,8 @@ PlayerData* PlayerData::createDefault()
     
     //team: leader
     
-    PlayerEntity entity {
-        .profileName = "boy2",
+    result->entities.push_back({
+        .profileName = "boy",
         .ctrlIndex = def::CTRL1,
         .inventory = {
             {.quantity = 0, .content = nullptr},
@@ -53,11 +53,19 @@ PlayerData* PlayerData::createDefault()
             {.quantity = 0, .content = nullptr},
             {.quantity = 0, .content = nullptr}
         }
-    };
-    result->entities.push_back(entity);
+    });
     
     //troops
-    
+    result->entities.push_back({
+        .profileName = "boy2",
+        .inventory = {
+            {.quantity = 0, .content = nullptr},
+            {.quantity = 0, .content = nullptr},
+            {.quantity = 0, .content = nullptr},
+            {.quantity = 0, .content = nullptr},
+            {.quantity = 0, .content = nullptr}
+        }
+    });
     
     return result;
 }

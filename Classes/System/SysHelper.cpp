@@ -103,6 +103,7 @@ unsigned SysHelper::createPlayerEntity(LayeredContainer* parent,
     auto eid = cp::entity::genID();
     auto profile = ModelProvider::instance()->profile.get(entity.profileName);
     
+    
     auto& cpRender = ecs::add<cp::Render>(eid, group);
     auto& cpPhy = ecs::add<cp::Physics>(eid, group);
     

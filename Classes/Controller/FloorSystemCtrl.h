@@ -20,7 +20,6 @@ public:
     ~FloorSystemCtrl();
     
     void load(GameCamera* cam, cc::Node* view, PlayerData *player, FloorData* data);
-    void start();
     void clear();
     
     //void displayDebug(cc::Node* view, FloorData* data);
@@ -42,6 +41,9 @@ private:
     void bindSystems();
     //local ecs
     lib::EcsGroup       ecsGroup;
+    
+    void loadLevel();
+    void loadEntities();
     
     void showRoom(unsigned roomIndex,
                   std::function<void()> after);

@@ -8,6 +8,7 @@ ProfileData *ProfileModel::get(const std::string &profileName)
     {
         auto path = cc::FileUtils::getInstance()->
             fullPathForFilename("profiles/" + profileName + ".plist");
+        assert(!path.empty());
         profiles[profileName] = new ProfileData(path);
     }
     

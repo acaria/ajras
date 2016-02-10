@@ -81,6 +81,32 @@ SystemDispatcher& FloorSystemCtrl::getDispatcher()
     return dispatcher;
 }
 
+void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex, unsigned eid,
+                                         const GateMap& gate, float duration)
+{
+    auto roomData = data->getRoomAt(roomIndex);
+    
+    auto& render = ecs::get<cp::Render>(eid);
+    auto animPos = roomData->extractGateAnimInfo(gate, ecs::get<cp::Physics>(eid).shape);
+    render.sprite->setPosition(animPos.first);
+    render.sprite->runAction(cc::Sequence::create(
+        cc::MoveBy::create(duration, animPos.second - animPos.first),
+        cc::CallFunc::create([eid, roomIndex, this, &render](){
+            SysHelper::enableEntity(roomIndex, eid);
+            dispatcher.onEntityAdded(roomIndex, eid);
+        }),
+        NULL
+    ));
+    render.sprite->runAction(cc::Sequence::create(
+        cc::DelayTime::create(duration / 2),
+        cc::Spawn::create(
+            cc::TintTo::create(duration / 2, cc::Color3B::WHITE),
+            cc::FadeTo::create(duration / 4, 255),
+            NULL),
+        NULL
+    ));
+}
+
 void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid,
                                        const GateMap& gate)
 {
@@ -105,42 +131,14 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid,
         }
     }
     
-    auto nextRoom = data->getRoomAt(nextRoomIndex);
-    
-    //gate introduction
-    float duration = 1.0f;
-    
-    auto& render = ecs::get<cp::Render>(eid);
-    cocos2d::Vec2 srcPos, destPos;
-    
-    nextRoom->extractGateAnimInfo(gate.destGateIndex,
-                                  ecs::get<cp::Physics>(eid).shape,
-                                  /*out*/srcPos,
-                                  /*out*/destPos);
-    render.sprite->setPosition(srcPos);
-    render.sprite->runAction(cc::Sequence::create(
-        cc::MoveBy::create(duration, destPos - srcPos),
-        cc::CallFunc::create([eid, nextRoomIndex, this, &render](){
-            ecs::add<cp::Position>(eid, nextRoomIndex).set(render.sprite->getPosition());
-            dispatcher.onEntityAdded(nextRoomIndex, eid);
-        }),
-        NULL
-    ));
-    render.sprite->runAction(cc::Sequence::create(
-        cc::DelayTime::create(duration / 2),
-        cc::TintTo::create(duration / 2, cc::Color3B::WHITE),
-        NULL
-    ));
+    this->showEntityFromGate(nextRoomIndex, eid, gate, 1.0);
     
     if (eid == playerData->getEntityFocusID()) //change room
     {
-        this->switchRoom(prevRoomIndex, nextRoomIndex, eid, destPos);
-        //TODO wtf
-        /*render.sprite->runAction(cc::Sequence::create(
-            cc::DelayTime::create(duration / 2),
-            cc::FadeTo::create(duration / 2, 255),
-            NULL
-        ));*/
+        auto nextRoom = data->getRoomAt(nextRoomIndex);
+        
+        auto animPos = nextRoom->extractGateAnimInfo(gate, ecs::get<cp::Physics>(eid).shape);
+        this->switchRoom(prevRoomIndex, nextRoomIndex, eid, animPos.second);
     }
 }
 
@@ -157,7 +155,7 @@ void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex,
     auto bounds = dataRoom->getBounds();
     this->cam->moveTarget(destPos + bounds.origin, 1);
 
-    this->showRoom(toRoomIndex, nullptr);
+    this->showRoom(toRoomIndex);
     
     CmdFactory::lightCfg(context.ecs, 0.5,
                          def::shader::LightParam::brightness,
@@ -407,41 +405,26 @@ void FloorSystemCtrl::loadEntities()
     auto roomView = this->roomViews[roomIndex];
     
     //find warp enter
-    GateMap* enterGateRef = nullptr;
-    for(auto element : roomData->gateMapping)
-    {
-        if (element.second.cmd == GateMap::CmdType::ENTER_MAP)
-        {
-            enterGateRef = &element.second;
-            break;
-        }
-    }
-    assert(enterGateRef);
-    GateMap enterGate = *enterGateRef;
+    GateMap enterGate = roomData->getEnterGate();
     
     //show room
-    this->showRoom(roomIndex, [this, enterGate]() {
-        float duration = 3.0f;
-        
-        auto srcPos = enterGate.info.getSrcPos();
-        auto destPos = enterGate.info.getDestPos();
-        
+    this->showRoom(roomIndex, [this, enterGate, roomIndex]() {
         unsigned focusID = playerData->getEntityFocusID();
         
+        auto duration = 3.0;
         if (focusID != 0 && ecs::has<cp::Render, cp::Physics>(focusID))
         {
             auto& cpRender = ecs::get<cp::Render>(focusID);
-            auto& cpCollision = ecs::get<cp::Physics>(focusID);
+            cpRender.sprite->stopAllActions();
             
+            this->showEntityFromGate(roomIndex, focusID, enterGate, duration);
+           
+            cpRender.sprite->setOpacity(0);
             cpRender.busy = true;
             cpRender.setMoveAnimation(enterGate.info.getDir(), true);
             
-            cpRender.sprite->stopAllActions();
             cpRender.sprite->runAction(cc::Sequence::create(
-                cc::MoveTo::create(duration, {
-                    destPos.x - cpCollision.shape.getMinX() - cpCollision.shape.size.width / 2,
-                    destPos.y - cpCollision.shape.getMinY() - cpCollision.shape.size.height / 2
-                }),
+                cc::DelayTime::create(duration),
                 cc::CallFunc::create([focusID, this](){
                     auto& cpRender = ecs::get<cp::Render>(focusID);
                     cpRender.cancelAnimation();
@@ -454,11 +437,6 @@ void FloorSystemCtrl::loadEntities()
                 }),
                 NULL
             ));
-            cpRender.sprite->runAction(cc::Sequence::create(
-                cc::DelayTime::create(duration / 2),
-                cc::FadeTo::create(duration / 4, 255),
-                NULL
-            ));
         }
     });
     
@@ -469,6 +447,7 @@ void FloorSystemCtrl::loadEntities()
                                                  roomIndex,
                                                  enterGate.info.getSrcPos(), playerEntity);
         playerEntity.entityID = eid;
+        SysHelper::disableEntity(roomIndex, eid);
         dispatcher.onEntityAdded(roomIndex, eid);
     }
 }

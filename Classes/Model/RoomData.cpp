@@ -144,38 +144,62 @@ std::list<cc::Rect> RoomData::getWalls()
     return this->model->walls;
 }
 
-void RoomData::extractGateAnimInfo(unsigned gateIndex, cc::Rect colRect,
-                                   cc::Point& srcPos, cc::Point& destPos)
+GateMap RoomData::getEnterGate()
 {
-    cocos2d::Vec2 movePos;
-    auto gate = this->gateMapping[gateIndex];
-    
-    switch(gate.info.type)
+    for(auto element : gateMapping)
     {
-        case GateInfo::Left:
-            srcPos = {gate.info.rect.getMinX() - colRect.getMinX(),
-                gate.info.rect.getMinY() + (gate.info.rect.size.height - colRect.size.height) / 2 - colRect.getMinY()};
-            movePos = {gate.info.rect.size.width,0};
+        if (element.second.cmd == GateMap::CmdType::ENTER_MAP)
+            return element.second;
+    }
+    CCASSERT(false, "enter gate is missing");
+    return GateMap();
+}
+
+std::pair<cc::Point, cc::Point> RoomData::extractGateAnimInfo(const GateMap& srcGate, cc::Rect colRect)
+{
+    cc::Point srcPos, movePos;
+    
+    GateMap gate;
+    switch(srcGate.cmd)
+    {
+        case GateMap::CmdType::CHANGE_ROOM:
+            gate = this->gateMapping[srcGate.destGateIndex];
             break;
-        case GateInfo::Right:
-            srcPos = {gate.info.rect.getMaxX() - colRect.size.width - colRect.getMinX(),
-                gate.info.rect.getMinY() + (gate.info.rect.size.height - colRect.size.height) / 2 - colRect.getMinY()};
-            movePos = {-gate.info.rect.size.width,0};
-            break;
-        case GateInfo::Up:
-            srcPos = {gate.info.rect.getMinX() + (gate.info.rect.size.width - colRect.size.width) / 2 - colRect.getMinX(),
-                gate.info.rect.getMaxY() - colRect.size.height - colRect.getMinY()};
-            movePos = {0,-gate.info.rect.size.height};
-            break;
-        case GateInfo::Down:
-            srcPos = {gate.info.rect.getMinX() + (gate.info.rect.size.width - colRect.size.width) / 2 - colRect.getMinX(),
-                gate.info.rect.getMinY() - colRect.getMinY()};
-            movePos = {0,gate.info.rect.size.height};
+        case GateMap::CmdType::ENTER_MAP:
+            gate = srcGate;
             break;
         default:
-            Log("2: unsupported gate type detected");
+            CCASSERT(false, "not implemented");
             break;
     }
     
-    destPos = srcPos + movePos;
+    auto r = gate.info.rect;
+    switch(gate.info.type)
+    {
+        case GateInfo::Left:
+            srcPos = {r.getMinX() - colRect.getMinX(),
+                r.getMinY() + (r.size.height - colRect.size.height) / 2 - colRect.getMinY()};
+            movePos = {r.size.width,0};
+            break;
+        case GateInfo::Right:
+            srcPos = {r.getMaxX() - colRect.size.width - colRect.getMinX(),
+                r.getMinY() + (r.size.height - colRect.size.height) / 2 - colRect.getMinY()};
+            movePos = {-r.size.width,0};
+            break;
+        case GateInfo::Up:
+            srcPos = {r.getMinX() + (r.size.width - colRect.size.width) / 2 - colRect.getMinX(),
+                r.getMaxY() - colRect.size.height - colRect.getMinY()};
+            movePos = {0,-r.size.height};
+            break;
+        case GateInfo::Down:
+            srcPos = {r.getMinX() + (r.size.width - colRect.size.width) / 2 - colRect.getMinX(),
+                r.getMinY() - colRect.getMinY()};
+            movePos = {0,r.size.height};
+            break;
+        default:
+            CCASSERT(false, "2: unsupported gate type detected");
+            break;
+    }
+    
+    return {srcPos, srcPos + movePos};
 }

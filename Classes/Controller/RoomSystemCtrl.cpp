@@ -10,7 +10,10 @@
 #include "SysHelper.h"
 #include "Defines.h"
 
-RoomSystemCtrl::RoomSystemCtrl(unsigned group, LayeredContainer* view, RoomData* data, SystemDispatcher&dispatcher):
+RoomSystemCtrl::RoomSystemCtrl(unsigned group,
+                               LayeredContainer* view,
+                               RoomData* data,
+                               SystemDispatcher& dispatcher):
         random(Randgine::instance()->get(Randgine::MISSION)),
         dispatcher(dispatcher)
 {
@@ -233,6 +236,9 @@ void RoomSystemCtrl::hideObjects(float duration)
 {
     for(auto eid : ecsGroup.join<cp::Render, cp::AI>())
     {
+        if (ecs::has<cp::Team>(eid) && ecs::get<cp::Team>(eid) == def::PTEAM)
+            continue; //skip team
+        
         if (duration == 0)
             ecs::get<cp::Render>(eid).sprite->setOpacity(0);
         else
@@ -244,8 +250,11 @@ void RoomSystemCtrl::hideObjects(float duration)
 
 void RoomSystemCtrl::showObjects(float duration)
 {
-    for(auto eid : ecsGroup.system<cp::Render>())
+    for(auto eid : ecsGroup.join<cp::Render, cp::AI>())
     {
+        if (ecs::has<cp::Team>(eid) && ecs::get<cp::Team>(eid) == def::PTEAM)
+            continue; //skip team
+
         if (duration == 0)
             ecs::get<cp::Render>(eid).sprite->setOpacity(255);
         else

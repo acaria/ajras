@@ -28,9 +28,6 @@ public:
     void tick(double dt);
     void animate(double dt, double tickPercent);
     
-    void changeEntityRoom(unsigned nextRoomIndex, unsigned eid, const GateMap& gate);
-    void switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex, unsigned eid, cc::Vec2 destPos);
-    
     SystemDispatcher& getDispatcher();
     
 private:
@@ -42,11 +39,16 @@ private:
     //local ecs
     lib::EcsGroup       ecsGroup;
     
+    //loading
     void loadLevel();
     void loadEntities();
     
-    void showRoom(unsigned roomIndex,
-                  std::function<void()> after);
+    //switch management
+    void changeEntityRoom(unsigned nextRoomIndex, unsigned eid, const GateMap& gate);
+    void switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex, unsigned eid, cc::Vec2 destPos);
+    void showEntityFromGate(unsigned roomIndex, unsigned eid, const GateMap& gate, float duration);
+    
+    void showRoom(unsigned roomIndex, std::function<void()> after = nullptr);
     
     //data
     FloorData*                              data;

@@ -51,8 +51,7 @@ public:
                                              const cc::Point& pos) override;
     void freeSleepZone(const std::string& cat, const cc::Point& pos) override;
     
-    void extractGateAnimInfo(unsigned gateIndex, cc::Rect colRect,
-                             cc::Point& srcPos, cc::Point& destPos);
+    std::pair<cc::Point, cc::Point> extractGateAnimInfo(const GateMap& gate, cc::Rect colRect);
     
     //fields
     unsigned        index;
@@ -65,6 +64,7 @@ public:
     std::map<unsigned, GateMap>   gateMapping;
     
     void init();
+    GateMap getEnterGate();
     
 private:
     RoomModel*                                          model;

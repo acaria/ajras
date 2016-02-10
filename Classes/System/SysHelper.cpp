@@ -126,6 +126,8 @@ unsigned SysHelper::createPlayerEntity(LayeredContainer* parent,
     ecs::add<cp::Stamina>(eid, group).setProfile(profile);
     ecs::add<cp::Health>(eid, group).setProfile(profile);
     ecs::add<cp::Input>(eid, group);
+    ecs::add<cp::Position>(eid, group).set(pos);
+    ecs::add<cp::Team>(eid, group) = def::PTEAM;
     
     cpRender.sprite->setPosition(pos);
     cpRender.sprite->setOpacity(0);

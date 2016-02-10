@@ -81,8 +81,11 @@ SystemDispatcher& FloorSystemCtrl::getDispatcher()
     return dispatcher;
 }
 
-void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex, unsigned eid,
-                                         const GateMap& gate, float duration)
+void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex,
+                                         unsigned eid,
+                                         const GateMap& gate,
+                                         float duration,
+                                         std::function<void()> after)
 {
     auto roomData = data->getRoomAt(roomIndex);
     
@@ -91,9 +94,11 @@ void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex, unsigned eid,
     render.sprite->setPosition(animPos.first);
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveBy::create(duration, animPos.second - animPos.first),
-        cc::CallFunc::create([eid, roomIndex, this, &render](){
+        cc::CallFunc::create([eid, roomIndex, this, after](){
             SysHelper::enableEntity(roomIndex, eid);
-            dispatcher.onEntityAdded(roomIndex, eid);
+            this->dispatcher.onEntityAdded(roomIndex, eid);
+            if (after != nullptr)
+                after();
         }),
         NULL
     ));
@@ -157,12 +162,14 @@ void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex,
 
     this->showRoom(toRoomIndex);
     
-    CmdFactory::lightCfg(context.ecs, 0.5,
-                         def::shader::LightParam::brightness,
-                         data->getLightConfig().brightness);
-    CmdFactory::lightCfg(context.ecs, 0.5,
-                         def::shader::LightParam::cutOffRadius,
-                         data->getLightConfig().cutOffRadius);
+    CmdFactory::at(context.ecs, playerData->getEntityFocusID()).lightCfg(
+            0.5,
+            def::shader::LightParam::brightness,
+            data->getLightConfig().brightness);
+    CmdFactory::at(context.ecs, playerData->getEntityFocusID()).lightCfg(
+            0.5,
+            def::shader::LightParam::cutOffRadius,
+            data->getLightConfig().cutOffRadius);
 }
 
 /*cc::Sprite* FloorSystemCtrl::displayMap(FloorData *data)
@@ -316,10 +323,10 @@ void FloorSystemCtrl::bindSystems()
             case GateMap::CmdType::CHANGE_ROOM:
                 if (eid == playerData->getEntityFocusID()) //change room
                 {
-                    CmdFactory::lightCfg(context.ecs, 0.5,
-                                         def::shader::LightParam::brightness, 0);
-                    CmdFactory::lightCfg(context.ecs, 0.5,
-                                         def::shader::LightParam::cutOffRadius, 0);
+                    CmdFactory::at(context.ecs, eid).lightCfg(0.5,
+                        def::shader::LightParam::brightness, 0);
+                    CmdFactory::at(context.ecs, eid).lightCfg(0.5,
+                        def::shader::LightParam::cutOffRadius, 0);
                 }
                 break;
             default:
@@ -409,47 +416,44 @@ void FloorSystemCtrl::loadEntities()
     
     //show room
     this->showRoom(roomIndex, [this, enterGate, roomIndex]() {
-        unsigned focusID = playerData->getEntityFocusID();
-        
+    
         auto duration = 3.0;
-        if (focusID != 0 && ecs::has<cp::Render, cp::Physics>(focusID))
+    
+        //load player entities
+        std::list<unsigned> eids;
+        for(auto& playerEntity : playerData->entities)
         {
-            auto& cpRender = ecs::get<cp::Render>(focusID);
-            cpRender.sprite->stopAllActions();
-            
-            this->showEntityFromGate(roomIndex, focusID, enterGate, duration);
-           
-            cpRender.sprite->setOpacity(0);
-            cpRender.busy = true;
+            //first = ctrled entity
+            unsigned eid = playerEntity.entityID;
+            auto& cpRender = ecs::get<cp::Render>(eid);
             cpRender.setMoveAnimation(enterGate.info.getDir(), true);
             
-            cpRender.sprite->runAction(cc::Sequence::create(
-                cc::DelayTime::create(duration),
-                cc::CallFunc::create([focusID, this](){
-                    auto& cpRender = ecs::get<cp::Render>(focusID);
-                    cpRender.cancelAnimation();
-                    context.ecs->add<cp::Position>(focusID).set(cpRender.sprite->getPosition());
-                    dispatcher.onEntityPositionChanged(context.ecs->getID(), focusID);
-                    CmdFactory::lightCfg(context.ecs, 0.5,
-                                         def::shader::LightParam::brightness,
-                                         data->getLightConfig().brightness);
-                    CmdFactory::lightFollow(context.ecs, focusID, {0,0});
-                }),
-                NULL
-            ));
+            this->showEntityFromGate(roomIndex, eid, enterGate, duration,
+                    [&cpRender, this, eid](){
+                
+            });
+            break;
         }
     });
     
     //create player entities
     for(auto& playerEntity : playerData->entities)
     {
-        auto eid = SysHelper::createPlayerEntity(roomView,
-                                                 roomIndex,
+        auto eid = SysHelper::createPlayerEntity(roomView, roomIndex,
                                                  enterGate.info.getSrcPos(), playerEntity);
         playerEntity.entityID = eid;
         SysHelper::disableEntity(roomIndex, eid);
         dispatcher.onEntityAdded(roomIndex, eid);
     }
+    
+    //init light config
+    CmdFactory::at(context.ecs, playerData->getEntityFocusID()).lightCfg(0.5,
+                   def::shader::LightParam::cutOffRadius,
+                   data->getLightConfig().cutOffRadius);
+    CmdFactory::at(context.ecs, playerData->getEntityFocusID()).lightCfg(0.5,
+                   def::shader::LightParam::brightness,
+                   data->getLightConfig().brightness);
+    CmdFactory::at(context.ecs, playerData->getEntityFocusID()).lightFollow({0,0});
 }
 
 void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,

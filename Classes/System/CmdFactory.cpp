@@ -5,7 +5,12 @@
 
 using State = CmdComponent::State;
 
-void CmdFactory::goTo(lib::EcsGroup* ecs, unsigned eid, cc::Vec2 target, float nearDistance)
+CmdFactory CmdFactory::at(lib::EcsGroup* ecs, unsigned eid)
+{
+    return CmdFactory(ecs, eid);
+}
+
+void CmdFactory::goTo(cc::Vec2 target, float nearDistance)
 {
     ecs->add<cp::Cmd>(eid).setTick("goto", [target, nearDistance](unsigned eid, double dt){
         if (!ecs::has<cp::Position, cp::Physics>(eid))
@@ -28,10 +33,7 @@ void CmdFactory::goTo(lib::EcsGroup* ecs, unsigned eid, cc::Vec2 target, float n
     });
 }
 
-void CmdFactory::goTo(lib::EcsGroup* ecs,
-                      unsigned eid,
-                      std::list<cc::Vec2> waypoints,
-                      float nearDistance)
+void CmdFactory::goTo(std::list<cc::Vec2> waypoints, float nearDistance)
 {
     ecs->add<cp::Cmd>(eid).setTick("goto", [waypoints, nearDistance](unsigned eid, double dt) mutable {
         if (!ecs::has<cp::Position, cp::Physics, cp::Input>(eid))
@@ -61,10 +63,8 @@ void CmdFactory::goTo(lib::EcsGroup* ecs,
     });
 }
 
-void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
-                          const def::shader::LightParam& param, float value)
+void CmdFactory::lightCfg(float duration, const def::shader::LightParam& param, float value)
 {
-    auto eid = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
     auto lightCfg = GameCtrl::instance()->getEffects().getLightConfig();
     
     float current = 0;
@@ -107,7 +107,7 @@ void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
     });
 }
 
-void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
+void CmdFactory::lightCfg(float duration,
                           const def::shader::LightParam& param, const cc::Color3B& value)
 {
     auto eid = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
@@ -146,7 +146,7 @@ void CmdFactory::lightCfg(lib::EcsGroup* ecs, float duration,
     });
 }
 
-void CmdFactory::lightPos(lib::EcsGroup* ecs, float duration, const cc::Vec2& dest)
+/*void CmdFactory::lightPos(float duration, const cc::Vec2& dest)
 {
     auto eid = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
     
@@ -167,10 +167,9 @@ void CmdFactory::lightPos(lib::EcsGroup* ecs, float duration, const cc::Vec2& de
                                    
         return State::inProgress;
     });
-}
+}*/
 
-void CmdFactory::lightPos(lib::EcsGroup* ecs, unsigned eid, float duration,
-                          const cc::Vec2& margin)
+void CmdFactory::lightPos(float duration, const cc::Vec2& margin)
 {
     if (!ecs::has<cp::Render>(eid))
         return;
@@ -190,7 +189,7 @@ void CmdFactory::lightPos(lib::EcsGroup* ecs, unsigned eid, float duration,
     });
 }
 
-void CmdFactory::lightFollow(lib::EcsGroup* ecs, unsigned eid, const cc::Vec2& margin)
+void CmdFactory::lightFollow(const cc::Vec2& margin)
 {
     if (!ecs::has<cp::Render>(eid))
         return;
@@ -204,8 +203,7 @@ void CmdFactory::lightFollow(lib::EcsGroup* ecs, unsigned eid, const cc::Vec2& m
     });
 }
 
-void CmdFactory::delay(lib::EcsGroup* ecs, unsigned eid,
-                       double timeInterval, const std::function<void()>& success)
+void CmdFactory::delay(double timeInterval, const std::function<void()>& success)
 {
     static long id = 1;
     ecs->add<cp::Cmd>(eid).setTick(std::to_string(id++),

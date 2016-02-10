@@ -244,7 +244,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
         
             cpHealth2.damage += cpMelee.damage;
         
-            CmdFactory::delay(context->ecs, oid, 0.3, [this, oid]{
+            CmdFactory::at(context->ecs, oid).delay(0.3, [this, oid]{
                 this->setEntityAvailability(oid, true);
             });
         }),

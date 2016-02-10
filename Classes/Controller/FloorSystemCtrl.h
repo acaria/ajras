@@ -46,7 +46,8 @@ private:
     //switch management
     void changeEntityRoom(unsigned nextRoomIndex, unsigned eid, const GateMap& gate);
     void switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex, unsigned eid, cc::Vec2 destPos);
-    void showEntityFromGate(unsigned roomIndex, unsigned eid, const GateMap& gate, float duration);
+    void showEntityFromGate(unsigned roomIndex, unsigned eid, const GateMap& gate, float duration,
+                            std::function<void()> after = nullptr);
     
     void showRoom(unsigned roomIndex, std::function<void()> after = nullptr);
     

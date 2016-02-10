@@ -8,6 +8,10 @@ void MissionMediator::onAddView(MissionScene &scene)
     
     scene.setBgColor(floorData->getBgColor());
     
+    //reset light
+    GameCtrl::instance()->getEffects().setLightParam(def::shader::LightParam::brightness, 0);
+    GameCtrl::instance()->getEffects().setLightParam(def::shader::LightParam::cutOffRadius, 0);
+    
     this->systemCtrl.load(scene.getCam(), scene.getFrame(), playerData, floorData);
     
     if (playerData->entities.size() > 0) //take only the leader (first one)

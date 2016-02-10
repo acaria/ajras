@@ -43,7 +43,7 @@ void UpdaterSystem::tick(double dt)
             auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
             auto wayPoints = context->data->getNav()->getWaypoints(
                 {bounds.getMidX(), bounds.getMidY()}, cpInput.goTo.Value, cpPhy.category);
-            CmdFactory::goTo(context->ecs, eid, wayPoints, 2);
+            CmdFactory::at(context->ecs, eid).goTo(wayPoints, 2);
             
             cpInput.goTo = nullptr;
         }

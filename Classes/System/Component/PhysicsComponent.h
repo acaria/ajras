@@ -37,6 +37,7 @@ struct PhysicsComponent
     void setProfile(ProfileData* profileData);
     
     void resetForces();
+    cc::Vec2 getResultForce();
 
     ForceInfo& fInput();
     ForceInfo& fImpact();

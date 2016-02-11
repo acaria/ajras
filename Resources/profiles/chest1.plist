@@ -14,6 +14,8 @@
 			<string>0</string>
 			<key>weight</key>
 			<string>80</string>
+			<key>strength</key>
+			<string>0</string>
 			<key>rect</key>
 			<string>1,0,22,16</string>
 			<key>cat</key>

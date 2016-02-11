@@ -11,6 +11,7 @@ struct ProfileStatsInfo
     struct Physics
     {
         float                       speed;
+        float                       strength;
         float                       acceleration;
         float                       deceleration;
         cc::Rect                    bounds;

@@ -11,7 +11,10 @@ ProfileStatsInfo::ProfileStatsInfo(const cc::ValueMap& map)
         lib::split(mData.at("rect").asString(), split, ", ");
         
         this->physics = {
-            .speed = mData.at("speed").asFloat(),
+            .speed = (mData.find("speed") != mData.end()) ?
+                mData.at("speed").asFloat() : 0.0f,
+            .strength = (mData.find("strength") != mData.end()) ?
+                mData.at("strength").asFloat() : 0.0f,
             .acceleration = mData.at("acceleration").asFloat(),
             .deceleration = mData.at("deceleration").asFloat(),
             .bounds = cc::Rect(std::stoi(split[0]), std::stoi(split[1]),

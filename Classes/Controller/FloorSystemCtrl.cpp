@@ -416,23 +416,20 @@ void FloorSystemCtrl::loadEntities()
     
     //show room
     this->showRoom(roomIndex, [this, enterGate, roomIndex]() {
-    
-        auto duration = 3.0;
-    
+
         //load player entities
         std::list<unsigned> eids;
+        float delay = 0;
         for(auto& playerEntity : playerData->entities)
         {
-            //first = ctrled entity
-            unsigned eid = playerEntity.entityID;
-            auto& cpRender = ecs::get<cp::Render>(eid);
-            cpRender.setMoveAnimation(enterGate.info.getDir(), true);
-            
-            this->showEntityFromGate(roomIndex, eid, enterGate, duration,
-                    [&cpRender, this, eid](){
-                
+            CmdFactory::at(context.ecs, playerData->getEntityFocusID()).delay(delay,
+                    [this, playerEntity, roomIndex, enterGate](){
+                unsigned eid = playerEntity.entityID;
+                auto& cpRender = ecs::get<cp::Render>(eid);
+                cpRender.setMoveAnimation(enterGate.info.getDir(), true);
+                this->showEntityFromGate(roomIndex, eid, enterGate, 3.0);
             });
-            break;
+            delay += 2.0f;
         }
     });
     

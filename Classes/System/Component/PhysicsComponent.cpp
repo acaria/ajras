@@ -50,6 +50,17 @@ PhysicsComponent::ForceInfo& PhysicsComponent::fPush()
     return this->forces[ForceType::PUSH];
 }
 
+cc::Vec2 PhysicsComponent::getResultForce()
+{
+    cc::Vec2 result = {0,0};
+    for(auto pair : forces)
+    {
+        if (pair.second.active)
+            result += pair.second.direction * pair.second.curSpeed;
+    }
+    return result;
+}
+
 void PhysicsComponent::setProfile(ProfileData* profile)
 {
     assert(profile->stats != nullptr && profile->stats->physics != nullptr);

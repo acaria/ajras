@@ -36,7 +36,7 @@ void CollisionInfo::processAgent(const Agent &agent)
         {
             auto diff = CollisionEngine::slide(agent.bounds, other.bounds);
             if (!diff.isZero())
-                this->onAgentCollision(agent.id, other.id, diff * (0.999));
+                this->onAgentCollision(agent.id, other.id, diff * (1.001));
         }
     }
     

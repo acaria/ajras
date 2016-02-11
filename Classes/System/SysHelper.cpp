@@ -121,7 +121,8 @@ unsigned SysHelper::createPlayerEntity(LayeredContainer* parent,
     if (entity.ctrlIndex != 0)
         ecs::add<cp::Control>(eid, group) = entity.ctrlIndex;
     else
-        ecs::add<cp::AI>(eid, group).setProfile(profile);
+        //ecs::add<cp::AI>(eid, group).setProfile(profile);
+        ecs::add<cp::Control>(eid, group) = 2;
     ecs::add<cp::Gear>(eid, group) = entity.inventory;
     ecs::add<cp::Stamina>(eid, group).setProfile(profile);
     ecs::add<cp::Health>(eid, group).setProfile(profile);

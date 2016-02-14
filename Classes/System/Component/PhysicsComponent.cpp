@@ -54,10 +54,7 @@ cc::Vec2 PhysicsComponent::getResultForce()
 {
     cc::Vec2 result = {0,0};
     for(auto pair : forces)
-    {
-        if (pair.second.active)
-            result += pair.second.direction * pair.second.curSpeed;
-    }
+        result += pair.second.direction * pair.second.curSpeed;
     return result;
 }
 
@@ -67,6 +64,8 @@ void PhysicsComponent::setProfile(ProfileData* profile)
     //collision
     auto& physics = profile->stats->physics;
     this->shape = physics->bounds;
+    this->strength = physics->strength;
+    this->weight = physics->weight;
     
     switch(lib::hash(physics->category))
     {

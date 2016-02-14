@@ -50,6 +50,7 @@ struct PhysicsComponent
     //input/movement
     std::map<ForceType, ForceInfo>  forces;
     float                           weight;
+    float                           strength;
     
     //output
     CollisionType                   collisionState = CollisionType::NONE;

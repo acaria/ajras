@@ -73,7 +73,6 @@ void CollisionSystem::onDecorCollision(unsigned eid, cc::Vec2 diff)
 #include "GameCtrl.h"
 void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff)
 {
-    Log("col tick=%lu, %u => %u, %f - %f", GameCtrl::instance()->tick.getTicks(), eid, tid, diff.x, diff.y);
     auto& cpPos = ecs::get<cp::Position>(eid);
     auto& cpPhy = ecs::get<cp::Physics>(eid);
     
@@ -97,51 +96,54 @@ void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff
         auto& cpPos2 = ecs::get<cp::Position>(tid);
         auto& cpPhy2 =  ecs::get<cp::Physics>(tid);
         
-        auto r = SysHelper::getBounds(cpPos, cpPhy);
-        auto r2 = SysHelper::getBounds(cpPos2, cpPhy2);
+        cc::Vec2 unit = {diff.x / fabsf(diff.x), diff.y / fabsf(diff.y)};
+        
+        cc::Vec2 p1 = -cpPhy.getResultForce().project(diff);
+        cc::Vec2 res1 = {MAX(0, p1.x * unit.x), MAX(0, p1.y * unit.y)};
+        float l1 = res1.getLength();
         
         
-        cc::Vec2 v1 = {r2.getMidX() - r.getMidX(), r2.getMidY() - r.getMidY()};
-        auto l1 = cpPhy.getResultForce().project(v1).getLengthSq();
+        cc::Vec2 p2 = cpPhy2.getResultForce().project(diff);
+        cc::Vec2 res2 = {MAX(0, p2.x * unit.x), MAX(0, p2.y * unit.y)};
+        float l2 = res2.getLength();
         
-        cc::Vec2 v2 = {r.getMidX() - r2.getMidX(), r.getMidY() - r2.getMidY()};
-        auto l2 = cpPhy2.getResultForce().project(v2).getLengthSq();
-        
-        if (false/*fabs(l1 - l2) < 5*/) //no forces ->
+        if ((res2.x + res2.y == 0 && res1.x + res1.y == 0) || fabs(l1 - l2) < 0.1)//eid == tid
         {
+            Log("%u == %u", eid, tid);
+            cpPhy.fInput().curSpeed = 0;
+            cpPhy2.fInput().curSpeed = 0;
             cpPhy.collisionState = PhysicsComponent::OBJECT;
+            cpPhy2.collisionState = PhysicsComponent::OBJECT;
             cpPos.pos += diff;
             collisionData->agents[eid].bounds.origin += diff;
         }
-        else
+        else if (l1 > l2) //eid -> tid
         {
-            if (l1 < l2)
-            {
-                cpPhy2.collisionState = PhysicsComponent::OBJECT;
-                cpPos2.pos -= diff;
-                collisionData->agents[tid].bounds.origin -= diff;
+            Log("%u => %u : %f", tid, eid, l1 -l2);
+            cpPhy.collisionState = PhysicsComponent::OBJECT;
+            cpPos.pos += diff;
+            collisionData->agents[eid].bounds.origin += diff;
                 
-                //cpPhy.fPush().curSpeed = 0;
-                cpPhy.fPush().accSpeed = 200;
-                cpPhy.fPush().decSpeed = 250;
-                cpPhy.fPush().maxSpeed = 45;
-                cpPhy.fPush().direction = diff.getNormalized();
-                cpPhy.fPush().active = true;
-            }
-            else
-            {
-                cpPhy.collisionState = PhysicsComponent::OBJECT;
-                cpPos.pos += diff;
-                collisionData->agents[eid].bounds.origin += diff;
-                
-                //cpPhy2.fPush().curSpeed = 0;
-                cpPhy2.fPush().accSpeed = 200;
-                cpPhy2.fPush().decSpeed = 250;
-                cpPhy2.fPush().maxSpeed = 45;
-                cpPhy2.fPush().direction = -diff.getNormalized();
-                cpPhy2.fPush().active = true;
-            }
+            cpPhy2.fPush().accSpeed = 200;
+            cpPhy2.fPush().decSpeed = 250;
+            cpPhy2.fPush().maxSpeed = l1 - l2;
+            cpPhy2.fPush().direction = -diff.getNormalized();
+            cpPhy2.fPush().active = true;
         }
+        else //tid -> eid
+        {
+            Log("%u => %u : %f", tid, eid, l2 -l1);
+            cpPhy2.collisionState = PhysicsComponent::OBJECT;
+            cpPos2.pos -= diff;
+            collisionData->agents[tid].bounds.origin -= diff;
+                
+            cpPhy.fPush().accSpeed = 200;
+            cpPhy.fPush().decSpeed = 250;
+            cpPhy.fPush().maxSpeed = l2 - l1;
+            cpPhy.fPush().direction = diff.getNormalized();
+            cpPhy.fPush().active = true;
+        }
+        
         
         //TODO
         //auto& agent2 = collisionData->agents[tid];

@@ -47,13 +47,13 @@ bool FloorMapping::checkRoom(cc::Point roomPos, RoomModel* model)
         
         for(auto wall : takenList)
         {
-            if (wall.intersectsRect(newWall))
+            if (intersectRect(wall, newWall))
                 return false; //wall collision
         }
         
         for(auto crossingInfo : crossingLeft)
         {
-            if (crossingInfo.gateInfo.rect.intersectsRect(newWall))
+            if (intersectRect(crossingInfo.gateInfo.rect, newWall))
             {
                 bool gateFits = false;
                 for(auto newCross : model->crossAreas)
@@ -85,6 +85,14 @@ bool FloorMapping::checkRoom(cc::Point roomPos, RoomModel* model)
         return false;
     
     return true;
+}
+
+bool FloorMapping::intersectRect(const cc::Rect& r1, const cc::Rect& r2)
+{
+    return !(r1.getMaxX() <= r2.getMinX() ||
+             r2.getMaxX() <= r1.getMinX() ||
+             r1.getMaxY() <= r2.getMinY() ||
+             r2.getMaxY() <= r1.getMinY());
 }
 
 cc::Point FloorMapping::getStartPosition(RoomModel* model)

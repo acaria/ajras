@@ -7,7 +7,7 @@
 class FloorMapping
 {
 public:
-    const float margin = 6;
+    const float margin = 0;
 
     //defines
     struct CrossingInfo
@@ -55,6 +55,7 @@ private:
     //internal methods
     GateInfo getOppositeFromGateInfo(GateInfo info);
     bool checkRoom(cc::Point roomPos, RoomModel* model);
+    bool intersectRect(const cc::Rect& r1, const cc::Rect& r2);
 
     //fields
     cc::Size size;

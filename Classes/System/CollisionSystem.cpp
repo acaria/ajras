@@ -96,7 +96,7 @@ void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff
         auto& cpPos2 = ecs::get<cp::Position>(tid);
         auto& cpPhy2 =  ecs::get<cp::Physics>(tid);
         
-        cc::Vec2 unit = {diff.x / fabsf(diff.x), diff.y / fabsf(diff.y)};
+        cc::Vec2 unit = diff.getNormalized();
         
         cc::Vec2 p1 = -cpPhy.getResultForce().project(diff);
         cc::Vec2 res1 = {MAX(0, p1.x * unit.x), MAX(0, p1.y * unit.y)};
@@ -106,56 +106,63 @@ void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff
         cc::Vec2 p2 = cpPhy2.getResultForce().project(diff);
         cc::Vec2 res2 = {MAX(0, p2.x * unit.x), MAX(0, p2.y * unit.y)};
         float l2 = res2.getLength();
+        float fAmount1 = l1 * MIN(1.0,  cpPhy.weight / cpPhy2.weight) * cpPhy.strength;
+        float fAmount2 = l2 * MIN(1.0, cpPhy2.weight / cpPhy.weight) * cpPhy2.strength;
         
-        if ((res2.x + res2.y == 0 && res1.x + res1.y == 0) || fabs(l1 - l2) < 0.1)//eid == tid
+        if (fabs(fAmount1 - fAmount2) < 0.1)//eid == tid
         {
-            Log("%u == %u", eid, tid);
-            cpPhy.fInput().curSpeed = 0;
-            cpPhy2.fInput().curSpeed = 0;
+            Log("%u:%f == %u:%f", eid, fAmount1, tid, fAmount2);
             cpPhy.collisionState = PhysicsComponent::OBJECT;
+            cpPos.pos += diff;
+            collisionData->agents[eid].bounds.origin += diff;
             cpPhy2.collisionState = PhysicsComponent::OBJECT;
-            cpPos.pos += diff;
-            collisionData->agents[eid].bounds.origin += diff;
+            cpPos2.pos -= diff;
+            collisionData->agents[tid].bounds.origin -= diff;
+            
+            cpPhy.fInput().curSpeed = 0;
+            cpPhy.fImpact().accSpeed = 600;
+            cpPhy.fImpact().decSpeed = 250;
+            cpPhy.fImpact().maxSpeed = fAmount1;
+            cpPhy.fImpact().direction = diff.getNormalized();
+            cpPhy.fImpact().active = true;
+            cpPhy.fImpact().duration = 0.15;
+            
+            cpPhy2.fInput().curSpeed = 0;
+            cpPhy2.fImpact().accSpeed = 600;
+            cpPhy2.fImpact().decSpeed = 250;
+            cpPhy2.fImpact().maxSpeed = fAmount2;
+            cpPhy2.fImpact().direction = -diff.getNormalized();
+            cpPhy2.fImpact().active = true;
+            cpPhy2.fImpact().duration = 0.15;
         }
-        else if (l1 > l2) //eid -> tid
+        else if (fAmount1 > fAmount2) //eid -> tid
         {
-            Log("%u => %u : %f", tid, eid, l1 -l2);
+            Log("%u:%f => %u:%f", eid, fAmount1, tid, fAmount2);
             cpPhy.collisionState = PhysicsComponent::OBJECT;
             cpPos.pos += diff;
             collisionData->agents[eid].bounds.origin += diff;
-                
+            
+            cpPhy2.fInput().curSpeed = 0;
             cpPhy2.fPush().accSpeed = 200;
             cpPhy2.fPush().decSpeed = 250;
-            cpPhy2.fPush().maxSpeed = l1 - l2;
+            cpPhy2.fPush().maxSpeed = fAmount1 - fAmount2;
             cpPhy2.fPush().direction = -diff.getNormalized();
             cpPhy2.fPush().active = true;
         }
         else //tid -> eid
         {
-            Log("%u => %u : %f", tid, eid, l2 -l1);
+            Log("%u:%f => %u:%f", tid, fAmount2, eid, fAmount1);
             cpPhy2.collisionState = PhysicsComponent::OBJECT;
             cpPos2.pos -= diff;
             collisionData->agents[tid].bounds.origin -= diff;
-                
+            
+            cpPhy.fInput().curSpeed = 0;
             cpPhy.fPush().accSpeed = 200;
             cpPhy.fPush().decSpeed = 250;
-            cpPhy.fPush().maxSpeed = l2 - l1;
+            cpPhy.fPush().maxSpeed = fAmount2 - fAmount1;
             cpPhy.fPush().direction = diff.getNormalized();
             cpPhy.fPush().active = true;
         }
-        
-        
-        //TODO
-        //auto& agent2 = collisionData->agents[tid];
-        //agent2.velocity = -diff;
-        //ecs::get<cp::Physics>(tid).velocity = agent2.velocity;
-        
-        /*if (!collisionData->checkCollisionRect(agent2.bounds - diff, agent2.category))
-        {
-            ecs::get<cp::Position>(tid).pos -= diff;
-            agent2.bounds.origin -= diff;
-            agent2.lastBounds = agent2.bounds;
-        }*/
     }
 }
 

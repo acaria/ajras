@@ -74,13 +74,13 @@ def::collision::Agent SysHelper::makeAgent(unsigned eid)
 
 void SysHelper::enableEntity(unsigned group, unsigned eid)
 {
-    CCASSERT((ecs::has<cp::Render, cp::Physics>(eid)), "invalid entity");
+    CCASSERT((ecs::has<cp::Render, cp::Input, cp::Physics>(eid)), "invalid entity");
     auto& cpRender = ecs::get<cp::Render>(eid);
     cpRender.busy = false;
-    ecs::add<cp::Position>(eid, group).set(cpRender.sprite->getPosition());
+    ecs::get<cp::Position>(eid).set(cpRender.sprite->getPosition());
     
-    if (ecs::has<cp::Input>(eid))
-        ecs::get<cp::Input>(eid).enabled = true;
+    ecs::get<cp::Input>(eid).enabled = true;
+    ecs::get<cp::Input>(eid).withCollision = true;
 }
 
 void SysHelper::disableEntity(unsigned group, unsigned int eid)
@@ -90,9 +90,9 @@ void SysHelper::disableEntity(unsigned group, unsigned int eid)
     auto& cpPhy = ecs::get<cp::Physics>(eid);
     cpPhy.resetForces();
     cpRender.busy = true;
-    ecs::del<cp::Position>(eid, group);
-    if (ecs::has<cp::Input>(eid))
-        ecs::get<cp::Input>(eid).enabled = false;
+    
+    ecs::get<cp::Input>(eid).enabled = false;
+    ecs::get<cp::Input>(eid).withCollision = false;
 }
 
 unsigned SysHelper::createPlayerEntity(LayeredContainer* parent,

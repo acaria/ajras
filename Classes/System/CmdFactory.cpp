@@ -3,17 +3,17 @@
 #include "GameCtrl.h"
 #include "ColorUtil.h"
 
-using State = CmdComponent::State;
-
-CmdFactory CmdFactory::at(lib::EcsGroup* ecs, unsigned eid)
+CmdFactory CmdFactory::at(lib::EcsGroup* ecs, unsigned eid,
+        const std::function<void()>& onSuccess, const std::function<void()>& onFailure)
 {
-    return CmdFactory(ecs, eid);
+    return CmdFactory(ecs, eid, onSuccess, onFailure);
 }
 
 void CmdFactory::goTo(cc::Vec2 target, float nearDistance)
 {
-    ecs->add<cp::Cmd>(eid).setTick("goto", [target, nearDistance](unsigned eid, double dt){
-        if (!ecs::has<cp::Position, cp::Physics>(eid))
+    ecs->add<cp::Cmd>(eid).setTick("goto",
+            [target, nearDistance](unsigned eid, double dt){
+        if (!ecs::has<cp::Input, cp::Position, cp::Physics>(eid))
             return State::failure;
         
         auto& cpPosition = ecs::get<cp::Position>(eid);
@@ -21,26 +21,31 @@ void CmdFactory::goTo(cc::Vec2 target, float nearDistance)
         auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
         cc::Vec2 dir = target - cc::Vec2(bounds.getMidX(), bounds.getMidY());
         
-        cpPhy.fInput().active = true;
+        ecs::get<cp::Input>(eid).direction = dir.getNormalized();
+        
+        /*cpPhy.fInput().active = true;
         cpPhy.fInput().direction = dir.getNormalized();
         
         if (ecs::has<cp::Orientation>(eid))
             ecs::get<cp::Orientation>(eid).set(Dir::cardinalFromVec(cpPhy.fInput().direction));
+        */
 
         if (dir.length() < nearDistance)
             return State::success;
         return State::inProgress;
-    });
+    }, onSuccess, onFailure);
 }
 
 void CmdFactory::goTo(std::list<cc::Vec2> waypoints, float nearDistance)
 {
-    ecs->add<cp::Cmd>(eid).setTick("goto", [waypoints, nearDistance](unsigned eid, double dt) mutable {
+    ecs->add<cp::Cmd>(eid).setTick("goto",
+            [waypoints, nearDistance](unsigned eid, double dt) mutable {
         if (!ecs::has<cp::Position, cp::Physics, cp::Input>(eid))
             return State::failure;
         
         if (waypoints.size() == 0)
             return State::success;
+            
 #if ECSYSTEM_DEBUG
         ecs::get<cp::Input>(eid).wayPoints = waypoints;
 #endif
@@ -60,7 +65,7 @@ void CmdFactory::goTo(std::list<cc::Vec2> waypoints, float nearDistance)
 #endif
         }
         return State::inProgress;
-    });
+    }, onSuccess, onFailure);
 }
 
 void CmdFactory::lightCfg(float duration, const def::shader::LightParam& param, float value)
@@ -104,7 +109,7 @@ void CmdFactory::lightCfg(float duration, const def::shader::LightParam& param, 
             current + (value - current) * amount);
         
         return State::inProgress;
-    });
+    }, onSuccess, onFailure);
 }
 
 void CmdFactory::lightCfg(float duration,
@@ -143,7 +148,7 @@ void CmdFactory::lightCfg(float duration,
             ColorUtil::interpolate(current, value, amount));
         
         return State::inProgress;
-    });
+    }, onSuccess, onFailure);
 }
 
 /*void CmdFactory::lightPos(float duration, const cc::Vec2& dest)
@@ -178,7 +183,7 @@ void CmdFactory::lightPos(float duration, const cc::Vec2& margin)
     float inc = 1 / (def::ticksPerSecond * duration);
     float amount = 0;
     ecs->add<cp::Cmd>(eid).setTick("lightposition",
-            [sprite, inc, amount, margin](unsigned eid, double dt) mutable {
+            [sprite, inc, amount, margin, this](unsigned eid, double dt) mutable {
         if (amount >= 1.0)
             return State::success;
                                    
@@ -186,7 +191,7 @@ void CmdFactory::lightPos(float duration, const cc::Vec2& margin)
         auto p = sprite->convertToWorldSpace(margin);
         GameCtrl::instance()->getEffects().setLightPos({p.x, p.y});
         return State::inProgress;
-    });
+    }, onSuccess, onFailure);
 }
 
 void CmdFactory::lightFollow(const cc::Vec2& margin)
@@ -200,10 +205,10 @@ void CmdFactory::lightFollow(const cc::Vec2& margin)
         auto p = sprite->convertToWorldSpace(margin);
         GameCtrl::instance()->getEffects().setLightPos({p.x, p.y});
         return State::inProgress;
-    });
+    }, onSuccess, onFailure);
 }
 
-void CmdFactory::delay(double timeInterval, const std::function<void()>& success)
+void CmdFactory::delay(double timeInterval)
 {
     static long id = 1;
     ecs->add<cp::Cmd>(eid).setTick(std::to_string(id++),
@@ -212,5 +217,5 @@ void CmdFactory::delay(double timeInterval, const std::function<void()>& success
             return State::success;
         timeInterval -= dt;
         return State::inProgress;
-    }, success);
+    }, onSuccess, onFailure);
 }

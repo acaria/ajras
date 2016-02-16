@@ -80,6 +80,8 @@ void TransitSystem::tick(double dt)
 {
     for(auto eid2 : context->ecs->join<cp::Position, cp::Physics, cp::Input>())
     {
+        if (!ecs::get<cp::Input>(eid2).withCollision) //inhibit
+            continue;
         auto& cpPos = ecs::get<cp::Position>(eid2);
         auto& cpPhy = ecs::get<cp::Physics>(eid2);
         

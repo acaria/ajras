@@ -7,12 +7,18 @@
 class CmdFactory
 {
 public:
-    CmdFactory(lib::EcsGroup* ecs, unsigned eid):ecs(ecs), eid(eid) {};
-    static CmdFactory at(lib::EcsGroup* ecs, unsigned eid);
+    using State = CmdComponent::State;
+    CmdFactory(lib::EcsGroup* ecs, unsigned eid,
+               const std::function<void()>& onSuccess = nullptr,
+               const std::function<void()>& onFailure = nullptr)
+               :ecs(ecs), eid(eid), onSuccess(onSuccess), onFailure(onFailure) {};
+    static CmdFactory at(lib::EcsGroup* ecs, unsigned eid,
+                         const std::function<void()>& onSuccess = nullptr,
+                         const std::function<void()>& onFailure = nullptr);
 
     void goTo(cc::Vec2 target, float nearDistance);
     void goTo(std::list<cc::Vec2> waypoints, float nearDistance);
-    void delay(double timeInterval, const std::function<void()>& success);
+    void delay(double timeInterval);
     void lightCfg(float duration,
                   const def::shader::LightParam& param,
                   float value);
@@ -26,4 +32,6 @@ public:
 private:
     lib::EcsGroup* ecs;
     unsigned eid;
+    std::function<void()> onSuccess;
+    std::function<void()> onFailure;
 };

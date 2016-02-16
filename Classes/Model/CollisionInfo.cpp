@@ -19,6 +19,11 @@ void CollisionInfo::process()
     {
         this->processAgent(pair.second);
     }
+    
+    for(auto pair : this->fakeNodeAgents)
+    {
+        this->processFakeNode(pair.first, pair.second);
+    }
 }
 
 void CollisionInfo::processAgent(const Agent &agent)
@@ -48,6 +53,23 @@ void CollisionInfo::processAgent(const Agent &agent)
     }
 }
 
+void CollisionInfo::processFakeNode(cc::Node* node, const cc::Rect& shape)
+{
+    auto bounds = cc::Rect(node->getPosition() + shape.origin, shape.size);
+    
+    for (auto pair : this->agents)
+    {
+        auto& other = pair.second;
+        
+        if (bounds.intersectsRect(other.bounds))
+        {
+            auto diff = CollisionEngine::slide(bounds, other.bounds);
+            if (!diff.isZero())
+                this->onFakeNodeCollision(other.id, diff * (1.001));
+        }
+    }
+}
+
 void CollisionInfo::prepare()
 {
     this->reset();
@@ -56,7 +78,10 @@ void CollisionInfo::prepare()
     lib::v2u dim = {data->getGrid().width, data->getGrid().height};
     
     this->grids[cat::walkable] = lib::DataGrid<bool>(dim);
+    this->freeStaticCoords[cat::walkable] = std::vector<lib::v2u>();
+    
     this->grids[cat::flyable] = lib::DataGrid<bool>(dim);
+    this->freeStaticCoords[cat::flyable] = std::vector<lib::v2u>();
     
     for(unsigned j = 0; j < dim.y; j++)
     for(unsigned i = 0; i < dim.x; i++)
@@ -69,36 +94,30 @@ void CollisionInfo::prepare()
             {
                 this->grids[cat::flyable][{i, j}] = true;
                 this->grids[cat::walkable][{i, j}] = true;
+                
+                if (!lib::hasKey(data->getGrid()[{i,j}].fields, BlockInfo::gating))
+                {
+                    this->freeStaticCoords[cat::flyable].push_back({i,j});
+                    this->freeStaticCoords[cat::walkable].push_back({i,j});
+                }
             }
             else if (category == "flyable")
+            {
                 this->grids[cat::flyable][{i, j}] = true;
+                if (!lib::hasKey(data->getGrid()[{i,j}].fields, BlockInfo::gating))
+                {
+                    this->freeStaticCoords[cat::flyable].push_back({i,j});
+                }
+            }
             else
                 Log("invalid collision category: %s", category.c_str());
         }
     }
 }
 
-std::vector<lib::v2u> CollisionInfo::getAllFreeCoords(ColCat cat)
+std::vector<lib::v2u> CollisionInfo::getAllStaticFreeCoords(ColCat cat)
 {
-    auto result = std::vector<lib::v2u>();
-    
-    auto& grid = this->grids[cat];
-    for(unsigned j = 0; j < grid.height; j++)
-    for(unsigned i = 0; i < grid.width; i++)
-    {
-        //check statics, exclude gates
-        if (!grid[{i,j}])
-            continue;
-        if (lib::hasKey(data->getGrid()[{i,j}].fields, BlockInfo::gating))
-            continue;
-        
-        //todo: check agents
-        //...
-        
-        result.push_back({i,j});
-    }
-    
-    return result;
+    return this->freeStaticCoords[cat];
 }
 
 std::vector<cc::Rect> CollisionInfo::getNearEmptyBlocks(const cc::Point& pos, unsigned int maxDist, def::collision::Cat cat)

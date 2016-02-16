@@ -13,7 +13,7 @@ void TargetSystem::tick(double dt)
         cc::Rect r2 = SysHelper::getBounds(eid2);
         
         cc::Point pdir = cc::Point(r2.getMidX(), r2.getMidY()) -
-        cc::Point(r1.getMidX(), r1.getMidY());
+                         cc::Point(r1.getMidX(), r1.getMidY());
         
         Dir odir = Dir::None;
         

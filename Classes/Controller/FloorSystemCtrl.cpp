@@ -84,21 +84,22 @@ SystemDispatcher& FloorSystemCtrl::getDispatcher()
 void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex,
                                          unsigned eid,
                                          const GateMap& gate,
-                                         float duration,
-                                         std::function<void()> after)
+                                         float duration)
 {
     auto roomData = data->getRoomAt(roomIndex);
     
     auto& render = ecs::get<cp::Render>(eid);
     auto animPos = roomData->extractGateAnimInfo(gate, ecs::get<cp::Physics>(eid).shape);
+    
+    dispatcher.onFakeAgentNodeAdded(roomIndex, render.sprite, ecs::get<cp::Physics>(eid).shape);
+    
     render.sprite->setPosition(animPos.first);
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveBy::create(duration, animPos.second - animPos.first),
-        cc::CallFunc::create([eid, roomIndex, this, after](){
+        cc::CallFunc::create([eid, roomIndex, this, render](){
             SysHelper::enableEntity(roomIndex, eid);
-            this->dispatcher.onEntityAdded(roomIndex, eid);
-            if (after != nullptr)
-                after();
+            dispatcher.onFakeAgentNodeRemoved(roomIndex, render.sprite);
+            dispatcher.onEntityAdded(roomIndex, eid);
         }),
         NULL
     ));
@@ -136,8 +137,6 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid,
         }
     }
     
-    this->showEntityFromGate(nextRoomIndex, eid, gate, 1.0);
-    
     if (eid == playerData->getEntityFocusID()) //change room
     {
         auto nextRoom = data->getRoomAt(nextRoomIndex);
@@ -145,6 +144,8 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid,
         auto animPos = nextRoom->extractGateAnimInfo(gate, ecs::get<cp::Physics>(eid).shape);
         this->switchRoom(prevRoomIndex, nextRoomIndex, eid, animPos.second);
     }
+    
+    this->showEntityFromGate(nextRoomIndex, eid, gate, 1.0);
 }
 
 void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex,
@@ -422,14 +423,14 @@ void FloorSystemCtrl::loadEntities()
         float delay = 0;
         for(auto& playerEntity : playerData->entities)
         {
-            CmdFactory::at(context.ecs, playerData->getEntityFocusID()).delay(delay,
-                    [this, playerEntity, roomIndex, enterGate](){
+            auto onSuccess = [this, playerEntity, roomIndex, enterGate](){
                 unsigned eid = playerEntity.entityID;
                 auto& cpRender = ecs::get<cp::Render>(eid);
                 cpRender.setMoveAnimation(enterGate.info.getDir(), true);
-                this->showEntityFromGate(roomIndex, eid, enterGate, 3.0);
-            });
-            delay += 2.0f;
+                this->showEntityFromGate(roomIndex, eid, enterGate, 2.0);
+            };
+            CmdFactory::at(context.ecs, playerData->getEntityFocusID(), onSuccess).delay(delay);
+            delay += 1.0f;
         }
     });
     

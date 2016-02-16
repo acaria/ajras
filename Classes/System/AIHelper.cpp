@@ -133,7 +133,7 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
     if (!lib::hasKey(properties, "waypoints"))
     {
         auto originBounds = SysHelper::getBounds(eid);
-        auto coords = system->context->data->getCol()->getAllFreeCoords(cpPhy.category);
+        auto coords = system->context->data->getCol()->getAllStaticFreeCoords(cpPhy.category);
         
         do
         {

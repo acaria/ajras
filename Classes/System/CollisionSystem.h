@@ -23,6 +23,7 @@ public:
     
     void onDecorCollision(unsigned eid, cc::Vec2 diff);
     void onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff);
+    void onFakeNodeCollision(unsigned eid, cc::Vec2 diff);
     
 private:
     

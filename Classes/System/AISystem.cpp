@@ -90,6 +90,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                 case lib::hash("mood"):
                     return cmd.execTargetMood(eid, cpAI.sightRange.second,
                                               node->values, properties);
+                case lib::hash("player"):
+                    return cmd.execTargetPlayer(eid, node->values, properties);
                 case lib::hash("none"):
                     return cmd.execTargetNone(eid, node->values, properties);
                 default:

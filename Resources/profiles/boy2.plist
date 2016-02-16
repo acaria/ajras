@@ -5,7 +5,7 @@
 	<key>behaviour</key>
 	<dict>
 		<key>key</key>
-		<string>team</string>
+		<string>teamSwordman</string>
 		<key>mood</key>
 		<string>friendly</string>
 		<key>sight</key>

@@ -1,6 +1,7 @@
 #include "AIHelper.h"
 #include "AISystem.h"
 #include "RoomData.h"
+#include "GameCtrl.h"
 
 AIHelper::AIHelper(AISystem* system) : system(system) {}
 
@@ -109,6 +110,14 @@ behaviour::nState AIHelper::execTargetMood(unsigned eid, float sight,
         return state::SUCCESS;
     }
     return state::FAILURE;
+}
+
+behaviour::nState AIHelper::execTargetPlayer(unsigned eid,
+    const std::vector<std::string>& params, Properties& properties)
+{
+    auto focusID = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
+    system->context->ecs->add<cp::Target>(eid) = focusID;
+    return state::SUCCESS;
 }
 
 behaviour::nState AIHelper::execTargetNone(unsigned eid,

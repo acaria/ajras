@@ -31,6 +31,9 @@ public:
     behaviour::nState execTargetNone(unsigned eid,
         const std::vector<std::string>& params, Properties& properties);
     
+    behaviour::nState execTargetPlayer(unsigned eid,
+        const std::vector<std::string>& params, Properties& properties);
+    
     behaviour::nState execMoveToRand(unsigned eid,
         const std::vector<std::string>& params, Properties& properties);
     

@@ -21,7 +21,8 @@ void UpdaterSystem::tick(double dt)
     }
     
     //update commands
-    for(auto eid : context->ecs->system<cp::Cmd>())
+    auto cmds = context->ecs->system<cp::Cmd>();
+    for(auto eid : cmds)
     {
         ecs::get<cp::Cmd>(eid).processTick(eid, dt);
     }

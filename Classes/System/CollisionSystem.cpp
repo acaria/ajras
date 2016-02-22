@@ -18,11 +18,12 @@ void CollisionSystem::init()
         this->collisionData->agents.clear();
         
         //init agents
-        for(auto eid : context->ecs->join<cp::Position, cp::Physics>())
+        for(auto eid : context->ecs->join<cp::Position, cp::Physics, cp::Input>())
         {
-            this->collisionData->agents[eid] = SysHelper::makeAgent(eid);
+            if (ecs::get<cp::Input>(eid).enabled)
+                this->collisionData->agents[eid] = SysHelper::makeAgent(eid);
         }
-                
+
         this->sysRegs.push_back(this->collisionData->onDecorCollision.registerObserver(
                 [this](unsigned eid, cc::Vec2 diff) {
             this->onDecorCollision(eid, diff);

@@ -12,6 +12,7 @@
 #include "RenderComponent.h"
 #include "PlayerData.h"
 #include "CmdFactory.h"
+#include "Defines.h"
 
 using namespace std::placeholders;
 
@@ -64,10 +65,10 @@ void FloorSystemCtrl::tick(double dt)
 void FloorSystemCtrl::animate(double dt, double tickPercent)
 {
     //focus entity
-    if (playerData->getEntityFocusID() != 0 &&
-        ecs::has<cp::Render>(playerData->getEntityFocusID()))
+    unsigned eid = playerData->getEntityFocusID();
+    if (eid != 0 && (!ecs::has<cp::Input>(eid) || ecs::get<cp::Input>(eid).enabled))
     {
-        auto& cpRender = ecs::get<cp::Render>(playerData->getEntityFocusID());
+        auto& cpRender = ecs::get<cp::Render>(eid);
         auto pos = this->data->getCurrentRoom()->position +
             cpRender.sprite->getPosition() + cpRender.sprite->getContentSize() / 2;
         this->cam->focusTarget(pos);
@@ -91,18 +92,20 @@ void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex,
     auto& render = ecs::get<cp::Render>(eid);
     auto animPos = roomData->extractGateAnimInfo(gate, ecs::get<cp::Physics>(eid).shape);
     
-    dispatcher.onFakeAgentNodeAdded(roomIndex, render.sprite, ecs::get<cp::Physics>(eid).shape);
+    //dispatcher.onFakeAgentNodeAdded(roomIndex, render.sprite, ecs::get<cp::Physics>(eid).shape);
     
     render.sprite->setPosition(animPos.first);
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveBy::create(duration, animPos.second - animPos.first),
-        cc::CallFunc::create([eid, roomIndex, this, render](){
-            SysHelper::enableEntity(roomIndex, eid);
+        cc::CallFunc::create([eid, roomIndex, this](){
+            auto& render = ecs::get<cp::Render>(eid);
+            SysHelper::enableEntity(eid);
             dispatcher.onFakeAgentNodeRemoved(roomIndex, render.sprite);
             dispatcher.onEntityAdded(roomIndex, eid);
         }),
         NULL
     ));
+    
     render.sprite->runAction(cc::Sequence::create(
         cc::DelayTime::create(duration / 2),
         cc::Spawn::create(
@@ -111,45 +114,161 @@ void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex,
             NULL),
         NULL
     ));
+    
+    //light cfg
+    if (eid == playerData->getEntityFocusID())
+    {
+        CmdFactory::at(context.ecs, eid).lightCfg(0.5,
+                def::shader::LightParam::brightness, data->getLightConfig().brightness);
+        CmdFactory::at(context.ecs, eid).lightCfg(0.5,
+                def::shader::LightParam::cutOffRadius, data->getLightConfig().cutOffRadius);
+    }
 }
 
-void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid,
-                                       const GateMap& gate)
+void FloorSystemCtrl::regroupTeam(unsigned eid, unsigned nextRoomIndex,
+        const GateMap& gate, const std::function<void()>& onReady)
 {
-    unsigned nextRoomIndex = gate.destRoomIndex;
+    assert(this->teamRegroupLeft.size() == 0);
+    assert(this->teamRegroupReady.size() == 0);
+    unsigned teamID = ecs::get<cp::Team>(eid);
+    
+    this->teamRegroupReady.push_back(eid);
+    for(auto eid2 : ecsGroup.join<cp::AI, cp::Team>())
+    {
+        if (eid == eid2) continue; //skip player entity
+        if (ecs::get<cp::Team>(eid2) != teamID) continue;
+        
+        this->teamRegroupLeft.push_back(eid2);
+        auto& cpPhy = ecs::get<cp::Physics>(eid2);
+        auto bounds = SysHelper::getBounds(eid2);
+        auto wayPoints = context.data->getNav()->getWaypoints(
+            {bounds.getMidX(), bounds.getMidY()},
+            {gate.info.rect.getMidX() - cpPhy.shape.getMidX(),
+            gate.info.rect.getMidY()- cpPhy.shape.getMidY()},
+            cpPhy.category);
 
+        auto onFinished = [this, onReady, eid2](){
+            this->teamRegroupReady.push_back(eid2);
+            this->teamRegroupLeft.remove(eid2);
+            
+            if (this->teamRegroupLeft.size() == 0)
+                onReady();
+        };
+        CmdFactory::at(&ecsGroup, eid2, onFinished, onFinished).goTo(wayPoints, 2);
+    }
+    
+    auto onFinished = [onReady, this](){
+        if (this->teamRegroupLeft.size() > 0)
+            onReady();
+    };
+    
+    if (this->teamRegroupLeft.size() == 0) //solo mode
+        onReady();
+    else
+        CmdFactory::at(&ecsGroup, eid, onFinished).delay(2.0);
+}
+
+bool FloorSystemCtrl::isInTransit(unsigned int eid)
+{
+    return  std::find(this->teamRegroupLeft.begin(), this->teamRegroupLeft.end(),
+                      eid) != this->teamRegroupLeft.end() ||
+            std::find(this->teamRegroupReady.begin(), this->teamRegroupReady.end(),
+                      eid) != this->teamRegroupReady.end();
+}
+
+void FloorSystemCtrl::moveEntity(unsigned eid, unsigned prevRoomIndex, unsigned nextRoomIndex)
+{
     dispatcher.onEntityDeleted(prevRoomIndex, eid);
     cp::entity::move(eid, prevRoomIndex, nextRoomIndex);
-
+    ecs::get<cp::Cmd>(eid).askRemove("goto");
+    
     if (ecs::has<cp::Render>(eid))
     {
+        ecs::get<cp::Render>(eid).cancelAnimation();
         auto& sprite = ecs::get<cp::Render>(eid).sprite;
         auto container = this->roomViews[nextRoomIndex];
         if (sprite->getParent() != nullptr)
         {
             auto lType = static_cast<def::LayerType>(sprite->getParent()->getTag());
+            sprite->setOpacity(0);
+            sprite->retain();
             sprite->removeFromParentAndCleanup(false);
             container->add(sprite, lType);
+            sprite->release();
         }
         else //orphelin, cannot retrieve layertype
         {
             container->add(sprite, def::LayerType::BG);
         }
     }
+}
+
+void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid,
+                                       const GateMap& gate)
+{
+    unsigned nextRoomIndex = gate.destRoomIndex;
     
     if (eid == playerData->getEntityFocusID()) //change room
     {
-        auto nextRoom = data->getRoomAt(nextRoomIndex);
-        
-        auto animPos = nextRoom->extractGateAnimInfo(gate, ecs::get<cp::Physics>(eid).shape);
-        this->switchRoom(prevRoomIndex, nextRoomIndex, eid, animPos.second);
+        this->regroupTeam(eid, nextRoomIndex, gate,
+                [nextRoomIndex, prevRoomIndex, gate, this, eid](){
+            
+            auto& cpPhy = ecs::get<cp::Physics>(eid);
+            auto nextRoom = data->getRoomAt(nextRoomIndex);
+            auto animPos = nextRoom->extractGateAnimInfo(gate, cpPhy.shape);
+            
+            //move entities
+            for(auto eid2 : this->teamRegroupReady)
+            {
+                SysHelper::disableEntity(eid2);
+                this->moveEntity(eid2, prevRoomIndex, nextRoomIndex);
+            }
+            for(auto eid2 : this->teamRegroupLeft)
+            {
+                SysHelper::disableEntity(eid2);
+                this->moveEntity(eid2, prevRoomIndex, nextRoomIndex);
+            }
+            
+            this->switchRoom(prevRoomIndex, nextRoomIndex, animPos.second,
+                    [this, nextRoomIndex, prevRoomIndex, gate, eid](){
+                float delay = 0;
+                for(auto eid2 : this->teamRegroupReady)
+                {
+                    CmdFactory::at(nextRoomIndex, eid2,
+                            [nextRoomIndex, eid, eid2, this, gate](){
+                        auto& cpPhy = ecs::get<cp::Physics>(eid2);
+                        auto nextRoom = data->getRoomAt(nextRoomIndex);
+                        auto animPos = nextRoom->extractGateAnimInfo(gate, cpPhy.shape);
+                        this->showEntityFromGate(nextRoomIndex, eid2, gate, 1.0);
+                    }).delay(delay);
+                    delay += 1.0;
+                }
+                delay += 2.0;
+                for(auto eid2 : this->teamRegroupLeft)
+                {
+                    CmdFactory::at(nextRoomIndex, eid2,
+                            [nextRoomIndex, eid, eid2, this, gate](){
+                        auto& cpPhy = ecs::get<cp::Physics>(eid2);
+                        auto nextRoom = data->getRoomAt(nextRoomIndex);
+                        auto animPos = nextRoom->extractGateAnimInfo(gate, cpPhy.shape);
+                        this->showEntityFromGate(nextRoomIndex, eid2, gate, 1.0);
+                    }).delay(delay);
+                    delay += 3.0;
+                }
+                this->teamRegroupReady.clear();
+                this->teamRegroupLeft.clear();
+            });
+        });
     }
-    
-    this->showEntityFromGate(nextRoomIndex, eid, gate, 1.0);
+    else if (!this->isInTransit(eid)) //if not already in queue
+    {
+        this->moveEntity(eid, prevRoomIndex, nextRoomIndex);
+        this->showEntityFromGate(nextRoomIndex, eid, gate, 1.0);
+    }
 }
 
-void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex,
-                                 unsigned eid, cc::Vec2 destPos)
+void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex, cc::Vec2 destPos,
+                                 std::function<void()> after)
 {
     this->roomSystems[fromRoomIndex]->hideObjects(1);
     dispatcher.onSystemChanged(toRoomIndex);
@@ -161,16 +280,7 @@ void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex,
     auto bounds = dataRoom->getBounds();
     this->cam->moveTarget(destPos + bounds.origin, 1);
 
-    this->showRoom(toRoomIndex);
-    
-    CmdFactory::at(context.ecs, playerData->getEntityFocusID()).lightCfg(
-            0.5,
-            def::shader::LightParam::brightness,
-            data->getLightConfig().brightness);
-    CmdFactory::at(context.ecs, playerData->getEntityFocusID()).lightCfg(
-            0.5,
-            def::shader::LightParam::cutOffRadius,
-            data->getLightConfig().cutOffRadius);
+    this->showRoom(toRoomIndex, after);
 }
 
 /*cc::Sprite* FloorSystemCtrl::displayMap(FloorData *data)
@@ -440,7 +550,7 @@ void FloorSystemCtrl::loadEntities()
         auto eid = SysHelper::createPlayerEntity(roomView, roomIndex,
                                                  enterGate.info.getSrcPos(), playerEntity);
         playerEntity.entityID = eid;
-        SysHelper::disableEntity(roomIndex, eid);
+        SysHelper::disableEntity(eid);
         dispatcher.onEntityAdded(roomIndex, eid);
     }
     

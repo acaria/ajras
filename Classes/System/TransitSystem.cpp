@@ -121,7 +121,7 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     unsigned groupID = context->ecs->getID();
     
     auto& render = ecs::get<cp::Render>(eid);
-    SysHelper::disableEntity(groupID, eid);
+    SysHelper::disableEntity(eid);
     dispatcher->onGateEnter(groupID, eid, gateMap);
     dispatcher->onEntityPositionChanged(groupID, eid);
     render.sprite->runAction(cc::Spawn::create(

@@ -215,11 +215,6 @@ void GameCamera::focusTarget(cc::Point pos)
     updatePos();
 }
 
-void GameCamera::unfocus()
-{
-    focus.enabled = false;
-}
-
 void GameCamera::moveTarget(cocos2d::Vec2 pos, float duration)
 {
     if (focus.enabled)

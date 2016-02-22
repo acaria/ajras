@@ -45,11 +45,16 @@ private:
     
     //switch management
     void changeEntityRoom(unsigned nextRoomIndex, unsigned eid, const GateMap& gate);
-    void switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex, unsigned eid, cc::Vec2 destPos);
+    void moveEntity(unsigned eid, unsigned prevRoomIndex, unsigned nextRoomIndex);
+    void switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex, cc::Vec2 destPos,
+                    std::function<void()> after = nullptr);
     void showEntityFromGate(unsigned roomIndex, unsigned eid,
                             const GateMap& gate, float duration);
+    void regroupTeam(unsigned eid, unsigned nextRoomIndex, const GateMap& gate,
+                     const std::function<void()>& onReady);
     
     void showRoom(unsigned roomIndex, std::function<void()> after = nullptr);
+    bool isInTransit(unsigned eid);
     
     //data
     FloorData*                              data;
@@ -66,4 +71,7 @@ private:
     
     PlayerData* playerData = nullptr;
     
+    //internal
+    std::list<unsigned> teamRegroupLeft;
+    std::list<unsigned> teamRegroupReady;
 };

@@ -331,7 +331,7 @@ FloorData::~FloorData()
 
 RoomData* FloorData::addRoom(RoomModel* model, const RoomData::Config& config)
 {
-    static unsigned roomIndex = 1;
+    static unsigned roomIndex = def::startGroupIndex;
     auto room = new RoomData(roomIndex++, model);
     room->type = config.profile;
     room->position = config.pos;

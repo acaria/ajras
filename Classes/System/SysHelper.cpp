@@ -72,7 +72,7 @@ def::collision::Agent SysHelper::makeAgent(unsigned eid)
     };
 }
 
-void SysHelper::enableEntity(unsigned group, unsigned eid)
+void SysHelper::enableEntity(unsigned eid)
 {
     CCASSERT((ecs::has<cp::Render, cp::Input, cp::Physics>(eid)), "invalid entity");
     auto& cpRender = ecs::get<cp::Render>(eid);
@@ -83,7 +83,7 @@ void SysHelper::enableEntity(unsigned group, unsigned eid)
     ecs::get<cp::Input>(eid).withCollision = true;
 }
 
-void SysHelper::disableEntity(unsigned group, unsigned int eid)
+void SysHelper::disableEntity(unsigned int eid)
 {
     CCASSERT((ecs::has<cp::Position, cp::Render, cp::Physics>(eid)), "invalid entity");
     auto& cpRender = ecs::get<cp::Render>(eid);

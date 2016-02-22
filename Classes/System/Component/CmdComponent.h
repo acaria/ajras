@@ -24,12 +24,27 @@ struct CmdComponent
         this->funcTickMap[tag] = { command, onSuccess, onFailure };
     }
     
+    void askRemove(const std::string& tag)
+    {
+        this->ask4removeTag.push_back(tag);
+    }
+    
     void setAnimate(const std::string& tag,
                     const std::function<State(unsigned eid, double dt)>& command,
                     const std::function<void()>& onSuccess = nullptr,
                     const std::function<void()>& onFailure = nullptr)
     {
         this->funcAnimateMap[tag] = { command, onSuccess, onFailure };
+    }
+    
+    void unsetAnimate(const std::string& tag)
+    {
+        this->funcAnimateMap.erase(tag);
+    }
+    
+    void unsetTick(const std::string& tag)
+    {
+        this->funcTickMap.erase(tag);
     }
     
     void processAnimate(unsigned eid, double dt)
@@ -63,8 +78,17 @@ private:
                     break;
             }
         }
+
+        while (ask4removeTag.size() > 0)
+        {
+            auto tag = ask4removeTag.back();
+            ask4removeTag.pop_back();
+            unsetTick(tag);
+            unsetAnimate(tag);
+        }
     }
 
     std::map<std::string, CmdElement>   funcTickMap;
     std::map<std::string, CmdElement>   funcAnimateMap;
+    std::list<std::string> ask4removeTag;
 };

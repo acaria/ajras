@@ -20,7 +20,6 @@ public:
     void addScale(float scale);
     void moveTarget(cocos2d::Vec2 pos, float duration);
     void focusTarget(cc::Point pos);
-    void unfocus();
 
     struct DataFocus
     {

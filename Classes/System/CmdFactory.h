@@ -8,11 +8,14 @@ class CmdFactory
 {
 public:
     using State = CmdComponent::State;
-    CmdFactory(lib::EcsGroup* ecs, unsigned eid,
+    CmdFactory(unsigned gid, unsigned eid,
                const std::function<void()>& onSuccess = nullptr,
                const std::function<void()>& onFailure = nullptr)
-               :ecs(ecs), eid(eid), onSuccess(onSuccess), onFailure(onFailure) {};
+               :gid(gid), eid(eid), onSuccess(onSuccess), onFailure(onFailure) {};
     static CmdFactory at(lib::EcsGroup* ecs, unsigned eid,
+                         const std::function<void()>& onSuccess = nullptr,
+                         const std::function<void()>& onFailure = nullptr);
+    static CmdFactory at(unsigned groupID, unsigned eid,
                          const std::function<void()>& onSuccess = nullptr,
                          const std::function<void()>& onFailure = nullptr);
 
@@ -30,7 +33,7 @@ public:
     void lightFollow(const cc::Vec2& margin);
     
 private:
-    lib::EcsGroup* ecs;
+    unsigned gid;
     unsigned eid;
     std::function<void()> onSuccess;
     std::function<void()> onFailure;

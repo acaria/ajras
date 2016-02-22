@@ -10,9 +10,17 @@
 
 namespace def {
 
+    //control indexes
     const unsigned CTRL1 = 1;
     const unsigned CTRL2 = 2;
+    
+    //team ID
     const unsigned PTEAM = 1;
+    
+    //group IDS
+    const unsigned startGroupIndex = 1;
+    const unsigned startEntityIndex = 2;
+    const unsigned cmdEntityIndex = 1;
 
     //app
     const cc::Size designResolutionSize = {1024, 768};

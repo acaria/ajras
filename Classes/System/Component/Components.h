@@ -44,9 +44,9 @@ namespace cp
     struct entity
     {
         static unsigned genID(bool reset = false) {
-            static unsigned eid = 1;
+            static unsigned eid = def::startEntityIndex;
             
-            if (reset) eid = 0;
+            if (reset) eid = def::startEntityIndex - 1;
             return eid++;
         }
         

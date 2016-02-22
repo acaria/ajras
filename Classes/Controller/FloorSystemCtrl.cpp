@@ -92,7 +92,7 @@ void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex,
     auto& render = ecs::get<cp::Render>(eid);
     auto animPos = roomData->extractGateAnimInfo(gate, ecs::get<cp::Physics>(eid).shape);
     
-    //dispatcher.onFakeAgentNodeAdded(roomIndex, render.sprite, ecs::get<cp::Physics>(eid).shape);
+    dispatcher.onFakeAgentNodeAdded(roomIndex, render.sprite, ecs::get<cp::Physics>(eid).shape);
     
     render.sprite->setPosition(animPos.first);
     render.sprite->runAction(cc::Sequence::create(
@@ -182,15 +182,21 @@ void FloorSystemCtrl::moveEntity(unsigned eid, unsigned prevRoomIndex, unsigned 
     cp::entity::move(eid, prevRoomIndex, nextRoomIndex);
     ecs::get<cp::Cmd>(eid).askRemove("goto");
     
+    if(ecs::has<cp::Target>(eid))
+        this->context.ecs->del<cp::Target>(eid);
+    
     if (ecs::has<cp::Render>(eid))
     {
         ecs::get<cp::Render>(eid).cancelAnimation();
         auto& sprite = ecs::get<cp::Render>(eid).sprite;
+        sprite->stopAllActions();
+        sprite->setOpacity(0);
+        
+        
         auto container = this->roomViews[nextRoomIndex];
         if (sprite->getParent() != nullptr)
         {
             auto lType = static_cast<def::LayerType>(sprite->getParent()->getTag());
-            sprite->setOpacity(0);
             sprite->retain();
             sprite->removeFromParentAndCleanup(false);
             container->add(sprite, lType);

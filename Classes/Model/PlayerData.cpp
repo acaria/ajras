@@ -67,6 +67,17 @@ PlayerData* PlayerData::createDefault()
         }
     });
     
+    result->entities.push_back({
+        .profileName = "boy2",
+        .inventory = {
+            {.quantity = 0, .content = nullptr},
+            {.quantity = 0, .content = nullptr},
+            {.quantity = 0, .content = nullptr},
+            {.quantity = 0, .content = nullptr},
+            {.quantity = 0, .content = nullptr}
+        }
+    });
+    
     return result;
 }
 

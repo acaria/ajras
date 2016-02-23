@@ -234,13 +234,8 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
 
 void RoomSystemCtrl::hideObjects(float duration)
 {
-    for(auto eid : ecsGroup.join<cp::Render, cp::Input>())
+    for(auto eid : ecsGroup.join<cp::Render, cp::Position>())
     {
-        if (!ecs::get<cp::Input>(eid).withCollision)
-            continue;
-        //if (ecs::has<cp::Team>(eid) && ecs::get<cp::Team>(eid) == def::PTEAM)
-        //    continue; //skip team
-        
         if (duration == 0)
             ecs::get<cp::Render>(eid).sprite->setOpacity(0);
         else
@@ -252,13 +247,8 @@ void RoomSystemCtrl::hideObjects(float duration)
 
 void RoomSystemCtrl::showObjects(float duration)
 {
-    for(auto eid : ecsGroup.join<cp::Render, cp::Input>())
+    for(auto eid : ecsGroup.join<cp::Render, cp::Position>())
     {
-        if (!ecs::get<cp::Input>(eid).withCollision)
-            continue;
-        //if (ecs::has<cp::Team>(eid) && ecs::get<cp::Team>(eid) == def::PTEAM)
-        //    continue; //skip team
-
         if (duration == 0)
             ecs::get<cp::Render>(eid).sprite->setOpacity(255);
         else

@@ -11,7 +11,6 @@ struct InputComponent
     
     //mode
     bool enabled = true;
-    bool withCollision = true;
     
 #if ECSYSTEM_DEBUG
     std::list<cc::Point> wayPoints;

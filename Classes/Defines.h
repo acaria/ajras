@@ -20,7 +20,6 @@ namespace def {
     //group IDS
     const unsigned startGroupIndex = 1;
     const unsigned startEntityIndex = 2;
-    const unsigned cmdEntityIndex = 1;
 
     //app
     const cc::Size designResolutionSize = {1024, 768};

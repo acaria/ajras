@@ -36,15 +36,12 @@ void RenderSystem::animate(double dt, double tickPercent)
         
         if (ecs::has<cp::Position>(eid))
         {
-            if (!ecs::has<cp::Input>(eid) || ecs::get<cp::Input>(eid).withCollision)
-            {
-                auto &cpPos = ecs::get<cp::Position>(eid);
+            auto &cpPos = ecs::get<cp::Position>(eid);
         
-                cc::Vec2 pos(cpPos.pos.x * tickPercent + cpPos.lastPos.x * (1 - tickPercent),
-                             cpPos.pos.y * tickPercent + cpPos.lastPos.y * (1 - tickPercent));
+            cc::Vec2 pos(cpPos.pos.x * tickPercent + cpPos.lastPos.x * (1 - tickPercent),
+                         cpPos.pos.y * tickPercent + cpPos.lastPos.y * (1 - tickPercent));
             
-                cpRender.sprite->setPosition(pos);
-            }
+            cpRender.sprite->setPosition(pos);
         }
 
         //animation

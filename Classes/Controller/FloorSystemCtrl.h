@@ -12,6 +12,7 @@ class GateMap;
 #include "LayeredContainer.h"
 #include "Randgine.h"
 #include "GameCamera.h"
+#include "RegroupTeamInfo.h"
 
 class FloorSystemCtrl
 {
@@ -47,9 +48,9 @@ private:
     void changeEntityRoom(unsigned nextRoomIndex, unsigned eid, const GateMap& gate);
     void moveEntity(unsigned eid, unsigned prevRoomIndex, unsigned nextRoomIndex);
     void switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex, cc::Vec2 destPos,
-                    std::function<void()> after = nullptr);
-    void showEntityFromGate(unsigned roomIndex, unsigned eid,
-                            const GateMap& gate, float duration);
+            const std::function<void()> after = nullptr);
+    void showEntityFromGate(unsigned roomIndex, unsigned eid, const GateMap& gate, float duration,
+            const std::function<void()>& after = nullptr);
     void regroupTeam(unsigned eid, unsigned nextRoomIndex, const GateMap& gate,
                      const std::function<void()>& onReady);
     
@@ -72,6 +73,5 @@ private:
     PlayerData* playerData = nullptr;
     
     //internal
-    std::list<unsigned> teamRegroupLeft;
-    std::list<unsigned> teamRegroupReady;
+    RegroupTeamInfo regroupTeamInfo;
 };

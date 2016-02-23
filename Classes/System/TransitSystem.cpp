@@ -80,8 +80,6 @@ void TransitSystem::tick(double dt)
 {
     for(auto eid2 : context->ecs->join<cp::Position, cp::Physics, cp::Input>())
     {
-        if (!ecs::get<cp::Input>(eid2).withCollision) //inhibit
-            continue;
         auto& cpPos = ecs::get<cp::Position>(eid2);
         auto& cpPhy = ecs::get<cp::Physics>(eid2);
         
@@ -121,7 +119,7 @@ void TransitSystem::gateringEnter(unsigned eid, const cocos2d::Vec2& targetPoint
     unsigned groupID = context->ecs->getID();
     
     auto& render = ecs::get<cp::Render>(eid);
-    SysHelper::disableEntity(eid);
+    SysHelper::disableEntity(groupID, eid);
     dispatcher->onGateEnter(groupID, eid, gateMap);
     dispatcher->onEntityPositionChanged(groupID, eid);
     render.sprite->runAction(cc::Spawn::create(

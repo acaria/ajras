@@ -20,8 +20,8 @@ public:
     
     static def::collision::Agent makeAgent(unsigned eid);
     
-    static void enableEntity(unsigned eid);
-    static void disableEntity(unsigned eid);
+    static void enableEntity(unsigned gid, unsigned eid);
+    static void disableEntity(unsigned gid, unsigned eid);
     
     static unsigned createPlayerEntity(LayeredContainer* parent,
                                        unsigned group,

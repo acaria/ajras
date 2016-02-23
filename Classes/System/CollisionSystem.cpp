@@ -20,8 +20,7 @@ void CollisionSystem::init()
         //init agents
         for(auto eid : context->ecs->join<cp::Position, cp::Physics, cp::Input>())
         {
-            if (ecs::get<cp::Input>(eid).enabled)
-                this->collisionData->agents[eid] = SysHelper::makeAgent(eid);
+            this->collisionData->agents[eid] = SysHelper::makeAgent(eid);
         }
 
         this->sysRegs.push_back(this->collisionData->onDecorCollision.registerObserver(
@@ -80,8 +79,6 @@ void CollisionSystem::init()
 
 void CollisionSystem::onDecorCollision(unsigned eid, cc::Vec2 diff)
 {
-    if (ecs::has<cp::Input>(eid) && !ecs::get<cp::Input>(eid).withCollision) //inhibit
-        return;
     auto& cpPos = ecs::get<cp::Position>(eid);
     auto& cpPhy = ecs::get<cp::Physics>(eid);
     
@@ -92,17 +89,12 @@ void CollisionSystem::onDecorCollision(unsigned eid, cc::Vec2 diff)
 
 void CollisionSystem::onFakeNodeCollision(unsigned eid, cc::Vec2 diff)
 {
-    if (ecs::has<cp::Input>(eid) && !ecs::get<cp::Input>(eid).withCollision) //inhibit
-        return;
-    Log("%u=(%f,%f)", eid, diff.x, diff.y);
     ecs::get<cp::Position>(eid).pos -= diff;
     collisionData->agents[eid].bounds.origin -= diff;
 }
 
 void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff)
 {
-    if (ecs::has<cp::Input>(eid) && !ecs::get<cp::Input>(eid).withCollision) //inhibit
-        return;
     auto& cpPos = ecs::get<cp::Position>(eid);
     auto& cpPhy = ecs::get<cp::Physics>(eid);
     

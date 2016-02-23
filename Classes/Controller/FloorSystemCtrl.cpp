@@ -91,10 +91,13 @@ void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex,
     auto roomData = data->getRoomAt(roomIndex);
     
     auto& render = ecs::get<cp::Render>(eid);
+    
     auto animPos = roomData->extractGateAnimInfo(gate, ecs::get<cp::Physics>(eid).shape);
     
     dispatcher.onFakeAgentNodeAdded(roomIndex, render.sprite, ecs::get<cp::Physics>(eid).shape);
     
+    auto vDir = animPos.second - animPos.first;
+    render.setMoveAnimation(Dir::fromVec(vDir), true);
     render.sprite->setPosition(animPos.first);
     render.sprite->runAction(cc::Sequence::create(
         cc::MoveBy::create(duration, animPos.second - animPos.first),
@@ -198,7 +201,7 @@ void FloorSystemCtrl::moveEntity(unsigned eid, unsigned prevRoomIndex, unsigned 
     
     if (ecs::has<cp::Render>(eid))
     {
-        ecs::get<cp::Render>(eid).cancelAnimation();
+        //ecs::get<cp::Render>(eid).cancelAnimation();
         auto& sprite = ecs::get<cp::Render>(eid).sprite;
         sprite->stopAllActions();
         sprite->setOpacity(0);
@@ -548,10 +551,7 @@ void FloorSystemCtrl::loadEntities()
         for(auto& playerEntity : playerData->entities)
         {
             auto onSuccess = [this, playerEntity, roomIndex, enterGate](){
-                unsigned eid = playerEntity.entityID;
-                auto& cpRender = ecs::get<cp::Render>(eid);
-                cpRender.setMoveAnimation(enterGate.info.getDir(), true);
-                this->showEntityFromGate(roomIndex, eid, enterGate, 2.0);
+                this->showEntityFromGate(roomIndex, playerEntity.entityID, enterGate, 2.0);
             };
             CmdFactory::at(context.ecs, playerData->getEntityFocusID(), onSuccess).delay(delay);
             delay += 1.0f;

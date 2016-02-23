@@ -71,7 +71,7 @@ struct GateInfo
         }
     }
 
-    GateType getOpposite()
+    GateType getOpposite() const
     {
         if (type == Left)
             return Right;

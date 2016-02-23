@@ -29,6 +29,7 @@ public:
     
     cc::Vec2 toVec();
     unsigned getRaw() const;
+    
     void reset();
     
     static Dir rand();

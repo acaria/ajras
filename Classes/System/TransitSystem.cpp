@@ -11,17 +11,12 @@ std::pair<float, cc::Vec2> TransitSystem::processing(GateInfo info,
     float facto = 0;
     cc::Vec2 targetPoint = {0,0};
     
-    cc::Rect cplRect = {
-        cpPos.pos.x + cpCol.shape.origin.x,
-        cpPos.pos.y + cpCol.shape.origin.y,
-        cpCol.shape.size.width,
-        cpCol.shape.size.height
-    };
+    cc::Rect cplRect = SysHelper::getBounds(cpPos, cpCol);
     
-    if (!info.rect.intersectsRect(cplRect))
+    if (!info.getColRect().intersectsRect(cplRect))
         return {facto, targetPoint};
     
-    auto cRect = lib::getIntersection(info.rect, cplRect);
+    auto cRect = lib::getIntersection(info.getColRect(), cplRect);
     if (cRect.size.width == 0 || cRect.size.height == 0)
         return {facto, targetPoint};
     
@@ -30,7 +25,7 @@ std::pair<float, cc::Vec2> TransitSystem::processing(GateInfo info,
         case GateInfo::Up:
         case GateInfo::Down:
         {
-            facto = cRect.size.height / cplRect.size.height;
+            facto = cRect.size.height / MIN(cplRect.size.height, info.rect.size.height);
             if (cplRect.getMidX() > info.rect.getMidX())
             {
                 float xPos = info.rect.getMaxX() - cpCol.shape.size.width;
@@ -51,7 +46,7 @@ std::pair<float, cc::Vec2> TransitSystem::processing(GateInfo info,
         case GateInfo::Left:
         case GateInfo::Right:
         {
-            facto = cRect.size.width / cplRect.size.width;
+            facto = cRect.size.width / MIN(cplRect.size.width, info.rect.size.width);
             if (cplRect.getMidY() > info.rect.getMidY())
             {
                 float yPos = info.rect.getMaxY() - cpCol.shape.size.height;
@@ -89,6 +84,7 @@ void TransitSystem::tick(double dt)
             auto& cpGate = ecs::get<cp::Gate>(eid);
         
             auto result = this->processing(cpGate.info, cpPos, cpPhy);
+
             if (result.first >= 1)
             {
                 gateringEnter(eid2, result.second, cpGate);

@@ -47,6 +47,33 @@ struct GateInfo
         }
     }
     
+    cc::Rect getColRect() const
+    {
+        float minSize = 32;
+        cc::Rect result = this->rect;
+        switch(type)
+        {
+            case Left:
+                result.origin.x -= minSize;
+                result.size.width += minSize;
+                break;
+            case Right:
+                result.size.width += minSize;
+                break;
+            case Up:
+                result.size.height += minSize;
+                break;
+            case Down:
+                result.origin.y -= minSize;
+                result.size.height += minSize;
+                break;
+            default:
+                break;
+        }
+        
+        return result;
+    }
+    
     cc::Point getSrcPos() const
     {
         switch(type)

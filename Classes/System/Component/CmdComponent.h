@@ -29,6 +29,11 @@ struct CmdComponent
         this->ask4removeTag.push_back(tag);
     }
     
+    void askRemoveAll()
+    {
+        this->ask4removeAll = true;
+    }
+    
     void setAnimate(const std::string& tag,
                     const std::function<State(unsigned eid, double dt)>& command,
                     const std::function<void()>& onSuccess = nullptr,
@@ -79,16 +84,26 @@ private:
             }
         }
 
-        while (ask4removeTag.size() > 0)
+        if (ask4removeAll)
         {
-            auto tag = ask4removeTag.back();
-            ask4removeTag.pop_back();
-            unsetTick(tag);
-            unsetAnimate(tag);
+            ask4removeAll = false;
+            this->funcAnimateMap.clear();
+            this->funcTickMap.clear();
+        }
+        else
+        {
+            while (ask4removeTag.size() > 0)
+            {
+                auto tag = ask4removeTag.back();
+                ask4removeTag.pop_back();
+                unsetTick(tag);
+                unsetAnimate(tag);
+            }
         }
     }
 
     std::map<std::string, CmdElement>   funcTickMap;
     std::map<std::string, CmdElement>   funcAnimateMap;
-    std::list<std::string> ask4removeTag;
+    std::list<std::string>              ask4removeTag;
+    bool                                ask4removeAll = false;
 };

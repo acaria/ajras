@@ -145,19 +145,20 @@ void FloorSystemCtrl::regroupTeam(unsigned eid, unsigned nextRoomIndex, const Ga
         
         regroupTeamInfo.leftIds.push_back(eid2);
         auto& cpPhy = ecs::get<cp::Physics>(eid2);
-        auto bounds = SysHelper::getBounds(eid2);
+        auto sRect = SysHelper::getBounds(eid2);
+        auto dRect = gate.info.rect;
         auto wayPoints = context.data->getNav()->getWaypoints(
-            {bounds.getMidX(), bounds.getMidY()},
-            {gate.info.rect.getMidX() - cpPhy.shape.getMidX(),
-            gate.info.rect.getMidY()- cpPhy.shape.getMidY()},
+            {sRect.getMidX(), sRect.getMidY()},
+            {dRect.getMidX() - sRect.size.width / 2, dRect.getMidY() - sRect.size.height / 2},
             cpPhy.category);
 
-        auto onFinished = [onReady, this, eid2]() mutable {
+        auto onFinished = [onReady, this, eid2]() {
             regroupTeamInfo.readyIds.push_back(eid2);
             regroupTeamInfo.leftIds.remove(eid2);
             
             if (regroupTeamInfo.leftIds.size() == 0 && !regroupTeamInfo.processed)
             {
+                Log("ready on delay");
                 regroupTeamInfo.processed = true;
                 onReady();
             }
@@ -168,13 +169,17 @@ void FloorSystemCtrl::regroupTeam(unsigned eid, unsigned nextRoomIndex, const Ga
     auto onFinished = [this, onReady](){
         if (regroupTeamInfo.leftIds.size() > 0 && !regroupTeamInfo.processed)
         {
+            Log("ready on timeout");
             regroupTeamInfo.processed = true;
             onReady();
         }
     };
     
     if (regroupTeamInfo.leftIds.size() == 0) //solo mode
+    {
+        Log("ready instant");
         onReady();
+    }
     else
         CmdFactory::at(&ecsGroup, eid, onFinished).delay(3);
 }
@@ -201,7 +206,6 @@ void FloorSystemCtrl::moveEntity(unsigned eid, unsigned prevRoomIndex, unsigned 
     
     if (ecs::has<cp::Render>(eid))
     {
-        //ecs::get<cp::Render>(eid).cancelAnimation();
         auto& sprite = ecs::get<cp::Render>(eid).sprite;
         sprite->stopAllActions();
         sprite->setOpacity(0);

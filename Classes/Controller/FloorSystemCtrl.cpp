@@ -104,8 +104,11 @@ void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex,
         cc::CallFunc::create([eid, roomIndex, after, this](){
             auto& render = ecs::get<cp::Render>(eid);
             SysHelper::enableEntity(roomIndex, eid);
+            this->transitInfo.processing.erase(eid);
             dispatcher.onEntityAdded(roomIndex, eid);
             dispatcher.onFakeAgentNodeRemoved(roomIndex, render.sprite);
+            if (after != nullptr)
+                after();
         }),
         NULL
     ));
@@ -134,63 +137,79 @@ void FloorSystemCtrl::regroupTeam(unsigned eid, unsigned nextRoomIndex, const Ga
 {
     unsigned teamID = ecs::get<cp::Team>(eid);
     
-    regroupTeamInfo.processed = false;
-    regroupTeamInfo.readyIds.clear();
-    regroupTeamInfo.leftIds.clear();
-    regroupTeamInfo.readyIds.push_back(eid);
-    for(auto eid2 : ecsGroup.join<cp::Physics, cp::Team, cp::Position>())
-    {
-        if (eid == eid2) continue; //skip player entity
-        if (ecs::get<cp::Team>(eid2) != teamID) continue;
+    transitInfo.processed = false;
+    transitInfo.teamReadyIds.clear();
+    transitInfo.teamLeftIds.clear();
+    
+    auto launcher = [onReady, this, eid, gate, teamID](){
         
-        regroupTeamInfo.leftIds.push_back(eid2);
-        auto& cpPhy = ecs::get<cp::Physics>(eid2);
-        auto sRect = SysHelper::getBounds(eid2);
-        auto dRect = gate.info.rect;
-        auto wayPoints = context.data->getNav()->getWaypoints(
-            {sRect.getMidX(), sRect.getMidY()},
-            {dRect.getMidX() - sRect.size.width / 2, dRect.getMidY() - sRect.size.height / 2},
-            cpPhy.category);
-
-        auto onFinished = [onReady, this, eid2]() {
-            regroupTeamInfo.readyIds.push_back(eid2);
-            regroupTeamInfo.leftIds.remove(eid2);
+        transitInfo.teamReadyIds.push_back(eid);
+        for(auto eid2 : ecsGroup.join<cp::Physics, cp::Team, cp::Position>())
+        {
+            if (eid == eid2) continue; //skip player entity
+            if (ecs::get<cp::Team>(eid2) != teamID) continue;
             
-            if (regroupTeamInfo.leftIds.size() == 0 && !regroupTeamInfo.processed)
+            transitInfo.teamLeftIds.push_back(eid2);
+            auto& cpPhy = ecs::get<cp::Physics>(eid2);
+            auto sRect = SysHelper::getBounds(eid2);
+            auto dRect = gate.info.rect;
+            auto wayPoints = context.data->getNav()->getWaypoints(
+                {sRect.getMidX(), sRect.getMidY()},
+                {dRect.getMidX() - sRect.size.width / 2, dRect.getMidY() - sRect.size.height / 2},
+                cpPhy.category);
+            
+            auto onFinished = [onReady, this, eid2]() {
+                transitInfo.teamReadyIds.push_back(eid2);
+                transitInfo.teamLeftIds.remove(eid2);
+                
+                if (transitInfo.teamLeftIds.size() == 0 && !transitInfo.processed)
+                {
+                    transitInfo.processed = true;
+                    onReady();
+                }
+            };
+            CmdFactory::at(&ecsGroup, eid2, onFinished, onFinished).goTo(wayPoints, 2);
+        }
+        
+        auto onFinished = [this, onReady](){
+            if (transitInfo.teamLeftIds.size() > 0 && !transitInfo.processed)
             {
-                Log("ready on delay");
-                regroupTeamInfo.processed = true;
+                transitInfo.processed = true;
                 onReady();
             }
         };
-        CmdFactory::at(&ecsGroup, eid2, onFinished, onFinished).goTo(wayPoints, 2);
-    }
-    
-    auto onFinished = [this, onReady](){
-        if (regroupTeamInfo.leftIds.size() > 0 && !regroupTeamInfo.processed)
+        
+        if (transitInfo.teamLeftIds.size() == 0) //solo mode
         {
-            Log("ready on timeout");
-            regroupTeamInfo.processed = true;
             onReady();
         }
+        else
+            CmdFactory::at(&ecsGroup, eid, onFinished).delay(3);
     };
     
-    if (regroupTeamInfo.leftIds.size() == 0) //solo mode
+    assert(transitInfo.processing.size() > 0);
+    if (transitInfo.processing.size() == 1)
     {
-        Log("ready instant");
-        onReady();
+        assert(transitInfo.processing.find(eid) != transitInfo.processing.end());
+        launcher();
     }
     else
-        CmdFactory::at(&ecsGroup, eid, onFinished).delay(3);
+    {
+        auto predicate = [this, eid]() {
+            return (transitInfo.processing.size() == 1 &&
+                    transitInfo.processing.find(eid) != transitInfo.processing.end());
+        };
+        CmdFactory::at(&ecsGroup, eid, launcher, launcher).waituntil(5.0, predicate);
+    }
 }
 
 bool FloorSystemCtrl::isInTransit(unsigned int eid)
 {
-    if (std::find(regroupTeamInfo.leftIds.begin(), regroupTeamInfo.leftIds.end(), eid) !=
-            regroupTeamInfo.leftIds.end())
+    if (std::find(transitInfo.teamLeftIds.begin(), transitInfo.teamLeftIds.end(), eid) !=
+            transitInfo.teamLeftIds.end())
         return true;
-    if (std::find(regroupTeamInfo.readyIds.begin(), regroupTeamInfo.readyIds.end(), eid) !=
-            regroupTeamInfo.readyIds.end())
+    if (std::find(transitInfo.teamReadyIds.begin(), transitInfo.teamReadyIds.end(), eid) !=
+            transitInfo.teamReadyIds.end())
         return true;
     return false;
 }
@@ -241,13 +260,15 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid, con
             auto animPos = nextRoom->extractGateAnimInfo(gate, cpPhy.shape);
             
             //move entities
-            for(auto eid2 : regroupTeamInfo.readyIds)
+            for(auto eid2 : transitInfo.teamReadyIds)
             {
+                this->transitInfo.processing[eid2] = gate;
                 SysHelper::disableEntity(prevRoomIndex, eid2);
                 this->moveEntity(eid2, prevRoomIndex, nextRoomIndex);
             }
-            for(auto eid2 : regroupTeamInfo.leftIds)
+            for(auto eid2 : transitInfo.teamLeftIds)
             {
+                this->transitInfo.processing[eid2] = gate;
                 SysHelper::disableEntity(prevRoomIndex, eid2);
                 this->moveEntity(eid2, prevRoomIndex, nextRoomIndex);
             }
@@ -255,43 +276,56 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid, con
             this->switchRoom(prevRoomIndex, nextRoomIndex, animPos.second,
                     [this, nextRoomIndex, prevRoomIndex, gate, eid](){
                 float delay = 0;
-                for(auto eid2 : regroupTeamInfo.readyIds)
+                for(auto eid2 : transitInfo.teamReadyIds)
                 {
                     CmdFactory::at(nextRoomIndex, eid2,
                             [nextRoomIndex, eid, eid2, this, gate](){
                         auto& cpPhy = ecs::get<cp::Physics>(eid2);
                         auto nextRoom = data->getRoomAt(nextRoomIndex);
                         auto animPos = nextRoom->extractGateAnimInfo(gate, cpPhy.shape);
-                        this->showEntityFromGate(nextRoomIndex, eid2, gate, 1.0);
+                        this->showEntityFromGate(nextRoomIndex, eid2, gate,
+                                def::anim::showEntityFromGateDuration, [this, eid2](){
+                            this->transitInfo.teamReadyIds.remove(eid2);
+                        });
                     }).delay(delay);
-                    delay += 1.0;
+                    delay += def::anim::teamReadyEntityDelay;
                 }
                 delay += 2.0;
-                for(auto eid2 : regroupTeamInfo.leftIds)
+                for(auto eid2 : transitInfo.teamLeftIds)
                 {
                     CmdFactory::at(nextRoomIndex, eid2,
                             [nextRoomIndex, eid, eid2, this, gate](){
                         auto& cpPhy = ecs::get<cp::Physics>(eid2);
                         auto nextRoom = data->getRoomAt(nextRoomIndex);
                         auto animPos = nextRoom->extractGateAnimInfo(gate, cpPhy.shape);
-                        this->showEntityFromGate(nextRoomIndex, eid2, gate, 1.0);
+                        this->showEntityFromGate(nextRoomIndex, eid2, gate,
+                                def::anim::showEntityFromGateDuration, [this, eid2](){
+                            this->transitInfo.teamLeftIds.remove(eid2);
+                        });
                     }).delay(delay);
-                    delay += 3.0;
+                    delay += def::anim::teamLeftEntityDelay;
                 }
             });
         });
     }
     else if (!this->isInTransit(eid)) //if not already in queue
     {
+        this->transitInfo.processing[eid] = gate;
         this->moveEntity(eid, prevRoomIndex, nextRoomIndex);
-        this->showEntityFromGate(nextRoomIndex, eid, gate, 1.0);
+        this->showEntityFromGate(nextRoomIndex, eid, gate, def::anim::showEntityFromGateDuration,
+                [this, eid, nextRoomIndex]() {
+            if (data->getCurIdxRoom() == nextRoomIndex)
+                return;
+            ecs::get<cp::Render>(eid).sprite->runAction(
+                cc::FadeOut::create(def::anim::hideObjectsDuration));
+        });
     }
 }
 
 void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex, cc::Vec2 destPos,
                                  std::function<void()> after)
 {
-    this->roomSystems[fromRoomIndex]->hideObjects(1);
+    this->roomSystems[fromRoomIndex]->hideObjects(def::anim::hideObjectsDuration);
     dispatcher.onSystemChanged(toRoomIndex);
     this->data->setCurIdxRoom(toRoomIndex);
     
@@ -299,7 +333,7 @@ void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex, c
     
     //move camera
     auto bounds = dataRoom->getBounds();
-    this->cam->moveTarget(destPos + bounds.origin, 1);
+    this->cam->moveTarget(destPos + bounds.origin, def::anim::camSwitchRoomDuration);
 
     this->showRoom(toRoomIndex, after);
 }
@@ -407,7 +441,7 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
     
     if (!lib::hasKey(this->roomPreviews, roomIndex))
     {
-        this->roomSystems[roomIndex]->showObjects(0.5);
+        this->roomSystems[roomIndex]->showObjects(def::anim::showObjectsDuration);
         if (after != nullptr)
             after();
     }
@@ -419,12 +453,12 @@ void FloorSystemCtrl::showRoom(unsigned int roomIndex, std::function<void()> aft
         auto view = this->roomViews[roomIndex];
         
         preview->getSprite()->runAction(cc::Sequence::create(
-            cc::FadeTo::create(1, 255),
+            cc::FadeTo::create(def::anim::showRoomDuration, 255),
             cc::CallFunc::create([this, view, preview, roomIndex](){
                 this->view->removeChild(preview);
                 this->view->addChild(view);
                 view->release();
-                this->roomSystems[roomIndex]->showObjects(0.5);
+                this->roomSystems[roomIndex]->showObjects(def::anim::showObjectsDuration);
             }),
             cc::CallFunc::create(after),
             NULL
@@ -453,6 +487,7 @@ void FloorSystemCtrl::bindSystems()
         switch(gate.cmd)
         {
             case GateMap::CmdType::CHANGE_ROOM:
+                this->transitInfo.processing[eid] = gate;
                 if (eid == playerData->getEntityFocusID()) //change room
                 {
                     CmdFactory::at(context.ecs, eid).lightCfg(0.5,

@@ -3,6 +3,8 @@
 #include "GameCtrl.h"
 #include "ColorUtil.h"
 
+long CmdFactory::tagUID = 1;
+
 CmdFactory CmdFactory::at(lib::EcsGroup* ecs, unsigned eid,
         const std::function<void()>& onSuccess, const std::function<void()>& onFailure)
 {
@@ -212,12 +214,24 @@ void CmdFactory::lightFollow(const cc::Vec2& margin)
 
 void CmdFactory::delay(double timeInterval)
 {
-    static long id = 1;
-    ecs::add<cp::Cmd>(eid, gid).setTick(std::to_string(id++),
+    ecs::add<cp::Cmd>(eid, gid).setTick(std::to_string(tagUID++),
             [timeInterval](unsigned eid, double dt) mutable {
         if (timeInterval <= 0)
             return State::success;
         timeInterval -= dt;
+        return State::inProgress;
+    }, onSuccess, onFailure);
+}
+
+void CmdFactory::waituntil(double timeout, const std::function<bool()>& predicate)
+{
+    ecs::add<cp::Cmd>(eid, gid).setTick(std::to_string(tagUID++),
+            [timeout, predicate](unsigned eid, double dt) mutable {
+        if (timeout <= 0)
+            return State::failure;
+        timeout -= dt;
+        if (predicate())
+            return State::success;
         return State::inProgress;
     }, onSuccess, onFailure);
 }

@@ -22,6 +22,7 @@ public:
     void goTo(cc::Vec2 target, float nearDistance);
     void goTo(std::list<cc::Vec2> waypoints, float nearDistance);
     void delay(double timeInterval);
+    void waituntil(double timeout, const std::function<bool()>& predicate);
     void lightCfg(float duration,
                   const def::shader::LightParam& param,
                   float value);
@@ -33,6 +34,7 @@ public:
     void lightFollow(const cc::Vec2& margin);
     
 private:
+    static long tagUID;
     unsigned gid;
     unsigned eid;
     std::function<void()> onSuccess;

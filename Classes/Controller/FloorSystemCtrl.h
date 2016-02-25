@@ -12,7 +12,7 @@ class GateMap;
 #include "LayeredContainer.h"
 #include "Randgine.h"
 #include "GameCamera.h"
-#include "RegroupTeamInfo.h"
+#include "TransitInfo.h"
 
 class FloorSystemCtrl
 {
@@ -73,5 +73,5 @@ private:
     PlayerData* playerData = nullptr;
     
     //internal
-    RegroupTeamInfo regroupTeamInfo;
+    TransitInfo transitInfo;
 };

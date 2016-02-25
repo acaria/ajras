@@ -19,7 +19,7 @@ namespace def {
     
     //group IDS
     const unsigned startGroupIndex = 1;
-    const unsigned startEntityIndex = 2;
+    const unsigned startEntityIndex = 1;
 
     //app
     const cc::Size designResolutionSize = {1024, 768};
@@ -45,11 +45,11 @@ namespace def {
     
     //design
     //margin x:left, y:right, z:up, w:down
-    const cc::Vec4  canvasCampMargin = {0,0,0,0};
-    const cc::Vec4  canvasMissionMargin = {190.0f,30.0f,30.0f,30.0f};
+    const cc::Vec4      canvasCampMargin = {0,0,0,0};
+    const cc::Vec4      canvasMissionMargin = {190.0f,30.0f,30.0f,30.0f};
     
-    const cc::Color4B     bgColor = {143,86,59,255};
-    const float     touchTreshold = 20;
+    const cc::Color4B   bgColor = {143,86,59,255};
+    const float         touchTreshold = 20;
     
     //data
     enum class TriggerMode { ONCE, ALWAYS };
@@ -120,6 +120,20 @@ namespace def {
                 default: return Flags::None;
             }
         }
+    }
+    
+    namespace anim
+    {
+        //transit
+        const float showObjectsDuration = 0.5;
+        const float hideObjectsDuration = 1.0;
+        const float showRoomDuration = 0.5;
+        const float showEntityFromGateDuration = 1.0;
+        const float teamReadyEntityDelay = 1.0;
+        const float teamLeftEntityDelay = 3.0;
+        
+        //camera
+        const float camSwitchRoomDuration = 1.0;
     }
     
     namespace collision

@@ -92,7 +92,7 @@ public:
     }
     
     template<typename Graph>
-    static lib::Nullable<std::vector<typename Graph::Node>> aStarSearch(
+    static lib::Nullable<std::list<typename Graph::Node>> aStarSearch(
             Graph& graph, typename Graph::Node start, typename Graph::Node goal)
     {
         typedef typename Graph::Node Node;
@@ -134,10 +134,10 @@ public:
 
 private:
     template<typename Node>
-    static std::vector<Node> reconstruct(std::map<Node, Node>& cameFrom,
+    static std::list<Node> reconstruct(std::map<Node, Node>& cameFrom,
                                          const Node& start, const Node& goal)
     {
-        std::vector<Node> result;
+        std::list<Node> result;
         Node current = goal;
         while(current != start)
         {

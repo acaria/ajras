@@ -153,7 +153,7 @@ void FloorSystemCtrl::regroupTeam(unsigned eid, unsigned nextRoomIndex, const Ga
             auto& cpPhy = ecs::get<cp::Physics>(eid2);
             auto sRect = SysHelper::getBounds(eid2);
             auto dRect = gate.info.rect;
-            auto wayPoints = context.data->getNav()->getWaypoints(
+            auto wayPoints = context.data->getNav()->getGridWaypoints(
                 {sRect.getMidX(), sRect.getMidY()},
                 {dRect.getMidX() - sRect.size.width / 2, dRect.getMidY() - sRect.size.height / 2},
                 cpPhy.category);

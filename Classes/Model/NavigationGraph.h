@@ -1,22 +1,34 @@
 #pragma once
 
+#pragma once
+
 #include "DataGrid.h"
 #include "Defines.h"
+#include <array>
 
+//Navigation structure based on grid coords + agents coords
 struct NavigationGraph
 {
     using Agent = def::collision::Agent;
-    typedef lib::v2u Node;
+    typedef cc::Point Node;
     
-    NavigationGraph(lib::DataGrid<bool>& content, std::list<Agent>& agents, const cc::Size& tileSize);
+    NavigationGraph(const lib::DataGrid<bool>& content,
+                    const cc::Rect& actor,
+                    const std::list<Agent>& agents,
+                    const cc::Size& tileSize);
     
-    std::vector<Node> neighbors(Node node);
+    virtual std::list<Node> neighbors(Node node);
     int cost(Node n1, Node n2);
     int heuristic(Node n1, Node n2);
-
-private:
-    bool check(int x, int y);
-    lib::DataGrid<bool>&    content;
-    std::list<Agent>&       agents;
+    
+    Node getNode(const cc::Point& pt);
+    
+protected:
+    
+    //input
+    lib::DataGrid<bool>     content;
+    const std::list<Agent>& agents;
+    std::map<Node, int>     costMap;
+    cc::Rect                actor;
     cc::Size                tileSize;
 };

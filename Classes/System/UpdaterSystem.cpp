@@ -42,8 +42,25 @@ void UpdaterSystem::tick(double dt)
         if (cpInput.goTo != nullptr)
         {
             auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
-            auto wayPoints = context->data->getNav()->getWaypoints(
-                {bounds.getMidX(), bounds.getMidY()}, cpInput.goTo.Value, cpPhy.category);
+            
+            //debug path finding
+            /*auto container = ecs::get<cp::Render>(eid).sprite->getParent();
+            auto debugNode = container->getChildByTag<cc::DrawNode*>(def::debugTagDrawID);
+            if (debugNode == nullptr)
+            {
+                debugNode = cc::DrawNode::create();
+                container->addChild(debugNode, 0, def::debugTagDrawID);
+            }
+            
+            debugNode->clear();
+            debugNode->setLineWidth(1);
+            
+            context->data->getNav()->debugWaypoints(
+                    eid, bounds, cpInput.goTo.Value, debugNode, cpPhy.category);
+            */
+            
+            auto wayPoints = context->data->getNav()->getWaypoints(eid,
+                bounds, cpInput.goTo.Value, cpPhy.category);
             CmdFactory::at(context->ecs, eid).goTo(wayPoints, 2);
             
             cpInput.goTo = nullptr;

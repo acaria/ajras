@@ -15,4 +15,5 @@ public:
     
 private:
     std::list<unsigned> toRemove;
+
 };

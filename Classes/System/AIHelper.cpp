@@ -150,7 +150,7 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
             //convert coords to positions
             auto destBounds = system->context->data->getBlockBound(coord);
             
-            auto wayPoints = system->context->data->getNav()->getWaypoints(
+            auto wayPoints = system->context->data->getNav()->getGridWaypoints(
                 {originBounds.getMidX(), originBounds.getMidY()},
                 {destBounds.getMidX(), destBounds.getMidY()},
                 cpPhy.category);

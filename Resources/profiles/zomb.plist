@@ -77,7 +77,7 @@
 				<key>format</key>
 				<string>zomb_atk_left%d.png</string>
 				<key>delay</key>
-				<string>0.07</string>
+				<string>0.04</string>
 				<key>frameCount</key>
 				<integer>10</integer>
 				<key>frameOrder</key>
@@ -90,7 +90,7 @@
 				<key>format</key>
 				<string>zomb_atk_left%d.png</string>
 				<key>delay</key>
-				<string>0.07</string>
+				<string>0.04</string>
 				<key>frameCount</key>
 				<integer>10</integer>
 				<key>frameOrder</key>
@@ -101,7 +101,7 @@
 				<key>format</key>
 				<string>zomb_atk_up%d.png</string>
 				<key>delay</key>
-				<string>0.07</string>
+				<string>0.04</string>
 				<key>frameCount</key>
 				<integer>10</integer>
 				<key>frameOrder</key>
@@ -112,7 +112,7 @@
 				<key>format</key>
 				<string>zomb_atk_down%d.png</string>
 				<key>delay</key>
-				<string>0.07</string>
+				<string>0.04</string>
 				<key>frameCount</key>
 				<integer>10</integer>
 				<key>frameOrder</key>

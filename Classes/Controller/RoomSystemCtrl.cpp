@@ -249,6 +249,7 @@ void RoomSystemCtrl::showObjects(float duration)
 {
     for(auto eid : ecsGroup.join<cp::Render, cp::Position>())
     {
+        ecs::get<cp::Render>(eid).sprite->stopAllActions();
         if (duration == 0)
             ecs::get<cp::Render>(eid).sprite->setOpacity(255);
         else

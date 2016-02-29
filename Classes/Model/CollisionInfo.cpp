@@ -24,6 +24,11 @@ void CollisionInfo::process()
     {
         this->processFakeNode(pair.first, pair.second);
     }
+    
+    for(auto pair : this->fakeRectAgents)
+    {
+        this->processFakeRect(pair.second);
+    }
 }
 
 void CollisionInfo::processAgent(const Agent &agent)
@@ -57,6 +62,21 @@ void CollisionInfo::processFakeNode(cc::Node* node, const cc::Rect& shape)
 {
     auto bounds = cc::Rect(node->getPosition() + shape.origin, shape.size);
     
+    for (auto pair : this->agents)
+    {
+        auto& other = pair.second;
+        
+        if (bounds.intersectsRect(other.bounds))
+        {
+            auto diff = CollisionEngine::slide(bounds, other.bounds);
+            if (!diff.isZero())
+                this->onFakeNodeCollision(other.id, diff * (1.001));
+        }
+    }
+}
+
+void CollisionInfo::processFakeRect(const cc::Rect& bounds)
+{
     for (auto pair : this->agents)
     {
         auto& other = pair.second;
@@ -200,8 +220,38 @@ bool CollisionInfo::checkCollisionRect(const cc::Rect &rect, def::collision::Cat
     return false;
 }
 
+std::list<cc::Rect> CollisionInfo::getAgentBounds(unsigned eid, def::collision::Cat cat)
+{
+    auto agents = linq::from(this->agents)
+        >> linq::select([](std::pair<unsigned, def::collision::Agent> element) {
+            return element.second; })
+        >> linq::where([cat, eid](const def::collision::Agent& agent) {
+            return agent.category == cat && agent.id != eid; })
+        >> linq::to_list();
+    return linq::from(agents)
+        >> linq::select([](const def::collision::Agent& agent) {
+            return agent.bounds;})
+        >> linq::to_list();
+}
+
+std::list<cc::Rect> CollisionInfo::getAgentBounds(unsigned eid, unsigned oid,
+                                                  def::collision::Cat cat)
+{
+    auto agents = linq::from(this->agents)
+    >> linq::select([](std::pair<unsigned, def::collision::Agent> element) {
+        return element.second; })
+    >> linq::where([cat, eid, oid](const def::collision::Agent& agent) {
+        return agent.category == cat && agent.id != eid && agent.id != oid; })
+    >> linq::to_list();
+    return linq::from(agents)
+    >> linq::select([](const def::collision::Agent& agent) {
+        return agent.bounds;})
+    >> linq::to_list();
+}
+
 bool CollisionInfo::checkCollisionRay(const cc::Point& origin,
                                       const cc::Point& dest,
+                                      unsigned eid, unsigned oid,
                                       def::collision::Cat cat)
 {
     auto dir = dest - origin;
@@ -219,23 +269,32 @@ bool CollisionInfo::checkCollisionRay(const cc::Point& origin,
         1.0f / (nDir.y == 0 ? FLT_MIN : nDir.y)
     };
     
+    auto checkBounds = [origin, dirFrac](cc::Rect bounds)
+    {
+        float t1 = (bounds.getMinX() - origin.x) * dirFrac.x;
+        float t2 = (bounds.getMaxX() - origin.x) * dirFrac.x;
+        float t3 = (bounds.getMinY() - origin.y) * dirFrac.y;
+        float t4 = (bounds.getMaxY() - origin.y) * dirFrac.y;
+        
+        float tmin = MAX(MIN(t1, t2), MIN(t3, t4));
+        float tmax = MIN(MAX(t1, t2), MAX(t3, t4));
+        
+        return (tmax >= 0 && tmin <= tmax);
+    };
+    
+    auto agentBounds = this->getAgentBounds(eid, oid, cat);
+    
     for(unsigned x = downLeft.x; x <= upRight.x; x++)
     for(unsigned y = downLeft.y; y <= upRight.y; y++)
     {
-        if (!moveAble[{x, y}])
-        {
-            cc::Rect bounds = this->data->getBlockBound({x,y});
-            float t1 = (bounds.getMinX() - origin.x) * dirFrac.x;
-            float t2 = (bounds.getMaxX() - origin.x) * dirFrac.x;
-            float t3 = (bounds.getMinY() - origin.y) * dirFrac.y;
-            float t4 = (bounds.getMaxY() - origin.y) * dirFrac.y;
-            
-            float tmin = MAX(MIN(t1, t2), MIN(t3, t4));
-            float tmax = MIN(MAX(t1, t2), MAX(t3, t4));
-            
-            if (tmax >= 0 && tmin <= tmax)
-                return true;
-        }
+        if (!moveAble[{x, y}] && checkBounds(this->data->getBlockBound({x,y})))
+            return true;
+    }
+    
+    for(auto agent : agentBounds)
+    {
+        if (checkBounds(agent))
+            return true;
     }
     
     return false;

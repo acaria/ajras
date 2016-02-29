@@ -22,8 +22,12 @@ public:
     void process();
     void init(IMapData* mapData);
     
+    std::list<cc::Rect> getAgentBounds(unsigned eid, def::collision::Cat cat);
+    std::list<cc::Rect> getAgentBounds(unsigned eid, unsigned oid, def::collision::Cat cat);
+    
     bool checkCollisionRect(const cocos2d::Rect& rect, def::collision::Cat cat);
-    bool checkCollisionRay(const cc::Point& origin, const cc::Point& dest, ColCat cat);
+    bool checkCollisionRay(const cc::Point& origin, const cc::Point& dest,
+                           unsigned eid, unsigned oid, ColCat cat);
 
     std::vector<cc::Rect> getNearEmptyBlocks(const lib::v2u& coord, unsigned maxDist, ColCat cat);
     std::vector<cc::Rect> getNearEmptyBlocks(const cc::Point& pos, unsigned maxDist, ColCat cat);
@@ -37,6 +41,7 @@ public:
     //dynamic fields
     std::map<unsigned, Agent>       agents;
     std::map<cc::Node*, cc::Rect>   fakeNodeAgents;
+    std::map<unsigned, cc::Rect>    fakeRectAgents;
     
 private:
     cc::Point getCollisionDiff(const cc::Rect& destBounds, const cc::Rect& lastBounds, ColCat cat);
@@ -45,6 +50,7 @@ private:
     void prepare();
     void processAgent(const Agent& agent);
     void processFakeNode(cc::Node* node, const cc::Rect& shape);
+    void processFakeRect(const cc::Rect& bounds);
     
     std::list<cocos2d::Rect>    getRectGridCollisions(const cocos2d::Rect& rect, ColCat cat);
     

@@ -9,7 +9,7 @@ struct NavigationGraphDebug : public NavigationGraph
 {
     NavigationGraphDebug(const lib::DataGrid<bool>& content,
                          const cc::Rect& actor,
-                         const std::list<Agent>& agents,
+                         const std::list<cc::Rect>& agents,
                          const cc::Size& tileSize,
                          cc::DrawNode* drawNode);
     

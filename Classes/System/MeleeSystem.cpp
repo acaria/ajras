@@ -48,11 +48,12 @@ void MeleeSystem::tick(double dt)
                 if (cpMelee.atkRect.intersectsRect(bounds) &&
                     ecs::get<cp::Stamina>(eid).current >= cpMelee.stamina)
                 {
-                    if (context->data->getCol()->checkCollisionRay({body.getMidX(), body.getMidY()},
-                                                           {bounds.getMidX(), bounds.getMidY()},
-                                                           ecs::get<cp::Physics>(eid).category))
+                    if (context->data->getCol()->checkCollisionRay(
+                            {body.getMidX(), body.getMidY()},
+                            {bounds.getMidX(), bounds.getMidY()},
+                            eid, oid,
+                            ecs::get<cp::Physics>(eid).category))
                         continue;
-                        
                     
                     bool added = false;
                     for(auto& meleeList : meleeListGroup)
@@ -99,6 +100,9 @@ void MeleeSystem::tick(double dt)
     {
         assert(meleeList.size() <=  1);
         auto pair = meleeList.front();
+        if (!ecs::has<cp::Position>(pair.first) ||
+            !ecs::has<cp::Position>(pair.second))
+            continue;
         auto& cpMelee = ecs::get<cp::Melee>(pair.first);
         ecs::get<cp::Stamina>(pair.first).current -= cpMelee.stamina;
         switch(cpMelee.type)
@@ -196,6 +200,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     
     //exclude attacker from systems
     context->ecs->del<cp::Position>(eid);
+    dispatcher->onFakeAgentRectAdded(context->ecs->getID(), eid, bounds1);
     dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
     
     //attacker: estocade anim
@@ -210,6 +215,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     auto attackAnim = cc::CallFunc::create([&cpMelee, eid, this, &cpRender, atkDir](){
         auto animName = cpMelee.animKey.Value + ProfileData::getTagName(atkDir);
         cpRender.setAnimation(animName, 1, [&cpRender, eid, this](bool canceled){
+            dispatcher->onFakeAgentRectRemoved(context->ecs->getID(), eid);
             context->ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
             dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
             setEntityAvailability(eid, true);

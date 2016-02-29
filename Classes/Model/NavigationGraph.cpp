@@ -3,13 +3,13 @@
 
 NavigationGraph::NavigationGraph(const lib::DataGrid<bool>& contentRef,
                                  const cc::Rect& actor,
-                                 const std::list<Agent>& agents,
+                                 const std::list<cc::Rect>& agents,
                                  const cc::Size& tileSize):
 content(contentRef), actor(actor), agents(agents), tileSize(tileSize)
 {
     for(auto agent : agents)
     {
-        auto b = agent.bounds;
+        auto b = agent;
         unsigned maxX = b.getMaxX() / tileSize.width;
         unsigned maxY = b.getMaxY() / tileSize.height;
         for(unsigned x = b.getMinX() / tileSize.width; x <= maxX; x++)

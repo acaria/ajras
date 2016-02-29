@@ -43,15 +43,9 @@ std::list<cc::Vec2> NavigationInfo::getWaypoints(unsigned eid,
                                                  def::collision::Cat category)
 {
     auto tileSize = data->getTileSize();
-    auto agents = linq::from(this->data->getCol()->agents)
-        >> linq::select([](std::pair<unsigned, def::collision::Agent> element) {
-            return element.second; })
-        >> linq::where([category, eid](def::collision::Agent agent) {
-            return agent.category == category && agent.id != eid; })
-        >> linq::to_list();
+    auto agents = this->data->getCol()->getAgentBounds(eid, category);
     
-    auto graph = NavigationGraph(data->getCol()->grids[category],
-            box, agents, tileSize);
+    auto graph = NavigationGraph(data->getCol()->grids[category], box, agents, tileSize);
     
     auto result = lib::PathFinding::aStarSearch(graph,
             graph.getNode({box.getMidX(), box.getMidY()}),
@@ -70,12 +64,7 @@ void NavigationInfo::debugWaypoints(unsigned eid,
                                     def::collision::Cat category)
 {
     auto tileSize = data->getTileSize();
-    auto agents = linq::from(this->data->getCol()->agents)
-    >> linq::select([](std::pair<unsigned, def::collision::Agent> element) {
-        return element.second; })
-    >> linq::where([category, eid](def::collision::Agent agent) {
-        return agent.category == category && agent.id != eid; })
-    >> linq::to_list();
+    auto agents = this->data->getCol()->getAgentBounds(eid, category);
     
     auto graph = NavigationGraphDebug(data->getCol()->grids[category],
             box, agents, tileSize, drawNode);

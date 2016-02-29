@@ -56,14 +56,11 @@ PlayerData* PlayerData::createDefault()
     });
     
     //troops
-    /*result->entities.push_back({
+    result->entities.push_back({
         .profileName = "boy2",
         .inventory = {
             {.quantity = 0, .content = nullptr},
             {.quantity = 0, .content = nullptr},
-            {.quantity = 0, .content = nullptr},
-            {.quantity = 0, .content = nullptr},
-            {.quantity = 0, .content = nullptr}
         }
     });
     
@@ -72,11 +69,8 @@ PlayerData* PlayerData::createDefault()
         .inventory = {
             {.quantity = 0, .content = nullptr},
             {.quantity = 0, .content = nullptr},
-            {.quantity = 0, .content = nullptr},
-            {.quantity = 0, .content = nullptr},
-            {.quantity = 0, .content = nullptr}
         }
-    });*/
+    });
     
     return result;
 }

@@ -14,7 +14,7 @@ struct NavigationGraph
     
     NavigationGraph(const lib::DataGrid<bool>& content,
                     const cc::Rect& actor,
-                    const std::list<Agent>& agents,
+                    const std::list<cc::Rect>& agents,
                     const cc::Size& tileSize);
     
     virtual std::list<Node> neighbors(Node node);
@@ -26,9 +26,9 @@ struct NavigationGraph
 protected:
     
     //input
-    lib::DataGrid<bool>     content;
-    const std::list<Agent>& agents;
-    std::map<Node, int>     costMap;
-    cc::Rect                actor;
-    cc::Size                tileSize;
+    lib::DataGrid<bool>         content;
+    const std::list<cc::Rect>&  agents;
+    std::map<Node, int>         costMap;
+    cc::Rect                    actor;
+    cc::Size                    tileSize;
 };

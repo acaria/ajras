@@ -3,7 +3,7 @@
 
 NavigationGraphDebug::NavigationGraphDebug(const lib::DataGrid<bool>& contentRef,
                                            const cc::Rect& actor,
-                                           const std::list<Agent>& agents,
+                                           const std::list<cc::Rect>& agents,
                                            const cc::Size& tileSize,
                                            cc::DrawNode* drawNode):
 NavigationGraph(contentRef, actor, agents, tileSize), drawNode(drawNode)

@@ -59,9 +59,21 @@ void CollisionSystem::init()
         collisionData->fakeNodeAgents[node] = r;
     }));
     
+    this->eventRegs.push_back(this->dispatcher->onFakeAgentRectAdded.registerObserver(
+            [this](unsigned group, unsigned eid, const cc::Rect& r){
+        if (context->ecs->getID() != group)
+            return;
+        collisionData->fakeRectAgents[eid] = r;
+    }));
+    
     this->eventRegs.push_back(this->dispatcher->onFakeAgentNodeRemoved.registerObserver(
             [this](unsigned group, cc::Node* node){
         collisionData->fakeNodeAgents.erase(node);
+    }));
+    
+    this->eventRegs.push_back(this->dispatcher->onFakeAgentRectRemoved.registerObserver(
+            [this](unsigned group, unsigned eid){
+        collisionData->fakeRectAgents.erase(eid);
     }));
     
     this->eventRegs.push_back(this->dispatcher->onEntityPositionChanged.registerObserver(

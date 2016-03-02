@@ -160,7 +160,7 @@ namespace behaviour
         
         nState visit(BoardNode& board, double dt)
         {
-#if kTraceBehaviours
+#if BEHAVIOURS_TRACE
             Log("FinallyNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
@@ -183,7 +183,7 @@ namespace behaviour
     
         nState visit(BoardNode& board, double dt)
         {
-#if kTraceBehaviours
+#if BEHAVIOURS_TRACE
             Log("SequenceNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() &&
@@ -226,7 +226,7 @@ namespace behaviour
     
         nState visit(BoardNode& board, double dt)
         {
-#if kTraceBehaviours
+#if BEHAVIOURS_TRACE
             Log("SelectorNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
@@ -257,7 +257,7 @@ namespace behaviour
         
         nState visit(BoardNode& board, double dt)
         {
-#if kTraceBehaviours
+#if BEHAVIOURS_TRACE
             Log("UntilNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
@@ -289,7 +289,7 @@ namespace behaviour
         
         nState visit(BoardNode& board, double dt)
         {
-#if kTraceBehaviours
+#if BEHAVIOURS_TRACE
             Log("WaitNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
@@ -321,7 +321,7 @@ namespace behaviour
     
         nState visit(BoardNode& board, double dt)
         {
-#if kTraceBehaviours
+#if BEHAVIOURS_TRACE
             //Log("CheckNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)
@@ -347,7 +347,7 @@ namespace behaviour
     
         nState visit(BoardNode& board, double dt)
         {
-#if kTraceBehaviours
+#if BEHAVIOURS_TRACE
             Log("ActionNode: %s", this->toStr().c_str());
 #endif
             if (board.states.find(id) != board.states.end() && board.states[id] != RUNNING)

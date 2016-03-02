@@ -16,6 +16,7 @@ public:
     void setPosition(const cc::Vec2 &pos) override;
     void setPosition(float x, float y) override;
     const cc::Vec2& getPosition() const override;
+    const cc::Vec2& getDisplayedPosition() const;
     cc::Vec3 getPosition3D() const override;
     bool initWithTexture(cc::Texture2D *texture, const cc::Rect &rect, bool _rotated) override;
 

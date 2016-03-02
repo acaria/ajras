@@ -121,6 +121,7 @@ void ScreenLog::update(float dt)
             removeChild(slm->m_label,true);
             delete slm;
             m_messages.erase( m_messages.begin() + i );
+            reorderLabels();
         }
         else
         {
@@ -145,6 +146,20 @@ void ScreenLog::moveLabelsUp(int maxIndex)
         cocos2d::Point p = slm->m_label->getPosition();
         p.y += fontSize;
         slm->m_label->setPosition( p );
+    }
+}
+
+void ScreenLog::reorderLabels()
+{
+    ScopeLock lock(&m_contentMutex);
+        
+    float screenHeightPixels = cocos2d::Director::getInstance()->getWinSize().height;
+    float fontSize =  screenHeightPixels / (float)SCREENLOG_NUM_LINES - 1;
+    
+    float inc = SCREENLOG_START_HEIGHT_PERCENT * screenHeightPixels;
+    for (int i = 0; i < m_messages.size(); i++) {
+        screenLogMessage* slm = m_messages[i];
+        slm->m_label->setPosition(2, inc + i * fontSize);
     }
 }
 
@@ -195,11 +210,12 @@ bool screenLogMessage::checkLabel()
     }
     
     if (m_dirty) {
-        cocos2d::Point originalPos = m_label->getPosition();
-        m_layer->removeChild(m_label,true);
-        m_label = NULL;
-        createLabel();
-        m_label->setPosition(originalPos);
+        //cocos2d::Point originalPos = m_label->getPosition();
+        //m_layer->removeChild(m_label,true);
+        //m_label = NULL;
+        //createLabel();
+        m_label->setString(m_text);
+        //m_label->setPosition(originalPos);
         m_dirty = false;
     }
     

@@ -12,7 +12,7 @@
 #define LL_DEBUG    0x10
 #define LL_TRACE    0x20
 
-#define SCREENLOG_NUM_LINES             50
+#define SCREENLOG_NUM_LINES             45
 #define SCREENLOG_START_HEIGHT_PERCENT  0.001
 #define SCREENLOG_PRINT_BUFFER_SIZE     8192
 #define SCREENLOG_LAYER_LEVEL           1000
@@ -73,6 +73,7 @@ public:
     
     void update(float dt);
     void moveLabelsUp(int maxIndex);
+    void reorderLabels();
     void clearEntries();
 };
 

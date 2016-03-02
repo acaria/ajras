@@ -229,6 +229,8 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
             //attacker
             auto& cpMelee = ecs::get<cp::Melee>(eid);
             //target
+            if (!ecs::has<cp::Render, cp::Physics>(oid))
+                return;
             auto& cpRender2 = ecs::get<cp::Render>(oid);
             auto& cpPhy2 =  ecs::get<cp::Physics>(oid);
             auto& cpHealth2 = ecs::get<cp::Health>(oid);

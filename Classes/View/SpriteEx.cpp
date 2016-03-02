@@ -45,6 +45,11 @@ const cc::Vec2& SpriteEx::getPosition() const
     return this->actualPosition;
 }
 
+const cc::Vec2& SpriteEx::getDisplayedPosition() const
+{
+    return Base::getPosition();
+}
+
 cc::Vec3 SpriteEx::getPosition3D() const
 {
     return cc::Vec3(this->actualPosition.x, this->actualPosition.y, this->_positionZ);

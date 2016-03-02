@@ -18,7 +18,7 @@
 		<key>orientation</key>
 		<true/>
 		<key>health</key>
-		<string>100</string>
+		<string>3</string>
 		<key>stamina</key>
 		<string>90</string>
 		<key>physics</key>

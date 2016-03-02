@@ -1,12 +1,12 @@
 #pragma once
 
-#define kTraceBehaviours 0
+
+#define ECSYSTEM_TRACE 1
+#define BEHAVIOURS_TRACE 1
 
 #define ECSYSTEM_DEBUG 1
 #define HEADER_DEBUG 1
 #define FOOTER_DEBUG 1
-
-
 
 namespace def {
 

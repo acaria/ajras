@@ -2,6 +2,7 @@
 #include "Components.h"
 #include "IMapData.h"
 #include "CmdFactory.h"
+#include "GameCtrl.h"
 
 void UpdaterSystem::animate(double dt, double tp)
 {
@@ -14,6 +15,7 @@ void UpdaterSystem::animate(double dt, double tp)
 
 void UpdaterSystem::tick(double dt)
 {
+
     //clean removed entities
     for(auto eid : toRemove)
     {
@@ -127,4 +129,22 @@ void UpdaterSystem::tick(double dt)
             }
         }
     }
+    
+#if ECSYSTEM_TRACE
+    for(auto eid : context->ecs->system<cp::Render>())
+    {
+        auto& render = ecs::get<cp::Render>(eid);
+        std::string info = lib::format("%u : Render p(%f,%f)(%f,%f)", eid,
+            render.sprite->getPosition().x, render.sprite->getPosition().y,
+            render.sprite->getDisplayedPosition().x, render.sprite->getDisplayedPosition().y);
+        
+        if (ecs::has<cp::Position>(eid))
+        {
+            auto& position = ecs::get<cp::Position>(eid);
+            info += lib::format(" - Position p(%f,%f)", position.pos.x, position.pos.y);
+        }
+        
+        GameCtrl::trace(std::to_string(eid), info);
+    }
+#endif
 }

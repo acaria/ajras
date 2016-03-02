@@ -50,7 +50,7 @@
 		<key>orientation</key>
 		<true/>
 		<key>health</key>
-		<string>99</string>
+		<string>5</string>
 		<key>stamina</key>
 		<string>100</string>
 	</dict>

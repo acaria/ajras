@@ -181,6 +181,17 @@ namespace def {
             float depth = 100.f;
         };
     }
+    
+    namespace team
+    {
+        enum class Formation
+        {
+            arrow
+        };
+        
+        const unsigned    pIndex = 1;
+        const Formation   pFormation = Formation::arrow;
+    }
 }
 
 enum class ActionMode

@@ -5,20 +5,6 @@
 
 AIHelper::AIHelper(AISystem* system) : system(system) {}
 
-def::mood::Flags AIHelper::getMoodGroup(def::mood::Flags ref,
-                                        const std::string& moodGroupCat)
-{
-    switch(lib::hash(moodGroupCat))
-    {
-        case lib::hash("opponent"): return def::mood::getOpponents(ref);
-        case lib::hash("ally"): return def::mood::getAllies(ref);
-        default:
-            Log("unrecognised mood group selection : %s", moodGroupCat.c_str());
-            break;
-    }
-    return def::mood::Neutral;
-}
-
 behaviour::nState AIHelper::checkNearMood(unsigned eid, float sight,
     const std::vector<std::string>& params, Properties& properties)
 {
@@ -150,8 +136,8 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
             //convert coords to positions
             auto destBounds = system->context->data->getBlockBound(coord);
             
-            auto wayPoints = system->context->data->getNav()->getGridWaypoints(
-                {originBounds.getMidX(), originBounds.getMidY()},
+            auto wayPoints = system->context->data->getNav()->getWaypoints(
+                eid, originBounds,
                 {destBounds.getMidX(), destBounds.getMidY()},
                 cpPhy.category);
             
@@ -176,32 +162,7 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
             return state::FAILURE;
     }
     
-    auto& wayPoints = properties["waypoints"].asValueVector();
-    
-    if (wayPoints.size() == 0)
-    {
-        if (ecs::has<cp::Input>(eid))
-            ecs::get<cp::Input>(eid).direction = cc::Vec2::ZERO;
-        return state::SUCCESS;
-    }
-    
-    auto& vMap = wayPoints.front().asValueMap();
-    cc::Point destPos { vMap["x"].asFloat(), vMap["y"].asFloat() };
-    
-    auto bounds = SysHelper::getBounds(eid);
-    
-    cc::Vec2 vdir { destPos.x - bounds.getMidX(), destPos.y - bounds.getMidY() };
-    
-    if (vdir.length() < 4)
-    {
-        wayPoints.erase(wayPoints.begin());
-#if ECSYSTEM_DEBUG
-        ecs::get<cp::Input>(eid).wayPoints.pop_front();
-#endif
-    }
-    ecs::get<cp::Input>(eid).direction = vdir.getNormalized();
-    
-    return state::RUNNING;
+    return this->followPathFinding(eid, properties, 4);
 }
 
 behaviour::nState AIHelper::execMoveStop(unsigned eid,
@@ -273,6 +234,8 @@ behaviour::nState AIHelper::execMoveNearTarget(unsigned eid,
         const std::vector<std::string>& params, Properties& properties)
 {
     assert(params.size() == 2); //params=[category, range]
+    float range = std::stod(params[1]);
+    
     if (!ecs::has<cp::Target, cp::Input>(eid))
         return state::FAILURE;
     auto tid = ecs::get<cp::Target>(eid);
@@ -280,10 +243,53 @@ behaviour::nState AIHelper::execMoveNearTarget(unsigned eid,
         return state::FAILURE;
     
     auto& cpInput = ecs::get<cp::Input>(eid);
+    auto& cpPhy = ecs::get<cp::Physics>(eid);
+    
+    if (properties.find("waypoints") != properties.end())
+    {
+        auto result = this->followPathFinding(eid, properties, range);
+        
+        if (properties.find("nb_waypoints") != properties.end())
+        {
+            if (properties["nb_waypoints"].asInt() -
+                properties["waypoints"].asValueVector().size() >= 3)
+            {
+                properties.erase("waypoints");
+                properties.erase("nb_waypoints");
+            }
+        }
+        
+        return result;
+    }
+    
     auto bounds = SysHelper::getBounds(eid);
     auto bounds2 = SysHelper::getBounds(tid);
+        
+    if (cpPhy.collisionState != PhysicsComponent::NONE)
+    {
+        auto wayPoints = system->context->data->getNav()->getWaypoints(eid,
+                bounds, {bounds2.getMidX(), bounds2.getMidY()}, cpPhy.category);
+            
+        if (wayPoints.size() > 0)
+        {
+#if ECSYSTEM_DEBUG
+            ecs::get<cp::Input>(eid).wayPoints = wayPoints;
+#endif
+            cc::ValueVector wayPointsVec = linq::from(wayPoints) >>
+            linq::select([](cc::Point coord) {
+                return cc::Value(cc::ValueMap{{"x", cc::Value((int)coord.x)},
+                    {"y", cc::Value((int)coord.y)}});
+            }) >> linq::to_vector();
+                
+            properties["waypoints"] = wayPointsVec;
+            properties["nb_waypoints"] = cc::Value((int)wayPointsVec.size());
+            return state::RUNNING;
+        }
+        return state::FAILURE;
+    }
+    
     auto vdir = cc::Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
-    if (vdir.length() < std::stod(params[1]))
+    if (vdir.length() < range)
     {
         cpInput.direction = cc::Vec2::ZERO;
         return state::SUCCESS;
@@ -306,4 +312,48 @@ behaviour::nState AIHelper::execStopSleepZone(unsigned eid,
         sleepZonesData->freeSleepZone(cpAI.sleep, {bounds.getMidX(), bounds.getMidY()});
     }
     return state::SUCCESS;
+}
+
+def::mood::Flags AIHelper::getMoodGroup(def::mood::Flags ref,
+                                        const std::string& moodGroupCat)
+{
+    switch(lib::hash(moodGroupCat))
+    {
+        case lib::hash("opponent"): return def::mood::getOpponents(ref);
+        case lib::hash("ally"): return def::mood::getAllies(ref);
+        default:
+            Log("unrecognised mood group selection : %s", moodGroupCat.c_str());
+            break;
+    }
+    return def::mood::Neutral;
+}
+
+behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properties, float reachGoal)
+{
+    auto& wayPoints = properties["waypoints"].asValueVector();
+    
+    if (wayPoints.size() == 0)
+    {
+        if (ecs::has<cp::Input>(eid))
+            ecs::get<cp::Input>(eid).direction = cc::Vec2::ZERO;
+        return state::SUCCESS;
+    }
+    
+    auto& vMap = wayPoints.front().asValueMap();
+    cc::Point destPos { vMap["x"].asFloat(), vMap["y"].asFloat() };
+    
+    auto bounds = SysHelper::getBounds(eid);
+    
+    cc::Vec2 vdir { destPos.x - bounds.getMidX(), destPos.y - bounds.getMidY() };
+    
+    if (vdir.length() <= reachGoal)
+    {
+        wayPoints.erase(wayPoints.begin());
+#if ECSYSTEM_DEBUG
+        ecs::get<cp::Input>(eid).wayPoints.pop_front();
+#endif
+    }
+    ecs::get<cp::Input>(eid).direction = vdir.getNormalized();
+    
+    return state::RUNNING;
 }

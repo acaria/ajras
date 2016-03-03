@@ -22,8 +22,10 @@ FloorSystemCtrl::FloorSystemCtrl() : systemFacade(dispatcher, context, Randgine:
     this->context.ecs = &ecsGroup;
 
     //init systems
+    this->systemFacade.factory<CleanerSystem>();
     this->systemFacade.factory<ControlSystem>(std::list<unsigned>(PlayerData::getCtrlIdxList()));
     this->systemFacade.factory<AISystem>();
+    this->systemFacade.factory<CmdSystem>();
     this->systemFacade.factory<UpdaterSystem>();
     this->systemFacade.factory<TargetSystem>();
     this->systemFacade.factory<MoveSystem>();
@@ -135,7 +137,7 @@ void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex,
 void FloorSystemCtrl::regroupTeam(unsigned eid, unsigned nextRoomIndex, const GateMap& gate,
                                   const std::function<void()>& onReady)
 {
-    unsigned teamID = ecs::get<cp::Team>(eid);
+    unsigned teamID = ecs::get<cp::Team>(eid).index;
     
     transitInfo.processed = false;
     transitInfo.teamReadyIds.clear();
@@ -147,14 +149,13 @@ void FloorSystemCtrl::regroupTeam(unsigned eid, unsigned nextRoomIndex, const Ga
         for(auto eid2 : ecsGroup.join<cp::Physics, cp::Team, cp::Position>())
         {
             if (eid == eid2) continue; //skip player entity
-            if (ecs::get<cp::Team>(eid2) != teamID) continue;
+            if (ecs::get<cp::Team>(eid2).index != teamID) continue;
             
             transitInfo.teamLeftIds.push_back(eid2);
             auto& cpPhy = ecs::get<cp::Physics>(eid2);
             auto sRect = SysHelper::getBounds(eid2);
             auto dRect = gate.info.rect;
-            auto wayPoints = context.data->getNav()->getGridWaypoints(
-                {sRect.getMidX(), sRect.getMidY()},
+            auto wayPoints = context.data->getNav()->getWaypoints(eid, sRect,
                 {dRect.getMidX() - sRect.size.width / 2, dRect.getMidY() - sRect.size.height / 2},
                 cpPhy.category);
             
@@ -216,7 +217,7 @@ bool FloorSystemCtrl::isInTransit(unsigned int eid)
 
 void FloorSystemCtrl::moveEntity(unsigned eid, unsigned prevRoomIndex, unsigned nextRoomIndex)
 {
-    dispatcher.onEntityDeleted(prevRoomIndex, eid);
+    dispatcher.onEntityMoved(prevRoomIndex, eid);
     cp::entity::move(eid, prevRoomIndex, nextRoomIndex);
     ecs::get<cp::Cmd>(eid).askRemove("goto");
     
@@ -284,13 +285,21 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid, con
                         auto nextRoom = data->getRoomAt(nextRoomIndex);
                         auto animPos = nextRoom->extractGateAnimInfo(gate, cpPhy.shape);
                         this->showEntityFromGate(nextRoomIndex, eid2, gate,
-                                def::anim::showEntityFromGateDuration, [this, eid2](){
+                                def::anim::showEntityFromGateDuration,
+                                    [this, nextRoomIndex, eid2, gate](){
                             this->transitInfo.teamReadyIds.remove(eid2);
+                            if (this->transitInfo.teamReadyIds.size() > 0)
+                            {
+                                auto cpTeam = ecs::get<cp::Team>(eid2);
+                                auto dir = this->transitInfo.deployTeamUnit(gate,
+                                    cpTeam.formation, cpTeam.position);
+                                CmdFactory::at(nextRoomIndex, eid2).goBy(dir);
+                            }
                         });
                     }).delay(delay);
                     delay += def::anim::teamReadyEntityDelay;
                 }
-                delay += 2.0;
+                delay += def::anim::teamLeftEntityDelay;
                 for(auto eid2 : transitInfo.teamLeftIds)
                 {
                     CmdFactory::at(nextRoomIndex, eid2,
@@ -590,11 +599,23 @@ void FloorSystemCtrl::loadEntities()
         for(auto& playerEntity : playerData->entities)
         {
             auto onSuccess = [this, playerEntity, roomIndex, enterGate](){
-                this->showEntityFromGate(roomIndex, playerEntity.entityID, enterGate, 2.0);
+                this->showEntityFromGate(roomIndex, playerEntity.entityID, enterGate,
+                        def::anim::showEntityFromGateDuration,
+                        [this, enterGate, roomIndex, playerEntity](){
+                    if (playerData->entities.size() > 0)
+                    {
+                        auto dir = this->transitInfo.deployTeamUnit(enterGate,
+                            playerEntity.team.formation, playerEntity.team.position);
+                        CmdFactory::at(roomIndex, playerEntity.entityID).goBy(-dir);
+                    }
+                });
             };
             CmdFactory::at(context.ecs, playerData->getEntityFocusID(), onSuccess).delay(delay);
             delay += 1.0f;
         }
+        CmdFactory::at(context.ecs, playerData->getEntityFocusID(), [this, roomIndex](){
+            this->dispatcher.onSystemReady(roomIndex);
+        }).delay(delay + 5);
     });
     
     //create player entities

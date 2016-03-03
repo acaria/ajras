@@ -7,8 +7,24 @@
 #include "CmdFactory.h"
 #include "AIHelper.h"
 
+void AISystem::init()
+{
+    this->eventRegs.push_back(this->dispatcher->onSystemChanged.registerObserver(
+            [this](unsigned groupID){
+        this->enabled = false;
+    }));
+    
+    this->eventRegs.push_back(this->dispatcher->onSystemReady.registerObserver(
+            [this](unsigned groupID){
+        this->enabled = true;
+    }));
+}
+
 void AISystem::tick(double dt)
 {
+    if (!this->enabled)
+        return;
+
     using namespace std::placeholders;
     
     for(auto eid : context->ecs->join<cp::Input, cp::AI, cp::Mood, cp::Position>())

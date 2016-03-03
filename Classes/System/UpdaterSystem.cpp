@@ -4,31 +4,8 @@
 #include "CmdFactory.h"
 #include "GameCtrl.h"
 
-void UpdaterSystem::animate(double dt, double tp)
-{
-    //update commands
-    for(auto eid : context->ecs->system<cp::Cmd>())
-    {
-        ecs::get<cp::Cmd>(eid).processAnimate(eid, dt);
-    }
-}
-
 void UpdaterSystem::tick(double dt)
 {
-
-    //clean removed entities
-    for(auto eid : toRemove)
-    {
-        cp::entity::remove(eid, context->ecs->getID());
-    }
-    
-    //update commands
-    auto cmds = context->ecs->system<cp::Cmd>();
-    for(auto eid : cmds)
-    {
-        ecs::get<cp::Cmd>(eid).processTick(eid, dt);
-    }
-    
     //update from inputs
     for(auto eid : context->ecs->join<cp::Input, cp::Position, cp::Physics>())
     {
@@ -123,7 +100,6 @@ void UpdaterSystem::tick(double dt)
                 cpRender.sprite->stopAllActions();
                 cpRender.sprite->setColor({255,255,255});
                 cpRender.setAnimation("death", 1, [eid, this](bool cancel){
-                    this->toRemove.push_back(eid);
                     dispatcher->onEntityDeleted(context->ecs->getID(), eid);
                 });
             }

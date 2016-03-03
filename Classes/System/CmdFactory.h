@@ -20,6 +20,7 @@ public:
                          const std::function<void()>& onFailure = nullptr);
 
     void goTo(cc::Vec2 target, float nearDistance);
+    void goBy(cc::Vec2 dir);
     void goTo(std::list<cc::Vec2> waypoints, float nearDistance);
     void delay(double timeInterval);
     void waituntil(double timeout, const std::function<bool()>& predicate);

@@ -52,6 +52,11 @@ void CollisionSystem::init()
         collisionData->agents.erase(eid);
     }));
     
+    this->eventRegs.push_back(this->dispatcher->onEntityMoved.registerObserver(
+            [this](unsigned group, unsigned eid) {
+        collisionData->agents.erase(eid);
+    }));
+    
     this->eventRegs.push_back(this->dispatcher->onFakeAgentNodeAdded.registerObserver(
             [this](unsigned group, cc::Node* node, const cc::Rect& r){
         if (context->ecs->getID() != group)

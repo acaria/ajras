@@ -46,6 +46,11 @@ PlayerData* PlayerData::createDefault()
     result->entities.push_back({
         .profileName = "boy",
         .ctrlIndex = def::CTRL1,
+        .team = {
+            .index = static_cast<unsigned int>(def::team::pIndex),
+            .formation = def::team::pFormation,
+            .position = 0,
+        },
         .inventory = {
             {.quantity = 0, .content = nullptr},
             {.quantity = 0, .content = nullptr},
@@ -58,6 +63,11 @@ PlayerData* PlayerData::createDefault()
     //troops
     result->entities.push_back({
         .profileName = "boy2",
+        .team = {
+            .index = static_cast<unsigned int>(def::team::pIndex),
+            .formation = def::team::pFormation,
+            .position = 1,
+        },
         .inventory = {
             {.quantity = 0, .content = nullptr},
             {.quantity = 0, .content = nullptr},
@@ -66,6 +76,11 @@ PlayerData* PlayerData::createDefault()
     
     result->entities.push_back({
         .profileName = "boy2",
+        .team = {
+            .index = static_cast<unsigned int>(def::team::pIndex),
+            .formation = def::team::pFormation,
+            .position = 2,
+        },
         .inventory = {
             {.quantity = 0, .content = nullptr},
             {.quantity = 0, .content = nullptr},

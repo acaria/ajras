@@ -10,9 +10,11 @@ struct SystemDispatcher
 {
     //internal
     lib::Subject<void(unsigned)>                                  onSystemChanged;
+    lib::Subject<void(unsigned)>                                  onSystemReady;
     lib::Subject<void()>                                          onContextChanged;
     lib::Subject<void(unsigned, unsigned)>                        onEntityAdded;
     lib::Subject<void(unsigned, unsigned)>                        onEntityDeleted;
+    lib::Subject<void(unsigned, unsigned)>                        onEntityMoved;
     lib::Subject<void(unsigned, unsigned, const cc::Rect&)>       onFakeAgentRectAdded;
     lib::Subject<void(unsigned, unsigned)>                        onFakeAgentRectRemoved;
     lib::Subject<void(unsigned, cc::Node*, const cc::Rect&)>      onFakeAgentNodeAdded;

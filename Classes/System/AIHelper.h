@@ -53,6 +53,7 @@ public:
         const std::vector<std::string>& params, Properties& properties);
     
 private:
+    behaviour::nState followPathFinding(unsigned eid, Properties& properties, float reachGoal);
     def::mood::Flags getMoodGroup(def::mood::Flags ref, const std::string& moodGroupCat);
     AISystem* system;
 };

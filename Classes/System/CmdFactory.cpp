@@ -24,15 +24,40 @@ void CmdFactory::goTo(cc::Vec2 target, float nearDistance)
         if (!ecs::has<cp::Input, cp::Position, cp::Physics>(eid))
             return State::failure;
 
-        auto& cpPosition = ecs::get<cp::Position>(eid);
-        auto& cpPhy = ecs::get<cp::Physics>(eid);
-        auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
+        auto bounds = SysHelper::getBounds(eid);
         cc::Vec2 dir = target - cc::Vec2(bounds.getMidX(), bounds.getMidY());
         
         ecs::get<cp::Input>(eid).direction = dir.getNormalized();
 
         if (dir.length() < nearDistance)
             return State::success;
+        return State::inProgress;
+    }, onSuccess, onFailure);
+}
+
+void CmdFactory::goBy(cc::Vec2 dir)
+{
+    if (!ecs::has<cp::Position>(eid))
+    {
+        if (onFailure != nullptr) onFailure();
+        return;
+    }
+    auto origin = ecs::get<cp::Position>(eid).pos;
+    auto length = dir.getLengthSq();
+    ecs::add<cp::Cmd>(eid, gid).setTick("goby",
+            [origin, dir, length](unsigned eid, double dt) {
+        if (!ecs::has<cp::Input, cp::Position, cp::Physics>(eid))
+            return State::failure;
+                
+        auto bounds = SysHelper::getBounds(eid);
+                                            
+        ecs::get<cp::Input>(eid).direction = dir.getNormalized();
+        auto currentLength = (ecs::get<cp::Position>(eid).pos - origin).getLengthSq();
+        if (currentLength >= length)
+        {
+            Log("STOP");
+            return State::success;
+        }
         return State::inProgress;
     }, onSuccess, onFailure);
 }

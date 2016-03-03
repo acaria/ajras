@@ -11,9 +11,5 @@ public:
     ~UpdaterSystem() {}
     
     void tick(double dt) final;
-    void animate(double dt, double tickPercent) final;
-    
-private:
-    std::list<unsigned> toRemove;
-
+    void animate(double dt, double tickPercent) final {};
 };

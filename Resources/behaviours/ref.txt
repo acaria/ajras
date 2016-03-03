@@ -9,7 +9,7 @@ sequence ["description"]
     
 action "actionName" *["actionParams"]
     
-chech "checkName" *["checkName"]
+check "checkName" *["checkName"]
 
 until "untilName" *["untilParams"]
     1{children}

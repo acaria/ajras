@@ -15,6 +15,8 @@ public:
     AISystem() : cmd(this)
     {}
     
+    void init() override;
+    
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
     
@@ -23,4 +25,5 @@ public:
     
 private:
     AIHelper cmd;
+    bool enabled = false;
 };

@@ -5,6 +5,7 @@
 #include "SystemContext.h"
 #include "SystemDispatcher.h"
 
+#include "CmdSystem.h"
 #include "ControlSystem.h"
 #include "RenderSystem.h"
 #include "CollisionSystem.h"
@@ -16,6 +17,7 @@
 #include "UpdaterSystem.h"
 #include "MoveSystem.h"
 #include "InteractSystem.h"
+#include "CleanerSystem.h"
 #if ECSYSTEM_DEBUG
 #include "DebugSystem.h"
 #endif

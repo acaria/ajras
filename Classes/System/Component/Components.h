@@ -12,6 +12,7 @@
 #include "HealthComponent.h"
 #include "AIComponent.h"
 #include "InteractComponent.h"
+#include "TeamComponent.h"
 #include "CmdComponent.h"
 #include "GateMap.h"
 #include "WarpMap.h"
@@ -39,7 +40,7 @@ namespace cp
     using Gear = ecs::component<GearComponent,                  16>;
     using Collectible = ecs::component<std::string,             17>;
     using Mood = ecs::component<def::mood::Flags,               18>;
-    using Team = ecs::component<unsigned,                       19>;
+    using Team = ecs::component<TeamComponent,                  19>;
     
     struct entity
     {

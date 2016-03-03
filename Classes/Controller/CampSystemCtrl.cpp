@@ -13,7 +13,9 @@ CampSystemCtrl::CampSystemCtrl() : systemFacade(dispatcher, context, Randgine::C
     this->context.ecs = &ecsGroup;
     
     //init systems
+    this->systemFacade.factory<CleanerSystem>();
     this->systemFacade.factory<ControlSystem>(PlayerData::getCtrlIdxList());
+    this->systemFacade.factory<CmdSystem>();
     this->systemFacade.factory<AISystem>();
     this->systemFacade.factory<UpdaterSystem>();
     this->systemFacade.factory<TargetSystem>();

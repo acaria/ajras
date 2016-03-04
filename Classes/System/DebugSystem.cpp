@@ -30,8 +30,6 @@ void DebugSystem::init()
         this->zoneLayer->removeAllChildren();
         this->drawLayer->removeFromParent();
         this->drawLayer->removeAllChildren();
-        meleeSet.clear();
-        meleeMap.clear();
         healthSet.clear();
         healthMap.clear();
         aiSet.clear();
@@ -104,6 +102,7 @@ void DebugSystem::displayDraws()
     
     for(auto& pair : this->context->data->getCol()->agents)
     {
+        unsigned eid = pair.first;
         auto& agent = pair.second;
         this->drawLayer->drawSolidRect(agent.bounds.origin,
                                        agent.bounds.origin + agent.bounds.size,
@@ -118,7 +117,8 @@ void DebugSystem::displayDraws()
         
         cc::Point agentPivot = agent.bounds.origin + agent.bounds.size / 2;
         
-        if (ecs::has<cp::AI>(pair.first))
+        //display sight range
+        /*if (ecs::has<cp::AI>(pair.first))
         {
             auto& cpAI = ecs::get<cp::AI>(pair.first);
             this->drawLayer->drawCircle(agentPivot,
@@ -129,17 +129,42 @@ void DebugSystem::displayDraws()
                                         cpAI.sightRange.second,
                                         CC_DEGREES_TO_RADIANS(90), 30, false,
                                         cc::Color4F(cc::Color4B(255, 0, 255, 255)));
-        }
+        }*/
         
-        if (ecs::has<cp::Input>(pair.first))
+        if (ecs::has<cp::Input>(eid))
         {
-            auto& wayPoints = ecs::get<cp::Input>(pair.first).wayPoints;
+            auto& wayPoints = ecs::get<cp::Input>(eid).wayPoints;
             cc::Point origin = agentPivot;
             for(auto destPoint : wayPoints)
             {
                 this->drawLayer->drawLine(origin, destPoint, cc::Color4F::WHITE);
                 this->drawLayer->drawSolidCircle(destPoint, 2, 0, 10, cc::Color4F::WHITE);
                 origin = destPoint;
+            }
+        }
+        
+        if (ecs::has<cp::Melee>(eid))
+        {
+            
+            auto& cpMelee = ecs::get<cp::Melee>(eid);
+            this->drawLayer->drawSolidRect(
+                cpMelee.atkRect.origin,
+                {cpMelee.atkRect.getMaxX(), cpMelee.atkRect.getMaxY()},
+                cc::Color4F(0,0,1,0.2));
+        }
+        
+        if (ecs::has<cp::Trail>(eid))
+        {
+            auto& cpTrail = ecs::get<cp::Trail>(eid);
+            
+            auto coords = cpTrail.coords;
+            auto it = coords.begin();
+            for(int i = 0; i < coords.size() - 1; i++)
+            {
+                auto el = this->context->data->getBlockBound(*it);
+                auto el2 = this->context->data->getBlockBound(*(++it));
+                this->drawLayer->drawLine({el.getMidX(), el.getMidY()},
+                                          {el2.getMidX(), el2.getMidY()}, cc::Color4F(0,0,1,1));
             }
         }
     }
@@ -150,22 +175,6 @@ void DebugSystem::displayZones()
     for(auto eid : context->ecs->join<cp::Physics, cp::Position>())
     {
         auto bounds = SysHelper::getBounds(eid);
-        
-        //melee
-        if (ecs::has<cp::Melee>(eid))
-        {
-            auto& cpMelee = ecs::get<cp::Melee>(eid);
-            if (meleeSet.count(eid) > 0)
-            {
-                meleeMap[eid]->setPosition(cpMelee.atkRect.origin);
-                meleeMap[eid]->setScale(cpMelee.atkRect.size.width, cpMelee.atkRect.size.height);
-            }
-            else
-            {
-                meleeMap[eid] = addPixel(cc::Color3B::YELLOW, bounds);
-                meleeSet.insert(eid);
-            }
-        }
         
         unsigned decal = 0;
         
@@ -223,7 +232,6 @@ void DebugSystem::displayZones()
         }
     }
     
-    this->purge(context->ecs->join<cp::Physics, cp::Position, cp::Melee>(), meleeSet, meleeMap);
     this->purge(context->ecs->join<cp::Physics, cp::Position, cp::Health>(), healthSet, healthMap);
     this->purge(context->ecs->join<cp::Physics, cp::Position, cp::AI>(), aiSet, aiMap);
     this->purge(context->ecs->system<cp::Physics>(), gSet, gMap);

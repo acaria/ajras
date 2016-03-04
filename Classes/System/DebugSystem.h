@@ -35,10 +35,6 @@ private:
     std::set<unsigned>              collisionSet;
     std::map<unsigned, cc::Sprite*> collisionMap;
     
-    //melee
-    std::set<unsigned>              meleeSet;
-    std::map<unsigned, cc::Sprite*> meleeMap;
-    
     //health
     std::set<unsigned>              healthSet;
     std::map<unsigned, cc::Label*>  healthMap;

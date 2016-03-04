@@ -2,7 +2,7 @@
 
 
 #define ECSYSTEM_TRACE 1
-#define BEHAVIOURS_TRACE 1
+#define BEHAVIOURS_TRACE 0
 
 #define ECSYSTEM_DEBUG 1
 #define HEADER_DEBUG 1
@@ -132,7 +132,7 @@ namespace def {
         const float hideObjectsDuration = 1.0;
         const float showRoomDuration = 0.5;
         const float showEntityFromGateDuration = 1.0;
-        const float teamReadyEntityDelay = 1.0;
+        const float teamReadyEntityDelay = 0.5;
         const float teamLeftEntityDelay = 3.0;
         
         //camera

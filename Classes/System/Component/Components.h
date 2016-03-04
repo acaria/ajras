@@ -17,6 +17,7 @@
 #include "GateMap.h"
 #include "WarpMap.h"
 #include "SlotData.h"
+#include "TrailComponent.h"
 
 namespace cp
 {
@@ -41,6 +42,7 @@ namespace cp
     using Collectible = ecs::component<std::string,             17>;
     using Mood = ecs::component<def::mood::Flags,               18>;
     using Team = ecs::component<TeamComponent,                  19>;
+    using Trail = ecs::component<TrailComponent,                20>;
     
     struct entity
     {
@@ -77,6 +79,7 @@ namespace cp
             ecs::move<Collectible>(id, g1, g2);
             ecs::move<Mood>(id, g1, g2);
             ecs::move<Team>(id, g1, g2);
+            ecs::move<Trail>(id, g1, g2);
         }
         
         static void remove(unsigned id, unsigned group)
@@ -100,6 +103,7 @@ namespace cp
             ecs::del<Collectible>(id, group);
             ecs::del<Mood>(id, group);
             ecs::del<Team>(id, group);
+            ecs::del<Trail>(id, group);
         }
         
         static void clear(unsigned group)
@@ -123,6 +127,7 @@ namespace cp
             ecs::clearGroup<Collectible>(group);
             ecs::clearGroup<Mood>(group);
             ecs::clearGroup<Team>(group);
+            ecs::clearGroup<Trail>(group);
         }
     };
 }

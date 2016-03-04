@@ -54,6 +54,31 @@ void MoveSystem::tick(double dt)
         if (!cpPhy.velocity.isZero())
         {
             cpPos.pos += cpPhy.velocity;
+            
+            //compute trail
+            if (ecs::has<cp::Trail>(eid))
+            {
+                auto curBounds = SysHelper::getBounds(cpPos, cpPhy);
+                auto curCoord = this->context->data->getCoordFromPos(
+                    {curBounds.getMidX(), curBounds.getMidY()});
+                
+                auto& cpTrail = ecs::get<cp::Trail>(eid);
+                if (cpTrail.coords.size() == 0)
+                {
+                    cpTrail.coords.push_back(curCoord);
+                }
+                else
+                {
+                    auto lastCoord = cpTrail.coords.front();
+                    if (curCoord != lastCoord)
+                    {
+                        cpTrail.coords.push_front(curCoord);
+                        if (cpTrail.coords.size() > cpTrail.memoryLength)
+                            cpTrail.coords.resize(cpTrail.memoryLength);
+                    }
+                }
+            }
+            
             dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
         }
     }

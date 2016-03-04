@@ -143,6 +143,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
             {
                 case lib::hash("rand"):
                     return cmd.execMoveDirRand(eid, node->values, properties);
+                case lib::hash("target"):
+                    return cmd.execMoveDirTarget(eid, node->values, properties);
                 case lib::hash("stop"):
                     return cmd.execMoveStop(eid, node->values, properties);
                 default:
@@ -162,6 +164,20 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
                 default:
                 {
                     Log("invalid move near sub parameter: %s", node->values[0].c_str());
+                    return state::FAILURE;
+                }
+            }
+        }
+        case lib::hash("follow"):
+        {
+            assert(node->values.size() > 0); //params=[type]
+            switch(lib::hash(node->values[0]))
+            {
+                case lib::hash("team"):
+                    return cmd.execFollowTeam(eid, node->values, properties);
+                default:
+                {
+                    Log("invalid follow sub parameter: %s", node->values[0].c_str());
                     return state::FAILURE;
                 }
             }

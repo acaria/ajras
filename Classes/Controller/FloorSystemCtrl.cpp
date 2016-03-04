@@ -314,6 +314,9 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid, con
                     }).delay(delay);
                     delay += def::anim::teamLeftEntityDelay;
                 }
+                CmdFactory::at(context.ecs, playerData->getEntityFocusID(), [this, nextRoomIndex](){
+                    this->dispatcher.onSystemReady(nextRoomIndex);
+                }).delay(delay);
             });
         });
     }
@@ -611,11 +614,11 @@ void FloorSystemCtrl::loadEntities()
                 });
             };
             CmdFactory::at(context.ecs, playerData->getEntityFocusID(), onSuccess).delay(delay);
-            delay += 1.0f;
+            delay += def::anim::teamReadyEntityDelay;
         }
         CmdFactory::at(context.ecs, playerData->getEntityFocusID(), [this, roomIndex](){
             this->dispatcher.onSystemReady(roomIndex);
-        }).delay(delay + 5);
+        }).delay(delay);
     });
     
     //create player entities

@@ -46,7 +46,13 @@ public:
     behaviour::nState execMoveDirRand(unsigned eid,
         const std::vector<std::string>& params, Properties& properties);
     
+    behaviour::nState execMoveDirTarget(unsigned eid,
+        const std::vector<std::string>& params, Properties& properties);
+    
     behaviour::nState execMoveNearTarget(unsigned eid,
+        const std::vector<std::string>& params, Properties& properties);
+    
+    behaviour::nState execFollowTeam(unsigned eid,
         const std::vector<std::string>& params, Properties& properties);
     
     behaviour::nState execStopSleepZone(unsigned eid,

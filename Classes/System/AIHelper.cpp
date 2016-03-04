@@ -230,6 +230,13 @@ behaviour::nState AIHelper::execMoveDirRand(unsigned eid,
     return state::SUCCESS;
 }
 
+behaviour::nState AIHelper::execFollowTeam(unsigned eid,
+        const std::vector<std::string>& params, Properties& properties)
+{
+    assert(params.size() == 1); //params=[category]
+    return state::FAILURE;
+}
+
 behaviour::nState AIHelper::execMoveNearTarget(unsigned eid,
         const std::vector<std::string>& params, Properties& properties)
 {
@@ -242,52 +249,52 @@ behaviour::nState AIHelper::execMoveNearTarget(unsigned eid,
     if (!ecs::has<cp::Position, cp::Physics>(tid))
         return state::FAILURE;
     
-    auto& cpInput = ecs::get<cp::Input>(eid);
     auto& cpPhy = ecs::get<cp::Physics>(eid);
-    
-    if (properties.find("waypoints") != properties.end())
-    {
-        auto result = this->followPathFinding(eid, properties, range);
-        
-        if (properties.find("nb_waypoints") != properties.end())
-        {
-            if (properties["nb_waypoints"].asInt() -
-                properties["waypoints"].asValueVector().size() >= 3)
-            {
-                properties.erase("waypoints");
-                properties.erase("nb_waypoints");
-            }
-        }
-        
-        return result;
-    }
     
     auto bounds = SysHelper::getBounds(eid);
     auto bounds2 = SysHelper::getBounds(tid);
-        
-    if (cpPhy.collisionState != PhysicsComponent::NONE)
+    
+    if (properties.find("waypoints") != properties.end())
     {
-        auto wayPoints = system->context->data->getNav()->getWaypoints(eid,
-                bounds, {bounds2.getMidX(), bounds2.getMidY()}, cpPhy.category);
+        return this->followPathFinding(eid, properties, range);
+    }
+    
+    auto wayPoints = system->context->data->getNav()->getWaypoints(eid,
+            bounds, {bounds2.getMidX(), bounds2.getMidY()}, cpPhy.category);
             
-        if (wayPoints.size() > 0)
-        {
+    if (wayPoints.size() > 0)
+    {
 #if ECSYSTEM_DEBUG
-            ecs::get<cp::Input>(eid).wayPoints = wayPoints;
+        ecs::get<cp::Input>(eid).wayPoints = wayPoints;
 #endif
-            cc::ValueVector wayPointsVec = linq::from(wayPoints) >>
+        cc::ValueVector wayPointsVec = linq::from(wayPoints) >>
             linq::select([](cc::Point coord) {
                 return cc::Value(cc::ValueMap{{"x", cc::Value((int)coord.x)},
                     {"y", cc::Value((int)coord.y)}});
             }) >> linq::to_vector();
                 
             properties["waypoints"] = wayPointsVec;
-            properties["nb_waypoints"] = cc::Value((int)wayPointsVec.size());
             return state::RUNNING;
-        }
-        return state::FAILURE;
     }
+    return state::FAILURE;
+}
+
+behaviour::nState AIHelper::execMoveDirTarget(unsigned eid,
+        const std::vector<std::string>& params, Properties& properties)
+{
+    assert(params.size() == 2); //params=[category, range]
+    float range = std::stod(params[1]);
     
+    if (!ecs::has<cp::Target, cp::Input>(eid))
+        return state::FAILURE;
+    auto tid = ecs::get<cp::Target>(eid);
+    if (!ecs::has<cp::Position, cp::Physics>(tid))
+        return state::FAILURE;
+    
+    auto bounds = SysHelper::getBounds(eid);
+    auto bounds2 = SysHelper::getBounds(tid);
+    
+    auto& cpInput = ecs::get<cp::Input>(eid);
     auto vdir = cc::Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
     if (vdir.length() < range)
     {

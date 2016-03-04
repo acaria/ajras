@@ -42,6 +42,7 @@ std::list<cc::Vec2> NavigationInfo::getWaypoints(unsigned eid,
                                                  const cc::Vec2& dest,
                                                  def::collision::Cat category)
 {
+    Log("pathfinding: %u", eid);
     auto tileSize = data->getTileSize();
     auto agents = this->data->getCol()->getAgentBounds(eid, category);
     

@@ -30,7 +30,10 @@ void CmdFactory::goTo(cc::Vec2 target, float nearDistance)
         ecs::get<cp::Input>(eid).direction = dir.getNormalized();
 
         if (dir.length() < nearDistance)
+        {
+            ecs::get<cp::Input>(eid).direction = {0,0};
             return State::success;
+        }
         return State::inProgress;
     }, onSuccess, onFailure);
 }
@@ -55,7 +58,7 @@ void CmdFactory::goBy(cc::Vec2 dir)
         auto currentLength = (ecs::get<cp::Position>(eid).pos - origin).getLengthSq();
         if (currentLength >= length)
         {
-            Log("STOP");
+            ecs::get<cp::Input>(eid).direction = {0,0};
             return State::success;
         }
         return State::inProgress;
@@ -70,7 +73,10 @@ void CmdFactory::goTo(std::list<cc::Vec2> waypoints, float nearDistance)
             return State::failure;
 
         if (waypoints.size() == 0)
+        {
+            ecs::get<cp::Input>(eid).direction = {0,0};
             return State::success;
+        }
         
         if (!ecs::get<cp::Input>(eid).enabled)
             return State::failure;

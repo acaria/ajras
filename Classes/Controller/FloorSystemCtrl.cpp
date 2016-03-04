@@ -219,7 +219,6 @@ void FloorSystemCtrl::moveEntity(unsigned eid, unsigned prevRoomIndex, unsigned 
 {
     dispatcher.onEntityMoved(prevRoomIndex, eid);
     cp::entity::move(eid, prevRoomIndex, nextRoomIndex);
-    ecs::get<cp::Cmd>(eid).askRemove("goto");
     
     if(ecs::has<cp::Target>(eid))
         this->context.ecs->del<cp::Target>(eid);

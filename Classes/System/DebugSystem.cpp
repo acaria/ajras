@@ -158,13 +158,16 @@ void DebugSystem::displayDraws()
             auto& cpTrail = ecs::get<cp::Trail>(eid);
             
             auto coords = cpTrail.coords;
-            auto it = coords.begin();
-            for(int i = 0; i < coords.size() - 1; i++)
+            if (coords.size() > 1)
             {
-                auto el = this->context->data->getBlockBound(*it);
-                auto el2 = this->context->data->getBlockBound(*(++it));
-                this->drawLayer->drawLine({el.getMidX(), el.getMidY()},
-                                          {el2.getMidX(), el2.getMidY()}, cc::Color4F(0,0,1,1));
+                auto it = coords.begin();
+                for(int i = 0; i < (coords.size() - 1); i++)
+                {
+                    auto el = this->context->data->getBlockBound(*it);
+                    auto el2 = this->context->data->getBlockBound(*(++it));
+                    this->drawLayer->drawLine({el.getMidX(), el.getMidY()},
+                        {el2.getMidX(), el2.getMidY()}, cc::Color4F(0,0,1,1));
+                }
             }
         }
     }

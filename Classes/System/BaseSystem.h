@@ -17,6 +17,9 @@ public:
     virtual void animate(double dt, double tp) = 0;
     
 protected:
+    
+    void registerEvent();
+
     void prepare(SystemContext* context, SystemDispatcher* dispatcher, lib::Random* random)
     {
         this->context = context;

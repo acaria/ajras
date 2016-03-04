@@ -2,6 +2,16 @@
 #include "Components.h"
 #include "IMapData.h"
 
+void MoveSystem::init()
+{
+    this->eventRegs.push_back(this->dispatcher->onEntityMoved.registerObserver([](unsigned group, unsigned eid){
+        if (ecs::has<cp::Trail>(eid))
+        {
+            ecs::get<cp::Trail>(eid).coords.clear();
+        }
+    }));
+}
+
 void MoveSystem::tick(double dt)
 {
     for(auto eid : context->ecs->join<cp::Physics, cp::Position>())

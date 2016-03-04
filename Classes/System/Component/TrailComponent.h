@@ -13,5 +13,5 @@ struct TrailComponent
     unsigned memoryLength = 5;
     
     //output
-    std::list<lib::v2u> coords;
+    std::list<lib::v2u> tail;
 };

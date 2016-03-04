@@ -37,14 +37,13 @@ std::list<cc::Vec2> NavigationInfo::getGridWaypoints(const cc::Vec2& origin,
     return result;
 }
 
-std::list<cc::Vec2> NavigationInfo::getWaypoints(unsigned eid,
+std::list<cc::Vec2> NavigationInfo::getWaypoints(const std::set<unsigned>& eids,
                                                  const cc::Rect& box,
                                                  const cc::Vec2& dest,
                                                  def::collision::Cat category)
 {
-    Log("pathfinding: %u", eid);
     auto tileSize = data->getTileSize();
-    auto agents = this->data->getCol()->getAgentBounds(eid, category);
+    auto agents = this->data->getCol()->getAgentBounds(eids, category);
     
     auto graph = NavigationGraph(data->getCol()->grids[category], box, agents, tileSize);
     
@@ -58,14 +57,14 @@ std::list<cc::Vec2> NavigationInfo::getWaypoints(unsigned eid,
     return result.Value;
 }
 
-void NavigationInfo::debugWaypoints(unsigned eid,
+void NavigationInfo::debugWaypoints(const std::set<unsigned>& eids,
                                     const cc::Rect& box,
                                     const cc::Vec2& dest,
                                     cc::DrawNode* drawNode,
                                     def::collision::Cat category)
 {
     auto tileSize = data->getTileSize();
-    auto agents = this->data->getCol()->getAgentBounds(eid, category);
+    auto agents = this->data->getCol()->getAgentBounds(eids, category);
     
     auto graph = NavigationGraphDebug(data->getCol()->grids[category],
             box, agents, tileSize, drawNode);

@@ -22,8 +22,8 @@ public:
     void process();
     void init(IMapData* mapData);
     
-    std::list<cc::Rect> getAgentBounds(unsigned eid, def::collision::Cat cat);
-    std::list<cc::Rect> getAgentBounds(unsigned eid, unsigned oid, def::collision::Cat cat);
+    std::list<cc::Rect> getAgentBounds(const std::set<unsigned>& eids,
+                                       def::collision::Cat cat);
     
     bool checkCollisionRect(const cocos2d::Rect& rect, def::collision::Cat cat);
     bool checkCollisionRay(const cc::Point& origin, const cc::Point& dest,
@@ -32,6 +32,10 @@ public:
     std::vector<cc::Rect> getNearEmptyBlocks(const lib::v2u& coord, unsigned maxDist, ColCat cat);
     std::vector<cc::Rect> getNearEmptyBlocks(const cc::Point& pos, unsigned maxDist, ColCat cat);
     std::vector<lib::v2u> getAllStaticFreeCoords(ColCat cat);
+    
+    cc::Point getFormationPosition(def::team::Formation formation,
+                                   unsigned position,
+                                   const std::list<lib::v2u>& tail);
     
     //events
     lib::Subject<void(unsigned, cc::Vec2 diff)>             onDecorCollision;

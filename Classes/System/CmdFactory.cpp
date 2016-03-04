@@ -81,9 +81,8 @@ void CmdFactory::goTo(std::list<cc::Vec2> waypoints, float nearDistance)
         if (!ecs::get<cp::Input>(eid).enabled)
             return State::failure;
             
-#if ECSYSTEM_DEBUG
-        ecs::get<cp::Input>(eid).wayPoints = waypoints;
-#endif
+        ecs::get<cp::Debug>(eid).wayPoints = waypoints;
+
         auto target = waypoints.front();
         auto& cpPosition = ecs::get<cp::Position>(eid);
         auto& cpPhy = ecs::get<cp::Physics>(eid);
@@ -95,9 +94,7 @@ void CmdFactory::goTo(std::list<cc::Vec2> waypoints, float nearDistance)
         if (dir.length() < nearDistance)
         {
             waypoints.pop_front();
-#if ECSYSTEM_DEBUG
-            ecs::get<cp::Input>(eid).wayPoints.pop_front();
-#endif
+            ecs::get<cp::Debug>(eid).wayPoints = waypoints;
         }
         return State::inProgress;
     }, onSuccess, onFailure);

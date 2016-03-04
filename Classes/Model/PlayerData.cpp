@@ -62,7 +62,6 @@ PlayerData* PlayerData::createDefault()
     
     //troops
     
-    /*
     result->entities.push_back({
         .profileName = "boy2",
         .team = {
@@ -76,7 +75,7 @@ PlayerData* PlayerData::createDefault()
         }
     });
     
-    result->entities.push_back({
+    /*result->entities.push_back({
         .profileName = "boy2",
         .team = {
             .index = static_cast<unsigned int>(def::team::pIndex),
@@ -87,8 +86,7 @@ PlayerData* PlayerData::createDefault()
             {.quantity = 0, .content = nullptr},
             {.quantity = 0, .content = nullptr},
         }
-    });
-    */
+    });*/
     
     return result;
 }

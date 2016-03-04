@@ -11,8 +11,4 @@ struct InputComponent
     
     //mode
     bool enabled = true;
-    
-#if ECSYSTEM_DEBUG
-    std::list<cc::Point> wayPoints;
-#endif
 };

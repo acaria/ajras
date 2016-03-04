@@ -58,6 +58,19 @@ lib::Nullable<unsigned> SysHelper::getNearest(unsigned gid, unsigned int eid, de
     return targetID;
 }
 
+unsigned SysHelper::findTeamLeaderId(unsigned gid, unsigned eid, unsigned teamIndex)
+{
+    for(auto oid : ecs::join<cp::Team, cp::Physics, cp::Position>(gid))
+    {
+        auto& cpTeam = ecs::get<cp::Team>(oid);
+        if (cpTeam.index == teamIndex && cpTeam.position == 0)
+        {
+            return oid;
+        }
+    }
+    return 0;
+}
+
 def::collision::Agent SysHelper::makeAgent(unsigned eid)
 {
     CCASSERT((ecs::has<cp::Position, cp::Physics>(eid)), "invalid entity");

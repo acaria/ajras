@@ -131,11 +131,10 @@ void DebugSystem::displayDraws()
                                         cc::Color4F(cc::Color4B(255, 0, 255, 255)));
         }*/
         
-        if (ecs::has<cp::Input>(eid))
+        if (ecs::has<cp::Debug>(eid) && ecs::get<cp::Debug>(eid).wayPoints.size() > 0)
         {
-            auto& wayPoints = ecs::get<cp::Input>(eid).wayPoints;
             cc::Point origin = agentPivot;
-            for(auto destPoint : wayPoints)
+            for(auto destPoint : ecs::get<cp::Debug>(eid).wayPoints)
             {
                 this->drawLayer->drawLine(origin, destPoint, cc::Color4F::WHITE);
                 this->drawLayer->drawSolidCircle(destPoint, 2, 0, 10, cc::Color4F::WHITE);
@@ -157,7 +156,7 @@ void DebugSystem::displayDraws()
         {
             auto& cpTrail = ecs::get<cp::Trail>(eid);
             
-            auto coords = cpTrail.coords;
+            auto coords = cpTrail.tail;
             if (coords.size() > 1)
             {
                 auto it = coords.begin();

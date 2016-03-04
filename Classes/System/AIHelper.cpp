@@ -137,15 +137,14 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
             auto destBounds = system->context->data->getBlockBound(coord);
             
             auto wayPoints = system->context->data->getNav()->getWaypoints(
-                eid, originBounds,
+                {eid}, originBounds,
                 {destBounds.getMidX(), destBounds.getMidY()},
                 cpPhy.category);
             
             if (wayPoints.size() > 0)
             {
-#if ECSYSTEM_DEBUG
-                ecs::get<cp::Input>(eid).wayPoints = wayPoints;
-#endif
+                ecs::get<cp::Debug>(eid).wayPoints = wayPoints;
+
                 cc::ValueVector wayPointsVec = linq::from(wayPoints) >>
                     linq::select([](cc::Point coord) {
                         return cc::Value(cc::ValueMap{{"x", cc::Value((int)coord.x)},
@@ -234,6 +233,50 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         const std::vector<std::string>& params, Properties& properties)
 {
     assert(params.size() == 1); //params=[category]
+    
+    if (!ecs::has<cp::Position, cp::Physics>(eid))
+        return state::FAILURE;
+    
+    if (properties.find("waypoints") != properties.end())
+    {
+        return this->followPathFinding(eid, properties, 2);
+    }
+    
+    if (!ecs::has<cp::Team>(eid))
+        return state::FAILURE;
+    auto& cpTeam = ecs::get<cp::Team>(eid);
+    
+    if (cpTeam.position == 0) //you are the leader, no follow
+        return state::SUCCESS;
+    
+    unsigned leaderId = SysHelper::findTeamLeaderId(system->context->ecs->getID(), eid, cpTeam.index);
+    if (leaderId == 0)
+        return state::FAILURE;
+    
+    if (!ecs::has<cp::Trail>(leaderId) || ecs::get<cp::Trail>(leaderId).tail.size() == 0)
+        return state::FAILURE;
+    
+    properties["leaderId"] = (int)leaderId;
+    
+    auto bounds = SysHelper::getBounds(eid);
+    cc::Point dest = system->context->data->getCol()->getFormationPosition(
+        cpTeam.formation, cpTeam.position, ecs::get<cp::Trail>(leaderId).tail);
+    auto wayPoints = system->context->data->getNav()->getWaypoints(
+            {eid, leaderId}, bounds, dest, ecs::get<cp::Physics>(eid).category);
+    
+    if (wayPoints.size() > 0)
+    {
+        ecs::get<cp::Debug>(eid).wayPoints = wayPoints;
+        cc::ValueVector wayPointsVec = linq::from(wayPoints) >>
+                linq::select([](cc::Point coord) {
+            return cc::Value(cc::ValueMap{{"x", cc::Value((int)coord.x)},
+                                          {"y", cc::Value((int)coord.y)}});
+        }) >> linq::to_vector();
+        
+        properties["waypoints"] = wayPointsVec;
+        return state::RUNNING;
+    }
+    
     return state::FAILURE;
 }
 
@@ -259,18 +302,16 @@ behaviour::nState AIHelper::execMoveNearTarget(unsigned eid,
         return this->followPathFinding(eid, properties, range);
     }
     
-    auto wayPoints = system->context->data->getNav()->getWaypoints(eid,
+    auto wayPoints = system->context->data->getNav()->getWaypoints({eid},
             bounds, {bounds2.getMidX(), bounds2.getMidY()}, cpPhy.category);
             
     if (wayPoints.size() > 0)
     {
-#if ECSYSTEM_DEBUG
-        ecs::get<cp::Input>(eid).wayPoints = wayPoints;
-#endif
+        ecs::get<cp::Debug>(eid).wayPoints = wayPoints;
         cc::ValueVector wayPointsVec = linq::from(wayPoints) >>
             linq::select([](cc::Point coord) {
                 return cc::Value(cc::ValueMap{{"x", cc::Value((int)coord.x)},
-                    {"y", cc::Value((int)coord.y)}});
+                                              {"y", cc::Value((int)coord.y)}});
             }) >> linq::to_vector();
                 
             properties["waypoints"] = wayPointsVec;
@@ -337,14 +378,17 @@ def::mood::Flags AIHelper::getMoodGroup(def::mood::Flags ref,
 
 behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properties, float reachGoal)
 {
+    assert(properties.find("waypoints") != properties.end());
     auto& wayPoints = properties["waypoints"].asValueVector();
     
     if (wayPoints.size() == 0)
     {
-        if (ecs::has<cp::Input>(eid))
-            ecs::get<cp::Input>(eid).direction = cc::Vec2::ZERO;
+        ecs::get<cp::Input>(eid).direction = {0,0};
         return state::SUCCESS;
     }
+    
+    if (!ecs::get<cp::Input>(eid).enabled)
+        return state::FAILURE;
     
     auto& vMap = wayPoints.front().asValueMap();
     cc::Point destPos { vMap["x"].asFloat(), vMap["y"].asFloat() };
@@ -356,11 +400,20 @@ behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properti
     if (vdir.length() <= reachGoal)
     {
         wayPoints.erase(wayPoints.begin());
-#if ECSYSTEM_DEBUG
-        ecs::get<cp::Input>(eid).wayPoints.pop_front();
-#endif
+        
+        std::list<cc::Point> wDebug;
+        for (auto step : wayPoints)
+        {
+            auto& vMap = step.asValueMap();
+            cc::Point stepPos { vMap["x"].asFloat(), vMap["y"].asFloat() };
+            wDebug.push_back(stepPos);
+        }
+        ecs::get<cp::Debug>(eid).wayPoints = wDebug;
     }
-    ecs::get<cp::Input>(eid).direction = vdir.getNormalized();
+    else
+    {
+        ecs::get<cp::Input>(eid).direction = vdir.getNormalized() * MIN(1.0, vdir.length() / 5);
+    }
     
     return state::RUNNING;
 }

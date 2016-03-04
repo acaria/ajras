@@ -11,6 +11,7 @@
 #include "MeleeComponent.h"
 #include "HealthComponent.h"
 #include "AIComponent.h"
+#include "DebugComponent.h"
 #include "InteractComponent.h"
 #include "TeamComponent.h"
 #include "CmdComponent.h"
@@ -43,6 +44,7 @@ namespace cp
     using Mood = ecs::component<def::mood::Flags,               18>;
     using Team = ecs::component<TeamComponent,                  19>;
     using Trail = ecs::component<TrailComponent,                20>;
+    using Debug = ecs::component<DebugComponent,                21>;
     
     struct entity
     {
@@ -80,6 +82,7 @@ namespace cp
             ecs::move<Mood>(id, g1, g2);
             ecs::move<Team>(id, g1, g2);
             ecs::move<Trail>(id, g1, g2);
+            ecs::move<Debug>(id, g1, g2);
         }
         
         static void remove(unsigned id, unsigned group)
@@ -104,6 +107,7 @@ namespace cp
             ecs::del<Mood>(id, group);
             ecs::del<Team>(id, group);
             ecs::del<Trail>(id, group);
+            ecs::del<Debug>(id, group);
         }
         
         static void clear(unsigned group)
@@ -128,6 +132,7 @@ namespace cp
             ecs::clearGroup<Mood>(group);
             ecs::clearGroup<Team>(group);
             ecs::clearGroup<Trail>(group);
+            ecs::clearGroup<Debug>(group);
         }
     };
 }

@@ -18,6 +18,8 @@ public:
                                               def::mood::Flags moodCat,
                                               float maxLength);
     
+    static unsigned findTeamLeaderId(unsigned gid, unsigned eid, unsigned teamIndex);
+    
     static def::collision::Agent makeAgent(unsigned eid);
     
     static void enableEntity(unsigned gid, unsigned eid);

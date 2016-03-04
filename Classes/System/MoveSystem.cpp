@@ -7,7 +7,7 @@ void MoveSystem::init()
     this->eventRegs.push_back(this->dispatcher->onEntityMoved.registerObserver([](unsigned group, unsigned eid){
         if (ecs::has<cp::Trail>(eid))
         {
-            ecs::get<cp::Trail>(eid).coords.clear();
+            ecs::get<cp::Trail>(eid).tail.clear();
         }
     }));
 }
@@ -73,18 +73,18 @@ void MoveSystem::tick(double dt)
                     {curBounds.getMidX(), curBounds.getMidY()});
                 
                 auto& cpTrail = ecs::get<cp::Trail>(eid);
-                if (cpTrail.coords.size() == 0)
+                if (cpTrail.tail.size() == 0)
                 {
-                    cpTrail.coords.push_back(curCoord);
+                    cpTrail.tail.push_back(curCoord);
                 }
                 else
                 {
-                    auto lastCoord = cpTrail.coords.front();
+                    auto lastCoord = cpTrail.tail.front();
                     if (curCoord != lastCoord)
                     {
-                        cpTrail.coords.push_front(curCoord);
-                        if (cpTrail.coords.size() > cpTrail.memoryLength)
-                            cpTrail.coords.resize(cpTrail.memoryLength);
+                        cpTrail.tail.push_front(curCoord);
+                        if (cpTrail.tail.size() > cpTrail.memoryLength)
+                            cpTrail.tail.resize(cpTrail.memoryLength);
                     }
                 }
             }

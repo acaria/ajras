@@ -15,12 +15,12 @@ public:
                                      const cc::Vec2& dest,
                                      def::collision::Cat category);
     
-    std::list<cc::Vec2> getWaypoints(unsigned eid,
+    std::list<cc::Vec2> getWaypoints(const std::set<unsigned>& eids,
                                      const cc::Rect& box,
                                      const cc::Vec2& dest,
                                      def::collision::Cat category);
     
-    void debugWaypoints(unsigned eid,
+    void debugWaypoints(const std::set<unsigned>& eids,
                         const cc::Rect& box,
                         const cc::Vec2& dest,
                         cc::DrawNode* drawNode,

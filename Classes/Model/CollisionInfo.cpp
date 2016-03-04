@@ -90,6 +90,24 @@ void CollisionInfo::processFakeRect(const cc::Rect& bounds)
     }
 }
 
+cc::Point CollisionInfo::getFormationPosition(def::team::Formation formation,
+        unsigned position, const std::list<lib::v2u>& tail)
+{
+    //todo use different formation
+    cc::Rect bBounds = data->getBlockBound(*tail.begin());
+    if (position != 0)
+    {
+        auto it = tail.begin();
+        if (tail.size() > 1)
+        {
+            //get second position
+            bBounds = data->getBlockBound(*(++it));
+        }
+    }
+    
+    return {bBounds.getMidX(), bBounds.getMidY()};
+}
+
 void CollisionInfo::prepare()
 {
     this->reset();
@@ -220,33 +238,19 @@ bool CollisionInfo::checkCollisionRect(const cc::Rect &rect, def::collision::Cat
     return false;
 }
 
-std::list<cc::Rect> CollisionInfo::getAgentBounds(unsigned eid, def::collision::Cat cat)
+std::list<cc::Rect> CollisionInfo::getAgentBounds(const std::set<unsigned>& eids,
+                                                  def::collision::Cat cat)
 {
     auto agents = linq::from(this->agents)
         >> linq::select([](std::pair<unsigned, def::collision::Agent> element) {
             return element.second; })
-        >> linq::where([cat, eid](const def::collision::Agent& agent) {
-            return agent.category == cat && agent.id != eid; })
+        >> linq::where([cat, eids](const def::collision::Agent& agent) {
+            return agent.category == cat && eids.find(agent.id) == eids.end(); })
         >> linq::to_list();
     return linq::from(agents)
         >> linq::select([](const def::collision::Agent& agent) {
             return agent.bounds;})
         >> linq::to_list();
-}
-
-std::list<cc::Rect> CollisionInfo::getAgentBounds(unsigned eid, unsigned oid,
-                                                  def::collision::Cat cat)
-{
-    auto agents = linq::from(this->agents)
-    >> linq::select([](std::pair<unsigned, def::collision::Agent> element) {
-        return element.second; })
-    >> linq::where([cat, eid, oid](const def::collision::Agent& agent) {
-        return agent.category == cat && agent.id != eid && agent.id != oid; })
-    >> linq::to_list();
-    return linq::from(agents)
-    >> linq::select([](const def::collision::Agent& agent) {
-        return agent.bounds;})
-    >> linq::to_list();
 }
 
 bool CollisionInfo::checkCollisionRay(const cc::Point& origin,
@@ -282,7 +286,7 @@ bool CollisionInfo::checkCollisionRay(const cc::Point& origin,
         return (tmax >= 0 && tmin <= tmax);
     };
     
-    auto agentBounds = this->getAgentBounds(eid, oid, cat);
+    auto agentBounds = this->getAgentBounds({eid, oid}, cat);
     
     for(unsigned x = downLeft.x; x <= upRight.x; x++)
     for(unsigned y = downLeft.y; y <= upRight.y; y++)

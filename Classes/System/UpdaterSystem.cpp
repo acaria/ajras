@@ -38,7 +38,7 @@ void UpdaterSystem::tick(double dt)
                     eid, bounds, cpInput.goTo.Value, debugNode, cpPhy.category);
             */
             
-            auto wayPoints = context->data->getNav()->getWaypoints(eid,
+            auto wayPoints = context->data->getNav()->getWaypoints({eid},
                 bounds, cpInput.goTo.Value, cpPhy.category);
             CmdFactory::at(context->ecs, eid).goTo(wayPoints, 2);
             

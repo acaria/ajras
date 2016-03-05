@@ -208,7 +208,6 @@ behaviour::nState AIHelper::execMoveToSleepZone(unsigned eid,
                              properties["target"].asValueMap()["y"].asInt() - currentPos.y);
         if (vdir.length() < 5.0)
         {
-            cpInput.direction = cc::Vec2::ZERO;
             return state::SUCCESS;
         }
         cpInput.direction = vdir.getNormalized() * MIN(1.0, vdir.length() / 5);
@@ -217,31 +216,33 @@ behaviour::nState AIHelper::execMoveToSleepZone(unsigned eid,
     return state::FAILURE;
 }
 
-behaviour::nState AIHelper::execMoveDirRand(unsigned eid,
-        const std::vector<std::string>& params, Properties& properties)
-{
-    assert(params.size() == 1); //params=[category]
-    if (!ecs::has<cp::Input>(eid))
-        return state::FAILURE;
-    auto& cpInput = ecs::get<cp::Input>(eid);
-    if (cpInput.direction == cc::Vec2::ZERO)
-        cpInput.direction = Dir::rand().toVec().getNormalized();
-    return state::SUCCESS;
-}
-
 behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         const std::vector<std::string>& params, Properties& properties)
 {
     assert(params.size() == 1); //params=[category]
     
+    const float minDistFollow = 40.0 * 40.0;
+    
     if (!ecs::has<cp::Position, cp::Physics>(eid))
         return state::FAILURE;
     
+    //if too close from target, stop following
+    if ((properties.find("leaderId") != properties.end()))
+    {
+        auto leaderId = properties["leaderId"].asInt();
+        if (!ecs::has<cp::Position, cp::Physics>(leaderId))
+            return state::FAILURE;
+        if (SysHelper::getDistSquared(eid, leaderId) < minDistFollow)
+            return state::SUCCESS;
+    }
+    
+    //path finding in progress
     if (properties.find("waypoints") != properties.end())
     {
         return this->followPathFinding(eid, properties, 2);
     }
     
+    //compute team info
     if (!ecs::has<cp::Team>(eid))
         return state::FAILURE;
     auto& cpTeam = ecs::get<cp::Team>(eid);
@@ -257,6 +258,12 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         return state::FAILURE;
     
     properties["leaderId"] = (int)leaderId;
+    
+    if (SysHelper::getDistSquared(eid, leaderId) < minDistFollow)
+    {
+        //too close, stop follow
+        return state::SUCCESS;
+    }
     
     auto bounds = SysHelper::getBounds(eid);
     cc::Point dest = system->context->data->getCol()->getFormationPosition(
@@ -338,10 +345,8 @@ behaviour::nState AIHelper::execMoveDirTarget(unsigned eid,
     auto& cpInput = ecs::get<cp::Input>(eid);
     auto vdir = cc::Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
     if (vdir.length() < range)
-    {
-        cpInput.direction = cc::Vec2::ZERO;
         return state::SUCCESS;
-    }
+
     cpInput.direction = vdir.getNormalized();
     return state::RUNNING;
 }

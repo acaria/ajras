@@ -14,6 +14,9 @@ public:
     
     static cocos2d::Rect getBounds(unsigned eid);
     
+    static float getDistSquared(unsigned eid1, unsigned eid2);
+    static float getDist(unsigned eid1, unsigned eid2);
+    
     static lib::Nullable<unsigned> getNearest(unsigned gid,unsigned eid,
                                               def::mood::Flags moodCat,
                                               float maxLength);

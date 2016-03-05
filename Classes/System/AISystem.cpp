@@ -141,8 +141,6 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
             assert(node->values.size() > 0); //params=[type]
             switch(lib::hash(node->values[0]))
             {
-                case lib::hash("rand"):
-                    return cmd.execMoveDirRand(eid, node->values, properties);
                 case lib::hash("target"):
                     return cmd.execMoveDirTarget(eid, node->values, properties);
                 case lib::hash("stop"):

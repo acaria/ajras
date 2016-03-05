@@ -43,9 +43,6 @@ public:
     behaviour::nState execMoveToSleepZone(unsigned eid,
         const std::vector<std::string>& params, Properties& properties);
     
-    behaviour::nState execMoveDirRand(unsigned eid,
-        const std::vector<std::string>& params, Properties& properties);
-    
     behaviour::nState execMoveDirTarget(unsigned eid,
         const std::vector<std::string>& params, Properties& properties);
     

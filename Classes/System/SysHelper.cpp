@@ -29,6 +29,24 @@ cc::Rect SysHelper::getBounds(unsigned eid)
     return SysHelper::getBounds(ecs::get<cp::Position>(eid), ecs::get<cp::Physics>(eid));
 }
 
+float SysHelper::getDistSquared(unsigned eid1, unsigned eid2)
+{
+    auto bounds1 = SysHelper::getBounds(eid1);
+    auto bounds2 = SysHelper::getBounds(eid2);
+    
+    return cc::Point(bounds2.getMidX() - bounds1.getMidX(),
+                     bounds2.getMidY() - bounds1.getMidY()).lengthSquared();
+}
+
+float SysHelper::getDist(unsigned eid1, unsigned eid2)
+{
+    auto bounds1 = SysHelper::getBounds(eid1);
+    auto bounds2 = SysHelper::getBounds(eid2);
+    
+    return cc::Point(bounds2.getMidX() - bounds1.getMidX(),
+                     bounds2.getMidY() - bounds1.getMidY()).length();
+}
+
 lib::Nullable<unsigned> SysHelper::getNearest(unsigned gid, unsigned int eid, def::mood::Flags moodCat, float maxLength)
 {
     auto maxDist = maxLength * maxLength;

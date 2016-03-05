@@ -65,6 +65,9 @@ void UpdaterSystem::tick(double dt)
                         cpOrientation.dir = newDir;
                 }
             }
+            
+            //reset input direction
+            cpInput.direction = cc::Vec2::ZERO;;
         }
     }
     

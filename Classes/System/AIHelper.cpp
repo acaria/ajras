@@ -235,7 +235,7 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         if (SysHelper::getDistSquared(eid, leaderId) < minDistFollow)
             return state::SUCCESS;
     }
-    
+
     //path finding in progress
     if (properties.find("waypoints") != properties.end())
     {
@@ -258,6 +258,7 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         return state::FAILURE;
     
     properties["leaderId"] = (int)leaderId;
+    properties["followedId"] = (int)leaderId;
     
     if (SysHelper::getDistSquared(eid, leaderId) < minDistFollow)
     {
@@ -399,6 +400,26 @@ behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properti
     cc::Point destPos { vMap["x"].asFloat(), vMap["y"].asFloat() };
     
     auto bounds = SysHelper::getBounds(eid);
+    
+    if (properties.find("followedId") != properties.end())
+    {
+        auto& vMap2 = wayPoints.back().asValueMap();
+        cc::Point lastPos { vMap2["x"].asFloat(), vMap2["y"].asFloat() };
+        auto fBounds = SysHelper::getBounds(properties["followedId"].asInt());
+        auto prevCoord = system->context->data->getCoordFromPos(lastPos);
+        auto newCoord = system->context->data->getCoordFromPos({fBounds.getMidX(),
+                                                                fBounds.getMidY()});
+        if (prevCoord != newCoord)
+        {
+            auto tileSize = system->context->data->getTileSize();
+            cc::Point newPos = { newCoord.x * tileSize.width + tileSize.width / 2,
+            newCoord.y * tileSize.height + tileSize.height / 2};
+            //add a step to reach new pos of followed entity
+            wayPoints.push_back(cc::Value(cc::ValueMap{
+                {"x", cc::Value((int)newPos.x)},
+                {"y", cc::Value((int)newPos.y)}}));
+        }
+    }
     
     cc::Vec2 vdir { destPos.x - bounds.getMidX(), destPos.y - bounds.getMidY() };
     

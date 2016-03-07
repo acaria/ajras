@@ -11,6 +11,17 @@ struct PhysicsComponent
 
     struct ForceInfo
     {
+        void set(float maxSpeed, std::pair<float, float> inertia,
+                 cc::Vec2 direction, float duration)
+        {
+            this->active = true;
+            this->maxSpeed = maxSpeed;
+            this->accSpeed = inertia.first;
+            this->decSpeed = inertia.second;
+            this->direction = direction;
+            this->duration = duration;
+        }
+
         bool        active;
         float       curSpeed;
         float       maxSpeed;

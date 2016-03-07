@@ -221,7 +221,7 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
 {
     assert(params.size() == 1); //params=[category]
     
-    const float minDistFollow = 40.0 * 40.0;
+    const float minDistFollow = 30.0 * 30.0;
     
     if (!ecs::has<cp::Position, cp::Physics>(eid))
         return state::FAILURE;

@@ -98,10 +98,12 @@ cc::Point CollisionInfo::getFormationPosition(def::team::Formation formation,
     if (position != 0)
     {
         auto it = tail.begin();
+        auto lastBounds = data->getBlockBound(*(it));
         if (tail.size() > 1)
         {
             //get second position
             bBounds = data->getBlockBound(*(++it));
+            return {bBounds.getMidX(), bBounds.getMidY()};
         }
     }
     
@@ -245,7 +247,7 @@ std::list<cc::Rect> CollisionInfo::getAgentBounds(const std::set<unsigned>& eids
         >> linq::select([](std::pair<unsigned, def::collision::Agent> element) {
             return element.second; })
         >> linq::where([cat, eids](const def::collision::Agent& agent) {
-            return agent.category == cat && eids.find(agent.id) == eids.end(); })
+            return (agent.category == cat) && (eids.find(agent.id) == eids.end()); })
         >> linq::to_list();
     return linq::from(agents)
         >> linq::select([](const def::collision::Agent& agent) {

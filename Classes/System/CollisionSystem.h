@@ -31,4 +31,9 @@ private:
     CollisionInfo* collisionData;
     
     std::vector<lib::Registration> sysRegs;
+    
+    //internal
+    void agentCollectResolution(unsigned eid, unsigned tid, cc::Vec2 diff);
+    void agentObstacleResolution(unsigned eid, unsigned tid, cc::Vec2 diff);
+    void agentTeamResolution(unsigned eid, unsigned tid, cc::Vec2 diff);
 };

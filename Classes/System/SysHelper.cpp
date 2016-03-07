@@ -89,6 +89,18 @@ unsigned SysHelper::findTeamLeaderId(unsigned gid, unsigned eid, unsigned teamIn
     return 0;
 }
 
+std::set<unsigned> SysHelper::findTeamIds(unsigned gid, unsigned eid, unsigned teamIndex)
+{
+    std::set<unsigned> result;
+    for(auto oid : ecs::join<cp::Team, cp::Physics, cp::Position>(gid))
+    {
+        auto& cpTeam = ecs::get<cp::Team>(oid);
+        if (cpTeam.index == teamIndex)
+            result.insert(oid);
+    }
+    return result;
+}
+
 def::collision::Agent SysHelper::makeAgent(unsigned eid)
 {
     CCASSERT((ecs::has<cp::Position, cp::Physics>(eid)), "invalid entity");

@@ -298,9 +298,10 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid, con
                     }).delay(delay);
                     delay += def::anim::teamReadyEntityDelay;
                 }
-                delay += def::anim::teamLeftEntityDelay;
+                
                 for(auto eid2 : transitInfo.teamLeftIds)
                 {
+                    delay += def::anim::teamLeftEntityDelay;
                     CmdFactory::at(nextRoomIndex, eid2,
                             [nextRoomIndex, eid, eid2, this, gate](){
                         auto& cpPhy = ecs::get<cp::Physics>(eid2);
@@ -311,11 +312,11 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid, con
                             this->transitInfo.teamLeftIds.remove(eid2);
                         });
                     }).delay(delay);
-                    delay += def::anim::teamLeftEntityDelay;
                 }
+                
                 CmdFactory::at(context.ecs, playerData->getEntityFocusID(), [this, nextRoomIndex](){
                     this->dispatcher.onSystemReady(nextRoomIndex);
-                }).delay(delay);
+                }).delay((def::anim::teamReadyEntityDelay * transitInfo.teamReadyIds.size()));
             });
         });
     }

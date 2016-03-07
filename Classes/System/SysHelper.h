@@ -22,6 +22,7 @@ public:
                                               float maxLength);
     
     static unsigned findTeamLeaderId(unsigned gid, unsigned eid, unsigned teamIndex);
+    static std::set<unsigned> findTeamIds(unsigned gid, unsigned eid, unsigned teamIndex);
     
     static def::collision::Agent makeAgent(unsigned eid);
     

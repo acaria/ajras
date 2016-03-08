@@ -47,11 +47,10 @@ void UpdaterSystem::tick(double dt)
         else
         {
             if (cpInput.direction.isZero())
-                cpPhy.fInput().active = false;
+                cpPhy.inactiveInput();
             else
             {
-                cpPhy.fInput().active = true;
-                cpPhy.fInput().direction = cpInput.direction;
+                cpPhy.setInput(cpInput.direction);
             }
             if (ecs::has<cp::Orientation>(eid))
             {

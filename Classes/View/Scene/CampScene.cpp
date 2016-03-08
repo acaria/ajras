@@ -45,7 +45,7 @@ bool CampScene::init()
     this->interface = cc::create<CampInterface>();
     this->addChild(interface);
 
-    this->camera = new GameCamera(this->frame, canvasRect);
+    this->camera = new GameCamera(this->frame, canvasRect, def::camera::defaultConfig);
     
     auto listener = cc::EventListenerTouchOneByOne::create();
     listener->onTouchBegan = [](cc::Touch* touch, cc::Event* event){

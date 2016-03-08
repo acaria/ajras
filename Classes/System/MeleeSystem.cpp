@@ -148,13 +148,8 @@ void MeleeSystem::processTouchMelee(unsigned int eid, unsigned int oid)
         
             //apply impact force to target
             auto& cpPhy2 = ecs::get<cp::Physics>(oid);
-            cpPhy2.fImpact().curSpeed = 0;
-            cpPhy2.fImpact().accSpeed = 600;
-            cpPhy2.fImpact().decSpeed = 250;
-            cpPhy2.fImpact().maxSpeed = 150;
-            cpPhy2.fImpact().direction = moveDir.getNormalized();
-            cpPhy2.fImpact().active = true;
-            cpPhy2.fImpact().duration = 0.15;
+            cpPhy2.resetImpact();
+            cpPhy2.setImpact(150, 3, moveDir.getNormalized(), 0.15);
         
             ecs::get<cp::Health>(oid).damage += cpMelee.damage;
         }),
@@ -242,13 +237,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
             cpRender2.sprite->runAction(blinkAction);
         
             //apply impact force to target
-            cpPhy2.fImpact().curSpeed = 0;
-            cpPhy2.fImpact().accSpeed = 800;
-            cpPhy2.fImpact().decSpeed = 250;
-            cpPhy2.fImpact().maxSpeed = 200;
-            cpPhy2.fImpact().direction = moveDir.getNormalized();
-            cpPhy2.fImpact().active = true;
-            cpPhy2.fImpact().duration = 0.12;
+            cpPhy2.setImpact(200, 4, moveDir.getNormalized(), 0.12);
         
             cpHealth2.damage += cpMelee.damage;
         

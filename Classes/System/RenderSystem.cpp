@@ -21,7 +21,7 @@ void RenderSystem::tick(double dt)
                 orientation = ((cpOrientation.dir != Dir::None) ? cpOrientation.dir : Dir::Down);
             }
             
-            cpRender.setMoveAnimation(orientation, cpPhy.fInput().active);
+            cpRender.setMoveAnimation(orientation, cpPhy.inputIsActive());
         }
         
         cpRender.setMoveCategory("walk");

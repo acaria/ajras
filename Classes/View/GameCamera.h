@@ -1,24 +1,21 @@
 #pragma once
 #include "Event.h"
 #include "ViewNode.h"
+#include "Defines.h"
 
 class GameCamera
 {
-private:
-    const int   CAMERA_ID = 1;
-    const float MIN_SCALE = 0.8;
-    const float MAX_SCALE = 1.8;
-    const float FOCUS_MARGIN = 50.0;
-    
 public:
-    GameCamera(ViewNode* playground, cc::Rect canvasRect, float initScale = 1.0f);
+    GameCamera(ViewNode* playground, cc::Rect canvasRect, const def::camera::Config& config);
     
     void setFrameBounds(cc::Rect bounds);
-    void setTarget(cc::Point pos);
+    void setTargetPos(cc::Point pos);
     void translate(cc::Point translation);
     void setScale(float scale);
+    void setTargetSize(cc::Size size);
     void addScale(float scale);
     void moveTarget(cocos2d::Vec2 pos, float duration);
+    void moveTarget(cocos2d::Vec2 targetPos, cc::Size targetSize, float duration);
     void focusTarget(cc::Point pos);
 
     struct DataFocus
@@ -32,6 +29,8 @@ public:
     lib::Subject<void(cc::Point, cc::Point)>    onSwipe;
 
 private:
+
+    def::camera::Config config;
 
     //cam content
     ViewNode*   playground;

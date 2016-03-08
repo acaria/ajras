@@ -156,11 +156,11 @@ void CollisionSystem::agentObstacleResolution(unsigned eid, unsigned tid, cc::Ve
         cpPos2.pos -= diff;
         collisionData->agents[tid].bounds.origin -= diff;
         
-        cpPhy.fInput().curSpeed = 0;
-        cpPhy.fImpact().set(fAmount1, {600,250}, unit, 0.15);
+        cpPhy.resetInput();
+        cpPhy.setImpact(fAmount1, 3, unit, 0.15);
         
-        cpPhy2.fInput().curSpeed = 0;
-        cpPhy.fImpact().set(fAmount2, {600,250}, -unit, 0.15);
+        cpPhy2.resetInput();
+        cpPhy.setImpact(fAmount2, 3, -unit, 0.15);
     }
     else if (fAmount1 > fAmount2) //eid -> tid
     {
@@ -169,8 +169,8 @@ void CollisionSystem::agentObstacleResolution(unsigned eid, unsigned tid, cc::Ve
         cpPos.pos += diff;
         collisionData->agents[eid].bounds.origin += diff;
         
-        cpPhy2.fInput().curSpeed = 0;
-        cpPhy2.fPush().set(fAmount1 - fAmount2, {200,250}, -unit, 0);
+        cpPhy2.resetInput();
+        cpPhy2.setPush(fAmount1 - fAmount2, -unit);
     }
     else //tid -> eid
     {
@@ -179,22 +179,16 @@ void CollisionSystem::agentObstacleResolution(unsigned eid, unsigned tid, cc::Ve
         cpPos2.pos -= diff;
         collisionData->agents[tid].bounds.origin -= diff;
         
-        cpPhy.fInput().curSpeed = 0;
-        cpPhy.fPush().set(fAmount2 - fAmount1, {200,250}, unit, 0);
+        cpPhy.resetInput();
+        cpPhy.setPush(fAmount2 - fAmount1, unit);
     }
 }
 
 void CollisionSystem::agentTeamResolution(unsigned eid, unsigned tid, cc::Vec2 diff)
 {
-    auto& cpPos = ecs::get<cp::Position>(eid);
-    auto& cpPhy = ecs::get<cp::Physics>(eid);
-    auto& cpPos2 = ecs::get<cp::Position>(tid);
-    auto& cpPhy2 =  ecs::get<cp::Physics>(tid);
-    
     cc::Vec2 unit = diff.getNormalized();
-
-    cpPhy.fImpact().set(diff.getLength(), {600,250}, unit, 0.15);
-    cpPhy2.fImpact().set(diff.getLength(), {600,250}, -unit, 0.15);
+    ecs::get<cp::Physics>(eid).setImpact(diff.getLength(), 3, unit, 0.15);
+    ecs::get<cp::Physics>(tid).setImpact(diff.getLength(), 3, -unit, 0.15);
 }
 
 void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff)

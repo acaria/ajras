@@ -2,14 +2,18 @@
 #include "ProfileData.h"
 #include "ModelProvider.h"
 
+bool PhysicsComponent::inputIsActive()
+{
+    return this->forces[ForceType::INPUT].active;
+}
+
 PhysicsComponent::PhysicsComponent()
 {
     this->forces[ForceType::INPUT] = {
         .curSpeed = 0,
         .active = false,
         .maxSpeed = 0,
-        .accSpeed = 0,
-        .decSpeed = 0,
+        .inertiaFactor = 1.0,
         .direction = {0,0},
         .duration = -1
     };
@@ -18,8 +22,7 @@ PhysicsComponent::PhysicsComponent()
         .curSpeed = 0,
         .active = false,
         .maxSpeed = 0,
-        .accSpeed = 0,
-        .decSpeed = 0,
+        .inertiaFactor = 1.0,
         .direction = {0,0},
         .duration = 0
     };
@@ -28,33 +31,78 @@ PhysicsComponent::PhysicsComponent()
         .curSpeed = 0,
         .active = false,
         .maxSpeed = 0,
-        .accSpeed = 0,
-        .decSpeed = 0,
+        .inertiaFactor = 1.0,
         .direction = {0,0},
         .duration = 0
     };
 }
 
-PhysicsComponent::ForceInfo& PhysicsComponent::fInput()
+void PhysicsComponent::setInput(const cc::Vec2& direction)
 {
-    return this->forces[ForceType::INPUT];
+    this->forces[ForceType::INPUT].active = true;
+    this->forces[ForceType::INPUT].direction = direction;
 }
 
-PhysicsComponent::ForceInfo& PhysicsComponent::fImpact()
+void PhysicsComponent::setPush(float maxSpeed, const cc::Vec2& direction)
 {
-    return this->forces[ForceType::IMPACT];
+    auto& fPush = this->forces[ForceType::PUSH];
+    fPush.maxSpeed = maxSpeed;
+    fPush.active = true;
+    fPush.direction = direction;
 }
 
-PhysicsComponent::ForceInfo& PhysicsComponent::fPush()
+void PhysicsComponent::setImpact(float maxSpeed, float inertia,
+                                 const cc::Vec2& direction, float duration)
 {
-    return this->forces[ForceType::PUSH];
+    auto& fImpact = this->forces[ForceType::IMPACT];
+    fImpact.active = true;
+    fImpact.maxSpeed = maxSpeed;
+    fImpact.direction = direction;
+    fImpact.inertiaFactor = inertia;
+    fImpact.duration = duration;
+}
+
+void PhysicsComponent::addImpact(float maxSpeed, float inertia,
+                                 const cc::Vec2& direction, float duration)
+{
+    auto& fImpact = this->forces[ForceType::IMPACT];
+    if (!fImpact.active)
+        setImpact(maxSpeed, inertia, direction, duration);
+    else
+    {
+        fImpact.maxSpeed = MAX(fImpact.maxSpeed, maxSpeed);
+        fImpact.direction += direction;
+        fImpact.direction.normalize();
+        fImpact.inertiaFactor = MAX(fImpact.inertiaFactor, inertia);
+        fImpact.duration = MAX(fImpact.duration, duration);
+    }
+}
+
+void PhysicsComponent::resetImpact()
+{
+    this->forces[ForceType::IMPACT].active = false;
+    this->forces[ForceType::IMPACT].curSpeed = 0;
+}
+
+void PhysicsComponent::resetInput()
+{
+    this->forces[ForceType::INPUT].active = false;
+    this->forces[ForceType::INPUT].curSpeed = 0;
+}
+
+void PhysicsComponent::inactiveInput()
+{
+    this->forces[ForceType::INPUT].active = false;
 }
 
 cc::Vec2 PhysicsComponent::getResultForce()
 {
     cc::Vec2 result = {0,0};
     for(auto pair : forces)
-        result += pair.second.direction * pair.second.curSpeed;
+    {
+        if (pair.second.active)
+            result += pair.second.direction * pair.second.curSpeed;
+    }
     return result;
 }
 
@@ -83,8 +131,8 @@ void PhysicsComponent::setProfile(ProfileData* profile)
     //movement
     auto& fMove = this->forces[ForceType::INPUT];
     fMove.maxSpeed = physics->speed;
-    fMove.accSpeed = physics->acceleration;
-    fMove.decSpeed = physics->deceleration;
+    this->inertia.accSpeed = physics->acceleration;
+    this->inertia.decSpeed = physics->deceleration;
 }
 
 void PhysicsComponent::setProfile(const std::string& profileName)

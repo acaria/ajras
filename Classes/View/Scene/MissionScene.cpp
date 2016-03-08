@@ -3,6 +3,7 @@
 #include "Defines.h"
 #include "SpriteLib.h"
 #include "GameCtrl.h"
+#include "Defines.h"
 
 MissionScene::~MissionScene()
 {
@@ -46,7 +47,7 @@ bool MissionScene::init()
     this->interface = cc::create<MissionInterface>();
     this->addChild(interface);
     
-    this->camera = new GameCamera(this->frame, canvasRect);
+    this->camera = new GameCamera(this->frame, canvasRect, def::camera::defaultConfig);
     
     auto listener = cc::EventListenerTouchOneByOne::create();
     //listener->setSwallowTouches(true);

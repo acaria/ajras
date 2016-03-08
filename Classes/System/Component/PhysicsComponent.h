@@ -9,26 +9,35 @@ struct PhysicsComponent
 {
     PhysicsComponent();
 
+    //setters
+    void setInput(const cc::Vec2& direction);
+    void setPush(float maxSpeed, const cc::Vec2& direction);
+    void setImpact(float maxSpeed, float inertia,
+                   const cc::Vec2& direction, float duration);
+    void addImpact(float maxSpeed, float inertia,
+                   const cc::Vec2& direction, float duration);
+
+    void resetImpact();
+    void resetInput();
+    void inactiveInput();
+
+    bool inputIsActive();
+
     struct ForceInfo
     {
-        void set(float maxSpeed, std::pair<float, float> inertia,
-                 cc::Vec2 direction, float duration)
-        {
-            this->active = true;
-            this->maxSpeed = maxSpeed;
-            this->accSpeed = inertia.first;
-            this->decSpeed = inertia.second;
-            this->direction = direction;
-            this->duration = duration;
-        }
-
         bool        active;
         float       curSpeed;
         float       maxSpeed;
-        float       accSpeed;
+        float       inertiaFactor;
         float       decSpeed;
         cc::Vec2    direction;
         float       duration;
+    };
+    
+    struct Inertia
+    {
+        float accSpeed;
+        float decSpeed;
     };
 
     enum CollisionType {
@@ -50,16 +59,13 @@ struct PhysicsComponent
     void resetForces();
     cc::Vec2 getResultForce();
 
-    ForceInfo& fInput();
-    ForceInfo& fImpact();
-    ForceInfo& fPush();
-
     //input/collision
     cc::Rect                shape;
     def::collision::Cat     category;
     
     //input/movement
     std::map<ForceType, ForceInfo>  forces;
+    Inertia                         inertia;
     float                           weight;
     float                           strength;
     

@@ -74,7 +74,7 @@ void CampSystemCtrl::start()
     }
     assert(enterWarpRef);
     auto camRect = enterWarpRef->info.rect;
-    this->cam->setTarget({camRect.getMidX(), camRect.getMidY()});
+    this->cam->setTargetPos({camRect.getMidX(), camRect.getMidY()});
     
     auto srcPos = enterWarpRef->info.getSrcPos();
     auto destPos = enterWarpRef->info.getDestPos();

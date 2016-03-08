@@ -2,13 +2,14 @@
 #include "CoreLib.h"
 #include "Defines.h"
 
-GameCamera::GameCamera(ViewNode* playground, cc::Rect canvasRect, float initScale):
+GameCamera::GameCamera(ViewNode* playground, cc::Rect canvasRect, const def::camera::Config& config):
+    config(config),
     playground(playground),
-canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
+    canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
     centerPos(canvasRect.size / 2)
 {
-    this->curScale = initScale;
-    this->playground->setScale(initScale);
+    this->curScale = config.initScale;
+    this->playground->setScale(config.initScale);
     
     auto mListener = cc::EventListenerMouse::create();
     mListener->onMouseDown = [this](cc::Event *event) {
@@ -36,14 +37,20 @@ canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
         {
             auto translateValue = e->getLocation() - this->prevBRMouseLocation;
          
-            this->translate({translateValue.x / 2, -translateValue.y / 2});
+            if (this->config.touchMoveControl)
+            {
+                this->translate({translateValue.x / 2, -translateValue.y / 2});
+            }
             this->prevBRMouseLocation = e->getLocation();
         }
     };
     
     mListener->onMouseScroll = [this](cc::Event *event) {
         cc::EventMouse* e = static_cast<cc::EventMouse*>(event);
-        this->addScale(e->getScrollY() / 200.0f);
+        if (this->config.touchZoomControl)
+        {
+            this->addScale(e->getScrollY() / 200.0f);
+        }
     };
     
     auto tListener = cc::EventListenerTouchAllAtOnce::create();
@@ -102,7 +109,10 @@ canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
                 auto scaleValue =  (oldRect.size.width + oldRect.size.height) /
                 (newRect.size.width + newRect.size.height);
                 this->addScale(1 - scaleValue);
-                this->translate(translateValue);
+                if (this->config.touchMoveControl)
+                {
+                    this->translate(translateValue);
+                }
             }
             
             for(auto moved : movedCameraID) //update pos
@@ -141,7 +151,6 @@ canvasRect(canvasRect), frameRect(cc::Rect::ZERO),
             mListener, this->playground);
     this->playground->getEventDispatcher()->addEventListenerWithSceneGraphPriority(
             tListener, this->playground);
-    
 }
 
 void GameCamera::setFrameBounds(cc::Rect bounds)
@@ -150,8 +159,7 @@ void GameCamera::setFrameBounds(cc::Rect bounds)
     this->updatePos();
 }
 
-
-void GameCamera::setTarget(cc::Point pos)
+void GameCamera::setTargetPos(cc::Point pos)
 {
     this->curPosition = pos;
     this->updatePos();
@@ -167,7 +175,18 @@ void GameCamera::translate(cc::Vec2 translation)
 void GameCamera::setScale(float scale)
 {
     if (moving) return;
-    this->curScale = lib::clamp(scale, MIN_SCALE, MAX_SCALE);
+    this->curScale = lib::clamp(scale, config.minScale, config.maxScale);
+    this->playground->setScale(this->curScale);
+    this->updatePos();
+}
+
+void GameCamera::setTargetSize(cc::Size targetSize)
+{
+    if (moving) return;
+    
+    float scale = MIN(canvasRect.size.width / (targetSize.width + config.focusMargin),
+                      canvasRect.size.height / (targetSize.height + config.focusMargin));
+    this->curScale = lib::clamp(scale, config.minScale, config.maxScale);
     this->playground->setScale(this->curScale);
     this->updatePos();
 }
@@ -175,7 +194,7 @@ void GameCamera::setScale(float scale)
 void GameCamera::addScale(float value)
 {
     if (moving) return;
-    curScale = lib::clamp(curScale + value, MIN_SCALE, MAX_SCALE);
+    curScale = lib::clamp(curScale + value, config.minScale, config.maxScale);
     this->playground->setScale(curScale);
     this->updatePos();
 }
@@ -187,11 +206,11 @@ void GameCamera::updatePos()
     {
         this->curPosition = {
             lib::clamp(this->curPosition.x,
-                focus.target.x + FOCUS_MARGIN - centerPos.x / 2 / curScale,
-                focus.target.x - FOCUS_MARGIN + centerPos.x / 2 / curScale),
+                focus.target.x + config.focusMargin - centerPos.x / 2 / curScale,
+                focus.target.x - config.focusMargin + centerPos.x / 2 / curScale),
             lib::clamp(this->curPosition.y,
-                focus.target.y + FOCUS_MARGIN - centerPos.y / 2 / curScale,
-                focus.target.y - FOCUS_MARGIN + centerPos.y / 2 / curScale)
+                focus.target.y + config.focusMargin - centerPos.y / 2 / curScale,
+                focus.target.y - config.focusMargin + centerPos.y / 2 / curScale)
         };
     }
     
@@ -215,8 +234,45 @@ void GameCamera::focusTarget(cc::Point pos)
     updatePos();
 }
 
+void GameCamera::moveTarget(cocos2d::Vec2 targetPos, cc::Size targetSize, float duration)
+{
+    this->curPosition = targetPos;
+    
+    float scale = MIN(canvasRect.size.width / (targetSize.width + config.focusMargin),
+                      canvasRect.size.height / (targetSize.height + config.focusMargin));
+    this->curScale = lib::clamp(scale, config.minScale, config.maxScale);
+    
+    if (!frameRect.equals(cc::Rect::ZERO))
+    {
+        this->curPosition = {
+            lib::clamp(this->curPosition.x,
+                       frameRect.origin.x + centerPos.x / curScale,
+                       frameRect.getMaxX() - (centerPos.x / curScale)),
+            lib::clamp(this->curPosition.y,
+                       frameRect.origin.y + centerPos.y / curScale,
+                       frameRect.getMaxY() - (centerPos.y / curScale))
+        };
+    }
+    
+    moving = true;
+    auto action = cc::Sequence::create(
+        cc::Spawn::create(
+            cc::EaseInOut::create(cc::MoveTo::create(duration, centerPos - curPosition * curScale), 5),
+            cc::EaseInOut::create(cc::ScaleTo::create(duration, curScale), 5),
+            NULL
+        ),
+        cc::CallFunc::create([this](){
+            this->moving = false;
+        }),
+        NULL);
+    
+    this->playground->runAction(action);
+}
+
 void GameCamera::moveTarget(cocos2d::Vec2 pos, float duration)
 {
+    //still usable???
+    /*
     if (focus.enabled)
     {
         this->curPosition = {
@@ -229,16 +285,18 @@ void GameCamera::moveTarget(cocos2d::Vec2 pos, float duration)
         };
     }
     else
-    {
-        this->curPosition = pos;
-    }
+    {*/
+    this->curPosition = pos;
+    /*}*/
     
     if (!frameRect.equals(cc::Rect::ZERO))
     {
         this->curPosition = {
-            lib::clamp(this->curPosition.x, frameRect.origin.x + centerPos.x / curScale,
+            lib::clamp(this->curPosition.x,
+                       frameRect.origin.x + centerPos.x / curScale,
                        frameRect.getMaxX() - (centerPos.x / curScale)),
-            lib::clamp(this->curPosition.y, frameRect.origin.y + centerPos.y / curScale,
+            lib::clamp(this->curPosition.y,
+                       frameRect.origin.y + centerPos.y / curScale,
                        frameRect.getMaxY() - (centerPos.y / curScale))
         };
     }
@@ -250,7 +308,6 @@ void GameCamera::moveTarget(cocos2d::Vec2 pos, float duration)
             this->moving = false;
         }),
         NULL);
-    action->setTag(CAMERA_ID);
     
     this->playground->runAction(action);
 }

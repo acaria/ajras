@@ -219,9 +219,12 @@ behaviour::nState AIHelper::execMoveToSleepZone(unsigned eid,
 behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         const std::vector<std::string>& params, Properties& properties)
 {
+    const float minDistFollow = 30.0;
+    const float minKeepDistance = 20.0;
+    
     assert(params.size() == 1); //params=[category]
     
-    const float minDistFollow = 30.0 * 30.0;
+    auto gid = system->context->ecs->getID();
     
     if (!ecs::has<cp::Position, cp::Physics>(eid))
         return state::FAILURE;
@@ -232,14 +235,27 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         auto leaderId = properties["leaderId"].asInt();
         if (!ecs::has<cp::Position, cp::Physics>(leaderId))
             return state::FAILURE;
-        if (SysHelper::getDistSquared(eid, leaderId) < minDistFollow)
-            return state::SUCCESS;
+        if (SysHelper::getDistSquared(eid, leaderId) < (minDistFollow * minDistFollow))
+        {
+            auto teamIds = SysHelper::findTeamIds(gid, ecs::get<cp::Team>(eid).index);
+            return this->keepTeamDistance(eid, leaderId, teamIds, minKeepDistance);
+        }
     }
 
     //path finding in progress
     if (properties.find("waypoints") != properties.end())
     {
-        return this->followPathFinding(eid, properties, 2);
+        auto state = this->followPathFinding(eid, properties, 2);
+        
+        //keep distance between team entities
+        auto leaderId = properties["leaderId"].asInt();
+        if (state == state::RUNNING && ecs::has<cp::Team>(eid) && eid != leaderId)
+        {
+            auto teamIds = SysHelper::findTeamIds(gid, ecs::get<cp::Team>(eid).index);
+            this->keepTeamDistance(eid, leaderId, teamIds, minKeepDistance);
+        }
+        
+        return state;
     }
     
     //compute team info
@@ -250,7 +266,7 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
     if (cpTeam.position == 0) //you are the leader, no follow
         return state::SUCCESS;
     
-    unsigned leaderId = SysHelper::findTeamLeaderId(system->context->ecs->getID(), eid, cpTeam.index);
+    unsigned leaderId = SysHelper::findTeamLeaderId(gid, eid, cpTeam.index);
     if (leaderId == 0)
         return state::FAILURE;
     
@@ -389,12 +405,16 @@ behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properti
     
     if (wayPoints.size() == 0)
     {
+        ecs::get<cp::Debug>(eid).wayPoints.clear();
         ecs::get<cp::Input>(eid).direction = {0,0};
         return state::SUCCESS;
     }
     
     if (!ecs::get<cp::Input>(eid).enabled)
+    {
+        ecs::get<cp::Debug>(eid).wayPoints.clear();
         return state::FAILURE;
+    }
     
     auto& vMap = wayPoints.front().asValueMap();
     cc::Point destPos { vMap["x"].asFloat(), vMap["y"].asFloat() };
@@ -442,4 +462,37 @@ behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properti
     }
     
     return state::RUNNING;
+}
+
+behaviour::nState AIHelper::keepTeamDistance(unsigned eid, unsigned leaderId,
+                                             const std::set<unsigned>& teamIds, float distance)
+{
+    if (!ecs::has<cp::Team>(eid) || eid == leaderId)
+        return state::SUCCESS;
+    
+    state resultState = state::SUCCESS;
+    for(auto teamId : teamIds)
+    {
+        if (teamId == eid) continue;
+        
+        if (!ecs::has<cp::Position, cp::Physics, cp::Team>(eid) ||
+            !ecs::has<cp::Position, cp::Physics, cp::Team>(teamId))
+            return state::FAILURE;
+        auto bounds1 = SysHelper::getBounds(eid);
+        auto bounds2 = SysHelper::getBounds(teamId);
+        
+        auto diff = cc::Point(bounds2.getMidX() - bounds1.getMidX(),
+                              bounds2.getMidY() - bounds1.getMidY());
+        auto length = diff.getLength();
+        if (length < distance)
+        {
+            cc::Vec2 unit = diff.getNormalized();
+            ecs::get<cp::Physics>(eid).addImpact(length, 3.0, -unit, 0.15);
+            if (teamId != leaderId)
+                ecs::get<cp::Physics>(teamId).addImpact(length, 3.0, unit, 0.15);
+            resultState = state::RUNNING;
+        }
+    }
+    
+    return resultState;
 }

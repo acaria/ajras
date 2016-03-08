@@ -36,11 +36,11 @@ void MoveSystem::tick(double dt)
             {
                 //maxSpeed = (maxSpeed == 0) ? force.maxSpeed : MIN(maxSpeed, force.maxSpeed);
                 maxSpeed = MAX(maxSpeed, force.maxSpeed);
-                force.curSpeed += force.accSpeed * dt;
+                force.curSpeed += force.inertiaFactor * cpPhy.inertia.accSpeed * dt;
             }
             else
             {
-                force.curSpeed -= force.decSpeed * dt;
+                force.curSpeed -= cpPhy.inertia.decSpeed * dt;
             }
             force.curSpeed = lib::clamp(force.curSpeed, 0.0f, force.maxSpeed);
             assert(force.direction.getLength() <= 1.01);

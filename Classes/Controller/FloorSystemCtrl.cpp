@@ -345,7 +345,7 @@ void FloorSystemCtrl::switchRoom(unsigned fromRoomIndex, unsigned toRoomIndex, c
     
     //move camera
     auto bounds = dataRoom->getBounds();
-    this->cam->moveTarget(destPos + bounds.origin, def::anim::camSwitchRoomDuration);
+    this->cam->moveTarget(destPos + bounds.origin, bounds.size, def::anim::camSwitchRoomDuration);
 
     this->showRoom(toRoomIndex, after);
 }
@@ -584,8 +584,8 @@ void FloorSystemCtrl::loadEntities()
 {
     auto roomIndex = this->data->getCurIdxRoom();
     auto camRect = data->getCurrentRoom()->getBounds();
-    this->cam->setTarget({camRect.getMidX(), camRect.getMidY()});
-    
+    this->cam->setTargetPos({camRect.getMidX(), camRect.getMidY()});
+    this->cam->setTargetSize(camRect.size);
     
     auto roomData = this->data->rooms[roomIndex];
     auto roomView = this->roomViews[roomIndex];

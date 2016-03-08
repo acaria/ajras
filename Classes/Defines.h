@@ -192,6 +192,28 @@ namespace def {
         const unsigned    pIndex = 1;
         const Formation   pFormation = Formation::arrow;
     }
+    
+    namespace camera
+    {
+        struct Config
+        {
+            float   minScale;
+            float   maxScale;
+            float   initScale;
+            float   focusMargin;
+            bool    touchMoveControl;
+            bool    touchZoomControl;
+        };
+        
+        const Config defaultConfig = {
+            .minScale = 0.8,
+            .maxScale = 3.0,
+            .initScale = 1.0,
+            .focusMargin = 50.0,
+            .touchMoveControl = false,
+            .touchZoomControl = false
+        };
+    }
 }
 
 enum class ActionMode

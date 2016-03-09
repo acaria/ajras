@@ -19,7 +19,6 @@ public:
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
     
-    void setSelectionAction(ActionMode mode);
     void setSelectionPos(cc::Point p);
     void setKeyPressDirection(unsigned index, int dir);
     void setKeyReleaseDirection(unsigned index, int dir);
@@ -36,7 +35,6 @@ private:
     std::map<unsigned, lib::Nullable<cc::Point>> joyPos;
     
     //selection input
-    lib::Nullable<ActionMode> actionSelection = nullptr;
     lib::Nullable<cc::Point> posSelection = nullptr;
     
     std::list<unsigned> indexList;

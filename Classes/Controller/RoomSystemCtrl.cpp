@@ -198,10 +198,10 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
             assert(profile->interaction->actionParams != nullptr);
             auto collectables = ModelProvider::instance()->collectible.genReward(
                 random, profile->interaction->actionParams.Value);
-            cp::GearComponent reward;
+            GearComponent reward;
             for(auto collectable : collectables)
             {
-                reward.push_back(SlotData {
+                reward.slots.push_back(SlotData {
                     .quantity = 1,
                     .content = collectable
                 });

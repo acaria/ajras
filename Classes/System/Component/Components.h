@@ -8,6 +8,7 @@
 #include "ProfileData.h"
 #include "InputComponent.h"
 #include "PhysicsComponent.h"
+#include "GearComponent.h"
 #include "MeleeComponent.h"
 #include "HealthComponent.h"
 #include "AIComponent.h"
@@ -22,8 +23,6 @@
 
 namespace cp
 {
-    using GearComponent = std::list<SlotData>;
-    
     using Render = ecs::component<RenderComponent,              1>;
     using Position = ecs::component<PositionComponent,          2>;
     using Orientation = ecs::component<OrientationComponent,    3>;

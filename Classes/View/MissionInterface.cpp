@@ -3,259 +3,62 @@
 
 using KeyCode = cocos2d::EventKeyboard::KeyCode;
 
-MissionInterface::MissionInterface()
-{
-    //init action positions
-    actionTeamPos = {
-        {50,    53},
-        {37,    53}
-    };
-    
-    actionInventorizePos = {
-        {92,    53},
-        {104,   53}
-    };
-    
-    actionMapPos = {
-        {137,   53},
-        {147,   53}
-    };
-}
-
-MissionInterface::~MissionInterface()
-{
-    this->targetEnemy->release();
-    this->targetFriend->release();
-}
-
-HealthBar* MissionInterface::getHealthBar()
-{
-    return this->healthBar;
-}
-
 StickControl* MissionInterface::getStick()
 {
     return this->stick;
 }
 
-InventoryPanel* MissionInterface::getInventoryPanel()
+void MissionInterface::addPlayerEntity(unsigned int eid, const std::string& profileName,
+                                       float maxHealth, float maxStamina)
 {
-    return this->inventoryPanel;
-}
-
-void MissionInterface::setTargetID(unsigned eid, bool friendly, cc::Sprite* container, cc::Point pos)
-{
-    this->targetEnemy->removeFromParentAndCleanup(false);
-    this->targetFriend->removeFromParentAndCleanup(false);
-    this->curTargetEntityID = 0;
+    auto status = cc::create<EntityStatus>(maxHealth, maxStamina);
+    status->cocos2d::Node::setAnchorPoint({0,1});
+    status->setPosition(this->entityStatusPosition);
     
-    cc::Sprite* target = friendly ? this->targetFriend : this->targetEnemy;
-    container->addChild(target, -1);
-    target->setPosition({
-        pos.x - targetEnemy->getTextureRect().size.width / 2,
-        pos.y - targetEnemy->getTextureRect().size.height / 2
-    });
+    cc::Sprite* picto = nullptr;
     
-    this->curTargetEntityID = eid;
-}
-
-void MissionInterface::unsetTargetID(unsigned int eid)
-{
-    if (eid == this->curTargetEntityID)
+    if (profileName == "boy")
+        picto = cc::Sprite::createWithSpriteFrameName("entity_icon_crown.png");
+    else if (profileName == "boy2")
+        picto = cc::Sprite::createWithSpriteFrameName("entity_icon_shield.png");
+        
+    if (picto != nullptr)
     {
-        this->clearTarget();
+        picto->setAnchorPoint({0,0});
+        picto->setPosition({7,3});
+        status->addChild(picto);
     }
+    
+    this->addChild(status);
+    entityStatusMap[eid] = status;
+    entityStatusPosition.y -= 44;
 }
 
-cc::Rect MissionInterface::getActionBounds()
+void MissionInterface::setInventoryList(SlotCurrency currency, std::list<SlotData> &list)
 {
-    return cc::Rect(this->actionSelection->getPosition().x,
-                    this->actionSelection->getPosition().y,
-                    this->actionSelection->getContentSize().width,
-                    this->actionSelection->getContentSize().height);
+    this->currency = currency;
+    unsigned gold = (currency.stackability == -1) ? currency.quantity :
+        MIN(currency.quantity, currency.stackability);
+    this->txtGoldAmount->setString(std::to_string(gold));
+    this->inventoryPanel->fill(list);
+    auto newHeight = this->inventoryPanel->getHeight();
+    this->actionPanel->setContentSize({def::canvasMissionMargin.x - 15, newHeight + 8 + 80});
+    this->actionTitle->setPosition({5, newHeight + 18});
 }
 
-void MissionInterface::clearTarget()
+void MissionInterface::updateInventorySlot(SlotData* slot)
 {
-    this->targetEnemy->removeFromParentAndCleanup(false);
-    this->targetFriend->removeFromParentAndCleanup(false);
-    this->curTargetEntityID = 0;
+    this->inventoryPanel->update(slot);
 }
 
-bool MissionInterface::withTarget()
+void MissionInterface::updateCurrencySlot(unsigned quantity)
 {
-    return this->curTargetEntityID != 0;
-}
-
-void MissionInterface::setActionPanel(ActionMode action)
-{
-    if (action == currentAction)
-        return; //same
-
-    this->inventoryPanel->stopAllActions();
-
-    switch(action)
+    currency.quantity += quantity;
+    if (currency.stackability != -1) //not unlimited
     {
-        case ActionMode::team:
-            this->inventoryPanel->runAction(cc::FadeOut::create(0.5f));
-            break;
-        case ActionMode::map:
-            this->inventoryPanel->runAction(cc::FadeOut::create(0.5f));
-            break;
-        case ActionMode::inventorize:
-            this->inventoryPanel->runAction(cc::FadeIn::create(0.5f));
-            break;
-        default:
-            Log("invalid action mode");
+        currency.quantity = MIN(currency.stackability, currency.quantity);
     }
-}
-
-void MissionInterface::setActionMode(ActionMode action)
-{
-    if (action == currentAction)
-        return; //same
-    
-    this->setActionPanel(action);
-    
-    actionTeam->stopAllActions();
-    actionMap->stopAllActions();
-    actionInventorize->stopAllActions();
-    actionTeamHi->stopAllActions();
-    actionMapHi->stopAllActions();
-    actionInventorizeHi->stopAllActions();
-    
-    switch(action)
-    {
-        case ActionMode::team:
-            actionTeam->runAction(cc::Sequence::create(
-                cc::Spawn::create(
-                    cc::MoveTo::create(0.1, actionSelection->getPosition() + actionTeamPos.first),
-                    cc::ScaleTo::create(0.1, 1.0),
-                    NULL),
-                cc::CallFunc::create([this](){
-                    actionTeamHi->runAction(cc::FadeIn::create(0.5));
-                }),
-                NULL
-            ));
-            actionMapHi->runAction(cc::Sequence::create(
-                cc::FadeOut::create(0.1),
-                cc::CallFunc::create([this](){
-                    actionMap->runAction(cc::Spawn::create(
-                        cc::MoveTo::create(0.1, actionSelection->getPosition() + actionMapPos.second),
-                        cc::ScaleTo::create(0.1, 0.7),
-                        NULL));
-                }),
-                NULL
-            ));
-            actionInventorizeHi->runAction(cc::Sequence::create(
-                cc::FadeOut::create(0.1),
-                cc::CallFunc::create([this](){
-                    actionInventorize->runAction(cc::Spawn::create(
-                        cc::MoveTo::create(0.1, actionSelection->getPosition() + actionInventorizePos.second),
-                        cc::ScaleTo::create(0.1, 0.7),
-                        NULL));
-                }),
-                NULL
-            ));
-            break;
-        case ActionMode::map:
-            actionTeamHi->runAction(cc::Sequence::create(
-                cc::FadeOut::create(0.1),
-                cc::CallFunc::create([this](){
-                    actionTeam->runAction(cc::Spawn::create(
-                        cc::MoveTo::create(0.1, actionSelection->getPosition() + actionTeamPos.second),
-                        cc::ScaleTo::create(0.1, 0.7),
-                        NULL));
-                }),
-                NULL
-            ));
-            actionMap->runAction(cc::Sequence::create(
-                cc::Spawn::create(
-                    cc::MoveTo::create(0.1, actionSelection->getPosition() + actionMapPos.first),
-                    cc::ScaleTo::create(0.1, 1.0),
-                    NULL),
-                cc::CallFunc::create([this](){
-                    actionMapHi->runAction(cc::FadeIn::create(0.5));
-                }),
-                NULL
-            ));
-            actionInventorizeHi->runAction(cc::Sequence::create(
-                cc::FadeOut::create(0.1),
-                cc::CallFunc::create([this](){
-                    actionInventorize->runAction(cc::Spawn::create(
-                        cc::MoveTo::create(0.1, actionSelection->getPosition() + actionInventorizePos.second + cc::Point(-25., 0.)),
-                        cc::ScaleTo::create(0.1, 0.7),
-                        NULL));
-                }),
-                NULL
-            ));
-            break;
-        case ActionMode::inventorize:
-            actionTeamHi->runAction(cc::Sequence::create(
-                cc::FadeOut::create(0.1),
-                cc::CallFunc::create([this](){
-                    actionTeam->runAction(cc::Spawn::create(
-                        cc::MoveTo::create(0.1, actionSelection->getPosition() + actionTeamPos.second),
-                        cc::ScaleTo::create(0.1, 0.7),
-                        NULL));
-                }),
-                NULL
-            ));
-            actionMapHi->runAction(cc::Sequence::create(
-                cc::FadeOut::create(0.1),
-                cc::CallFunc::create([this](){
-                    actionMap->runAction(cc::Spawn::create(
-                        cc::MoveTo::create(0.1,
-                            actionSelection->getPosition() +
-                            actionMapPos.second),
-                        cc::ScaleTo::create(0.1, 0.7),
-                        NULL));
-                }),
-                NULL
-            ));
-            actionInventorize->runAction(cc::Sequence::create(
-                cc::Spawn::create(
-                    cc::MoveTo::create(0.1,
-                            actionSelection->getPosition() +
-                            actionInventorizePos.first),
-                    cc::ScaleTo::create(0.1, 1.0),
-                    NULL),
-                cc::CallFunc::create([this](){
-                    actionInventorizeHi->runAction(cc::FadeIn::create(0.5));
-                }),
-                NULL
-            ));
-            break;
-        default:
-            Log("invalid action mode");
-            return;
-    }
-
-    this->onSetActionMode(action);
-    this->currentAction = action;
-}
-
-ActionMode MissionInterface::getAction()
-{
-    return currentAction;
-}
-
-ActionMode MissionInterface::getNextAction()
-{
-    if (currentAction == ActionMode::map)
-        return ActionMode::team;
-    if (currentAction == ActionMode::team)
-        return ActionMode::inventorize;
-    return ActionMode::map;
-}
-
-ActionMode MissionInterface::getPrevAction()
-{
-    if (currentAction == ActionMode::inventorize)
-        return ActionMode::team;
-    if (currentAction == ActionMode::map)
-        return ActionMode::inventorize;
-    return ActionMode::map;
+    this->txtGoldAmount->setString(std::to_string(currency.quantity));
 }
 
 bool MissionInterface::init()
@@ -265,75 +68,70 @@ bool MissionInterface::init()
     
     auto pOrigin = cc::Director::getInstance()->getVisibleOrigin();
     auto pSize = cc::Director::getInstance()->getVisibleSize();
-    auto margin = def::canvasMissionMargin;
-    cc::Rect canvasRect = {pOrigin.x + margin.x,
-                           pOrigin.y + margin.w,
-                           pSize.width - margin.x - margin.y,
-                           pSize.height - margin.w - margin.z};
+    cc::Rect canvasRect = {pOrigin.x + def::canvasMissionMargin.x,
+                           pOrigin.y + def::canvasMissionMargin.w,
+                           pSize.width - def::canvasMissionMargin.x - def::canvasMissionMargin.y,
+                           pSize.height - def::canvasMissionMargin.w - def::canvasMissionMargin.z};
     
-    this->targetEnemy = cc::Sprite::createWithSpriteFrameName("target_e.png");
-    this->targetEnemy->setAnchorPoint({0,0});
-    this->targetEnemy->retain();
-    this->targetFriend = cc::Sprite::createWithSpriteFrameName("target_f.png");
-    this->targetFriend->setAnchorPoint({0,0});
-    this->targetFriend->retain();
+    this->entityStatusPosition.y = pOrigin.y + pSize.height - 80;
     
-    this->actionSelection = cc::ui::Scale9Sprite::createWithSpriteFrameName("alt_frame.png");
-    actionSelection->setAnchorPoint({0,0});
-    actionSelection->setPosition({pOrigin.x + 11, pOrigin.y + 190});
-    actionSelection->setContentSize({180,100});
-    this->addChild(actionSelection);
-    
-    this->actionTeam = cc::Sprite::createWithSpriteFrameName("mico_team.png");
-    this->actionTeam->setPosition(actionSelection->getPosition() + actionTeamPos.first);
-    this->currentAction = ActionMode::team;
-    this->addChild(actionTeam);
-    
-    this->actionTeamHi = cc::Sprite::createWithSpriteFrameName("mico_team_high.png");
-    this->actionTeamHi->setPosition(actionSelection->getPosition() + actionTeamPos.first);
-    this->addChild(actionTeamHi, actionTeam->getLocalZOrder() - 1);
-    
-    this->actionMap = cc::Sprite::createWithSpriteFrameName("mico_map.png");
-    this->actionMap->setPosition(actionSelection->getPosition() + actionMapPos.second);
-    this->actionMap->setScale(0.7);
-    this->addChild(actionMap);
-    
-    this->actionMapHi = cc::Sprite::createWithSpriteFrameName("mico_map_high.png");
-    this->actionMapHi->setPosition(actionSelection->getPosition() + actionMapPos.first);
-    this->actionMapHi->setOpacity(0);
-    this->addChild(actionMapHi, actionMap->getLocalZOrder() - 1);
-    
-    this->actionInventorize = cc::Sprite::createWithSpriteFrameName("mico_inventorize.png");
-    this->actionInventorize->setPosition(actionSelection->getPosition() + actionInventorizePos.second);
-    this->actionInventorize->setScale(0.7);
-    this->addChild(actionInventorize);
-    
-    this->actionInventorizeHi = cc::Sprite::createWithSpriteFrameName("mico_inventorize_high.png");
-    this->actionInventorizeHi->setPosition(actionSelection->getPosition() + actionInventorizePos.first);
-    this->actionInventorizeHi->setOpacity(0);
-    this->addChild(actionInventorizeHi, actionInventorize->getLocalZOrder() - 1);
+    auto fBorders = cc::ui::Scale9Sprite::createWithSpriteFrameName("main_frame.png");
+    fBorders->setAnchorPoint({0,0});
+    fBorders->setPosition(canvasRect.origin - cc::Point(6.0f,6.0f));
+    fBorders->setContentSize(canvasRect.size + cc::Size(12.0f,12.0f));
+    this->addChild(fBorders);
 
-    auto borders = cc::ui::Scale9Sprite::createWithSpriteFrameName("main_frame.png");
-    borders->setAnchorPoint({0,0});
-    borders->setPosition(canvasRect.origin - cc::Point(10.0f,10.0f));
-    borders->setContentSize(canvasRect.size + cc::Size(20.0f,20.0f));
-    this->addChild(borders);
-    
-    this->healthBar = HealthBar::create("bar", "health_full", "health_empty");
-    this->healthBar->setAnchorPoint({0,0});
-    this->healthBar->setPosition({15,600});
-    
-    this->addChild(this->healthBar);
+    this->actionPanel = cc::ui::Scale9Sprite::createWithSpriteFrameName("inv_panel.png");
+    this->actionPanel->setAnchorPoint({0,0});
+    this->actionPanel->setPosition(6,260);
+    this->actionPanel->setContentSize({def::canvasMissionMargin.x - 15, 200});
+    this->addChild(this->actionPanel);
 
-    this->inventoryPanel = cc::create<InventoryPanel>();
+    this->actionTitle = cc::Node::create();
+    this->actionTitle->setPosition({5, this->actionPanel->getContentSize().height - 5});
+    
+    auto invGold = cc::Sprite::createWithSpriteFrameName("inv_gold.png");
+    invGold->setAnchorPoint({1,1});
+    invGold->setPosition({155,55});
+
+    this->txtGoldAmount = cc::Label::createWithTTF("0", def::font::neutra, 18);
+    this->txtGoldAmount->setColor(cc::Color3B::YELLOW);
+    this->txtGoldAmount->setAnchorPoint({1,0.5});
+    this->txtGoldAmount->setPosition({135,47});
+
+    auto invTopic = cc::Sprite::createWithSpriteFrameName("button_panel_n.png");
+    invTopic->setAnchorPoint({0,0});
+    invTopic->setPosition({0,5});
+    
+    auto invPicto = cc::Sprite::createWithSpriteFrameName("inv_cat_bag.png");
+    invPicto->setAnchorPoint({0,0});
+    invPicto->setPosition({8, 11});
+    invTopic->addChild(invPicto);
+    
+    auto separator = cc::ui::Scale9Sprite::createWithSpriteFrameName("inv_sep.png");
+    separator->setPosition(82, 0);
+    separator->setContentSize({140,6});
+    
+    this->actionTitle->addChild(invGold);
+    this->actionTitle->addChild(txtGoldAmount);
+    this->actionTitle->addChild(invTopic);
+    this->actionTitle->addChild(separator);
+    
+    this->inventoryPanel = cc::create<InventoryPanel>(4);
     this->inventoryPanel->setAnchorPoint({0,0});
-    this->inventoryPanel->setPosition({pOrigin.x + 22.f, pOrigin.y + 300.f});
-    this->inventoryPanel->setOpacity(0);
-    this->addChild(inventoryPanel);
+    this->inventoryPanel->setPosition({8.f, 8.f});
+    this->actionPanel->addChild(inventoryPanel);
+    this->actionPanel->addChild(actionTitle);
     
     this->stick = cc::create<StickControl>("joy2.png", "joy1.png", 90, 30);
     this->stick->setPosition(pOrigin.x + 90, pOrigin.y + 90);
     this->addChild(this->stick);
+    
+    auto bHome = cc::ui::Button::create("button_home_n.png", "button_home_h.png",
+                                        "button_home_n.png", cc::ui::Widget::TextureResType::PLIST);
+    bHome->setAnchorPoint({0, 1});
+    bHome->setPosition({pOrigin.x + 5, pOrigin.y + pSize.height - 5});
+    this->addChild(bHome);
     
     //keyboard
     auto kListener = cc::EventListenerKeyboard::create();
@@ -345,26 +143,7 @@ bool MissionInterface::init()
         this->onKeyReleaseAction(code);
     };
     
-    auto tListener = cc::EventListenerTouchOneByOne::create();
-    tListener->setSwallowTouches(false);
-    
-    tListener->onTouchBegan = [this](cc::Touch* touch, cc::Event* event) {
-        if (this->getActionBounds().containsPoint(touch->getLocation()))
-            return true;
-        return false;
-    };
-    
-    tListener->onTouchEnded = [this](cc::Touch* touch, cc::Event* event) {
-        auto diff = touch->getLocation() - touch->getStartLocation();
-
-        if (diff.x < - 40)
-            this->setActionMode(this->getPrevAction());
-        else if (diff.x > 40)
-            this->setActionMode(this->getNextAction());
-    };
-    
     this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(kListener, this);
-    this->getEventDispatcher()->addEventListenerWithSceneGraphPriority(tListener, this);
     
     return true;
 }

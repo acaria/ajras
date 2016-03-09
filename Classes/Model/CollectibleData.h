@@ -15,5 +15,6 @@ struct CollectibleData
     //view
     std::string spriteFrameName;
     bool        spriteRotate;
+    bool        currency;
 };
 

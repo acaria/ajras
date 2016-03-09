@@ -11,7 +11,7 @@ bool DebugInfoLayer::init()
     panel->setPosition(0, wSize.height - 18);
     this->addChild(panel);
     
-    this->info = cc::Label::createWithTTF("", def::font::normal, 16);
+    this->info = cc::Label::createWithTTF("", def::font::romulus, 16);
     this->info->setAnchorPoint({0,0});
 
     panel->addChild(this->info);

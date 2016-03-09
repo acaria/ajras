@@ -5,13 +5,12 @@
 
 struct SlotData
 {
-    static bool checkFreeSlot(const std::list<SlotData>& inventory,
-                              CollectibleData* element);
-    static bool addCollectible(std::list<SlotData>& inventory,
-                               CollectibleData* element);
-
-
     unsigned            quantity;
     CollectibleData*    content;
 };
 
+struct SlotCurrency
+{
+    unsigned            quantity;
+    int                 stackability; //-1: unlimited
+};

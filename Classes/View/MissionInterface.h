@@ -3,6 +3,7 @@
 #include "Defines.h"
 #include "StickControl.h"
 #include "HealthBar.h"
+#include "EntityStatus.h"
 #include "InventoryPanel.h"
 #include "Event.h"
 
@@ -13,61 +14,33 @@ class MissionInterface : public cc::Node
 private:
     
 public:
-    MissionInterface();
-    virtual ~MissionInterface();
+    virtual ~MissionInterface() {}
     
     virtual bool init() override;
     
-    void        setTargetID(unsigned eid,
-                    bool friendly,
-                    cc::Sprite* container,
-                    cc::Point pos);
-    void        unsetTargetID(unsigned eid);
-    void        clearTarget();
-    
-    ActionMode  getAction();
-    ActionMode  getNextAction();
-    ActionMode  getPrevAction();
-    cc::Rect    getActionBounds();
-    
     //accessors
-    HealthBar*      getHealthBar();
-    InventoryPanel* getInventoryPanel();
     StickControl*   getStick();
     
     //events
     lib::Subject<void(KeyCode key)> onKeyPressAction;
     lib::Subject<void(KeyCode key)> onKeyReleaseAction;
-    lib::Subject<void(ActionMode)>    onSetActionMode;
     
-    void                            setActionMode(ActionMode action);
+    void addPlayerEntity(unsigned int eid, const std::string& profileName,
+                         float maxHealth, float maxStamina);
+    
+    void setInventoryList(SlotCurrency currency, std::list<SlotData> &list);
+    void updateInventorySlot(SlotData* slot);
+    void updateCurrencySlot(unsigned quantity);
     
 private:
-    cc::ui::Scale9Sprite*           actionSelection;
     
-    cc::Sprite*                     actionTeam;
-    cc::Sprite*                     actionTeamHi;
-    std::pair<cc::Point, cc::Point> actionTeamPos;
-    
-    cc::Sprite*                     actionMap;
-    cc::Sprite*                     actionMapHi;
-    std::pair<cc::Point, cc::Point> actionMapPos;
-    
-    cc::Sprite*                     actionInventorize;
-    cc::Sprite*                     actionInventorizeHi;
-    std::pair<cc::Point, cc::Point> actionInventorizePos;
-    
+    cc::Point entityStatusPosition = {8,0};
+    cc::ui::Scale9Sprite*           actionPanel;
+    cc::Node*                       actionTitle;
     InventoryPanel*                 inventoryPanel;
-    
-    void                            setActionPanel(ActionMode action);
-    
-    unsigned curTargetEntityID = 0;
-    cc::Sprite* targetEnemy;
-    cc::Sprite* targetFriend;
-    bool withTarget();
+    cc::Label*                      txtGoldAmount;
+    SlotCurrency                    currency;
     
     StickControl* stick;
-    HealthBar* healthBar;
-    
-    ActionMode currentAction;
+    std::map<unsigned, EntityStatus*> entityStatusMap;
 };

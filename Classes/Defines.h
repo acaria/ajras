@@ -68,7 +68,8 @@ namespace def {
     {
         const std::string mini = "fonts/04b03.ttf";
         const std::string mini2 = "fonts/04b11.ttf";
-        const std::string normal = "fonts/romulus.ttf";
+        const std::string romulus = "fonts/romulus.ttf";
+        const std::string neutra = "fonts/NeutraText-Book.otf";
     };
     
     //AI
@@ -207,7 +208,7 @@ namespace def {
         
         const Config defaultConfig = {
             .minScale = 0.8,
-            .maxScale = 3.0,
+            .maxScale = 2.0,
             .initScale = 1.0,
             .focusMargin = 50.0,
             .touchMoveControl = false,
@@ -215,14 +216,6 @@ namespace def {
         };
     }
 }
-
-enum class ActionMode
-{
-    none,
-    team,
-    map,
-    inventorize
-};
 
 enum class CtrlKeyType
 {

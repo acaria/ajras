@@ -1,0 +1,13 @@
+selector
+    sequence "attack"
+        action target mood opponent
+        until time 2.0
+            action movenear target 20.0
+        wait 1.0
+#    sequence "follow"
+#        action target player
+#        until time 10.0
+#            action movenear target 40.0
+#        wait 1.0
+    sequence "follow"
+        action follow team

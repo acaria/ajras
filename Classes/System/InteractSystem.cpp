@@ -54,8 +54,8 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             
             if (!ecs::has<cp::Gear>(eid))
                 return; //no rewards
-            auto& slots = ecs::get<cp::Gear>(eid);
-            if (slots.size() == 0)
+            auto& gear = ecs::get<cp::Gear>(eid);
+            if (gear.slots.size() == 0)
                 return; //empty
             
             //todo using action params
@@ -63,7 +63,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             
             //gen rewards
             float delay = 0;
-            for(auto slot : slots)
+            for(auto slot : gear.slots)
             {
                 auto nid = cp::entity::genID();
                 auto& cpCollec = context->ecs->add<cp::Collectible>(nid);
@@ -112,7 +112,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                 ));
                 delay += 0.2;
             }
-            slots.clear();
+            gear.slots.clear();
             
             break;
     }

@@ -8,17 +8,12 @@ class InventoryPanel : public cc::Node
 {
 public:
     virtual ~InventoryPanel() {}
-    virtual bool init();
-    void registerPlayer(unsigned eid, const std::list<SlotData>& list);
-    void updatePlayer(unsigned eid, const std::list<SlotData>& list);
+    virtual bool init(unsigned nbColumns);
+    void fill(std::list<SlotData>& list);
+    void update(SlotData* slot);
+    float getHeight();
     
 private:
-    struct Slot
-    {
-        unsigned quantity;
-        std::string frameName;
-        cc::Sprite* slot;
-    };
-    
-    std::map<unsigned, std::vector<Slot>> slotsByEntity;
+    std::map<SlotData*, cc::Sprite*> slots;
+    unsigned nbColumns;
 };

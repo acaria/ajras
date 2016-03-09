@@ -14,7 +14,7 @@ GameCtrl::GameCtrl():tick(std::bind(&GameCtrl::onTick, this, _1),
 {
 #if FOOTER_DEBUG
     logger.setLevelMask(LL_DEBUG | LL_INFO | LL_TRACE | LL_WARNING | LL_ERROR | LL_FATAL);
-    logger.setFontFile(def::font::normal);
+    logger.setFontFile(def::font::romulus);
     logger.setTimeoutSeconds(15);
     
     this->eventRegs.push_back(scene.onSceneChanged.registerObserver([this](EventScene* scene){

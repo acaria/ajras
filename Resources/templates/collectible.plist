@@ -8,8 +8,6 @@
 		<true/>
 		<key>currencyValue</key>
 		<integer>1</integer>
-		<key>stackability</key>
-		<integer>50</integer>
 		<key>spriteName</key>
 		<string>gold_1.png</string>
 		<key>spriteRotate</key>
@@ -21,8 +19,6 @@
 		<true/>
 		<key>currencyValue</key>
 		<integer>2</integer>
-		<key>stackability</key>
-		<integer>50</integer>
 		<key>spriteName</key>
 		<string>gold_2.png</string>
 		<key>spriteRotate</key>
@@ -34,8 +30,6 @@
 		<true/>
 		<key>currencyValue</key>
 		<integer>4</integer>
-		<key>stackability</key>
-		<integer>50</integer>
 		<key>spriteName</key>
 		<string>gold_3.png</string>
 		<key>spriteRotate</key>
@@ -47,8 +41,6 @@
 		<true/>
 		<key>currencyValue</key>
 		<integer>8</integer>
-		<key>stackability</key>
-		<integer>50</integer>
 		<key>spriteName</key>
 		<string>gold_4.png</string>
 		<key>spriteRotate</key>
@@ -60,8 +52,6 @@
 		<true/>
 		<key>currencyValue</key>
 		<integer>16</integer>
-		<key>stackability</key>
-		<integer>50</integer>
 		<key>spriteName</key>
 		<string>gold_5.png</string>
 		<key>spriteRotate</key>

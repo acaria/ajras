@@ -17,6 +17,9 @@ public:
     static float getDistSquared(unsigned eid1, unsigned eid2);
     static float getDist(unsigned eid1, unsigned eid2);
     
+    static SlotData* getAvailableSlot(unsigned agentID, CollectibleData* collectible);
+    static bool getCurrencyAvailable(unsigned agentID, CollectibleData* collectible);
+    
     static lib::Nullable<unsigned> getNearest(unsigned gid,unsigned eid,
                                               def::mood::Flags moodCat,
                                               float maxLength);

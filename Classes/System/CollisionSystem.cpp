@@ -112,17 +112,33 @@ void CollisionSystem::onFakeNodeCollision(unsigned eid, cc::Vec2 diff)
 
 void CollisionSystem::agentCollectResolution(unsigned eid, unsigned tid, cc::Vec2 diff)
 {
-    if (ecs::has<cp::Gear>(eid) && ecs::has<cp::Collectible>(tid))
+    if (!ecs::has<cp::Collectible>(tid))
+        return;
+    auto collectible = ModelProvider::instance()->collectible.get(ecs::get<cp::Collectible>(tid));
+    
+    bool triggerCollect = false;
+    if (collectible->currency)
     {
-        auto collectible = ModelProvider::instance()->collectible.get(ecs::get<cp::Collectible>(tid));
-        auto& cpGear = ecs::get<cp::Gear>(eid);
-        if (SlotData::checkFreeSlot(cpGear, collectible))
+        if (SysHelper::getCurrencyAvailable(eid, collectible))
         {
-            SlotData::addCollectible(cpGear, collectible);
-            ecs::get<cp::Render>(tid).sprite->removeFromParent();
-            cp::entity::remove(tid, context->ecs->getID());
-            dispatcher->onGearChanged(eid, cpGear);
+            dispatcher->onGearCurrencyChanged(eid, collectible->currencyValue);
+            triggerCollect = true;
         }
+    }
+    else
+    {
+        SlotData* slot = SysHelper::getAvailableSlot(eid, collectible);
+        if (slot != nullptr)
+        {
+            dispatcher->onGearSlotChanged(eid, slot);
+            triggerCollect = true;
+        }
+    }
+    
+    if (triggerCollect)
+    {
+        ecs::get<cp::Render>(tid).sprite->removeFromParent();
+        cp::entity::remove(tid, context->ecs->getID());
     }
 }
 

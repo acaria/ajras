@@ -25,12 +25,21 @@ bool MissionScene::init()
                            pSize.width - margin.x - margin.y,
                            pSize.height - margin.w - margin.z};
     
-    auto back = cc::LayerColor::create(def::bgColor);
-    this->addChild(back);
+    //auto back = cc::LayerColor::create(def::bgColor);
+    //this->addChild(back);
+    auto winSize = cc::Director::getInstance()->getVisibleSize();
+    auto winOrigin = cc::Director::getInstance()->getVisibleOrigin();
+    auto bg = cc::Sprite::createWithSpriteFrameName("main_bg.png");
+    float scale = MAX(winSize.width / bg->getContentSize().width,
+                      winSize.height / bg->getContentSize().height);
+    bg->setPosition(winOrigin);
+    bg->setAnchorPoint({0,0});
+    bg->setScale(scale);
+    this->addChild(bg);
 
     this->canvas = cc::ui::Layout::create();
     this->canvas->setBackGroundColorType(cc::ui::HBox::BackGroundColorType::SOLID);
-    this->canvas->setBackGroundColor(back->getColor());
+    //this->canvas->setBackGroundColor(def::bgColor);
     this->canvas->setLayoutType(cc::ui::Layout::Type::RELATIVE);
     this->canvas->setClippingEnabled(true);
     this->canvas->setPosition(canvasRect.origin);

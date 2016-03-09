@@ -136,6 +136,53 @@ void SysHelper::disableEntity(unsigned gid, unsigned int eid)
     ecs::get<cp::Input>(eid).enabled = false;
 }
 
+bool SysHelper::getCurrencyAvailable(unsigned agentID, CollectibleData* collectible)
+{
+    if (!ecs::has<cp::Gear>(agentID) || collectible == nullptr || !collectible->currency)
+        return false;
+    
+    auto& cpGear = ecs::get<cp::Gear>(agentID);
+    
+    if (cpGear.currency.stackability == -1 ||
+        (cpGear.currency.stackability - cpGear.currency.quantity) >= collectible->currencyValue)
+        return true;
+    return false;
+}
+
+SlotData* SysHelper::getAvailableSlot(unsigned agentID, CollectibleData* collectible)
+{
+    if (!ecs::has<cp::Gear>(agentID) || collectible == nullptr)
+        return nullptr;
+    
+    auto& cpGear = ecs::get<cp::Gear>(agentID);
+    
+    if (collectible->currency)
+        return nullptr; // no currency stored in slotData, use slotcurrency instead
+    
+    for(auto& slot : cpGear.slots)
+    {
+        if (slot.quantity == 0)
+            continue;
+        if (slot.content->key == collectible->key && slot.quantity < slot.content->stackability)
+        {
+            slot.quantity++;
+            return &slot;
+        }
+    }
+    
+    for(auto& slot : cpGear.slots)
+    {
+        if (slot.quantity == 0)
+        {
+            slot.quantity = 1;
+            slot.content = collectible;
+            return &slot;
+        }
+    }
+    
+    return nullptr;
+}
+
 unsigned SysHelper::createPlayerEntity(LayeredContainer* parent,
                                        unsigned group,
                                        cc::Vec2 srcPos,
@@ -164,7 +211,8 @@ unsigned SysHelper::createPlayerEntity(LayeredContainer* parent,
     else
         ecs::add<cp::AI>(eid, group).setProfile(profile);
         //ecs::add<cp::Control>(eid, group) = 2;
-    ecs::add<cp::Gear>(eid, group) = entity.inventory;
+    ecs::add<cp::Gear>(eid, group).slots = entity.inventory;
+    ecs::add<cp::Gear>(eid, group).currency = entity.currency;
     ecs::add<cp::Stamina>(eid, group).setProfile(profile);
     ecs::add<cp::Health>(eid, group).setProfile(profile);
     ecs::add<cp::Input>(eid, group);

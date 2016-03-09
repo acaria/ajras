@@ -46,18 +46,27 @@ void CollectibleModel::loadAll()
     for(auto row : rawData)
     {
         auto info = row.second.asValueMap();
+        
+        bool isCurrency = (info.find("isCurrency") != info.end()) ?
+                info.at("isCurrency").asBool() : false;
+    
+        unsigned stackability = (info.find("stackability") != info.end()) ?
+                info.at("stackability").asInt() : 0;
+        
+        bool spriteRotate = (info.find("spriteRotate") != info.end()) ?
+                info.at("spriteRotate").asBool() : false;
+        
         this->addModel({
             .key = row.first,
             .currencyValue = (unsigned)info.at("currencyValue").asInt(),
-            .stackability = (unsigned)info.at("stackability").asInt(),
+            .stackability = stackability,
             .spriteFrameName = info.at("spriteName").asString(),
-            .spriteRotate = info.at("spriteRotate").asBool()
+            .spriteRotate = spriteRotate,
+            .currency = isCurrency
         });
         
-        if (info.find("isCurrency") != info.end() && info.at("isCurrency").asBool())
-        {
+        if (isCurrency)
             this->currencyGroup.insert(row.first);
-        }
     }
     
     path = cc::FileUtils::getInstance()->fullPathForFilename("templates/reward.plist");

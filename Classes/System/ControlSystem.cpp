@@ -14,7 +14,6 @@ ControlSystem::ControlSystem(std::list<unsigned> indexes) {
         joyPos[index] = nullptr;
     }
     posSelection = nullptr;
-    actionSelection = nullptr;
 }
 
 void ControlSystem::init()
@@ -27,8 +26,6 @@ void ControlSystem::init()
         std::bind(&ControlSystem::setKeyPressDirection, this, _1, _2)));
     this->eventRegs.push_back(dispatcher->onKeyReleaseDirection.registerObserver(
         std::bind(&ControlSystem::setKeyReleaseDirection, this, _1, _2)));
-    this->eventRegs.push_back(dispatcher->onSelectionAction.registerObserver(
-        std::bind(&ControlSystem::setSelectionAction, this, _1)));
     this->eventRegs.push_back(dispatcher->onSelectionPos.registerObserver(
         std::bind(&ControlSystem::setSelectionPos, this, _1)));
 }
@@ -130,12 +127,6 @@ void ControlSystem::clearReleased()
     }
     
     this->posSelection = nullptr;
-    this->actionSelection = nullptr;
-}
-
-void ControlSystem::setSelectionAction(ActionMode mode)
-{
-    this->actionSelection = mode;
 }
 
 void ControlSystem::setSelectionPos(cc::Point p)

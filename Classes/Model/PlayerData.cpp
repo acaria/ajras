@@ -57,6 +57,9 @@ PlayerData* PlayerData::createDefault()
             {.quantity = 0, .content = nullptr},
             {.quantity = 0, .content = nullptr},
             {.quantity = 0, .content = nullptr}
+        },
+        .currency = {
+            .quantity = 0, .stackability = -1
         }
     });
     
@@ -72,6 +75,9 @@ PlayerData* PlayerData::createDefault()
         .inventory = {
             {.quantity = 0, .content = nullptr},
             {.quantity = 0, .content = nullptr},
+        },
+        .currency = {
+            .quantity = 0, .stackability = 0
         }
     });
     
@@ -85,6 +91,9 @@ PlayerData* PlayerData::createDefault()
         .inventory = {
             {.quantity = 0, .content = nullptr},
             {.quantity = 0, .content = nullptr},
+        },
+        .currency = {
+            .quantity = 0, .stackability = 0
         }
     });*/
     

@@ -10,6 +10,7 @@ struct PlayerEntity
     unsigned                        entityID;
     unsigned                        ctrlIndex;
     std::list<SlotData>             inventory;
+    SlotCurrency                    currency;
     TeamComponent                   team;
     unsigned                        health;
     unsigned                        stamina;

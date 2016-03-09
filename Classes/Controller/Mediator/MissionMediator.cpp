@@ -14,11 +14,16 @@ void MissionMediator::onAddView(MissionScene &scene)
     
     this->systemCtrl.load(scene.getCam(), scene.getFrame(), playerData, floorData);
     
-    if (playerData->entities.size() > 0) //take only the leader (first one)
+    for(auto entity : playerData->entities)
     {
-        auto playerEntity = playerData->entities.front();
-        scene.interface->getInventoryPanel()->registerPlayer(playerEntity.entityID,
-                                                             playerEntity.inventory);
+        if (entity.ctrlIndex != 0 && ecs::has<cp::Gear>(entity.entityID)) //controlled entity, let binds inventory panel
+        {
+            //caution bind only from components to keep good refs!!!
+            auto& gear = ecs::get<cp::Gear>(entity.entityID);
+            scene.interface->setInventoryList(gear.currency, /*refs*/gear.slots);
+        }
+        scene.interface->addPlayerEntity(entity.entityID, entity.profileName,
+                                         entity.health, entity.stamina);
     }
     
     //view events
@@ -68,13 +73,8 @@ void MissionMediator::registerDispatcher(MissionScene& scene)
             switch(pair.second)
             {
                 case CtrlKeyType::sel1:
-                    scene.interface->setActionMode(ActionMode::team);
-                    break;
                 case CtrlKeyType::sel2:
-                    scene.interface->setActionMode(ActionMode::inventorize);
-                    break;
                 case CtrlKeyType::sel3:
-                    scene.interface->setActionMode(ActionMode::map);
                     break;
                 case CtrlKeyType::down:
                 case CtrlKeyType::up:
@@ -105,11 +105,6 @@ void MissionMediator::registerDispatcher(MissionScene& scene)
         }
     }));
     
-    this->systemRegs.push_back(scene.interface->onSetActionMode.registerObserver(
-            [this, &dispatcher](ActionMode mode){
-        dispatcher.onSelectionAction(mode);
-    }));
-    
     this->systemRegs.push_back(scene.getCam()->onTouch.registerObserver(
             [this, &dispatcher, floorData](cc::Point pos){
         auto localPos = pos - floorData->getCurrentRoom()->getBounds().origin;
@@ -126,10 +121,6 @@ void MissionMediator::registerDispatcher(MissionScene& scene)
     //system events
     this->systemRegs.push_back(dispatcher.onHealthChanged.registerObserver(
         [this, &scene](unsigned int roomIndex, unsigned int eid, int health) {
-            if (health == 0)
-            {
-                scene.interface->unsetTargetID(eid);
-            }
             //if (eid == playerFocus->entityFocus)
             //{
             //    this->gView->interface->getHealthBar()->updateProperties(health);
@@ -153,12 +144,20 @@ void MissionMediator::registerDispatcher(MissionScene& scene)
             }
     }));
     
-    this->systemRegs.push_back(dispatcher.onGearChanged.registerObserver(
-        [this, playerData, &scene](unsigned eid, const cp::GearComponent& gear) {
-            if (playerData->getEntityFocusID() == eid)
-            {
-                scene.interface->getInventoryPanel()->updatePlayer(eid, gear);
-            }
+    this->systemRegs.push_back(dispatcher.onGearSlotChanged.registerObserver(
+            [this, playerData, &scene](unsigned eid, SlotData* slot) {
+        if (playerData->getEntityFocusID() == eid)
+        {
+            scene.interface->updateInventorySlot(slot);
+        }
+    }));
+    
+    this->systemRegs.push_back(dispatcher.onGearCurrencyChanged.registerObserver(
+            [this, playerData, &scene](unsigned eid, unsigned amount) {
+        if (playerData->getEntityFocusID() == eid)
+        {
+            scene.interface->updateCurrencySlot(amount);
+        }
     }));
 }
 

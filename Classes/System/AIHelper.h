@@ -57,6 +57,7 @@ public:
     
 private:
     behaviour::nState followPathFinding(unsigned eid, Properties& properties, float reachGoal);
+    void              updatePathFinding(unsigned eid, unsigned fid, cc::ValueVector& wayPoints);
     behaviour::nState keepTeamDistance(unsigned eid, unsigned leaderId,
                                        const std::set<unsigned>& teamIds, float distance);
     def::mood::Flags getMoodGroup(def::mood::Flags ref, const std::string& moodGroupCat);

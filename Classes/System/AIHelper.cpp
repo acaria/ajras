@@ -398,6 +398,62 @@ def::mood::Flags AIHelper::getMoodGroup(def::mood::Flags ref,
     return def::mood::Neutral;
 }
 
+void AIHelper::updatePathFinding(unsigned eid, unsigned fid, cc::ValueVector& wayPoints)
+{
+    auto& vMap2 = wayPoints.back().asValueMap();
+    cc::Point lastPos { vMap2["x"].asFloat(), vMap2["y"].asFloat() };
+    auto fBounds = SysHelper::getBounds(fid);
+    auto prevCoord = system->context->data->getCoordFromPos(lastPos);
+    auto newCoord = system->context->data->getCoordFromPos({fBounds.getMidX(),
+        fBounds.getMidY()});
+    if (prevCoord != newCoord)
+    {
+        auto tileSize = system->context->data->getTileSize();
+        cc::Point newPos = { newCoord.x * tileSize.width + tileSize.width / 2,
+            newCoord.y * tileSize.height + tileSize.height / 2};
+        
+        bool optimized = false;
+        
+        if (wayPoints.size() > 1)
+        {
+            auto vMap3 = wayPoints.at(wayPoints.size() - 2).asValueMap();
+            auto prevprevCoord = system->context->data->getCoordFromPos(
+                    {vMap3["x"].asFloat(), vMap3["y"].asFloat() });
+            lib::v2i diff = {(int)newCoord.x - (int)prevprevCoord.x,
+                             (int)newCoord.y - (int)prevprevCoord.y};
+            //optimize diagonals
+            if (!optimized && abs(diff.x) == abs(diff.y) && abs(diff.x) == 1)
+            {
+                auto& cpPhy = ecs::get<cp::Physics>(eid);
+                auto col = system->context->data->getCol();
+                //lets check the 4th case
+                auto gBounds = cc::Rect(
+                    MIN(MIN(newPos.x, vMap2["x"].asFloat()), vMap3["x"].asFloat()),
+                    MIN(MIN(newPos.y, vMap2["y"].asFloat()), vMap3["y"].asFloat()),
+                    tileSize.width, tileSize.height);
+                if (!col->checkCollisionRect(gBounds, cpPhy.category))
+                {
+                    optimized = true;
+                    wayPoints.pop_back();
+                }
+            }
+            
+            //optimize backs
+            if (!optimized && prevprevCoord.x == newCoord.x && prevprevCoord.y == newCoord.y)
+            {
+                optimized = true;
+                wayPoints.pop_back();
+                wayPoints.pop_back();
+            }
+        }
+        
+        //add a step to reach new pos of followed entity
+        wayPoints.push_back(cc::Value(cc::ValueMap{
+            {"x", cc::Value((float)newPos.x)},
+            {"y", cc::Value((float)newPos.y)}}));
+    }
+}
+
 behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properties, float reachGoal)
 {
     assert(properties.find("waypoints") != properties.end());
@@ -423,22 +479,7 @@ behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properti
     
     if (properties.find("followedId") != properties.end())
     {
-        auto& vMap2 = wayPoints.back().asValueMap();
-        cc::Point lastPos { vMap2["x"].asFloat(), vMap2["y"].asFloat() };
-        auto fBounds = SysHelper::getBounds(properties["followedId"].asInt());
-        auto prevCoord = system->context->data->getCoordFromPos(lastPos);
-        auto newCoord = system->context->data->getCoordFromPos({fBounds.getMidX(),
-                                                                fBounds.getMidY()});
-        if (prevCoord != newCoord)
-        {
-            auto tileSize = system->context->data->getTileSize();
-            cc::Point newPos = { newCoord.x * tileSize.width + tileSize.width / 2,
-            newCoord.y * tileSize.height + tileSize.height / 2};
-            //add a step to reach new pos of followed entity
-            wayPoints.push_back(cc::Value(cc::ValueMap{
-                {"x", cc::Value((int)newPos.x)},
-                {"y", cc::Value((int)newPos.y)}}));
-        }
+        this->updatePathFinding(eid, properties["followedId"].asInt(), wayPoints);
     }
     
     cc::Vec2 vdir { destPos.x - bounds.getMidX(), destPos.y - bounds.getMidY() };

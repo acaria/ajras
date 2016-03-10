@@ -220,7 +220,7 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         const std::vector<std::string>& params, Properties& properties)
 {
     const float minDistFollow = 30.0;
-    const float minKeepDistance = 20.0;
+    const float minKeepDistance = 15.0;
     
     assert(params.size() == 1); //params=[category]
     
@@ -487,9 +487,9 @@ behaviour::nState AIHelper::keepTeamDistance(unsigned eid, unsigned leaderId,
         if (length < distance)
         {
             cc::Vec2 unit = diff.getNormalized();
-            ecs::get<cp::Physics>(eid).addImpact(length, 3.0, -unit, 0.15);
+            ecs::get<cp::Physics>(eid).addImpact(length * 2, 6.0, -unit, 0.15);
             if (teamId != leaderId)
-                ecs::get<cp::Physics>(teamId).addImpact(length, 3.0, unit, 0.15);
+                ecs::get<cp::Physics>(teamId).addImpact(length * 2, 6.0, unit, 0.15);
             resultState = state::RUNNING;
         }
     }

@@ -203,8 +203,8 @@ void CollisionSystem::agentObstacleResolution(unsigned eid, unsigned tid, cc::Ve
 void CollisionSystem::agentTeamResolution(unsigned eid, unsigned tid, cc::Vec2 diff)
 {
     cc::Vec2 unit = diff.getNormalized();
-    ecs::get<cp::Physics>(eid).setImpact(diff.getLength(), 3, unit, 0.15);
-    ecs::get<cp::Physics>(tid).setImpact(diff.getLength(), 3, -unit, 0.15);
+    ecs::get<cp::Physics>(eid).setImpact(diff.getLength() * 6, 8, unit, 0.15);
+    ecs::get<cp::Physics>(tid).setImpact(diff.getLength() * 6, 8, -unit, 0.15);
 }
 
 void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff)

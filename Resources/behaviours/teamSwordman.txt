@@ -10,4 +10,5 @@ selector
 #            action movenear target 40.0
 #        wait 1.0
     sequence "follow"
+        action target player
         action follow team

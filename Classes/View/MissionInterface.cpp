@@ -46,6 +46,22 @@ void MissionInterface::setInventoryList(SlotCurrency currency, std::list<SlotDat
     this->actionTitle->setPosition({5, newHeight + 18});
 }
 
+void MissionInterface::updateHealthStatus(unsigned eid, float amount)
+{
+    if (entityStatusMap.find(eid) != entityStatusMap.end())
+    {
+        entityStatusMap[eid]->setHealth(amount);
+    }
+}
+
+void MissionInterface::updateStaminaStatus(unsigned eid, float amount)
+{
+    if (entityStatusMap.find(eid) != entityStatusMap.end())
+    {
+        entityStatusMap[eid]->setStamina(amount);
+    }
+}
+
 void MissionInterface::updateInventorySlot(SlotData* slot)
 {
     this->inventoryPanel->update(slot);

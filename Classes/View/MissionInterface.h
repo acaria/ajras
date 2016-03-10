@@ -31,6 +31,8 @@ public:
     void setInventoryList(SlotCurrency currency, std::list<SlotData> &list);
     void updateInventorySlot(SlotData* slot);
     void updateCurrencySlot(unsigned quantity);
+    void updateHealthStatus(unsigned eid, float amount);
+    void updateStaminaStatus(unsigned eid, float amount);
     
 private:
     

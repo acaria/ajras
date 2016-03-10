@@ -28,7 +28,8 @@ struct SystemDispatcher
     lib::Subject<void(cc::Point)>                                 onSelectionPos;
     
     //system
-    lib::Subject<void(unsigned, unsigned, int)>                   onHealthChanged;
+    lib::Subject<void(unsigned, unsigned, float)>                 onHealthChanged;
+    lib::Subject<void(unsigned, unsigned, float)>                 onStaminaChanged;
     lib::Subject<void(unsigned, unsigned, GateMap)>               onGateEnter;
     lib::Subject<void(unsigned, unsigned, GateMap)>               onGateTriggered;
     lib::Subject<void(unsigned, WarpMap)>                         onWarpTriggered;

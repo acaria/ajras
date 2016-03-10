@@ -8,23 +8,25 @@ void EntityStatus::set(float curHealth, float curStamina)
 
 void EntityStatus::setHealth(float current)
 {
+    current = MAX(0, current);
     if (current != this->currentHealth)
     {
         this->currentHealth = current;
 
-        float width = current / maxHealth * barHealthHeight;
-        this->healthBar->setContentSize({width, barHealthHeight});
+        float width = current / maxHealth * barWidth;
+        this->healthBar->setContentSize({MAX(6, width), barHealthHeight});
     }
 }
 
 void EntityStatus::setStamina(float current)
 {
+    current = MAX(0, current);
     if (current != this->currentStamina)
     {
         this->currentStamina = current;
         
-        float width = current / maxStamina * barStaminaHeight;
-        this->staminaBar->setContentSize({width, barStaminaHeight});
+        float width = current / maxStamina * barWidth;
+        this->staminaBar->setContentSize({MAX(6, width), barStaminaHeight});
     }
 }
 

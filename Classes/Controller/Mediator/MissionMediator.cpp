@@ -120,11 +120,13 @@ void MissionMediator::registerDispatcher(MissionScene& scene)
     
     //system events
     this->systemRegs.push_back(dispatcher.onHealthChanged.registerObserver(
-        [this, &scene](unsigned int roomIndex, unsigned int eid, int health) {
-            //if (eid == playerFocus->entityFocus)
-            //{
-            //    this->gView->interface->getHealthBar()->updateProperties(health);
-            //}
+        [&scene](unsigned roomIndex, unsigned int eid, float health) {
+            scene.interface->updateHealthStatus(eid, health);
+    }));
+    
+    this->systemRegs.push_back(dispatcher.onStaminaChanged.registerObserver(
+        [&scene](unsigned roomIndex, unsigned int eid, float stamina) {
+            scene.interface->updateStaminaStatus(eid, stamina);
     }));
     
     this->systemRegs.push_back(dispatcher.onGateTriggered.registerObserver(

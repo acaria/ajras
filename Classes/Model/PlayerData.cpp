@@ -60,7 +60,9 @@ PlayerData* PlayerData::createDefault()
         },
         .currency = {
             .quantity = 0, .stackability = -1
-        }
+        },
+        .health = 5,
+        .stamina = 100
     });
     
     //troops
@@ -78,7 +80,9 @@ PlayerData* PlayerData::createDefault()
         },
         .currency = {
             .quantity = 0, .stackability = 0
-        }
+        },
+        .health = 5,
+        .stamina = 100
     });
     
     /*result->entities.push_back({
@@ -94,7 +98,9 @@ PlayerData* PlayerData::createDefault()
         },
         .currency = {
             .quantity = 0, .stackability = 0
-        }
+        },
+        .health = 5,
+        .stamina = 100
     });*/
     
     return result;

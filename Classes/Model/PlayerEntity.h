@@ -12,6 +12,6 @@ struct PlayerEntity
     std::list<SlotData>             inventory;
     SlotCurrency                    currency;
     TeamComponent                   team;
-    unsigned                        health;
-    unsigned                        stamina;
+    float                           health;
+    float                           stamina;
 };

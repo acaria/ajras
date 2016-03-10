@@ -79,6 +79,7 @@ void UpdaterSystem::tick(double dt)
         if (cpStamina.current < cpStamina.max)
         {
             cpStamina.current += cpStamina.recovery * dt;
+            dispatcher->onStaminaChanged(context->ecs->getID(), eid, cpStamina.current);
             if (cpStamina.current > cpStamina.max)
                 cpStamina.current = cpStamina.max;
         }
@@ -93,6 +94,7 @@ void UpdaterSystem::tick(double dt)
         if (cpHealth.damage > 0)
         {
             cpHealth.hp -= cpHealth.damage;
+            dispatcher->onHealthChanged(context->ecs->getID(), eid, cpHealth.hp);
             cpHealth.damage = 0;
             
             if (cpHealth.hp <= 0)

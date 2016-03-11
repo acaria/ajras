@@ -599,26 +599,31 @@ void FloorSystemCtrl::loadEntities()
         //load player entities
         std::list<unsigned> eids;
         float delay = 0;
+        unsigned count = playerData->entities.size();
         for(auto& playerEntity : playerData->entities)
         {
-            auto onSuccess = [this, playerEntity, roomIndex, enterGate](){
+            count--;
+            auto onSuccess = [this, playerEntity, roomIndex, enterGate, count](){
                 this->showEntityFromGate(roomIndex, playerEntity.entityID, enterGate,
                         def::anim::showEntityFromGateDuration,
-                        [this, enterGate, roomIndex, playerEntity](){
+                        [this, enterGate, roomIndex, playerEntity, count](){
                     if (playerData->entities.size() > 0)
                     {
                         auto dir = this->transitInfo.deployTeamUnit(enterGate,
                             playerEntity.team.formation, playerEntity.team.position);
-                        CmdFactory::at(roomIndex, playerEntity.entityID).goBy(-dir);
+                        std::function<void()> onAfter = nullptr;
+                        if (count == 0)
+                            onAfter = [this, playerEntity, roomIndex](){
+                                this->dispatcher.onSystemReady(roomIndex);
+                        };
+                        CmdFactory::at(roomIndex, playerEntity.entityID,
+                                       onAfter, onAfter).goBy(-dir);
                     }
                 });
             };
             CmdFactory::at(context.ecs, playerData->getEntityFocusID(), onSuccess).delay(delay);
             delay += def::anim::teamReadyEntityDelay;
         }
-        CmdFactory::at(context.ecs, playerData->getEntityFocusID(), [this, roomIndex](){
-            this->dispatcher.onSystemReady(roomIndex);
-        }).delay(delay);
     });
     
     //create player entities

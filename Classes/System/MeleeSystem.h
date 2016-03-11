@@ -15,6 +15,8 @@ public:
     void tick(double dt) final;
     void animate(double dt, double tickPercent) final {}
     
+    virtual void init() override;
+    
 private:
 
     struct blinkAnim

@@ -8,6 +8,17 @@
 #include "CocosHelper.h"
 #include "CmdFactory.h"
 
+void MeleeSystem::init()
+{
+    this->eventRegs.push_back(this->dispatcher->onEntityDeath.registerObserver(
+            [](unsigned gid, unsigned eid){
+        if (ecs::has<cp::Melee>(eid))
+            ecs::get<cp::Melee>(eid).enabled = false;
+        if (ecs::has<cp::Cmd>(eid))
+            ecs::get<cp::Cmd>(eid).askRemoveAll();
+    }));
+}
+
 void MeleeSystem::tick(double dt)
 {
     std::list<std::list<std::pair<unsigned, unsigned>>> meleeListGroup;
@@ -243,7 +254,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
         
             CmdFactory::at(context->ecs, oid, [this, oid]() {
                 this->setEntityAvailability(oid, true);
-            }).delay(0.3);
+            }).delay(0.15);
         }),
         NULL
     );

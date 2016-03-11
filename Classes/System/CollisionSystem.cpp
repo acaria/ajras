@@ -217,8 +217,6 @@ void CollisionSystem::agentTeamResolution(unsigned eid, unsigned tid, cc::Vec2 d
 
 void CollisionSystem::onAgentCollision(unsigned eid, unsigned tid, cc::Vec2 diff)
 {
-    
-    
     if (collisionData->agents[tid].category == def::collision::Cat::collectible)
     {
         this->agentCollectResolution(eid, tid, diff);

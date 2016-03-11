@@ -99,6 +99,7 @@ void UpdaterSystem::tick(double dt)
             
             if (cpHealth.hp <= 0)
             {
+                dispatcher->onEntityDeath(context->ecs->getID(), eid);
                 if (ecs::has<cp::Input>(eid))
                     ecs::get<cp::Input>(eid).enabled = false;
                 cpRender.sprite->stopAllActions();

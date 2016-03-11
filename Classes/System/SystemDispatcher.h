@@ -15,6 +15,7 @@ struct SystemDispatcher
     lib::Subject<void(unsigned, unsigned)>                        onEntityAdded;
     lib::Subject<void(unsigned, unsigned)>                        onEntityDeleted;
     lib::Subject<void(unsigned, unsigned)>                        onEntityMoved;
+    lib::Subject<void(unsigned, unsigned)>                        onEntityDeath;
     lib::Subject<void(unsigned, unsigned, const cc::Rect&)>       onFakeAgentRectAdded;
     lib::Subject<void(unsigned, unsigned)>                        onFakeAgentRectRemoved;
     lib::Subject<void(unsigned, cc::Node*, const cc::Rect&)>      onFakeAgentNodeAdded;

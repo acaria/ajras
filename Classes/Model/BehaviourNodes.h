@@ -1,5 +1,6 @@
 #pragma once
 #include "CoreLib.h"
+#include "ValueEx.h"
 
 namespace behaviour
 {
@@ -29,10 +30,10 @@ namespace behaviour
             fields[id].clear();
         }
         
-        std::map<std::string, cc::Value>& getFields(unsigned id)
+        std::map<std::string, lib::ValueEx>& getFields(unsigned id)
         {
             if (fields.find(id) == fields.end())
-                fields[id] = std::map<std::string, cc::Value>();
+                fields[id] = std::map<std::string, lib::ValueEx>();
             return fields[id];
         }
         
@@ -45,7 +46,7 @@ namespace behaviour
         std::string lastAction = "";
         
     private:
-        std::map<unsigned, std::map<std::string, cc::Value>> fields;
+        std::map<unsigned, std::map<std::string, lib::ValueEx>> fields;
     };
 
     struct BaseNode

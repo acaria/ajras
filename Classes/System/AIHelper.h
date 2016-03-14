@@ -2,6 +2,7 @@
 
 #include "BehaviourNodes.h"
 #include "Defines.h"
+#include "ValueEx.h"
 
 class AISystem;
 
@@ -10,7 +11,7 @@ class AIHelper
 public:
     AIHelper(AISystem* system);
 
-    using Properties = std::map<std::string, cc::Value>;
+    using Properties = std::map<std::string, lib::ValueEx>;
     using state = behaviour::nState;
 
     behaviour::nState checkNearMood(unsigned eid, float sight,
@@ -57,7 +58,7 @@ public:
     
 private:
     behaviour::nState followPathFinding(unsigned eid, Properties& properties, float reachGoal);
-    void              updatePathFinding(unsigned eid, unsigned fid, cc::ValueVector& wayPoints);
+    void              updatePathFinding(unsigned eid, unsigned fid, lib::ValueExVector& wayPoints);
     behaviour::nState keepTeamDistance(unsigned eid, unsigned leaderId,
                                        const std::set<unsigned>& teamIds, float distance);
     def::mood::Flags getMoodGroup(def::mood::Flags ref, const std::string& moodGroupCat);

@@ -145,10 +145,9 @@ behaviour::nState AIHelper::execMoveToRand(unsigned eid,
             {
                 ecs::get<cp::Debug>(eid).wayPoints = wayPoints;
 
-                cc::ValueVector wayPointsVec = linq::from(wayPoints) >>
+                lib::ValueExVector wayPointsVec = linq::from(wayPoints) >>
                     linq::select([](cc::Point coord) {
-                        return cc::Value(cc::ValueMap{{"x", cc::Value((int)coord.x)},
-                                                      {"y", cc::Value((int)coord.y)}});
+                        return lib::ValueEx(lib::ValueEx(coord));
                 }) >> linq::to_vector();
 
                 properties["waypoints"] = wayPointsVec;
@@ -198,8 +197,8 @@ behaviour::nState AIHelper::execMoveToSleepZone(unsigned eid,
                 (sleepZone->bounds.getMidX() - bounds.size.width / 2) - shape.origin.x,
                 (sleepZone->bounds.getMidY() - bounds.size.height / 2) - shape.origin.y
             };
-            properties["target"] = cc::ValueMap{{"x", cc::Value((int)pos.x)},
-                                                {"y", cc::Value((int)pos.y)}};
+            properties["target"] = lib::ValueExMap{{"x", lib::ValueEx((int)pos.x)},
+                                                   {"y", lib::ValueEx((int)pos.y)}};
         }
         
         auto& cpInput = ecs::get<cp::Input>(eid);
@@ -291,10 +290,9 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
     if (wayPoints.size() > 0)
     {
         ecs::get<cp::Debug>(eid).wayPoints = wayPoints;
-        cc::ValueVector wayPointsVec = linq::from(wayPoints) >>
-                linq::select([](cc::Point coord) {
-            return cc::Value(cc::ValueMap{{"x", cc::Value((int)coord.x)},
-                                          {"y", cc::Value((int)coord.y)}});
+        lib::ValueExVector wayPointsVec = linq::from(wayPoints) >>
+                linq::select([](cc::Point pos) {
+            return lib::ValueEx(pos);
         }) >> linq::to_vector();
         
         properties["waypoints"] = wayPointsVec;
@@ -332,10 +330,9 @@ behaviour::nState AIHelper::execMoveNearTarget(unsigned eid,
     if (wayPoints.size() > 0)
     {
         ecs::get<cp::Debug>(eid).wayPoints = wayPoints;
-        cc::ValueVector wayPointsVec = linq::from(wayPoints) >>
+        lib::ValueExVector wayPointsVec = linq::from(wayPoints) >>
             linq::select([](cc::Point coord) {
-                return cc::Value(cc::ValueMap{{"x", cc::Value((int)coord.x)},
-                                              {"y", cc::Value((int)coord.y)}});
+                return lib::ValueEx(coord);
             }) >> linq::to_vector();
                 
             properties["waypoints"] = wayPointsVec;
@@ -398,10 +395,9 @@ def::mood::Flags AIHelper::getMoodGroup(def::mood::Flags ref,
     return def::mood::Neutral;
 }
 
-void AIHelper::updatePathFinding(unsigned eid, unsigned fid, cc::ValueVector& wayPoints)
+void AIHelper::updatePathFinding(unsigned eid, unsigned fid, lib::ValueExVector& wayPoints)
 {
-    auto& vMap2 = wayPoints.back().asValueMap();
-    cc::Point lastPos { vMap2["x"].asFloat(), vMap2["y"].asFloat() };
+    cc::Point lastPos = wayPoints.back().asPoint();
     auto fBounds = SysHelper::getBounds(fid);
     auto prevCoord = system->context->data->getCoordFromPos(lastPos);
     auto newCoord = system->context->data->getCoordFromPos({fBounds.getMidX(),
@@ -416,9 +412,8 @@ void AIHelper::updatePathFinding(unsigned eid, unsigned fid, cc::ValueVector& wa
         
         if (wayPoints.size() > 1)
         {
-            auto vMap3 = wayPoints.at(wayPoints.size() - 2).asValueMap();
-            auto prevprevCoord = system->context->data->getCoordFromPos(
-                    {vMap3["x"].asFloat(), vMap3["y"].asFloat() });
+            auto pMap3 = wayPoints.at(wayPoints.size() - 2).asPoint();
+            auto prevprevCoord = system->context->data->getCoordFromPos(pMap3);
             lib::v2i diff = {(int)newCoord.x - (int)prevprevCoord.x,
                              (int)newCoord.y - (int)prevprevCoord.y};
             //optimize diagonals
@@ -428,8 +423,8 @@ void AIHelper::updatePathFinding(unsigned eid, unsigned fid, cc::ValueVector& wa
                 auto col = system->context->data->getCol();
                 //lets check the 4th case
                 auto gBounds = cc::Rect(
-                    MIN(MIN(newPos.x, vMap2["x"].asFloat()), vMap3["x"].asFloat()),
-                    MIN(MIN(newPos.y, vMap2["y"].asFloat()), vMap3["y"].asFloat()),
+                    MIN(MIN(newPos.x, lastPos.x), pMap3.x),
+                    MIN(MIN(newPos.y, lastPos.y), pMap3.y),
                     tileSize.width, tileSize.height);
                 if (!col->checkCollisionRect(gBounds, cpPhy.category))
                 {
@@ -448,16 +443,14 @@ void AIHelper::updatePathFinding(unsigned eid, unsigned fid, cc::ValueVector& wa
         }
         
         //add a step to reach new pos of followed entity
-        wayPoints.push_back(cc::Value(cc::ValueMap{
-            {"x", cc::Value((float)newPos.x)},
-            {"y", cc::Value((float)newPos.y)}}));
+        wayPoints.push_back(lib::ValueEx(newPos));
     }
 }
 
 behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properties, float reachGoal)
 {
     assert(properties.find("waypoints") != properties.end());
-    auto& wayPoints = properties["waypoints"].asValueVector();
+    auto& wayPoints = properties["waypoints"].asValueExVector();
     
     if (wayPoints.size() == 0)
     {
@@ -472,8 +465,7 @@ behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properti
         return state::FAILURE;
     }
     
-    auto& vMap = wayPoints.front().asValueMap();
-    cc::Point destPos { vMap["x"].asFloat(), vMap["y"].asFloat() };
+    cc::Point destPos = wayPoints.front().asPoint();
     
     auto bounds = SysHelper::getBounds(eid);
     
@@ -491,9 +483,7 @@ behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properti
         std::list<cc::Point> wDebug;
         for (auto step : wayPoints)
         {
-            auto& vMap = step.asValueMap();
-            cc::Point stepPos { vMap["x"].asFloat(), vMap["y"].asFloat() };
-            wDebug.push_back(stepPos);
+            wDebug.push_back(step.asPoint());
         }
         ecs::get<cp::Debug>(eid).wayPoints = wDebug;
     }

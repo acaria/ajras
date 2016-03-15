@@ -42,7 +42,9 @@ behaviour::nState AIHelper::checkTime(unsigned eid, double dt,
 {
     assert(params.size() == 1); //params=[timer]
     if (!lib::hasKey(properties, "timer"))
+    {
         properties["timer"] = std::stod(params[0]);
+    }
     if (properties["timer"].asDouble() <= 0)
     {
         //timeout
@@ -229,15 +231,15 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         return state::FAILURE;
     
     //if too close from target, stop following
-    if ((properties.find("leaderId") != properties.end()))
+    if ((properties.find("targetId") != properties.end()))
     {
-        auto leaderId = properties["leaderId"].asInt();
-        if (!ecs::has<cp::Position, cp::Physics>(leaderId))
+        auto targetId = properties["targetId"].asInt();
+        if (!ecs::has<cp::Position, cp::Physics>(targetId))
             return state::FAILURE;
-        if (SysHelper::getDistSquared(eid, leaderId) < (minDistFollow * minDistFollow))
+        if (SysHelper::getDistSquared(eid, targetId) < (minDistFollow * minDistFollow))
         {
             auto teamIds = SysHelper::findTeamIds(gid, ecs::get<cp::Team>(eid).index);
-            return this->keepTeamDistance(eid, leaderId, teamIds, minKeepDistance);
+            return this->keepTeamDistance(eid, teamIds, minKeepDistance);
         }
     }
 
@@ -247,11 +249,11 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         auto state = this->followPathFinding(eid, properties, 2);
         
         //keep distance between team entities
-        auto leaderId = properties["leaderId"].asInt();
-        if (state == state::RUNNING && ecs::has<cp::Team>(eid) && eid != leaderId)
+        auto targetId = properties["targetId"].asInt();
+        if (state == state::RUNNING && ecs::has<cp::Team>(eid) && eid != targetId)
         {
             auto teamIds = SysHelper::findTeamIds(gid, ecs::get<cp::Team>(eid).index);
-            this->keepTeamDistance(eid, leaderId, teamIds, minKeepDistance);
+            this->keepTeamDistance(eid, teamIds, minKeepDistance);
         }
         
         return state;
@@ -272,8 +274,7 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
     if (!ecs::has<cp::Trail>(leaderId) || ecs::get<cp::Trail>(leaderId).tail.size() == 0)
         return state::FAILURE;
     
-    properties["leaderId"] = (int)leaderId;
-    properties["followedId"] = (int)leaderId;
+    properties["targetId"] = lib::ValueEx((int)leaderId);
     
     if (SysHelper::getDistSquared(eid, leaderId) < minDistFollow)
     {
@@ -469,9 +470,9 @@ behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properti
     
     auto bounds = SysHelper::getBounds(eid);
     
-    if (properties.find("followedId") != properties.end())
+    if (properties.find("targetId") != properties.end())
     {
-        this->updatePathFinding(eid, properties["followedId"].asInt(), wayPoints);
+        this->updatePathFinding(eid, properties["targetId"].asInt(), wayPoints);
     }
     
     cc::Vec2 vdir { destPos.x - bounds.getMidX(), destPos.y - bounds.getMidY() };
@@ -495,10 +496,10 @@ behaviour::nState AIHelper::followPathFinding(unsigned eid, Properties& properti
     return state::RUNNING;
 }
 
-behaviour::nState AIHelper::keepTeamDistance(unsigned eid, unsigned leaderId,
+behaviour::nState AIHelper::keepTeamDistance(unsigned eid,
                                              const std::set<unsigned>& teamIds, float distance)
 {
-    if (!ecs::has<cp::Team>(eid) || eid == leaderId)
+    if (!ecs::has<cp::Team>(eid))
         return state::SUCCESS;
     
     state resultState = state::SUCCESS;
@@ -509,6 +510,7 @@ behaviour::nState AIHelper::keepTeamDistance(unsigned eid, unsigned leaderId,
         if (!ecs::has<cp::Position, cp::Physics, cp::Team>(eid) ||
             !ecs::has<cp::Position, cp::Physics, cp::Team>(teamId))
             return state::FAILURE;
+        
         auto bounds1 = SysHelper::getBounds(eid);
         auto bounds2 = SysHelper::getBounds(teamId);
         
@@ -517,10 +519,15 @@ behaviour::nState AIHelper::keepTeamDistance(unsigned eid, unsigned leaderId,
         auto length = diff.getLength();
         if (length < distance)
         {
+            auto& cpTeamRef = ecs::get<cp::Team>(eid);
+            auto& cpTeamCur = ecs::get<cp::Team>(teamId);
+            
             cc::Vec2 unit = diff.getNormalized();
-            ecs::get<cp::Physics>(eid).addImpact(length * 2, 6.0, -unit, 0.15);
-            if (teamId != leaderId)
-                ecs::get<cp::Physics>(teamId).addImpact(length * 2, 6.0, unit, 0.15);
+
+            if (cpTeamRef.position > cpTeamCur.position)
+                ecs::get<cp::Physics>(eid).addImpact(length * 2, 12.0, -unit, 0.15);
+            else
+                ecs::get<cp::Physics>(teamId).addImpact(length * 2, 12.0, unit, 0.15);
             resultState = state::RUNNING;
         }
     }

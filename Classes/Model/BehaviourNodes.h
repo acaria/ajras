@@ -1,6 +1,8 @@
 #pragma once
 #include "CoreLib.h"
 #include "ValueEx.h"
+#include "Variant.h"
+#include "BehaviourInfo.h"
 
 namespace behaviour
 {
@@ -30,10 +32,10 @@ namespace behaviour
             fields[id].clear();
         }
         
-        std::map<std::string, lib::ValueEx>& getFields(unsigned id)
+        Properties& getFields(unsigned id)
         {
             if (fields.find(id) == fields.end())
-                fields[id] = std::map<std::string, lib::ValueEx>();
+                fields[id] = Properties();
             return fields[id];
         }
         
@@ -46,7 +48,7 @@ namespace behaviour
         std::string lastAction = "";
         
     private:
-        std::map<unsigned, std::map<std::string, lib::ValueEx>> fields;
+        std::map<unsigned, Properties> fields;
     };
 
     struct BaseNode
@@ -299,15 +301,17 @@ namespace behaviour
             
             auto &properties = board.getFields(this->id);
             if (!lib::hasKey(properties, "timer"))
-                properties["timer"] = std::stod(this->name);
-            if (properties["timer"].asDouble() <= 0)
+            {
+                addProperty(properties, "timer").set<double>(std::stod(this->name));
+            }
+            if (properties["timer"].get<double>() <= 0)
             {
                 //timeout
                 board.states[this->id] = SUCCESS;
                 properties.erase("timer");
                 return SUCCESS;
             }
-            properties["timer"] = properties["timer"].asDouble() - dt;
+            properties["timer"].get<double>() -= dt;
             return RUNNING;
         }
     };

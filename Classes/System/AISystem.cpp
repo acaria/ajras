@@ -6,6 +6,7 @@
 #include "RoomData.h"
 #include "CmdFactory.h"
 #include "AIHelper.h"
+#include "GameCtrl.h"
 
 void AISystem::init()
 {
@@ -50,6 +51,22 @@ void AISystem::tick(double dt)
         auto status = cpAI.bref->getRootNode()->visit(cpAI.board, dt);
         if (status != behaviour::nState::RUNNING)
             cpAI.reset();
+    }
+    
+    //debug following info
+    if (checkProperty(gBoard, "following"))
+    {
+        auto teamIds = gBoard["following"].get<TeamIds>();
+        std::string str = teamIds.size() > 0 ? "" : "<NONE>";
+        for(auto teamId : teamIds)
+        {
+            str += std::to_string(teamId) + ", ";
+        }
+        GameCtrl::trace("following", "following: %s", str.c_str());
+    }
+    else
+    {
+        GameCtrl::trace("following", "following: <NONE>");
     }
 }
 
@@ -173,7 +190,15 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
             switch(lib::hash(node->values[0]))
             {
                 case lib::hash("team"):
-                    return cmd.execFollowTeam(eid, node->values, properties);
+                {
+                    auto result = cmd.execFollowTeam(eid, node->values, properties);
+                    if (result != nState::RUNNING)
+                    {
+                        if (checkProperty(gBoard, "following"))
+                            gBoard["following"].get<TeamIds>().erase(eid);
+                    }
+                    return result;
+                }
                 default:
                 {
                     Log("invalid follow sub parameter: %s", node->values[0].c_str());

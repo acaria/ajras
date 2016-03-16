@@ -207,13 +207,13 @@ void CollisionSystem::agentTeamResolution(unsigned eid, unsigned tid, cc::Vec2 d
     cc::Vec2 unit = cc::Vec2(b2.getMidX() - b1.getMidX(), b2.getMidY() - b1.getMidY()).getNormalized();
     if (ecs::get<cp::Team>(eid).position < ecs::get<cp::Team>(tid).position)
     {
-        ecs::get<cp::Physics>(eid).setInput({0,0});
-        ecs::get<cp::Physics>(tid).setImpact(20, 8, unit, 0.15);
+        ecs::get<cp::Physics>(eid).resetInput();
+        ecs::get<cp::Physics>(tid).setImpact(30, 8, unit, 0.15);
     }
     else
     {
-        ecs::get<cp::Physics>(tid).setInput({0,0});
-        ecs::get<cp::Physics>(eid).setImpact(20, 8, -unit, 0.15);
+        ecs::get<cp::Physics>(tid).resetInput();
+        ecs::get<cp::Physics>(eid).setImpact(30, 8, -unit, 0.15);
     }
 }
 

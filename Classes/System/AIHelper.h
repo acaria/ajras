@@ -60,6 +60,7 @@ public:
 private:
     nState followPathFinding(unsigned eid, Properties& properties, float reachGoal);
     void updatePathFinding(unsigned eid, unsigned fid, std::vector<cc::Point>& wayPoints);
+    nState procTeamDistance(unsigned eid, const std::set<unsigned>& teamIds, float distance);
     nState keepTeamDistance(unsigned eid, const std::set<unsigned>& teamIds, float distance);
     def::mood::Flags getMoodGroup(def::mood::Flags ref, const std::string& moodGroupCat);
     AISystem* system;

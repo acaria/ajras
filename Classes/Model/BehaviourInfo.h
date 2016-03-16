@@ -13,8 +13,14 @@ namespace behaviour
 
     static inline Variant& addProperty(Properties& properties, const std::string& tag)
     {
-        properties[tag] = Variant();
+        if (properties.find(tag) == properties.end())
+            properties[tag] = Variant();
         return properties[tag];
+    }
+    
+    static inline bool checkProperty(Properties& properties, const std::string& tag)
+    {
+        return properties.find(tag) != properties.end();
     }
 }
 

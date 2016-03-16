@@ -41,8 +41,7 @@ nState AIHelper::checkTime(unsigned eid, double dt,
                                       Properties& properties)
 {
     assert(params.size() == 1); //params=[timer]
-    if (!lib::hasKey(properties, "timer"))
-        addProperty(properties, "timer").set<double>(std::stod(params[0]));
+    addProperty(properties, "timer").set<double>(std::stod(params[0]));
     
     if (properties["timer"].get<double>() <= 0)
     {
@@ -214,7 +213,7 @@ nState AIHelper::execMoveToSleepZone(unsigned eid,
 behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         const std::vector<std::string>& params, Properties& properties)
 {
-    const float minDistFollow = 30.0;
+    const float minDistFollowSq = powf(30.0, 2.0);
     const float minKeepDistance = 15.0;
     
     assert(params.size() == 1); //params=[category]
@@ -230,16 +229,22 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         auto& teamInfo = properties["followInfo"].get<FollowTeamInfo>();
         if (!ecs::has<cp::Position, cp::Physics>(teamInfo.first))
             return nState::FAILURE;
-        if (SysHelper::getDistSquared(eid, teamInfo.first) < (minDistFollow * minDistFollow))
+        if (SysHelper::getDistSquared(eid, teamInfo.first) < minDistFollowSq)
         {
-            return this->keepTeamDistance(eid, teamInfo.second, minKeepDistance);
+            return this->procTeamDistance(eid, teamInfo.second, minKeepDistance);
         }
     }
     
     //path finding in progress
     if (properties.find("waypoints") != properties.end())
     {
-        return this->followPathFinding(eid, properties, 2);
+        auto result = this->followPathFinding(eid, properties, 2);
+        if (result == nState::RUNNING && (properties.find("followInfo") != properties.end()))
+        {
+            auto& teamInfo = properties["followInfo"].get<FollowTeamInfo>();
+            return this->keepTeamDistance(eid, teamInfo.second, minKeepDistance);
+        }
+        return result;
     }
     
     //compute team info
@@ -257,22 +262,32 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
     if (!ecs::has<cp::Trail>(leaderId) || ecs::get<cp::Trail>(leaderId).tail.size() == 0)
         return nState::FAILURE;
     
-    if (SysHelper::getDistSquared(eid, leaderId) < minDistFollow * minDistFollow)
+    if (SysHelper::getDistSquared(eid, leaderId) < minDistFollowSq)
     {
-        //too close, stop follow
+        //target too close, stop follow
         return nState::SUCCESS;
     }
     
     auto teamIds = SysHelper::findTeamIds(gid, ecs::get<cp::Team>(eid).index);
+    
+    for(auto teamId : teamIds)
+    {
+        if (teamId == leaderId || teamId == eid) continue;
+        //retrieve close team entities
+        if (SysHelper::getDistSquared(teamId, eid) < minDistFollowSq &&
+            SysHelper::getDistSquared(teamId, leaderId) < minDistFollowSq)
+        {
+            //team too close, stop follow
+            return nState::SUCCESS;
+        }
+    }
+    
     addProperty(properties, "followInfo").set<FollowTeamInfo>(leaderId, teamIds);
     
-    if (system->gBoard.find("followTeamIds") == system->gBoard.end())
-        addProperty(system->gBoard, "followTeamIds").set<TeamIds>();
-    
     //update general board
-    auto& tIds = system->gBoard["followTeamIds"].get<TeamIds>();
-    tIds.insert(teamIds.begin(), teamIds.end());
-    tIds.erase(leaderId);
+    if (!checkProperty(system->gBoard, "following"))
+        addProperty(system->gBoard, "following").set<TeamIds>();
+    system->gBoard["following"].get<TeamIds>().insert(eid);
     
     auto bounds = SysHelper::getBounds(eid);
     cc::Point dest = system->context->data->getCol()->getFormationPosition(
@@ -319,13 +334,9 @@ nState AIHelper::execMoveNearTarget(unsigned eid,
     if (wayPoints.size() > 0)
     {
         ecs::get<cp::Debug>(eid).wayPoints = wayPoints;
-        lib::ValueExVector wayPointsVec = linq::from(wayPoints) >>
-            linq::select([](cc::Point coord) {
-                return lib::ValueEx(coord);
-            }) >> linq::to_vector();
-                
-            //**properties["waypoints"] = wayPointsVec;
-            return nState::RUNNING;
+        auto wayPointsVec = linq::from(wayPoints) >> linq::to_vector();
+        addProperty(properties, "waypoints").set<Waypoints>(wayPointsVec);
+        return nState::RUNNING;
     }
     return nState::FAILURE;
 }
@@ -486,7 +497,7 @@ nState AIHelper::followPathFinding(unsigned eid, Properties& properties, float r
     return nState::RUNNING;
 }
 
-nState AIHelper::keepTeamDistance(unsigned eid, const std::set<unsigned>& teamIds, float distance)
+nState AIHelper::procTeamDistance(unsigned eid, const std::set<unsigned>& teamIds, float distance)
 {
     if (!ecs::has<cp::Team>(eid))
         return nState::SUCCESS;
@@ -513,11 +524,68 @@ nState AIHelper::keepTeamDistance(unsigned eid, const std::set<unsigned>& teamId
             
             cc::Vec2 unit = diff.getNormalized();
 
-            if (cpTeamRef.position > cpTeamCur.position)
-                ecs::get<cp::Physics>(eid).addImpact(length * 2, 12.0, -unit, 0.15);
+            //eid >> teamId
+            if (cpTeamRef.position < cpTeamCur.position)
+            {
+                ecs::get<cp::Physics>(teamId).addImpact(20, 12.0, unit, 0.15);
+            }
             else
-                ecs::get<cp::Physics>(teamId).addImpact(length * 2, 12.0, unit, 0.15);
-            resultState = nState::RUNNING;
+            {
+                ecs::get<cp::Physics>(eid).resetInput();
+            }
+            if (checkProperty(system->gBoard, "following") &&
+                system->gBoard["following"].get<TeamIds>().count(teamId) != 0)
+            {
+                resultState = nState::RUNNING;
+            }
+        }
+    }
+    
+    return resultState;
+}
+
+nState AIHelper::keepTeamDistance(unsigned eid, const std::set<unsigned>& teamIds, float distance)
+{
+    if (!ecs::has<cp::Team>(eid))
+        return nState::SUCCESS;
+    
+    nState resultState = nState::RUNNING;
+    for(auto teamId : teamIds)
+    {
+        if (teamId == eid) continue;
+        
+        if (!ecs::has<cp::Position, cp::Physics, cp::Team>(eid) ||
+            !ecs::has<cp::Position, cp::Physics, cp::Team>(teamId))
+            return nState::FAILURE;
+        
+        auto bounds1 = SysHelper::getBounds(eid);
+        auto bounds2 = SysHelper::getBounds(teamId);
+        
+        auto diff = cc::Point(bounds2.getMidX() - bounds1.getMidX(),
+                              bounds2.getMidY() - bounds1.getMidY());
+        auto length = diff.getLength();
+        if (length < distance)
+        {
+            auto& cpTeamRef = ecs::get<cp::Team>(eid);
+            auto& cpTeamCur = ecs::get<cp::Team>(teamId);
+            
+            cc::Vec2 unit = diff.getNormalized();
+            
+            //eid >> teamId
+            if (cpTeamRef.position < cpTeamCur.position)
+            {
+                ecs::get<cp::Physics>(teamId).addImpact(20, 12.0, unit, 0.15);
+            }
+            else
+            {
+                ecs::get<cp::Physics>(eid).resetInput();
+            }
+            
+            if (checkProperty(system->gBoard, "following"))
+            {
+                if (system->gBoard["following"].get<TeamIds>().count(teamId) == 0)
+                    resultState = nState::SUCCESS;
+            }
         }
     }
     

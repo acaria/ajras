@@ -225,34 +225,22 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         return nState::FAILURE;
 
     //if too close from target, stop following
-    if ((properties.find("targetId") != properties.end()))
+    if ((properties.find("followInfo") != properties.end()))
     {
-        auto targetId = properties["targetId"].get<unsigned>();
-        if (!ecs::has<cp::Position, cp::Physics>(targetId))
+        auto& teamInfo = properties["followInfo"].get<FollowTeamInfo>();
+        if (!ecs::has<cp::Position, cp::Physics>(teamInfo.first))
             return nState::FAILURE;
-        if (SysHelper::getDistSquared(eid, targetId) < (minDistFollow * minDistFollow))
+        if (SysHelper::getDistSquared(eid, teamInfo.first) < (minDistFollow * minDistFollow))
         {
-            auto teamIds = SysHelper::findTeamIds(gid, ecs::get<cp::Team>(eid).index);
-            return this->keepTeamDistance(eid, teamIds, minKeepDistance);
+            return this->keepTeamDistance(eid, teamInfo.second, minKeepDistance);
         }
     }
     
     //path finding in progress
     if (properties.find("waypoints") != properties.end())
     {
-        auto state = this->followPathFinding(eid, properties, 2);
-        
-        //keep distance between team entities
-        auto targetId = properties["targetId"].get<unsigned>();
-        if (state == nState::RUNNING && ecs::has<cp::Team>(eid) && eid != targetId)
-        {
-            auto teamIds = SysHelper::findTeamIds(gid, ecs::get<cp::Team>(eid).index);
-            this->keepTeamDistance(eid, teamIds, minKeepDistance);
-        }
-        
-        return state;
+        return this->followPathFinding(eid, properties, 2);
     }
-
     
     //compute team info
     if (!ecs::has<cp::Team>(eid))
@@ -269,13 +257,22 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
     if (!ecs::has<cp::Trail>(leaderId) || ecs::get<cp::Trail>(leaderId).tail.size() == 0)
         return nState::FAILURE;
     
-    addProperty(properties, "targetId").set<unsigned>(leaderId);
-    
-    if (SysHelper::getDistSquared(eid, leaderId) < minDistFollow)
+    if (SysHelper::getDistSquared(eid, leaderId) < minDistFollow * minDistFollow)
     {
         //too close, stop follow
         return nState::SUCCESS;
     }
+    
+    auto teamIds = SysHelper::findTeamIds(gid, ecs::get<cp::Team>(eid).index);
+    addProperty(properties, "followInfo").set<FollowTeamInfo>(leaderId, teamIds);
+    
+    if (system->gBoard.find("followTeamIds") == system->gBoard.end())
+        addProperty(system->gBoard, "followTeamIds").set<TeamIds>();
+    
+    //update general board
+    auto& tIds = system->gBoard["followTeamIds"].get<TeamIds>();
+    tIds.insert(teamIds.begin(), teamIds.end());
+    tIds.erase(leaderId);
     
     auto bounds = SysHelper::getBounds(eid);
     cc::Point dest = system->context->data->getCol()->getFormationPosition(
@@ -443,7 +440,7 @@ void AIHelper::updatePathFinding(unsigned eid, unsigned fid,
 nState AIHelper::followPathFinding(unsigned eid, Properties& properties, float reachGoal)
 {
     assert(properties.find("waypoints") != properties.end());
-    auto& wayPoints = properties["waypoints"].get<Waypoints>().points;
+    auto& wayPoints = properties["waypoints"].get<Waypoints>();
     
     if (wayPoints.size() == 0)
     {
@@ -462,9 +459,10 @@ nState AIHelper::followPathFinding(unsigned eid, Properties& properties, float r
     
     auto bounds = SysHelper::getBounds(eid);
     
-    if (properties.find("targetId") != properties.end())
+    if (properties.find("followInfo") != properties.end())
     {
-        this->updatePathFinding(eid, properties["targetId"].get<unsigned>(), wayPoints);
+        auto& teamInfo = properties["followInfo"].get<FollowTeamInfo>();
+        this->updatePathFinding(eid, teamInfo.first, wayPoints);
     }
     
     cc::Vec2 vdir { destPos.x - bounds.getMidX(), destPos.y - bounds.getMidY() };

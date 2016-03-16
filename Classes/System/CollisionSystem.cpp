@@ -202,16 +202,18 @@ void CollisionSystem::agentObstacleResolution(unsigned eid, unsigned tid, cc::Ve
 
 void CollisionSystem::agentTeamResolution(unsigned eid, unsigned tid, cc::Vec2 diff)
 {
-    cc::Vec2 unit = diff.getNormalized();
-    if (ecs::get<cp::Team>(eid).position > ecs::get<cp::Team>(tid).position)
+    auto b1 = SysHelper::getBounds(eid);
+    auto b2 = SysHelper::getBounds(tid);
+    cc::Vec2 unit = cc::Vec2(b2.getMidX() - b1.getMidX(), b2.getMidY() - b1.getMidY()).getNormalized();
+    if (ecs::get<cp::Team>(eid).position < ecs::get<cp::Team>(tid).position)
     {
         ecs::get<cp::Physics>(eid).setInput({0,0});
-        ecs::get<cp::Physics>(tid).setImpact(diff.getLength() * 6, 8, -unit, 0.15);
+        ecs::get<cp::Physics>(tid).setImpact(20, 8, unit, 0.15);
     }
     else
     {
         ecs::get<cp::Physics>(tid).setInput({0,0});
-        ecs::get<cp::Physics>(eid).setImpact(diff.getLength() * 6, 8, unit, 0.15);
+        ecs::get<cp::Physics>(eid).setImpact(20, 8, -unit, 0.15);
     }
 }
 

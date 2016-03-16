@@ -25,5 +25,6 @@ public:
     
 private:
     AIHelper cmd;
+    behaviour::Properties gBoard;
     bool enabled = false;
 };

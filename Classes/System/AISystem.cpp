@@ -12,6 +12,7 @@ void AISystem::init()
     this->eventRegs.push_back(this->dispatcher->onSystemChanged.registerObserver(
             [this](unsigned groupID){
         this->enabled = false;
+        this->gBoard.clear();
     }));
     
     this->eventRegs.push_back(this->dispatcher->onSystemReady.registerObserver(

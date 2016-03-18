@@ -15,12 +15,15 @@ ProfileStatsInfo::ProfileStatsInfo(const cc::ValueMap& map)
                 mData.at("speed").asFloat() : 0.0f,
             .strength = (mData.find("strength") != mData.end()) ?
                 mData.at("strength").asFloat() : 0.0f,
-            .acceleration = mData.at("acceleration").asFloat(),
-            .deceleration = mData.at("deceleration").asFloat(),
+            .acceleration = mData.find("acceleration") != mData.end() ?
+                mData.at("acceleration").asFloat() : 0.0f,
+            .deceleration = mData.find("deceleration") != mData.end() ?
+                mData.at("deceleration").asFloat() : 0.0f,
             .bounds = cc::Rect(std::stoi(split[0]), std::stoi(split[1]),
                                std::stoi(split[2]), std::stoi(split[3])),
             .category = mData.at("cat").asString(),
-            .weight = mData.at("weight").asFloat()
+            .weight = mData.find("weight") != mData.end() ?
+                mData.at("weight").asFloat() : 0.0f
         };
     }
     

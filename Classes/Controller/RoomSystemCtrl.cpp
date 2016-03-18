@@ -122,6 +122,10 @@ void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect 
             profileName = "chest1";
             break;
         }
+        case lib::hash("light"): {
+            profileName = "torch1";
+            break;
+        }
         default:
         {
             process = false;
@@ -193,24 +197,37 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
     {
         ecs::add<cp::Interact>(eid, roomIndex).setProfile(profile);
         
-        if (profile->interaction->actionType == ProfileInteractInfo::ActionType::REWARD)
+        switch(lib::hash(profile->interaction->actionType))
         {
-            assert(profile->interaction->actionParams != nullptr);
-            auto collectables = ModelProvider::instance()->collectible.genReward(
-                random, profile->interaction->actionParams.Value);
-            GearComponent reward;
-            for(auto collectable : collectables)
-            {
-                reward.slots.push_back(SlotData {
-                    .quantity = 1,
-                    .content = collectable
-                });
+            case lib::hash("reward"): {
+                assert(profile->interaction->actionParams != nullptr);
+                auto collectables = ModelProvider::instance()->collectible.genReward(
+                        random, profile->interaction->actionParams.Value);
+                GearComponent reward;
+                for(auto collectable : collectables)
+                {
+                    reward.slots.push_back(SlotData {
+                        .quantity = 1,
+                        .content = collectable
+                    });
+                }
+                ecs::add<cp::Gear>(eid, roomIndex) = reward;
             }
-            ecs::add<cp::Gear>(eid, roomIndex) = reward;
+            break;
+            case lib::hash("light"): {
+                
+            }
+            break;
+            default:
+            {
+                Log("unknown interaction action type: %s",
+                    profile->interaction->actionType.c_str());
+            }
+            break;
         }
     }
     
-    if (profileName == "torch")
+    /*if (profileName == "torch")
     {
         ecs::get<cp::Render>(eid).setAnimation("activated", -1);
         
@@ -225,7 +242,7 @@ unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
             80.0f, 0.1f, {150, 200}, {0.98, 1.2}, {0.9,1.1},
             cc::Color3B(252, 168, 50), cc::Color3B(252, 168, 50))));
         light->release();
-    }
+    }*/
     
     dispatcher.onEntityAdded(roomIndex, eid);
     

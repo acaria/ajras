@@ -50,7 +50,7 @@ bool MissionScene::init()
     
     this->frame = cc::create<BufferedFrame>(canvasRect);
     this->frame->setActive(def::postProcessing);
-    this->frame->setPostProcess<BufferLight>();
+    this->frame->setPostProcess<SpriteLight>();
     this->canvas->addChild(this->frame);
     
     this->interface = cc::create<MissionInterface>();

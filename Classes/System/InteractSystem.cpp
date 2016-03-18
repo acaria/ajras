@@ -17,26 +17,51 @@ void InteractSystem::tick(double dt)
             cpInteract.busy = true;
             if (cpInteract.activated) //turn off
             {
-                cpRender.setAnimation(cpInteract.animKeyOff, 1, [&cpInteract](bool canceled){
-                    if (!canceled)
+                if (cpInteract.retriggerAble)
+                {
+                    if (cpInteract.repeatMode == -1)
                     {
+                        cpRender.setAnimation(cpInteract.animKeyOff, -1);
+                        cpRender.busy = false;
+                        cpInteract.busy = false;
                         cpInteract.activated = false;
                     }
-                    cpInteract.busy = false;
-                });
+                    else
+                    {
+                        cpRender.setAnimation(cpInteract.animKeyOff, cpInteract.repeatMode,
+                                [&cpInteract](bool canceled){
+                            if (!canceled)
+                            {
+                                cpInteract.activated = false;
+                            }
+                            cpInteract.busy = false;
+                        });
+                    }
+                    
+                }
             }
             else //turn on
             {
-                cpRender.setAnimation(cpInteract.animKeyOn, 1,
-                    [this, &cpInteract, eid](bool canceled){
-                    if (!canceled)
-                    {
-                        this->triggerAction(eid, cpInteract);
-                        cpInteract.triggeredOnce = true;
-                        cpInteract.activated = true;
-                    }
+                if (cpInteract.repeatMode == -1)
+                {
+                    cpRender.setAnimation(cpInteract.animKeyOn, -1);
+                    this->triggerAction(eid, cpInteract);
+                    cpRender.busy = false;
+                    cpInteract.activated = true;
                     cpInteract.busy = false;
-                });
+                }
+                else
+                {
+                    cpRender.setAnimation(cpInteract.animKeyOn, cpInteract.repeatMode,
+                            [this, &cpInteract, eid](bool canceled){
+                        if (!canceled)
+                        {
+                            this->triggerAction(eid, cpInteract);
+                            cpInteract.activated = true;
+                        }
+                        cpInteract.busy = false;
+                    });
+                }
             }
         }
     }
@@ -44,14 +69,12 @@ void InteractSystem::tick(double dt)
 
 void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
 {
-    switch(interact.action)
+    switch(lib::hash(interact.action))
     {
-        case InteractComponent::ActionType::NONE:
+        case lib::hash("none"): {
             break;
-        case InteractComponent::ActionType::REWARD:
-            //if (interact.triggeredOnce)
-            //    return; //empty
-            
+        }
+        case lib::hash("reward"): {
             if (!ecs::has<cp::Gear>(eid))
                 return; //no rewards
             auto& gear = ecs::get<cp::Gear>(eid);
@@ -113,8 +136,12 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                 delay += 0.2;
             }
             gear.slots.clear();
-            
             break;
+        }
+        default: {
+            Log("invalid trigger action: %s", interact.action.c_str());
+            break;
+        }
     }
 }
 

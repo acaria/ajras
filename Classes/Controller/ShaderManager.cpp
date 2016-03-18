@@ -117,20 +117,23 @@ void ShaderManager::setLightConfig(const def::shader::LightConfig &config)
                          config.ambiantColor,
                          config.brightness,
                          config.cutOffRadius,
-                         config.halfRadius);
+                         config.halfRadius,
+                         config.depth);
 }
 
 void ShaderManager::setLightConfig(const cc::Color3B &lightColor,
                                    const cc::Color3B &ambiantColor,
                                    float brightness,
                                    float cutOffRadius,
-                                   float halfRadius)
+                                   float halfRadius,
+                                   float depth)
 {
     this->lightConfig.lightColor = lightColor;
     this->lightConfig.ambiantColor = ambiantColor;
     this->lightConfig.brightness = brightness;
     this->lightConfig.cutOffRadius = cutOffRadius;
     this->lightConfig.halfRadius = halfRadius;
+    this->lightConfig.depth = depth;
 
     auto gls = cc::GLProgramCache::getInstance()->getGLProgram("light");
     if (gls == nullptr)

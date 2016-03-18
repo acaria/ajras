@@ -2,27 +2,29 @@
 
 ProfileInteractInfo::ProfileInteractInfo(const cc::ValueMap& data)
 {
-    this->prereqType = prereqTypeMap[data.at("prerequisite").asString()];
+    if (data.find("prerequisite") != data.end())
+        prereqType = data.at("prerequisite").asString();
+    else
+        prereqType = nullptr;
+    
     this->animKeys.first = data.at("on").asString();
+    
     this->animKeys.second = data.at("off").asString();
-    this->actionType = actionTypeMap[data.at("actionName").asString()];
-    triggerMode = triggerModeMap[data.at("triggerMode").asString()];
+    
+    this->actionType = data.at("actionName").asString();
+    
+    if (data.find("triggerMode") != data.end())
+        triggerMode = data.at("triggerMode").asString();
+    else
+        triggerMode = "always";
+    
+    if (data.find("triggerAnimation") != data.end())
+        triggerAnimation = data.at("triggerAnimation").asString();
+    else
+        triggerAnimation = "once";
+    
     if (data.find("actionParams") != data.end())
         actionParams = data.at("actionParams").asString();
     else
         actionParams = nullptr;
 }
-
-std::map<std::string, ProfileInteractInfo::TriggerMode> ProfileInteractInfo::triggerModeMap = {
-    {"once", ProfileInteractInfo::TriggerMode::ONCE},
-    {"always", ProfileInteractInfo::TriggerMode::ALWAYS}
-};
-
-std::map<std::string, ProfileInteractInfo::ActionType> ProfileInteractInfo::actionTypeMap = {
-    {"none", ProfileInteractInfo::ActionType::NONE},
-    {"reward", ProfileInteractInfo::ActionType::REWARD}
-};
-
-std::map<std::string, ProfileInteractInfo::PrereqType> ProfileInteractInfo::prereqTypeMap = {
-    {"none", ProfileInteractInfo::PrereqType::NONE}
-};

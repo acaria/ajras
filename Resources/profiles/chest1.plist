@@ -29,6 +29,8 @@
 		<key>actionParams</key>
 		<string>ultimate_chest</string>
 		<key>triggerMode</key>
+		<string>always</string>
+		<key>triggerAnimation</key>
 		<string>once</string>
 		<key>prerequisite</key>
 		<string>none</string>

@@ -55,7 +55,6 @@ namespace def {
     const float         touchTreshold = 20;
     
     //data
-    enum class TriggerMode { ONCE, ALWAYS };
     struct SleepZone
     {
         cc::Rect    bounds;

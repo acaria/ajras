@@ -13,7 +13,8 @@ public:
                         const cc::Color3B& ambiantColor,
                         float brightness,
                         float cutOffRadius,
-                        float halfRadius);
+                        float halfRadius,
+                        float depth);
     
     const def::shader::LightConfig& getLightConfig();
     

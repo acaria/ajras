@@ -51,6 +51,8 @@ void FloorData::extractInfo(const std::string &name)
                 this->lightConfig.cutOffRadius = light.at("cutOffRadius").asFloat();
             if (light.find("halfRadius") != light.end())
                 this->lightConfig.halfRadius = light.at("halfRadius").asFloat();
+            if (light.find("depth") != light.end())
+                this->lightConfig.depth = light.at("depth").asFloat();
         }
     }
     

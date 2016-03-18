@@ -151,10 +151,25 @@ void CollisionSystem::agentObstacleResolution(unsigned eid, unsigned tid, cc::Ve
     
     cc::Vec2 unit = diff.getNormalized();
     
+    if (cpPhy.weight == 0)
+    {
+        cpPhy2.collisionState = PhysicsComponent::OBJECT;
+        cpPos2.pos -= diff;
+        collisionData->agents[tid].bounds.origin -= diff;
+        return;
+    }
+    
+    if (cpPhy2.weight == 0)
+    {
+        cpPhy.collisionState = PhysicsComponent::OBJECT;
+        cpPos.pos += diff;
+        collisionData->agents[eid].bounds.origin += diff;
+        return;
+    }
+    
     cc::Vec2 p1 = -cpPhy.getResultForce().project(diff);
     cc::Vec2 res1 = {MAX(0, p1.x * unit.x), MAX(0, p1.y * unit.y)};
     float l1 = res1.getLength();
-    
     
     cc::Vec2 p2 = cpPhy2.getResultForce().project(diff);
     cc::Vec2 res2 = {MAX(0, p2.x * unit.x), MAX(0, p2.y * unit.y)};
@@ -164,7 +179,7 @@ void CollisionSystem::agentObstacleResolution(unsigned eid, unsigned tid, cc::Ve
     
     if (fabs(fAmount1 - fAmount2) < 0.1)//eid == tid
     {
-        //Log("%u:%f == %u:%f", eid, fAmount1, tid, fAmount2);
+        Log("%u:%f == %u:%f", eid, fAmount1, tid, fAmount2);
         cpPhy.collisionState = PhysicsComponent::OBJECT;
         cpPos.pos += diff;
         collisionData->agents[eid].bounds.origin += diff;
@@ -180,7 +195,7 @@ void CollisionSystem::agentObstacleResolution(unsigned eid, unsigned tid, cc::Ve
     }
     else if (fAmount1 > fAmount2) //eid -> tid
     {
-        //Log("%u:%f => %u:%f", eid, fAmount1, tid, fAmount2);
+        Log("%u:%f => %u:%f", eid, fAmount1, tid, fAmount2);
         cpPhy.collisionState = PhysicsComponent::OBJECT;
         cpPos.pos += diff;
         collisionData->agents[eid].bounds.origin += diff;
@@ -190,7 +205,7 @@ void CollisionSystem::agentObstacleResolution(unsigned eid, unsigned tid, cc::Ve
     }
     else //tid -> eid
     {
-        //Log("%u:%f => %u:%f", tid, fAmount2, eid, fAmount1);
+        Log("%u:%f => %u:%f", tid, fAmount2, eid, fAmount1);
         cpPhy2.collisionState = PhysicsComponent::OBJECT;
         cpPos2.pos -= diff;
         collisionData->agents[tid].bounds.origin -= diff;

@@ -20,6 +20,9 @@ void MoveSystem::tick(double dt)
         auto& cpPos = ecs::get<cp::Position>(eid);
         auto& cpPhy = ecs::get<cp::Physics>(eid);
     
+        if (cpPhy.weight == 0)
+            continue;
+    
         //save previous pos
         cpPos.lastPos = cpPos.pos;
     
@@ -27,6 +30,7 @@ void MoveSystem::tick(double dt)
     
         //apply forces
         auto maxSpeed = 0;
+
         for(auto& pair : cpPhy.forces)
         {
             auto& force = pair.second;

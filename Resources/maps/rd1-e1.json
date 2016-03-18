@@ -44,7 +44,7 @@
                  "y":96
                 }, 
                 {
-                 "gid":93,
+                 "gid":94,
                  "height":22,
                  "id":10,
                  "name":"",
@@ -58,6 +58,22 @@
                  "width":16,
                  "x":64,
                  "y":144
+                }, 
+                {
+                 "gid":92,
+                 "height":16,
+                 "id":13,
+                 "name":"",
+                 "properties":
+                    {
+
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":64,
+                 "y":80
                 }],
          "opacity":0.479999989271164,
          "type":"objectgroup",
@@ -66,7 +82,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":12,
+ "nextobjectid":14,
  "orientation":"orthogonal",
  "properties":
     {
@@ -499,7 +515,7 @@
 
             },
          "spacing":0,
-         "tilecount":2,
+         "tilecount":3,
          "tileheight":16,
          "tileproperties":
             {
@@ -512,6 +528,11 @@
                 {
                  "type":"zone",
                  "zone_type":"foe"
+                },
+             "2":
+                {
+                 "type":"zone",
+                 "zone_type":"light"
                 }
             },
          "tiles":
@@ -523,12 +544,16 @@
              "1":
                 {
                  "image":"..\/..\/External\/tileset\/zone\/foe.png"
+                },
+             "2":
+                {
+                 "image":"..\/..\/External\/tileset\/zone\/light.png"
                 }
             },
          "tilewidth":16
         }, 
         {
-         "firstgid":92,
+         "firstgid":93,
          "margin":0,
          "name":"entity",
          "properties":

@@ -17,18 +17,39 @@
 	<dict>
 		<key>light</key>
 		<dict>
-			<key>depth</key>
-			<string>100</string>
-			<key>lightColor</key>
-			<string>255,255,255</string>
+			<key>spot</key>
+			<array>
+				<dict>
+					<key>type</key>
+					<string>player</string>
+					<key>brightness</key>
+					<string>2</string>
+					<key>color</key>
+					<string>255,255,255</string>
+					<key>depth</key>
+					<string>100</string>
+					<key>halfRadius</key>
+					<string>0.2</string>
+					<key>cutOffRadius</key>
+					<string>150</string>
+				</dict>
+				<dict>
+					<key>type</key>
+					<string>object</string>
+					<key>brightness</key>
+					<string>10</string>
+					<key>color</key>
+					<string>255,100,100</string>
+					<key>depth</key>
+					<string>100</string>
+					<key>halfRadius</key>
+					<string>0.1</string>
+					<key>cutOffRadius</key>
+					<string>120</string>
+				</dict>
+			</array>
 			<key>ambiantColor</key>
-			<string>180,180,180</string>
-			<key>brightness</key>
-			<string>2</string>
-			<key>cutOffRadius</key>
-			<string>150</string>
-			<key>halfRadius</key>
-			<string>0.2</string>
+			<string>120,120,120</string>
 		</dict>
 	</dict>
 	<key>design</key>

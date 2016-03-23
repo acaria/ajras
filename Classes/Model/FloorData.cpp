@@ -29,30 +29,53 @@ void FloorData::extractInfo(const std::string &name)
         if (effect.find("light") != effect.end())
         {
             auto light = effect.at("light").asValueMap();
-            if (light.find("lightColor") != light.end())
+            LightConfig lightConfig;
+            
+            assert(light.find("spot") != light.end());
+            for(auto element : light.at("spot").asValueVector())
             {
+                LightConfig::SpotType spotType;
+                LightConfig::SpotInfo spotInfo;
+                auto spot = element.asValueMap();
+                
+                auto type = spot.at("type").asString();
+                {
+                    switch(lib::hash(type))
+                    {
+                        case lib::hash("player"): spotType = LightConfig::SpotType::player;
+                            break;
+                        case lib::hash("object"): spotType = LightConfig::SpotType::object;
+                            break;
+                        default: Log("unrecognised light spot type config: %s", type.c_str());
+                            spotType = LightConfig::SpotType::player;
+                            break;
+                    }
+                }
+                
                 auto lightColor = std::vector<std::string>();
-                lib::split(light.at("lightColor").asString(), lightColor, ",", true);
-                this->lightConfig.lightColor = cc::Color3B(std::stoi(lightColor[0]),
-                                                           std::stoi(lightColor[1]),
-                                                           std::stoi(lightColor[2]));
+                lib::split(spot.at("color").asString(), lightColor, ",", true);
+                spotInfo.color = cc::Color3B(std::stoi(lightColor[0]),
+                                             std::stoi(lightColor[1]),
+                                             std::stoi(lightColor[2]));
+                
+                spotInfo.brightness = spot.at("brightness").asFloat();
+                spotInfo.cutOffRadius = spot.at("cutOffRadius").asFloat();
+                spotInfo.halfRadius = spot.at("halfRadius").asFloat();
+                spotInfo.pos.z = spot.at("depth").asFloat();
+                
+                lightConfig.initSpot(spotType, spotInfo);
             }
+            
             if (light.find("ambiantColor") != light.end())
             {
                 auto ambiantColor = std::vector<std::string>();
                 lib::split(light.at("ambiantColor").asString(), ambiantColor, ",", true);
-                this->lightConfig.ambiantColor = cc::Color3B(std::stoi(ambiantColor[0]),
-                                                             std::stoi(ambiantColor[1]),
-                                                             std::stoi(ambiantColor[2]));
+                lightConfig.initAmbiant(cc::Color3B(std::stoi(ambiantColor[0]),
+                                                    std::stoi(ambiantColor[1]),
+                                                    std::stoi(ambiantColor[2])));
             }
-            if (light.find("brightness") != light.end())
-                this->lightConfig.brightness = light.at("brightness").asFloat();
-            if (light.find("cutOffRadius") != light.end())
-                this->lightConfig.cutOffRadius = light.at("cutOffRadius").asFloat();
-            if (light.find("halfRadius") != light.end())
-                this->lightConfig.halfRadius = light.at("halfRadius").asFloat();
-            if (light.find("depth") != light.end())
-                this->lightConfig.depth = light.at("depth").asFloat();
+            
+            this->lightConfig = lightConfig;
         }
     }
     

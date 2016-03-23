@@ -2,6 +2,8 @@
 #include "Components.h"
 #include "PlayerEntity.h"
 #include "Defines.h"
+#include "Random.h"
+#include "SystemDispatcher.h"
 
 class SysHelper
 {
@@ -34,6 +36,13 @@ public:
     
     static unsigned createPlayerEntity(LayeredContainer* parent,
                                        unsigned group,
-                                       cc::Vec2 srcPos,
-                                       PlayerEntity entity);
+                                       const cc::Vec2& srcPos,
+                                       const PlayerEntity& entity);
+    
+    static unsigned createEntity(LayeredContainer* parent,
+                                 unsigned group,
+                                 const cc::Vec2& srcPos,
+                                 const std::string& profile,
+                                 lib::Random& rEngine,
+                                 SystemDispatcher& dispatcher);
 };

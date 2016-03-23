@@ -65,7 +65,7 @@ void GameCtrl::goToMainMenu()
 void GameCtrl::goToCamp(std::string startKey)
 {
     this->gameData.loadCamp();
-    this->shaders.setLightConfig(def::shader::LightConfig());
+    //this->shaders.initLightConfig(this->gameData.curCamp()); todo load light config
     this->gameData.getPlayerData()->startCampKey = startKey;
     
     for(auto ss : this->gameData.curCamp()->getSpriteSheets())
@@ -77,7 +77,6 @@ void GameCtrl::goToCamp(std::string startKey)
 void GameCtrl::goToMission()
 {
     this->gameData.loadMission();
-    this->shaders.setLightConfig(this->gameData.curFloor()->getLightConfig());
     
     for(auto ss : this->gameData.curFloor()->getSpriteSheets())
         CocosHelper::addSpriteSheet("ss-" + ss + ".plist", def::antialias);

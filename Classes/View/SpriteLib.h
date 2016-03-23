@@ -35,4 +35,10 @@ protected:
     virtual void setCustomUniforms(cc::GLProgramState* glState,
                                    const cc::Mat4 &transform,
                                    uint32_t flags) override;
+
+private:
+    void genSpotsList();
+
+    int                 nbSpots;
+    std::vector<float>  spotList;
 };

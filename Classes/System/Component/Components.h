@@ -20,6 +20,7 @@
 #include "WarpMap.h"
 #include "SlotData.h"
 #include "TrailComponent.h"
+#include "LightSpotComponent.h"
 
 namespace cp
 {
@@ -44,6 +45,7 @@ namespace cp
     using Team = ecs::component<TeamComponent,                  19>;
     using Trail = ecs::component<TrailComponent,                20>;
     using Debug = ecs::component<DebugComponent,                21>;
+    using Light = ecs::component<LightSpotComponent,            22>;
     
     struct entity
     {
@@ -82,6 +84,7 @@ namespace cp
             ecs::move<Team>(id, g1, g2);
             ecs::move<Trail>(id, g1, g2);
             ecs::move<Debug>(id, g1, g2);
+            ecs::move<Light>(id, g1, g2);
         }
         
         static void remove(unsigned id, unsigned group)
@@ -107,6 +110,7 @@ namespace cp
             ecs::del<Team>(id, group);
             ecs::del<Trail>(id, group);
             ecs::del<Debug>(id, group);
+            ecs::del<Light>(id, group);
         }
         
         static void clear(unsigned group)
@@ -132,6 +136,7 @@ namespace cp
             ecs::clearGroup<Team>(group);
             ecs::clearGroup<Trail>(group);
             ecs::clearGroup<Debug>(group);
+            ecs::clearGroup<Light>(group);
         }
     };
 }

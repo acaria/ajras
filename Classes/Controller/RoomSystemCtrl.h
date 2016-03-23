@@ -27,10 +27,6 @@ public:
     void showObjects(float duration);
 
 private:
-    unsigned loadStaticObject(const std::string &profileName,
-                              const cc::Point& pos,
-                              RoomData *data,
-                              LayeredContainer *view);
     void loadZoneObject(const std::string &profileName,
                         const cc::Rect& bounds,
                         RoomData *data,

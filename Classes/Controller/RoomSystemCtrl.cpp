@@ -63,7 +63,9 @@ RoomSystemCtrl::RoomSystemCtrl(unsigned group,
     {
         if (lib::hasKey(obj.properties, "profile"))
         {
-            this->loadStaticObject(obj.properties["profile"], obj.pos, data, view);
+            SysHelper::createEntity(view, ecsGroup.getID(),
+                                    obj.pos, obj.properties["profile"],
+                                    random, dispatcher);
             //ecs::add<cp::Control>(eid, data->index) = 2;
         }
         else if (lib::hasKey(obj.properties, "zone_type"))
@@ -142,111 +144,10 @@ void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect 
             bounds.origin.x + (int)random.interval(0.0f, bounds.size.width - colRect.getMaxX()),
             bounds.origin.y + (int)random.interval(0.0f, bounds.size.height - colRect.getMaxY())
         };
-        this->loadStaticObject(profileName, pos, data, view);
+        SysHelper::createEntity(view, ecsGroup.getID(),
+                                pos, profileName,
+                                random, dispatcher);
     }
-}
-
-unsigned RoomSystemCtrl::loadStaticObject(const std::string &profileName,
-                                      const cc::Point& pos,
-                                      RoomData *data,
-                                      LayeredContainer *view)
-{
-    auto roomIndex = data->index;
-    auto profile = ModelProvider::instance()->profile.get(profileName);
-    auto eid = cp::entity::genID();
-    ecs::add<cp::Physics>(eid, roomIndex).setProfile(profile);
-    auto spritePos = pos - ecs::get<cp::Physics>(eid).shape.origin;
-    ecs::add<cp::Render>(eid, roomIndex).setProfile(profile, view);
-    
-    ecs::get<cp::Render>(eid).sprite->setPosition(spritePos);
-    ecs::add<cp::Position>(eid, roomIndex).set(spritePos);
-    ecs::add<cp::Input>(eid, roomIndex);
-    
-    if (profile->stats->orientation)
-        ecs::add<cp::Orientation>(eid, roomIndex);
-    
-    if (profile->stats != nullptr)
-    {
-        auto stats = profile->stats.Value;
-        
-        if (stats.melee != nullptr)
-        {
-            ecs::add<cp::Melee>(eid, roomIndex).setProfile(profile);
-            ecs::add<cp::Stamina>(eid, roomIndex);
-        }
-        
-        if (stats.stamina != nullptr)
-        {
-            ecs::add<cp::Stamina>(eid, roomIndex).setProfile(profile);
-        }
-        
-        if (stats.health != nullptr)
-        {
-            ecs::add<cp::Health>(eid, roomIndex).setProfile(profile);
-        }
-    }
-    
-    if (profile->behaviour != nullptr)
-    {
-        ecs::add<cp::AI>(eid, roomIndex).setProfile(profile);
-    }
-    
-    ecs::add<cp::Mood>(eid, roomIndex) = profile->getMood();
-    
-    if (profile->interaction != nullptr)
-    {
-        ecs::add<cp::Interact>(eid, roomIndex).setProfile(profile);
-        
-        switch(lib::hash(profile->interaction->actionType))
-        {
-            case lib::hash("reward"): {
-                assert(profile->interaction->actionParams != nullptr);
-                auto collectables = ModelProvider::instance()->collectible.genReward(
-                        random, profile->interaction->actionParams.Value);
-                GearComponent reward;
-                for(auto collectable : collectables)
-                {
-                    reward.slots.push_back(SlotData {
-                        .quantity = 1,
-                        .content = collectable
-                    });
-                }
-                ecs::add<cp::Gear>(eid, roomIndex) = reward;
-            }
-            break;
-            case lib::hash("light"): {
-                
-            }
-            break;
-            default:
-            {
-                Log("unknown interaction action type: %s",
-                    profile->interaction->actionType.c_str());
-            }
-            break;
-        }
-    }
-    
-    /*if (profileName == "torch")
-    {
-        ecs::get<cp::Render>(eid).setAnimation("activated", -1);
-        
-        auto light = new SpriteEx();
-        light->initWithSpriteFrameName("grad_ellipse.png");
-        view->add(light, def::LayerType::FG);
-        //light->setOpacity(120);
-        light->setColor(cc::Color3B(252, 195, 159));
-        light->setBlendFunc(cc::BlendFunc::ADDITIVE);
-        light->setPosition(pos + cc::Vec2(8, 8));
-        light->runAction(cc::RepeatForever::create(Flicker::create(
-            80.0f, 0.1f, {150, 200}, {0.98, 1.2}, {0.9,1.1},
-            cc::Color3B(252, 168, 50), cc::Color3B(252, 168, 50))));
-        light->release();
-    }*/
-    
-    dispatcher.onEntityAdded(roomIndex, eid);
-    
-    return eid;
 }
 
 void RoomSystemCtrl::hideObjects(float duration)

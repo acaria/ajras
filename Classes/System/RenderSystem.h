@@ -10,4 +10,6 @@ public:
     
     virtual void tick(double dt) final;
     virtual void animate(double dt, double tp) final;
+    
+    void init() override;
 };

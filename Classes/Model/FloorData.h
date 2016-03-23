@@ -7,6 +7,7 @@ class RoomModel;
 #include "FloorMapping.h"
 #include "Random.h"
 #include "Defines.h"
+#include "LightConfig.h"
 
 using GateConfig = std::map<GateInfo::GateType, std::pair<std::string, cc::Rect>>;
 using ModelMap = std::map<std::string, RoomModel*>;
@@ -35,7 +36,7 @@ public:
     PROPERTY_READ(std::set<std::string>, textures, Textures);
     PROPERTY_READ(cc::Color3B, bgColor, BgColor);
     PROPERTY_READ(std::vector<std::string>, bgTiles, BgTiles);
-    PROPERTY_READ(def::shader::LightConfig, lightConfig, LightConfig);
+    PROPERTY_READ(LightConfig, lightConfig, LightConfig);
     
 private:
     void                            extractInfo(const std::string& name);

@@ -1,6 +1,7 @@
 #include "Defines.h"
 #include "SysHelper.h"
 #include "ModelProvider.h"
+#include "GameCtrl.h"
 
 cc::Rect SysHelper::getBounds(const PositionComponent &position,
                               const PhysicsComponent &collision)
@@ -185,8 +186,8 @@ SlotData* SysHelper::getAvailableSlot(unsigned agentID, CollectibleData* collect
 
 unsigned SysHelper::createPlayerEntity(LayeredContainer* parent,
                                        unsigned group,
-                                       cc::Vec2 srcPos,
-                                       PlayerEntity entity)
+                                       const cc::Vec2& srcPos,
+                                       const PlayerEntity& entity)
 {
     auto eid = cp::entity::genID();
     auto profile = ModelProvider::instance()->profile.get(entity.profileName);
@@ -207,10 +208,23 @@ unsigned SysHelper::createPlayerEntity(LayeredContainer* parent,
     ecs::add<cp::Mood>(eid, group) = profile->getMood();
     ecs::add<cp::Melee>(eid, group).setProfile(profile);
     if (entity.ctrlIndex != 0)
+    {
+        //control
         ecs::add<cp::Control>(eid, group) = entity.ctrlIndex;
+        //light
+        auto& effect = GameCtrl::instance()->getEffects();
+        auto& cpLight = ecs::add<cp::Light>(eid, group);
+        auto type = LightConfig::SpotType::player;
+        cpLight.defaultRef = effect.getLightConfig().defaultCfg[type];
+        cpLight.current = effect.getLightConfig().defaultCfg[type];
+        cpLight.current.brightness = 0;
+        cpLight.current.cutOffRadius = 0;
+    }
     else
+    {
         ecs::add<cp::AI>(eid, group).setProfile(profile);
         //ecs::add<cp::Control>(eid, group) = 2;
+    }
     ecs::add<cp::Gear>(eid, group).slots = entity.inventory;
     ecs::add<cp::Gear>(eid, group).currency = entity.currency;
     ecs::add<cp::Stamina>(eid, group).setProfile(profile);
@@ -223,5 +237,108 @@ unsigned SysHelper::createPlayerEntity(LayeredContainer* parent,
     cpRender.sprite->setPosition(pos);
     cpRender.sprite->setOpacity(0);
     
+    return eid;
+}
+
+unsigned SysHelper::createEntity(LayeredContainer* parent,
+                                 unsigned group,
+                                 const cc::Vec2& srcPos,
+                                 const std::string& profileName,
+                                 lib::Random& random, SystemDispatcher& dispatcher)
+{
+    auto eid = cp::entity::genID();
+    auto profile = ModelProvider::instance()->profile.get(profileName);
+    
+    
+    auto& cpRender = ecs::add<cp::Render>(eid, group);
+    auto& cpPhy = ecs::add<cp::Physics>(eid, group);
+    
+    cc::Vec2 pos = {
+        srcPos.x - cpPhy.shape.getMidX(),
+        srcPos.y - cpPhy.shape.getMidY()
+    };
+    
+    cpRender.setProfile(profile, parent);
+    cpRender.sprite->setPosition(pos);
+    cpRender.sprite->setOpacity(0);
+    
+    cpPhy.setProfile(profile);
+    
+    ecs::add<cp::Mood>(eid, group) = profile->getMood();
+    ecs::add<cp::Input>(eid, group);
+    ecs::add<cp::Position>(eid, group).set(pos);
+    
+    if (profile->stats != nullptr)
+    {
+        auto stats = profile->stats.Value;
+        
+        if (stats.orientation)
+        {
+            ecs::add<cp::Orientation>(eid, group);
+        }
+        
+        if (stats.melee != nullptr)
+        {
+            ecs::add<cp::Melee>(eid, group).setProfile(profile);
+            ecs::add<cp::Stamina>(eid, group);
+        }
+        
+        if (stats.stamina != nullptr)
+        {
+            ecs::add<cp::Stamina>(eid, group).setProfile(profile);
+        }
+        
+        if (stats.health != nullptr)
+        {
+            ecs::add<cp::Health>(eid, group).setProfile(profile);
+        }
+    }
+    
+    if (profile->behaviour != nullptr)
+    {
+        ecs::add<cp::AI>(eid, group).setProfile(profile);
+    }
+    
+    if (profile->interaction != nullptr)
+    {
+        ecs::add<cp::Interact>(eid, group).setProfile(profile);
+        
+        switch(lib::hash(profile->interaction->actionType))
+        {
+            case lib::hash("reward"): {
+                assert(profile->interaction->actionParams != nullptr);
+                auto collectables = ModelProvider::instance()->collectible.genReward(
+                        random, profile->interaction->actionParams.Value);
+                GearComponent reward;
+                for(auto collectable : collectables)
+                {
+                    reward.slots.push_back(SlotData {
+                        .quantity = 1,
+                        .content = collectable
+                    });
+                }
+                ecs::add<cp::Gear>(eid, group) = reward;
+            }
+            break;
+            case lib::hash("light"): {
+                auto& effect = GameCtrl::instance()->getEffects();
+                auto& cpLight = ecs::add<cp::Light>(eid, group);
+                auto type = LightConfig::SpotType::object;
+                cpLight.defaultRef = effect.getLightConfig().defaultCfg[type];
+                cpLight.current = effect.getLightConfig().defaultCfg[type];
+                cpLight.current.brightness = 0;
+                cpLight.current.cutOffRadius = 0;
+            }
+            break;
+            default:
+            {
+                Log("unknown interaction action type: %s",
+                    profile->interaction->actionType.c_str());
+            }
+            break;
+        }
+    }
+    
+    dispatcher.onEntityAdded(group, eid);
     return eid;
 }

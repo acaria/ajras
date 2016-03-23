@@ -3,6 +3,62 @@
 #include "IMapData.h"
 #include "AnimationData.h"
 #include "GameCtrl.h"
+#include "CmdFactory.h"
+
+void RenderSystem::init()
+{
+    this->eventRegs.push_back(this->dispatcher->onSystemReady.registerObserver(
+            [this](unsigned groupID){
+        for(auto eid : this->context->ecs->join<cp::Light, cp::Render>())
+        {
+            unsigned group = this->context->ecs->getID();
+            auto& cpLight = ecs::get<cp::Light>(eid);
+            CmdFactory::at(group, eid).animParamTo("brightness",
+                cpLight.current.brightness, cpLight.defaultRef.brightness, 0.5);
+            CmdFactory::at(group, eid).animParamTo("cutoffradius",
+                cpLight.current.cutOffRadius, cpLight.defaultRef.cutOffRadius, 0.5);
+        }
+    }));
+    
+    this->eventRegs.push_back(this->dispatcher->onGateEnter.registerObserver(
+            [this](unsigned group, unsigned eid, GateMap  gate){
+        switch(gate.cmd)
+        {
+            case GateMap::CmdType::CHANGE_ROOM:
+                if (ecs::has<cp::Light>(eid)) //change room
+                {
+                    auto& cpLight = ecs::get<cp::Light>(eid);
+                    CmdFactory::at(group, eid).animParamTo("brightness",
+                        cpLight.current.brightness, 0, 0.5);
+                    CmdFactory::at(group, eid).animParamTo("cutoffradius",
+                        cpLight.current.cutOffRadius, 0, 0.5);
+                }
+                break;
+            default:
+                break;
+        }
+    }));
+    
+    this->eventRegs.push_back(this->dispatcher->onGateEnterAfter.registerObserver(
+            [this](unsigned group, unsigned eid, GateMap  gate){
+        switch(gate.cmd)
+        {
+            case GateMap::CmdType::CHANGE_ROOM:
+            case GateMap::CmdType::ENTER_MAP:
+                if (ecs::has<cp::Light>(eid)) //change room
+                {
+                    auto& cpLight = ecs::get<cp::Light>(eid);
+                    CmdFactory::at(group, eid).animParamTo("brightness",
+                        cpLight.current.brightness, cpLight.defaultRef.brightness, 0.5);
+                    CmdFactory::at(group, eid).animParamTo("cutoffradius",
+                        cpLight.current.cutOffRadius, cpLight.defaultRef.cutOffRadius, 0.5);
+                }
+                break;
+            default:
+                break;
+        }
+    }));
+}
 
 void RenderSystem::tick(double dt)
 {
@@ -30,6 +86,9 @@ void RenderSystem::tick(double dt)
 
 void RenderSystem::animate(double dt, double tickPercent)
 {
+    auto& lightCfg = GameCtrl::instance()->getEffects().getLightConfig();
+    
+    lightCfg.spots.clear();
     for(auto eid : context->ecs->system<cp::Render>())
     {
         auto &cpRender = ecs::get<cp::Render>(eid);
@@ -42,6 +101,20 @@ void RenderSystem::animate(double dt, double tickPercent)
                          cpPos.pos.y * tickPercent + cpPos.lastPos.y * (1 - tickPercent));
             
             cpRender.sprite->setPosition(pos);
+        }
+        
+        if (ecs::has<cp::Physics, cp::Light>(eid))
+        {
+            auto shape = ecs::get<cp::Physics>(eid).shape;
+            auto& cpLight = ecs::get<cp::Light>(eid);
+
+            cc::Vec2 pos = cpRender.sprite->convertToWorldSpace({
+                shape.getMidX(), shape.getMidY()});
+
+            cpLight.current.pos.x = pos.x;
+            cpLight.current.pos.y = pos.y;
+            
+            lightCfg.spots.push_back(cpLight.current);
         }
 
         //animation

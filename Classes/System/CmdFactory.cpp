@@ -100,25 +100,34 @@ void CmdFactory::goTo(std::list<cc::Vec2> waypoints, float nearDistance)
     }, onSuccess, onFailure);
 }
 
-void CmdFactory::lightCfg(float duration, const def::shader::LightParam& param, float value)
+/*void CmdFactory::lightCfg(float duration, const LightConfig::LightParam& param,
+                          const LightValue& value)
+{
+    
+}
+
+void CmdFactory::lightSpotCfg(float duration, unsigned spotIndex,
+                          const LightConfig::LightParam& param, const LightValue& value)
 {
     auto lightCfg = GameCtrl::instance()->getEffects().getLightConfig();
+    auto spot = lightCfg.spots[spotIndex];
     
-    float current = 0;
+    LightValue current;
     std::string tag;
     
     switch(param)
     {
-        case def::shader::LightParam::brightness:
-            current = lightCfg.brightness;
+        case LightConfig::LightParam::brightness:
+            current = LightValue();
+            current.set<float>(spot.brightness);
             tag = "brightness";
             break;
-        case def::shader::LightParam::cutOffRadius:
-            current = lightCfg.cutOffRadius;
+        case LightConfig::LightParam::cutOffRadius:
+            current = spot.cutOffRadius;
             tag = "cutoffradius";
             break;
-        case def::shader::LightParam::halfRadius:
-            current = lightCfg.halfRadius;
+        case LightConfig::LightParam::halfRadius:
+            current = spot.halfRadius;
             tag = "halfradius";
             break;
         default:
@@ -126,7 +135,7 @@ void CmdFactory::lightCfg(float duration, const def::shader::LightParam& param, 
             return;
     }
     
-    if (duration == 0 || current == value)
+    if (duration == 0)
         return;
     
     float inc = 1 / (def::ticksPerSecond * duration);
@@ -145,7 +154,7 @@ void CmdFactory::lightCfg(float duration, const def::shader::LightParam& param, 
 }
 
 void CmdFactory::lightCfg(float duration,
-                          const def::shader::LightParam& param, const cc::Color3B& value)
+                          const LightConfig::LightParam& param, const cc::Color3B& value)
 {
     auto eid = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
     auto lightCfg = GameCtrl::instance()->getEffects().getLightConfig();
@@ -155,13 +164,9 @@ void CmdFactory::lightCfg(float duration,
 
     switch(param)
     {
-        case def::shader::LightParam::ambiantColor:
+        case LightConfig::LightParam::ambiantColor:
             current = lightCfg.ambiantColor;
             tag = "ambiantcolor";
-            break;
-        case def::shader::LightParam::lightColor:
-            current = lightCfg.lightColor;
-            tag = "lightcolor";
             break;
         default:
             Log("invalid light Cfg CMD");
@@ -183,7 +188,7 @@ void CmdFactory::lightCfg(float duration,
     }, onSuccess, onFailure);
 }
 
-/*void CmdFactory::lightPos(float duration, const cc::Vec2& dest)
+void CmdFactory::lightPos(float duration, const cc::Vec2& dest)
 {
     auto eid = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
     
@@ -204,7 +209,7 @@ void CmdFactory::lightCfg(float duration,
                                    
         return State::inProgress;
     });
-}*/
+}
 
 void CmdFactory::lightPos(float duration, const cc::Vec2& margin)
 {
@@ -236,6 +241,33 @@ void CmdFactory::lightFollow(const cc::Vec2& margin)
             [sprite, margin](unsigned eid, double dt) mutable {
         auto p = sprite->convertToWorldSpace(margin);
         GameCtrl::instance()->getEffects().setLightPos({p.x, p.y});
+        return State::inProgress;
+    }, onSuccess, onFailure);
+}*/
+
+void CmdFactory::animParamBy(const std::string &tag, float &current, float change, float duration)
+{
+    return animParamTo(tag, current, current + change, duration);
+}
+
+void CmdFactory::animParamTo(const std::string &tag, float &current, float target, float duration)
+{
+    if (current == target)
+    {
+        if (onSuccess != nullptr)
+            onSuccess();
+        return;
+    }
+    float changePerSecond = (target - current) / duration;
+    ecs::add<cp::Cmd>(eid, gid).setAnimate(tag,
+            [duration, &current, target, changePerSecond](unsigned eid, double dt) mutable {
+        if (duration <= 0)
+        {
+            current = target;
+            return State::success;
+        }
+        current += changePerSecond * dt;
+        duration -= dt;
         return State::inProgress;
     }, onSuccess, onFailure);
 }

@@ -39,7 +39,11 @@ public:
     void lightFollow(const cc::Vec2& margin);*/
     
     void animParamTo(const std::string& tag, float &current, float to, float duration);
+    void animParamTo(const std::string& tag, std::list<std::reference_wrapper<float>> current,
+                     std::list<float> to, float duration);
     void animParamBy(const std::string& tag, float &current, float changeBy, float duration);
+    void animParamBy(const std::string& tag, std::list<std::reference_wrapper<float>> current,
+                     std::list<float> changeBy, float duration);
     
 private:
     static long tagUID;

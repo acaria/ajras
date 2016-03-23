@@ -13,10 +13,10 @@ void RenderSystem::init()
         {
             unsigned group = this->context->ecs->getID();
             auto& cpLight = ecs::get<cp::Light>(eid);
-            CmdFactory::at(group, eid).animParamTo("brightness",
-                cpLight.current.brightness, cpLight.defaultRef.brightness, 0.5);
-            CmdFactory::at(group, eid).animParamTo("cutoffradius",
-                cpLight.current.cutOffRadius, cpLight.defaultRef.cutOffRadius, 0.5);
+            CmdFactory::at(group, eid).animParamTo("spotlight",
+                {cpLight.current.brightness, cpLight.current.cutOffRadius},
+                {cpLight.defaultRef.brightness, cpLight.defaultRef.cutOffRadius},
+                0.5);
         }
     }));
     
@@ -28,10 +28,10 @@ void RenderSystem::init()
                 if (ecs::has<cp::Light>(eid)) //change room
                 {
                     auto& cpLight = ecs::get<cp::Light>(eid);
-                    CmdFactory::at(group, eid).animParamTo("brightness",
-                        cpLight.current.brightness, 0, 0.5);
-                    CmdFactory::at(group, eid).animParamTo("cutoffradius",
-                        cpLight.current.cutOffRadius, 0, 0.5);
+                    CmdFactory::at(group, eid).animParamTo("spotlight",
+                        {cpLight.current.brightness, cpLight.current.cutOffRadius},
+                        {0, 0},
+                        0.5);
                 }
                 break;
             default:
@@ -48,10 +48,10 @@ void RenderSystem::init()
                 if (ecs::has<cp::Light>(eid)) //change room
                 {
                     auto& cpLight = ecs::get<cp::Light>(eid);
-                    CmdFactory::at(group, eid).animParamTo("brightness",
-                        cpLight.current.brightness, cpLight.defaultRef.brightness, 0.5);
-                    CmdFactory::at(group, eid).animParamTo("cutoffradius",
-                        cpLight.current.cutOffRadius, cpLight.defaultRef.cutOffRadius, 0.5);
+                    CmdFactory::at(group, eid).animParamTo("spotlight",
+                        {cpLight.current.brightness, cpLight.current.cutOffRadius},
+                        {cpLight.defaultRef.brightness, cpLight.defaultRef.cutOffRadius},
+                        0.5);
                 }
                 break;
             default:

@@ -125,19 +125,6 @@ void FloorSystemCtrl::showEntityFromGate(unsigned roomIndex,
     ));
     
     dispatcher.onGateEnterAfter(roomIndex, eid, gate);
-    
-    //light cfg
-    /*if (eid == playerData->getEntityFocusID())
-    {
-        CmdFactory::at(context.ecs, eid).animParamTo("brightness",
-            data->getLightConfig().spots[0].brightness,
-            data->getLightConfig().spots[0].brightness, 0.5);
-        
-        auto defaultSpot = data->getLightConfig().defaultCfg[LightConfig::SpotType::player];
-        auto& spot = data->getLightConfig().spots[0];
-        CmdFactory::at(context.ecs, eid).animParamTo("cutoffradius",
-            spot.cutOffRadius, defaultSpot.cutOffRadius, 0.5);
-    }*/
 }
 
 void FloorSystemCtrl::regroupTeam(unsigned eid, unsigned nextRoomIndex, const GateMap& gate,
@@ -506,14 +493,6 @@ void FloorSystemCtrl::bindSystems()
         {
             case GateMap::CmdType::CHANGE_ROOM:
                 this->transitInfo.processing[eid] = gate;
-                if (eid == playerData->getEntityFocusID()) //change room
-                {
-                    //auto& spot = data->getLightConfig().spots[0];
-                    //CmdFactory::at(context.ecs, eid).animParamTo("brightness",
-                    //    /*out*/spot.brightness, 0, 0.5);
-                    //CmdFactory::at(context.ecs, eid).animParamTo("brightness",
-                    //    /*out*/spot.cutOffRadius, 0, 0.5);
-                }
                 break;
             default:
                 break;
@@ -642,15 +621,6 @@ void FloorSystemCtrl::loadEntities()
         SysHelper::disableEntity(roomIndex, eid);
         dispatcher.onEntityAdded(roomIndex, eid);
     }
-    
-    //init light config
-    //auto defaultSpot = data->getLightConfig().defaultCfg[LightConfig::SpotType::player];
-    //auto& spot = data->getLightConfig().spots[0];
-    //CmdFactory::at(context.ecs, playerData->getEntityFocusID()).animParamTo("cutoffradius",
-    //    /*ref*/spot.cutOffRadius, defaultSpot.cutOffRadius, 0.5);
-    //CmdFactory::at(context.ecs, playerData->getEntityFocusID()).animParamTo("brightness",
-    //    /*ref*/spot.brightness, defaultSpot.brightness, 0.5);
-    //CmdFactory::at(context.ecs, playerData->getEntityFocusID()).lightFollow({0,0});
 }
 
 void FloorSystemCtrl::load(GameCamera *cam, cc::Node *view,

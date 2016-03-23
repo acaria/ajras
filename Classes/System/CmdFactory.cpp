@@ -250,6 +250,20 @@ void CmdFactory::animParamBy(const std::string &tag, float &current, float chang
     return animParamTo(tag, current, current + change, duration);
 }
 
+void CmdFactory::animParamBy(const std::string &tag,
+                             std::list<std::reference_wrapper<float>> current,
+                             std::list<float> changeBy, float duration)
+{
+    auto it1 = current.begin();
+    auto it2 = changeBy.begin();
+    std::list<float> to;
+    
+    while(it1 != current.end() && it2 != changeBy.end())
+        to.push_back(*it1++ + *it2++);
+
+    return animParamTo(tag, current, to, duration);
+}
+
 void CmdFactory::animParamTo(const std::string &tag, float &current, float target, float duration)
 {
     if (current == target)
@@ -267,6 +281,49 @@ void CmdFactory::animParamTo(const std::string &tag, float &current, float targe
             return State::success;
         }
         current += changePerSecond * dt;
+        duration -= dt;
+        return State::inProgress;
+    }, onSuccess, onFailure);
+}
+
+void CmdFactory::animParamTo(const std::string &tag,
+                             std::list<std::reference_wrapper<float>> current,
+                             std::list<float> to, float duration)
+{
+    auto it1 = current.begin();
+    auto it2 = to.begin();
+    
+    std::list<float> changePerSecond;
+    while(it1 != current.end() && it2 != to.end())
+    {
+        changePerSecond.push_back((*(it2++) - *(it1++)) / duration);
+    }
+
+    ecs::add<cp::Cmd>(eid, gid).setAnimate(tag,
+            [duration, current, to, changePerSecond](unsigned eid, double dt) mutable {
+        if (duration <= 0)
+        {
+            auto it1 = current.begin();
+            auto it2 = to.begin();
+            while(it1 != current.end() && it2 != to.end())
+            {
+                auto& current = (*it1).get();
+                current = *it2;
+                it1++;
+                it2++;
+            }
+            
+            return State::success;
+        }
+        auto it1 = current.begin();
+        auto it2 = changePerSecond.begin();
+        while(it1 != current.end() && it2 != changePerSecond.end())
+        {
+            auto& current = (*it1).get();
+            current += *it2 * dt;
+            it1++;
+            it2++;
+        }
         duration -= dt;
         return State::inProgress;
     }, onSuccess, onFailure);

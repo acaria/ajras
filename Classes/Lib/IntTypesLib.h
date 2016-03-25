@@ -70,4 +70,4 @@ namespace lib
         float getVec2X() {return (float)x * kDivisor;}
         float getVec2Y() {return (float)y * kDivisor;}
     };
-}
+};

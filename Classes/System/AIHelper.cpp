@@ -293,7 +293,7 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
     cc::Point dest = system->context->data->getCol()->getFormationPosition(
         cpTeam.formation, cpTeam.position, ecs::get<cp::Trail>(leaderId).tail);
     auto wayPoints = system->context->data->getNav()->getWaypoints(
-            {eid, leaderId}, bounds, dest, ecs::get<cp::Physics>(eid).category);
+            teamIds, bounds, dest, ecs::get<cp::Physics>(eid).category);
     
     if (wayPoints.size() > 0)
     {

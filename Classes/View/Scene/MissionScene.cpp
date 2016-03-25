@@ -46,8 +46,6 @@ bool MissionScene::init()
     this->canvas->setSize(canvasRect.size);
     this->addChild(canvas);
     
-    GameCtrl::instance()->getEffects().setFrame(canvasRect);
-    
     this->frame = cc::create<BufferedFrame>(canvasRect);
     this->frame->setActive(def::postProcessing);
     this->frame->setPostProcess<SpriteLight>();

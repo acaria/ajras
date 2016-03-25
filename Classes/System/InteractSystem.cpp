@@ -25,14 +25,16 @@ void InteractSystem::tick(double dt)
                         cpRender.busy = false;
                         cpInteract.busy = false;
                         cpInteract.activated = false;
+                        this->triggerAction(eid, cpInteract);
                     }
                     else
                     {
                         cpRender.setAnimation(cpInteract.animKeyOff, cpInteract.repeatMode,
-                                [&cpInteract](bool canceled){
+                                [this, &cpInteract, eid](bool canceled){
                             if (!canceled)
                             {
                                 cpInteract.activated = false;
+                                this->triggerAction(eid, cpInteract);
                             }
                             cpInteract.busy = false;
                         });
@@ -45,10 +47,10 @@ void InteractSystem::tick(double dt)
                 if (cpInteract.repeatMode == -1)
                 {
                     cpRender.setAnimation(cpInteract.animKeyOn, -1);
-                    this->triggerAction(eid, cpInteract);
                     cpRender.busy = false;
                     cpInteract.activated = true;
                     cpInteract.busy = false;
+                    this->triggerAction(eid, cpInteract);
                 }
                 else
                 {
@@ -56,8 +58,8 @@ void InteractSystem::tick(double dt)
                             [this, &cpInteract, eid](bool canceled){
                         if (!canceled)
                         {
-                            this->triggerAction(eid, cpInteract);
                             cpInteract.activated = true;
+                            this->triggerAction(eid, cpInteract);
                         }
                         cpInteract.busy = false;
                     });
@@ -75,7 +77,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             break;
         }
         case lib::hash("reward"): {
-            if (!ecs::has<cp::Gear>(eid))
+            if (!ecs::has<cp::Gear>(eid) || !interact.activated)
                 return; //no rewards
             auto& gear = ecs::get<cp::Gear>(eid);
             if (gear.slots.size() == 0)
@@ -136,6 +138,37 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                 delay += 0.2;
             }
             gear.slots.clear();
+            break;
+        }
+        case lib::hash("light"): {
+            if (!ecs::has<cp::Light>(eid))
+                return; //no lights
+            auto& cpLight = ecs::get<cp::Light>(eid);
+            auto sprite = cpLight.halo;
+            if (interact.activated)
+            {
+                cc::Vec2 scaleTarget = {
+                    cpLight.defaultSize.width / sprite->getContentSize().width,
+                    cpLight.defaultSize.height / sprite->getContentSize().height,
+                };
+                sprite->runAction(cc::Spawn::create(
+                    cc::ActionFloat::create(def::anim::toggleLightDuration, sprite->getScaleX(), scaleTarget.x,
+                        [sprite](float v){ sprite->setScaleX(v); }),
+                    cc::ActionFloat::create(def::anim::toggleLightDuration, sprite->getScaleY(), scaleTarget.y,
+                        [sprite](float v){ sprite->setScaleY(v); }),
+                    NULL)
+                );
+            }
+            else //disabled
+            {
+                sprite->runAction(cc::Spawn::create(
+                    cc::ActionFloat::create(def::anim::toggleLightDuration, sprite->getScaleX(), 0,
+                        [sprite](float v){ sprite->setScaleX(v); }),
+                    cc::ActionFloat::create(def::anim::toggleLightDuration, sprite->getScaleY(), 0,
+                        [sprite](float v){ sprite->setScaleY(v); }),
+                    NULL)
+                );
+            }
             break;
         }
         default: {

@@ -29,16 +29,23 @@ public:
 class SpriteLight : public ShaderSprite<SpriteEx>
 {
 public:
-    SpriteLight() : ShaderSprite("light", true) {}
+    SpriteLight() : ShaderSprite("light", true) {
+        auto pOrigin = cc::Director::getInstance()->getVisibleOrigin();
+        auto pSize = cc::Director::getInstance()->getVisibleSize();
+        auto margin = def::canvasMissionMargin;
+        
+        this->frameBounds = { pOrigin.x + margin.x,
+                              pOrigin.y + margin.w,
+                              pSize.width - margin.x - margin.y,
+                              pSize.height - margin.w - margin.z };
+    }
     
 protected:
     virtual void setCustomUniforms(cc::GLProgramState* glState,
                                    const cc::Mat4 &transform,
                                    uint32_t flags) override;
-
+    
 private:
-    void genSpotsList();
-
-    int                 nbSpots;
-    std::vector<float>  spotList;
+    cc::Rect frameBounds;
+    std::vector<float> spot;
 };

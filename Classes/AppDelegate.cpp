@@ -63,6 +63,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setDisplayStats(def::showFPS);
     director->setAnimationInterval(def::idealInterval);
     director->setProjection(cc::Director::Projection::_2D);
+    director->setDepthTest(false);
     
     GameCtrl::instance()->start();
 

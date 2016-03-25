@@ -211,14 +211,6 @@ unsigned SysHelper::createPlayerEntity(LayeredContainer* parent,
     {
         //control
         ecs::add<cp::Control>(eid, group) = entity.ctrlIndex;
-        //light
-        auto& effect = GameCtrl::instance()->getEffects();
-        auto& cpLight = ecs::add<cp::Light>(eid, group);
-        auto type = LightConfig::SpotType::player;
-        cpLight.defaultRef = effect.getLightConfig().defaultCfg[type];
-        cpLight.current = effect.getLightConfig().defaultCfg[type];
-        cpLight.current.brightness = 0;
-        cpLight.current.cutOffRadius = 0;
     }
     else
     {
@@ -261,6 +253,7 @@ unsigned SysHelper::createEntity(LayeredContainer* parent,
     cpRender.setProfile(profile, parent);
     cpRender.sprite->setPosition(pos);
     cpRender.sprite->setOpacity(0);
+    cpRender.sprite->setCascadeOpacityEnabled(true);
     
     cpPhy.setProfile(profile);
     
@@ -321,13 +314,20 @@ unsigned SysHelper::createEntity(LayeredContainer* parent,
             }
             break;
             case lib::hash("light"): {
-                auto& effect = GameCtrl::instance()->getEffects();
+                assert(profile->interaction->actionParams != nullptr);
+                auto lightType = profile->interaction->actionParams.Value;
+                auto& light = GameCtrl::instance()->getLight();
                 auto& cpLight = ecs::add<cp::Light>(eid, group);
-                auto type = LightConfig::SpotType::object;
-                cpLight.defaultRef = effect.getLightConfig().defaultCfg[type];
-                cpLight.current = effect.getLightConfig().defaultCfg[type];
-                cpLight.current.brightness = 0;
-                cpLight.current.cutOffRadius = 0;
+                cpLight.defaultColor = light.defaultConfig.objects[lightType].color;
+                cpLight.defaultSize = light.defaultConfig.objects[lightType].size;
+
+                cpLight.halo = cc::Sprite::createWithSpriteFrameName("grad_circle.png");
+                cpLight.halo->setPosition({cpPhy.shape.getMidX() + pos.x, cpPhy.shape.getMidY() + pos.y});
+                cpLight.halo->setOpacity(160);
+                cpLight.halo->setBlendFunc({GL_SRC_ALPHA, GL_ONE});
+                cpLight.halo->setScale(0,0);
+                cpLight.halo->setColor(cpLight.defaultColor);
+                parent->add(cpLight.halo, def::LayerType::FG, {0, 0});
             }
             break;
             default:

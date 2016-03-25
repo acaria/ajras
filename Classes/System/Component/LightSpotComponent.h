@@ -3,9 +3,8 @@
 
 struct LightSpotComponent
 {
-    int                     index;
-
-    LightConfig::SpotInfo   current;
-    LightConfig::SpotInfo   defaultRef;
+    cc::Sprite*     halo = nullptr;
+    cc::Size        defaultSize;
+    cc::Color3B     defaultColor;
 };
 

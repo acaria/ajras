@@ -27,16 +27,6 @@ public:
     void goTo(std::list<cc::Vec2> waypoints, float nearDistance);
     void delay(double timeInterval);
     void waituntil(double timeout, const std::function<bool()>& predicate);
-    /*void lightCfg(float duration,
-                  const LightConfig::LightParam& param,
-                  const LightValue& value);
-    void lightSpotCfg(float duration,
-                      unsigned spotIndex,
-                      const LightConfig::LightParam& param,
-                      const LightValue& value);
-    //void lightPos(float duration, const cc::Vec2& dest);
-    void lightPos(float duration, const cc::Vec2& margin);
-    void lightFollow(const cc::Vec2& margin);*/
     
     void animParamTo(const std::string& tag, float &current, float to, float duration);
     void animParamTo(const std::string& tag, std::list<std::reference_wrapper<float>> current,

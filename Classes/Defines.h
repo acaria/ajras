@@ -129,6 +129,7 @@ namespace def {
     {
         //transit
         const float showObjectsDuration = 0.5;
+        const float toggleLightDuration = 0.5;
         const float hideObjectsDuration = 1.0;
         const float showRoomDuration = 0.5;
         const float showEntityFromGateDuration = 1.0;
@@ -141,6 +142,8 @@ namespace def {
     
     namespace collision
     {
+        const bool teamResetInput = false;
+        
         enum class Cat
         {
             impassable,

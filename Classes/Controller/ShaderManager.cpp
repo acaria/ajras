@@ -27,26 +27,3 @@ void ShaderManager::load()
         }
     }
 }
-
-void ShaderManager::initLightConfig(const LightConfig &config)
-{
-    this->lightConfig = config;
-    
-    auto gls = cc::GLProgramCache::getInstance()->getGLProgram("light");
-    if (gls == nullptr)
-    {
-        Log("invalid gl program for light config");
-        return;
-    }
-    
-    auto ps = cc::GLProgramState::getOrCreateWithGLProgram(gls);
-    if (ps == nullptr)
-    {
-        Log("invalid gl state for light config");
-        return;
-    }
-    
-    auto ambiantColor = config.ambiantColor;
-    ps->setUniformVec3("u_ambientColor",
-                       cc::Vec3(ambiantColor.r, ambiantColor.g, ambiantColor.b) / 255.0f);
-}

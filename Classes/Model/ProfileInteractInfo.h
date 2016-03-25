@@ -15,4 +15,5 @@ struct ProfileInteractInfo
     lib::Nullable<std::string>          actionParams;
     std::string                         triggerMode;
     std::string                         triggerAnimation;
+    bool                                activated;
 };

@@ -10,7 +10,6 @@ using namespace std::placeholders;
 GameCtrl::GameCtrl():tick(std::bind(&GameCtrl::onTick, this, _1),
                           std::bind(&GameCtrl::onAnimate, this, _1, _2)),
                      scene(&tick)
-
 {
 #if FOOTER_DEBUG
     logger.setLevelMask(LL_DEBUG | LL_INFO | LL_TRACE | LL_WARNING | LL_ERROR | LL_FATAL);
@@ -65,7 +64,6 @@ void GameCtrl::goToMainMenu()
 void GameCtrl::goToCamp(std::string startKey)
 {
     this->gameData.loadCamp();
-    //this->shaders.initLightConfig(this->gameData.curCamp()); todo load light config
     this->gameData.getPlayerData()->startCampKey = startKey;
     
     for(auto ss : this->gameData.curCamp()->getSpriteSheets())
@@ -110,7 +108,7 @@ GameData& GameCtrl::getData()
     return this->gameData;
 }
 
-ShaderManager& GameCtrl::getEffects()
+LightManager& GameCtrl::getLight()
 {
-    return this->shaders;
+    return this->light;
 }

@@ -31,48 +31,51 @@ void FloorData::extractInfo(const std::string &name)
             auto light = effect.at("light").asValueMap();
             LightConfig lightConfig;
             
-            assert(light.find("spot") != light.end());
-            for(auto element : light.at("spot").asValueVector())
+            if (light.find("spot") != light.end())
             {
-                LightConfig::SpotType spotType;
-                LightConfig::SpotInfo spotInfo;
-                auto spot = element.asValueMap();
-                
-                auto type = spot.at("type").asString();
-                {
-                    switch(lib::hash(type))
-                    {
-                        case lib::hash("player"): spotType = LightConfig::SpotType::player;
-                            break;
-                        case lib::hash("object"): spotType = LightConfig::SpotType::object;
-                            break;
-                        default: Log("unrecognised light spot type config: %s", type.c_str());
-                            spotType = LightConfig::SpotType::player;
-                            break;
-                    }
-                }
+                auto spot = light.at("spot").asValueMap();
                 
                 auto lightColor = std::vector<std::string>();
                 lib::split(spot.at("color").asString(), lightColor, ",", true);
-                spotInfo.color = cc::Color3B(std::stoi(lightColor[0]),
-                                             std::stoi(lightColor[1]),
-                                             std::stoi(lightColor[2]));
-                
-                spotInfo.brightness = spot.at("brightness").asFloat();
-                spotInfo.cutOffRadius = spot.at("cutOffRadius").asFloat();
-                spotInfo.halfRadius = spot.at("halfRadius").asFloat();
-                spotInfo.pos.z = spot.at("depth").asFloat();
-                
-                lightConfig.initSpot(spotType, spotInfo);
+                lightConfig.spot.color = cc::Color3B(std::stoi(lightColor[0]),
+                                                     std::stoi(lightColor[1]),
+                                                     std::stoi(lightColor[2]));
+                lightConfig.spot.brightness = spot.at("brightness").asFloat();
+                lightConfig.spot.cutOffRadius = spot.at("cutOffRadius").asFloat();
+                lightConfig.spot.halfRadius = spot.at("halfRadius").asFloat();
+                lightConfig.spot.pos.z = spot.at("depth").asFloat();
             }
             
             if (light.find("ambiantColor") != light.end())
             {
                 auto ambiantColor = std::vector<std::string>();
                 lib::split(light.at("ambiantColor").asString(), ambiantColor, ",", true);
-                lightConfig.initAmbiant(cc::Color3B(std::stoi(ambiantColor[0]),
-                                                    std::stoi(ambiantColor[1]),
-                                                    std::stoi(ambiantColor[2])));
+                lightConfig.ambiantColor = cc::Color3B(std::stoi(ambiantColor[0]),
+                                                       std::stoi(ambiantColor[1]),
+                                                       std::stoi(ambiantColor[2]));
+            }
+            
+            if (light.find("object") != light.end())
+            {
+                auto obj = light.at("object").asValueMap();
+                for(auto el : obj)
+                {
+                    auto info = el.second.asValueMap();
+                    
+                    auto lightColor = std::vector<std::string>();
+                    lib::split(info.at("color").asString(), lightColor, ",", true);
+                    
+                    auto lightSize = std::vector<std::string>();
+                    lib::split(info.at("size").asString(), lightSize, ",", true);
+                    
+                    lightConfig.objects[el.first] = {
+                        .color = cc::Color3B(std::stoi(lightColor[0]),
+                                             std::stoi(lightColor[1]),
+                                             std::stoi(lightColor[2])),
+                        .size = cc::Size(std::stoi(lightSize[0]),
+                                         std::stoi(lightSize[1]))
+                    };
+                }
             }
             
             this->lightConfig = lightConfig;

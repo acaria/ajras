@@ -14,8 +14,12 @@
 	</dict>
 	<key>interaction</key>
 	<dict>
+		<key>activated</key>
+		<true/>
 		<key>actionName</key>
 		<string>light</string>
+		<key>actionParams</key>
+		<string>torch</string>
 		<key>triggerMode</key>
 		<string>always</string>
 		<key>triggerAnimation</key>

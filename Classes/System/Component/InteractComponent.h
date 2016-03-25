@@ -40,6 +40,8 @@ struct InteractComponent
                 Log("invalid trigger animation detected: %s", interaction.triggerAnimation.c_str());
                 break;
         }
+        
+        triggerActivation = profile->interaction->activated;
     }
     
     //input

@@ -9,7 +9,7 @@ void RenderSystem::init()
 {
     this->eventRegs.push_back(this->dispatcher->onSystemReady.registerObserver(
             [this](unsigned groupID){
-        for(auto eid : this->context->ecs->join<cp::Light, cp::Render>())
+        /*for(auto eid : this->context->ecs->join<cp::Light, cp::Render>())
         {
             unsigned group = this->context->ecs->getID();
             auto& cpLight = ecs::get<cp::Light>(eid);
@@ -17,7 +17,7 @@ void RenderSystem::init()
                 {cpLight.current.brightness, cpLight.current.cutOffRadius},
                 {cpLight.defaultRef.brightness, cpLight.defaultRef.cutOffRadius},
                 0.5);
-        }
+        }*/
     }));
     
     this->eventRegs.push_back(this->dispatcher->onGateEnter.registerObserver(
@@ -25,17 +25,22 @@ void RenderSystem::init()
         switch(gate.cmd)
         {
             case GateMap::CmdType::CHANGE_ROOM:
-                if (ecs::has<cp::Light>(eid)) //change room
+            {
+                auto focusID = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
+                if (eid == focusID)
                 {
-                    auto& cpLight = ecs::get<cp::Light>(eid);
+                    auto& lightCfg = GameCtrl::instance()->getLight().currentConfig;
                     CmdFactory::at(group, eid).animParamTo("spotlight",
-                        {cpLight.current.brightness, cpLight.current.cutOffRadius},
+                        {lightCfg.spot.brightness, lightCfg.spot.cutOffRadius},
                         {0, 0},
                         0.5);
                 }
                 break;
+            }
             default:
+            {
                 break;
+            }
         }
     }));
     
@@ -45,17 +50,23 @@ void RenderSystem::init()
         {
             case GateMap::CmdType::CHANGE_ROOM:
             case GateMap::CmdType::ENTER_MAP:
-                if (ecs::has<cp::Light>(eid)) //change room
+            {
+                auto focusID = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
+                if (eid == focusID)
                 {
-                    auto& cpLight = ecs::get<cp::Light>(eid);
+                    auto& lightCfg = GameCtrl::instance()->getLight().currentConfig;
+                    auto& defaultCfg = GameCtrl::instance()->getLight().defaultConfig;
                     CmdFactory::at(group, eid).animParamTo("spotlight",
-                        {cpLight.current.brightness, cpLight.current.cutOffRadius},
-                        {cpLight.defaultRef.brightness, cpLight.defaultRef.cutOffRadius},
+                        {lightCfg.spot.brightness, lightCfg.spot.cutOffRadius},
+                        {defaultCfg.spot.brightness, defaultCfg.spot.cutOffRadius},
                         0.5);
                 }
                 break;
+            }
             default:
+            {
                 break;
+            }
         }
     }));
 }
@@ -86,9 +97,9 @@ void RenderSystem::tick(double dt)
 
 void RenderSystem::animate(double dt, double tickPercent)
 {
-    auto& lightCfg = GameCtrl::instance()->getEffects().getLightConfig();
+    auto& lightCfg = GameCtrl::instance()->getLight().currentConfig;
+    auto focusID = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
     
-    lightCfg.spots.clear();
     for(auto eid : context->ecs->system<cp::Render>())
     {
         auto &cpRender = ecs::get<cp::Render>(eid);
@@ -103,18 +114,13 @@ void RenderSystem::animate(double dt, double tickPercent)
             cpRender.sprite->setPosition(pos);
         }
         
-        if (ecs::has<cp::Physics, cp::Light>(eid))
+        if (eid == focusID && ecs::has<cp::Physics>(eid))
         {
-            auto shape = ecs::get<cp::Physics>(eid).shape;
-            auto& cpLight = ecs::get<cp::Light>(eid);
-
-            cc::Vec2 pos = cpRender.sprite->convertToWorldSpace({
-                shape.getMidX(), shape.getMidY()});
-
-            cpLight.current.pos.x = pos.x;
-            cpLight.current.pos.y = pos.y;
-            
-            lightCfg.spots.push_back(cpLight.current);
+            auto& shape = ecs::get<cp::Physics>(eid).shape;
+            auto shapePos = cpRender.sprite->convertToWorldSpace(
+                {shape.getMidX(), shape.getMidY()});
+            lightCfg.spot.pos.x = shapePos.x;
+            lightCfg.spot.pos.y = shapePos.y;
         }
 
         //animation

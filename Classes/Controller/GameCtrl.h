@@ -8,6 +8,7 @@
 #include "DebugInfoLayer.h"
 #include "Event.h"
 #include "ShaderManager.h"
+#include "LightManager.h"
 
 class RoomData;
 class FloorData;
@@ -29,7 +30,7 @@ public:
     
     //accessors
     GameData&       getData();
-    ShaderManager&  getEffects();
+    LightManager&   getLight();
     TickCtrl    tick;
 
     //trace && debug
@@ -55,6 +56,7 @@ public:
 protected:
     SceneManager    scene;
     ShaderManager   shaders;
+    LightManager    light;
 
 private:
     template<typename ... Args>

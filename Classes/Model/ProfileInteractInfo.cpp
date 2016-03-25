@@ -27,4 +27,9 @@ ProfileInteractInfo::ProfileInteractInfo(const cc::ValueMap& data)
         actionParams = data.at("actionParams").asString();
     else
         actionParams = nullptr;
+    
+    if (data.find("activated") != data.end())
+        activated = data.at("activated").asBool();
+    else
+        activated = false;
 }

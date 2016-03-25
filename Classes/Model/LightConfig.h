@@ -2,12 +2,6 @@
 
 struct LightConfig
 {
-    enum SpotType
-    {
-        player,
-        object
-    };
-    
     struct SpotInfo
     {
         cc::Color3B     color;
@@ -17,13 +11,18 @@ struct LightConfig
         float           halfRadius;
     };
     
-    using SpotDefaultMapConfig = std::map<SpotType, SpotInfo>;
+    struct ObjectInfo
+    {
+        cc::Color3B     color;
+        cc::Vec2        pos;
+        cc::Size        size;
+    };
     
-    void initAmbiant(const cc::Color3B& ambiantColor);
-    void initSpot(SpotType type, const SpotInfo& info);
-    
-    cc::Color3B                     ambiantColor = {255,255,255};
-    SpotDefaultMapConfig            defaultCfg;
-    std::vector<SpotInfo>           spots;
+    cc::Color3B ambiantColor = {255,255,255};
+    SpotInfo spot = {
+        .color = {255,255,255}, .pos = {0,0,0},
+        .brightness = 0, .cutOffRadius = 0, .halfRadius = 0
+    };
+    std::map<std::string, ObjectInfo>   objects;
 };
 

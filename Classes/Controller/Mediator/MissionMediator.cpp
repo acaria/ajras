@@ -9,8 +9,7 @@ void MissionMediator::onAddView(MissionScene &scene)
     scene.setBgColor(floorData->getBgColor());
     
     //init light
-    auto& effect = GameCtrl::instance()->getEffects();
-    effect.initLightConfig(floorData->getLightConfig());
+    GameCtrl::instance()->getLight().init(floorData->getLightConfig());
     
     this->systemCtrl.load(scene.getCam(), scene.getFrame(), playerData, floorData);
     

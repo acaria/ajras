@@ -1,6 +1,7 @@
 #include "InteractSystem.h"
 #include "ModelProvider.h"
 #include "IMapData.h"
+#include "CsActionInterval.h"
 
 void InteractSystem::tick(double dt)
 {
@@ -122,16 +123,16 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                 cpRender.sprite->runAction(cc::Sequence::create(
                     cc::DelayTime::create(delay + 0.8),
                     cc::CallFunc::create([nid, this](){
-                            auto& cpRender = ecs::get<cp::Render>(nid);
-                            auto size = cpRender.sprite->getContentSize();
-                            auto& cpPhysics = context->ecs->add<cp::Physics>(nid);
-                            cpPhysics.shape = {0, 0, size.width, size.height};
-                            cpPhysics.category = def::collision::Cat::collectible;
-                            auto spos = cpRender.sprite->getPosition() - size / 2;
-                            cpRender.sprite->setAnchorPoint({0,0});
-                            cpRender.sprite->setPosition(spos);
-                            context->ecs->add<cp::Position>(nid).set(spos);
-                            dispatcher->onEntityAdded(context->ecs->getID(), nid);
+                        auto& cpRender = ecs::get<cp::Render>(nid);
+                        auto size = cpRender.sprite->getContentSize();
+                        auto& cpPhysics = context->ecs->add<cp::Physics>(nid);
+                        cpPhysics.shape = {0, 0, size.width, size.height};
+                        cpPhysics.category = def::collision::Cat::collectible;
+                        auto spos = cpRender.sprite->getPosition() - size / 2;
+                        cpRender.sprite->setAnchorPoint({0,0});
+                        cpRender.sprite->setPosition(spos);
+                        context->ecs->add<cp::Position>(nid).set(spos);
+                        dispatcher->onEntityAdded(context->ecs->getID(), nid);
                     }),
                     NULL
                 ));
@@ -147,20 +148,43 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             auto sprite = cpLight.halo;
             if (interact.activated)
             {
-                cc::Vec2 scaleTarget = {
-                    cpLight.defaultSize.width / sprite->getContentSize().width,
-                    cpLight.defaultSize.height / sprite->getContentSize().height,
+                sprite->stopAllActions();
+                cc::Vec2 scaleTarget1 = {
+                    cpLight.defaultSize.first.width / sprite->getContentSize().width,
+                    cpLight.defaultSize.first.height / sprite->getContentSize().height,
                 };
-                sprite->runAction(cc::Spawn::create(
-                    cc::ActionFloat::create(def::anim::toggleLightDuration, sprite->getScaleX(), scaleTarget.x,
+                cc::Vec2 scaleTarget2 = {
+                    cpLight.defaultSize.second.width / sprite->getContentSize().width,
+                    cpLight.defaultSize.second.height / sprite->getContentSize().height,
+                };
+                auto step1 = cc::Spawn::create(
+                    cc::ActionFloat::create(
+                        def::anim::toggleLightDuration,
+                        sprite->getScaleX(),
+                        scaleTarget1.x,
                         [sprite](float v){ sprite->setScaleX(v); }),
-                    cc::ActionFloat::create(def::anim::toggleLightDuration, sprite->getScaleY(), scaleTarget.y,
+                    cc::ActionFloat::create(
+                        def::anim::toggleLightDuration,
+                        sprite->getScaleY(),
+                        scaleTarget1.y,
                         [sprite](float v){ sprite->setScaleY(v); }),
-                    NULL)
-                );
+                    NULL);
+                
+                auto step2 = cc::CallFunc::create(
+                        [sprite, cpLight, scaleTarget1, scaleTarget2](){
+                    sprite->runAction(cc::RepeatForever::create(Flicker::create(
+                        1, 0.1,
+                        {(float)cpLight.defaultOpacity.first, (float)cpLight.defaultOpacity.second},
+                        {scaleTarget1.x, scaleTarget2.x},
+                        {scaleTarget1.y, scaleTarget2.y},
+                        cpLight.defaultColor.first, cpLight.defaultColor.second)));
+                });
+                
+                sprite->runAction(cc::Sequence::create(step1, step2, NULL));
             }
             else //disabled
             {
+                sprite->stopAllActions();
                 sprite->runAction(cc::Spawn::create(
                     cc::ActionFloat::create(def::anim::toggleLightDuration, sprite->getScaleX(), 0,
                         [sprite](float v){ sprite->setScaleX(v); }),
@@ -168,6 +192,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
                         [sprite](float v){ sprite->setScaleY(v); }),
                     NULL)
                 );
+                
             }
             break;
         }

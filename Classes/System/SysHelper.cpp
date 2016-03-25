@@ -326,7 +326,7 @@ unsigned SysHelper::createEntity(LayeredContainer* parent,
                 cpLight.halo->setOpacity(160);
                 cpLight.halo->setBlendFunc({GL_SRC_ALPHA, GL_ONE});
                 cpLight.halo->setScale(0,0);
-                cpLight.halo->setColor(cpLight.defaultColor);
+                cpLight.halo->setColor(cpLight.defaultColor.first);
                 parent->add(cpLight.halo, def::LayerType::FG, {0, 0});
             }
             break;

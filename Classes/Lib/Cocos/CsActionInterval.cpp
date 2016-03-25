@@ -35,7 +35,7 @@ bool Flicker::initWithDuration(float duration, float interval,
     if (r[0] == 0)
     {
         for(int i = 0; i < kMax; ++i)
-            r[i] = cocos2d::random();
+            r[i] = cc::random();
     }
     this->accumulator = 0.0;
     this->lastUpdate = 0.0;
@@ -78,7 +78,7 @@ Flicker* Flicker::reverse() const
 }
 
 
-void Flicker::update(float t)
+void Flicker::update(float tc)
 {
     double currentTime = lib::now();
     if (lastUpdate <= 0)

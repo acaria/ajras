@@ -13,9 +13,10 @@ struct LightConfig
     
     struct ObjectInfo
     {
-        cc::Color3B     color;
-        cc::Vec2        pos;
-        cc::Size        size;
+        std::pair<cc::Color3B, cc::Color3B> color;
+        std::pair<cc::Size, cc::Size>       size;
+        std::pair<unsigned, unsigned>       opacity;
+        cc::Vec2 pos;
     };
     
     cc::Color3B ambiantColor = {255,255,255};

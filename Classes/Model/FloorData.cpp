@@ -63,18 +63,69 @@ void FloorData::extractInfo(const std::string &name)
                     auto info = el.second.asValueMap();
                     
                     auto lightColor = std::vector<std::string>();
-                    lib::split(info.at("color").asString(), lightColor, ",", true);
+                    lib::split(info.at("color").asString(), lightColor, ",|", true);
+                    
+                    lightConfig.objects[el.first] = LightConfig::ObjectInfo();
+                    
+                    if (lightColor.size() == 6)
+                    {
+                        lightConfig.objects[el.first].color = {
+                            cc::Color3B(std::stoi(lightColor[0]),
+                                        std::stoi(lightColor[1]),
+                                        std::stoi(lightColor[2])),
+                            cc::Color3B(std::stoi(lightColor[3]),
+                                        std::stoi(lightColor[4]),
+                                        std::stoi(lightColor[5]))
+                        };
+                    }
+                    else
+                    {
+                        assert(lightColor.size() == 3);
+                        lightConfig.objects[el.first].color = {
+                            cc::Color3B(std::stoi(lightColor[0]),
+                                        std::stoi(lightColor[1]),
+                                        std::stoi(lightColor[2])),
+                            cc::Color3B(std::stoi(lightColor[0]),
+                                        std::stoi(lightColor[1]),
+                                        std::stoi(lightColor[2]))
+                        };
+                    }
                     
                     auto lightSize = std::vector<std::string>();
-                    lib::split(info.at("size").asString(), lightSize, ",", true);
+                    lib::split(info.at("size").asString(), lightSize, ",|", true);
                     
-                    lightConfig.objects[el.first] = {
-                        .color = cc::Color3B(std::stoi(lightColor[0]),
-                                             std::stoi(lightColor[1]),
-                                             std::stoi(lightColor[2])),
-                        .size = cc::Size(std::stoi(lightSize[0]),
-                                         std::stoi(lightSize[1]))
-                    };
+                    if (lightSize.size() == 4)
+                    {
+                        lightConfig.objects[el.first].size = {
+                            cc::Size(std::stof(lightSize[0]), std::stof(lightSize[1])),
+                            cc::Size(std::stof(lightSize[2]), std::stof(lightSize[3]))
+                        };
+                    }
+                    else
+                    {
+                        assert(lightSize.size() == 2);
+                        lightConfig.objects[el.first].size = {
+                            cc::Size(std::stof(lightSize[0]), std::stof(lightSize[1])),
+                            cc::Size(std::stof(lightSize[0]), std::stof(lightSize[1]))
+                        };
+                    }
+                    
+                    auto lightOpacity = std::vector<std::string>();
+                    lib::split(info.at("opacity").asString(), lightOpacity, ",|", true);
+                    
+                    if (lightOpacity.size() == 2)
+                    {
+                        lightConfig.objects[el.first].opacity = {
+                            std::stoi(lightOpacity[0]), std::stoi(lightOpacity[1])
+                        };
+                    }
+                    else
+                    {
+                        assert(lightOpacity.size() == 1);
+                        lightConfig.objects[el.first].opacity = {
+                            std::stoi(lightOpacity[0]), std::stoi(lightOpacity[0])
+                        };
+                    }
                 }
             }
             

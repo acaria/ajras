@@ -21,10 +21,12 @@
 			<dict>
 				<key>torch</key>
 				<dict>
+					<key>opacity</key>
+					<string>120|180</string>
 					<key>color</key>
-					<string>255,50,0</string>
+					<string>255,50,0|255,80,0</string>
 					<key>size</key>
-					<string>130,90</string>
+					<string>120,75|150,90</string>
 				</dict>
 			</dict>
 			<key>spot</key>

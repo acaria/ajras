@@ -3,7 +3,6 @@
 #include "LayeredContainer.h"
 #include "Components.h"
 #include "ModelProvider.h"
-#include "CsActionInterval.h"
 #include "MissionScene.h"
 #include "HealthBar.h"
 #include "GateMap.h"

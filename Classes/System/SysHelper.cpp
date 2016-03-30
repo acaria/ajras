@@ -342,3 +342,50 @@ unsigned SysHelper::createEntity(LayeredContainer* parent,
     dispatcher.onEntityAdded(group, eid);
     return eid;
 }
+
+void SysHelper::triggerHostileMode(unsigned int gid)
+{
+    for(auto eid : ecs::join<cp::Control, cp::Mood, cp::Render, cp::Input>(gid))
+    {
+        auto& cpRender = ecs::get<cp::Render>(eid);
+        auto searchMoods = def::mood::getOpponents(ecs::get<cp::Mood>(eid));
+        bool withHostile = false;
+        for(auto tid : ecs::system<cp::Mood>(gid))
+        {
+            if (def::mood::inside(ecs::get<cp::Mood>(tid), searchMoods))
+            {
+                withHostile = true;
+                break;
+            }
+        }
+        
+        auto onComplete = [eid](bool cancel) {
+            ecs::get<cp::Input>(eid).enabled = true;
+        };
+        
+        if (withHostile)
+        {
+            if (cpRender.moveAnimationKey != "hostile_")
+            {
+                ecs::get<cp::Physics>(eid).resetInput();
+                ecs::get<cp::Input>(eid).enabled = false;
+                cpRender.setMoveCategory("hostile");
+                cpRender.setAnimation("hostile_trigger_on", 1, onComplete);
+                if (ecs::has<cp::Orientation>(eid))
+                    ecs::get<cp::Orientation>(eid).dir = Dir::Down;
+            }
+        }
+        else
+        {
+            if (cpRender.moveAnimationKey != "walk_")
+            {
+                ecs::get<cp::Physics>(eid).resetInput();
+                ecs::get<cp::Input>(eid).enabled = false;
+                cpRender.setMoveCategory("walk");
+                cpRender.setAnimation("hostile_trigger_off", 1, onComplete);
+                if (ecs::has<cp::Orientation>(eid))
+                    ecs::get<cp::Orientation>(eid).dir = Dir::Down;
+            }
+        }
+    }
+}

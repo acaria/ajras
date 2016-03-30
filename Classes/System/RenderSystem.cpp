@@ -90,8 +90,6 @@ void RenderSystem::tick(double dt)
             
             cpRender.setMoveAnimation(orientation, cpPhy.inputIsActive());
         }
-        
-        cpRender.setMoveCategory("walk");
     }
 }
 

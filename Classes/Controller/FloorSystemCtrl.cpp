@@ -506,6 +506,11 @@ void FloorSystemCtrl::bindSystems()
         context.ecs->setID(group);
         dispatcher.onContextChanged();
     }));
+    
+    this->eventRegs.push_back(dispatcher.onSystemReady.registerObserver(
+            [this](unsigned group) {
+        SysHelper::triggerHostileMode(group);
+    }));
 }
 
 void FloorSystemCtrl::loadLevel()

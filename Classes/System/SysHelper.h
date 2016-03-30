@@ -45,4 +45,6 @@ public:
                                  const std::string& profile,
                                  lib::Random& rEngine,
                                  SystemDispatcher& dispatcher);
+    
+    static void triggerHostileMode(unsigned gid);
 };

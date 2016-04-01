@@ -121,8 +121,9 @@ void CmdFactory::animParamBy(const std::string &tag,
 
 void CmdFactory::animParamTo(const std::string &tag, float &current, float target, float duration)
 {
-    if (current == target)
+    if (current == target || duration == 0)
     {
+        current = target;
         if (onSuccess != nullptr)
             onSuccess();
         return;
@@ -149,17 +150,23 @@ void CmdFactory::animParamTo(const std::string &tag,
     auto it2 = to.begin();
     
     std::list<float> changePerSecond;
-    while(it1 != current.end() && it2 != to.end())
+    if (duration > 0)
     {
-        changePerSecond.push_back((*(it2++) - *(it1++)) / duration);
+        while(it1 != current.end() && it2 != to.end())
+        {
+            changePerSecond.push_back((*(it2++) - *(it1++)) / duration);
+        }
     }
 
     ecs::add<cp::Cmd>(eid, gid).setAnimate(tag,
             [duration, current, to, changePerSecond](unsigned eid, double dt) mutable {
+        
+        auto it1 = current.begin();
+        auto it2 = to.begin();
+        
         if (duration <= 0)
         {
-            auto it1 = current.begin();
-            auto it2 = to.begin();
+            
             while(it1 != current.end() && it2 != to.end())
             {
                 auto& current = (*it1).get();
@@ -170,14 +177,22 @@ void CmdFactory::animParamTo(const std::string &tag,
             
             return State::success;
         }
-        auto it1 = current.begin();
-        auto it2 = changePerSecond.begin();
-        while(it1 != current.end() && it2 != changePerSecond.end())
+        
+        auto it3 = changePerSecond.begin();
+                
+        while(it1 != current.end())
         {
             auto& current = (*it1).get();
-            current += *it2 * dt;
+            
+            auto val = *it3 * dt;
+            if ((val > 0 && current + val > *it2) || (val < 0 && current + val < *it2))
+                current = *it2;
+            else
+                current += val;
+            
             it1++;
             it2++;
+            it3++;
         }
         duration -= dt;
         return State::inProgress;

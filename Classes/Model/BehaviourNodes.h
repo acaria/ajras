@@ -6,8 +6,6 @@
 
 namespace behaviour
 {
-    enum nState { RUNNING, SUCCESS, FAILURE };
-    
     struct BaseNode;
     
     struct BoardNode

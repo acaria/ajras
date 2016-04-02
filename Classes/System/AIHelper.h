@@ -27,6 +27,9 @@ public:
     nState execAnim(unsigned eid,
         const std::vector<std::string>& params, Properties& properties);
     
+    nState execMoveCategory(unsigned eid,
+        const std::vector<std::string>& params, Properties& properties);
+    
     nState execTargetMood(unsigned eid, float sight,
         const std::vector<std::string>& params, Properties& properties);
     

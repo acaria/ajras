@@ -116,6 +116,8 @@ behaviour::nState AISystem::onExecute(unsigned eid, unsigned nid, double dt)
     {
         case lib::hash("anim"):
             return cmd.execAnim(eid, node->values, properties);
+        case lib::hash("movecategory"):
+            return cmd.execMoveCategory(eid, node->values, properties);
         case lib::hash("target"):
         {
             assert(node->values.size() > 0);

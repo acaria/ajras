@@ -1,9 +1,15 @@
 selector
     sequence "attack"
         action target mood opponent
-        until time 2.0
-            action movenear target 20.0
-        wait 1.0
+        sequence "trigger weapon on"
+            action anim hostile_trigger_on 1
+            action movecategory hostile
+            until time 2.0
+                action movenear target 20.0
+            wait 1.0
+            finally "trigger weapon off"
+                action anim hostile_trigger_off 1
+                action movecategory walk
 #    sequence "follow"
 #        action target player
 #        until time 10.0

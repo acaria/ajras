@@ -2,12 +2,14 @@
 
 namespace behaviour
 {
+    enum nState { RUNNING, SUCCESS, FAILURE };
+    
     using Waypoints = std::vector<cc::Point>;
     using TeamIds = std::set<unsigned>;
     using FollowTeamInfo = std::pair<unsigned, TeamIds>;
 
     using Variant = lib::variant<std::string, unsigned, int, float, double, bool,
-                                 cc::Point, lib::v2u,
+                                 cc::Point, lib::v2u, nState,
                                  Waypoints, FollowTeamInfo, TeamIds>;
     using Properties = std::map<std::string, Variant>;
 

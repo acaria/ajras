@@ -56,6 +56,26 @@
 	</dict>
 	<key>animations</key>
 	<dict>
+		<key>hostile_trigger_off</key>
+		<dict>
+			<key>format</key>
+			<string>boy_melee_trigger%d.png</string>
+			<key>delay</key>
+			<string>0.07</string>
+			<key>frameCount</key>
+			<integer>8</integer>
+			<key>frameOrder</key>
+			<string>8,7,6,5,4,3,2,1</string>
+		</dict>
+		<key>hostile_trigger_on</key>
+		<dict>
+			<key>format</key>
+			<string>boy_melee_trigger%d.png</string>
+			<key>delay</key>
+			<string>0.07</string>
+			<key>frameCount</key>
+			<integer>8</integer>
+		</dict>
 		<key>death</key>
 		<dict>
 			<key>format</key>
@@ -121,7 +141,7 @@
 				<string>1,2,3,4,5,4,3,2,1</string>
 			</dict>
 		</dict>
-		<key>_melee</key>
+		<key>_hostile</key>
 		<dict>
 			<key>_move</key>
 			<dict>

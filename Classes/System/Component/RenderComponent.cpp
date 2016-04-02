@@ -65,6 +65,7 @@ void RenderComponent::setMoveCategory(const std::string &cat)
         this->moveAnimationKey = cat + "_";
         return;
     }
+    Log("move category \"%s\" does not exist", cat.c_str());
     if (this->profile->animCategoryExists("walk"))
     {
         this->moveAnimationKey = "walk_";

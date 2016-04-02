@@ -68,26 +68,42 @@ nState AIHelper::execAnim(unsigned eid,
     if (!ecs::has<cp::Render>(eid))
         return nState::FAILURE;
     
-    if (!lib::hasKey(properties, "done"))
+    if (!lib::hasKey(properties, "result"))
     {
-        addProperty(properties, "done").set<bool>(false);
+        auto& cpRender = ecs::get<cp::Render>(eid);
+        
+        if (cpRender.busy)
+            return nState::FAILURE;
+        
+        addProperty(properties, "result").set<nState>(nState::RUNNING);
         assert(params.size() > 0); // params=[keyName, repeat]
         std::string keyName = params[0];
         int repeat = -1;
         if (params.size() > 1)
             repeat = std::stoi(params[1]);
-        ecs::get<cp::Render>(eid).setAnimation(keyName, repeat, [&properties](bool){
-            properties["done"].set<bool>(true);
+        cpRender.setAnimation(keyName, repeat, [&properties](bool cancel){
+            properties["result"].set<nState>(cancel ? nState::FAILURE : nState::SUCCESS);
         });
     }
-    return properties["done"].get<bool>() ? nState::SUCCESS : nState::RUNNING;
+    return properties["result"].get<nState>() ? nState::SUCCESS : nState::RUNNING;
+}
+
+nState AIHelper::execMoveCategory(unsigned eid,
+                          const std::vector<std::string>& params, Properties& properties)
+{
+    assert(params.size() > 0); // params=[keyName]
+    if (!ecs::has<cp::Render>(eid))
+        return nState::FAILURE;
+
+    ecs::get<cp::Render>(eid).setMoveCategory(params[0]);
+    return nState::SUCCESS;
 }
 
 nState AIHelper::execTargetMood(unsigned eid, float sight,
     const std::vector<std::string>& params, Properties& properties)
 {
     assert(params.size() == 2); //params=[category,value]
-    
+
     auto moodGroup = getMoodGroup(ecs::get<cp::Mood>(eid), params[1]);
     auto targetID = SysHelper::getNearest(system->context->ecs->getID(), eid, moodGroup, sight);
     if (targetID != nullptr)
@@ -224,7 +240,7 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         return nState::FAILURE;
 
     //if too close from target, stop following
-    if ((properties.find("followInfo") != properties.end()))
+    if (properties.find("followInfo") != properties.end())
     {
         auto& teamInfo = properties["followInfo"].get<FollowTeamInfo>();
         if (!ecs::has<cp::Position, cp::Physics>(teamInfo.first))
@@ -234,7 +250,7 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
             return this->procTeamDistance(eid, teamInfo.second, minKeepDistance);
         }
     }
-    
+
     //path finding in progress
     if (properties.find("waypoints") != properties.end())
     {
@@ -254,22 +270,22 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
     
     if (cpTeam.position == 0) //you are the leader, no follow
         return nState::SUCCESS;
-    
+
     unsigned leaderId = SysHelper::findTeamLeaderId(gid, eid, cpTeam.index);
     if (leaderId == 0)
         return nState::FAILURE;
-    
+
     if (!ecs::has<cp::Trail>(leaderId) || ecs::get<cp::Trail>(leaderId).tail.size() == 0)
         return nState::FAILURE;
-    
+
     if (SysHelper::getDistSquared(eid, leaderId) < minDistFollowSq)
     {
         //target too close, stop follow
         return nState::SUCCESS;
     }
-    
+
     auto teamIds = SysHelper::findTeamIds(gid, ecs::get<cp::Team>(eid).index);
-    
+
     for(auto teamId : teamIds)
     {
         if (teamId == leaderId || teamId == eid) continue;
@@ -281,20 +297,20 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
             return nState::SUCCESS;
         }
     }
-    
+
     addProperty(properties, "followInfo").set<FollowTeamInfo>(leaderId, teamIds);
-    
+
     //update general board
     if (!checkProperty(system->gBoard, "following"))
         addProperty(system->gBoard, "following").set<TeamIds>();
     system->gBoard["following"].get<TeamIds>().insert(eid);
-    
+
     auto bounds = SysHelper::getBounds(eid);
     cc::Point dest = system->context->data->getCol()->getFormationPosition(
         cpTeam.formation, cpTeam.position, ecs::get<cp::Trail>(leaderId).tail);
     auto wayPoints = system->context->data->getNav()->getWaypoints(
             teamIds, bounds, dest, ecs::get<cp::Physics>(eid).category);
-    
+
     if (wayPoints.size() > 0)
     {
         ecs::get<cp::Debug>(eid).wayPoints = wayPoints;
@@ -302,7 +318,7 @@ behaviour::nState AIHelper::execFollowTeam(unsigned eid,
         addProperty(properties, "waypoints").set<Waypoints>(wayPointsVec);
         return nState::RUNNING;
     }
-    
+
     return nState::FAILURE;
 }
 
@@ -346,16 +362,16 @@ behaviour::nState AIHelper::execMoveDirTarget(unsigned eid,
 {
     assert(params.size() == 2); //params=[category, range]
     float range = std::stod(params[1]);
-    
+
     if (!ecs::has<cp::Target, cp::Input>(eid))
         return nState::FAILURE;
     auto tid = ecs::get<cp::Target>(eid);
     if (!ecs::has<cp::Position, cp::Physics>(tid))
         return nState::FAILURE;
-    
+
     auto bounds = SysHelper::getBounds(eid);
     auto bounds2 = SysHelper::getBounds(tid);
-    
+
     auto& cpInput = ecs::get<cp::Input>(eid);
     auto vdir = cc::Vec2(bounds2.getMidX() - bounds.getMidX(), bounds2.getMidY() - bounds.getMidY());
     if (vdir.length() < range)

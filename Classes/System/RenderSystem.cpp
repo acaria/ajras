@@ -7,19 +7,6 @@
 
 void RenderSystem::init()
 {
-    this->eventRegs.push_back(this->dispatcher->onSystemReady.registerObserver(
-            [this](unsigned groupID){
-        /*for(auto eid : this->context->ecs->join<cp::Light, cp::Render>())
-        {
-            unsigned group = this->context->ecs->getID();
-            auto& cpLight = ecs::get<cp::Light>(eid);
-            CmdFactory::at(group, eid).animParamTo("spotlight",
-                {cpLight.current.brightness, cpLight.current.cutOffRadius},
-                {cpLight.defaultRef.brightness, cpLight.defaultRef.cutOffRadius},
-                0.5);
-        }*/
-    }));
-    
     this->eventRegs.push_back(this->dispatcher->onGateEnter.registerObserver(
             [this](unsigned group, unsigned eid, GateMap  gate){
         switch(gate.cmd)

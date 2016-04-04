@@ -57,7 +57,7 @@ void DebugSystem::purge(const std::set<unsigned int> &ref,
 
 void DebugSystem::tick(double dt)
 {
-    if (GameCtrl::instance()->getData().debugMode == 0)
+    if (GameCtrl::data()->debugMode == 0)
     {
         if (this->zoneLayer->getParent() != nullptr)
             this->context->view->removeChild(this->zoneLayer);

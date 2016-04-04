@@ -316,10 +316,9 @@ unsigned SysHelper::createEntity(LayeredContainer* parent,
             case lib::hash("light"): {
                 assert(profile->interaction->actionParams != nullptr);
                 auto lightType = profile->interaction->actionParams.Value;
-                auto& light = GameCtrl::instance()->getLight();
                 auto& cpLight = ecs::add<cp::Light>(eid, group);
-                cpLight.defaultColor = light.defaultConfig.objects[lightType].color;
-                cpLight.defaultSize = light.defaultConfig.objects[lightType].size;
+                cpLight.defaultColor = GameCtrl::light()->defaultConfig.objects[lightType].color;
+                cpLight.defaultSize = GameCtrl::light()->defaultConfig.objects[lightType].size;
 
                 cpLight.halo = cc::Sprite::createWithSpriteFrameName("grad_circle.png");
                 cpLight.halo->setPosition({cpPhy.shape.getMidX() + pos.x, cpPhy.shape.getMidY() + pos.y});

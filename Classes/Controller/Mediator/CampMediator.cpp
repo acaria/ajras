@@ -3,8 +3,8 @@
 
 void CampMediator::onAddView(CampScene &scene)
 {
-    auto campData = GameCtrl::instance()->getData().curCamp();
-    auto playerData = GameCtrl::instance()->getData().getPlayerData();
+    auto campData = GameCtrl::data()->getCamp();
+    auto playerData = GameCtrl::data()->getPlayer();
     
     scene.setBgColor(cc::Color3B::BLACK);
     scene.getCam()->setFrameBounds(campData->getBounds());
@@ -17,8 +17,8 @@ void CampMediator::onAddView(CampScene &scene)
 
 void CampMediator::registerDispatcher(CampScene &scene)
 {
-    auto playerData = GameCtrl::instance()->getData().getPlayerData();
-    auto campData = GameCtrl::instance()->getData().curCamp();
+    auto campData = GameCtrl::data()->getCamp();
+    auto playerData = GameCtrl::data()->getPlayer();
     
     this->systemRegs.clear();
     auto& dispatcher = this->systemCtrl.getDispatcher();

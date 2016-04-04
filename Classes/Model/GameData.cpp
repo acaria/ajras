@@ -4,14 +4,16 @@
 
 void GameData::loadPlayer()
 {
-    if (this->playerData != nullptr)
-        delete this->playerData;
+    this->playerAvailable = true;
+    if (this->player != nullptr)
+        delete this->player;
     
-    this->playerData = PlayerData::createDefault();
+    this->player = PlayerData::createDefault();
 }
 
 void GameData::loadCamp()
 {
+    this->campAvailable = true;
     if (this->camp != nullptr)
         delete this->camp;
     
@@ -21,6 +23,7 @@ void GameData::loadCamp()
 
 void GameData::loadMission()
 {
+    this->floorAvailable = true;
     if (this->floor != nullptr)
         delete this->floor;
 
@@ -30,6 +33,24 @@ void GameData::loadMission()
 
 void GameData::save()
 {
+}
+
+FloorData*  GameData::getFloor()
+{
+    assert(floorAvailable);
+    return floor;
+}
+
+CampData*   GameData::getCamp()
+{
+    assert(campAvailable);
+    return camp;
+}
+
+PlayerData* GameData::getPlayer()
+{
+    assert(playerAvailable);
+    return player;
 }
 
 void GameData::reset()
@@ -42,10 +63,10 @@ void GameData::reset()
         floor = nullptr;
     }
     
-    if (this->playerData != nullptr)
+    if (this->player != nullptr)
     {
-        delete playerData;
-        playerData = nullptr;
+        delete player;
+        player = nullptr;
     }
     
     if(this->camp != nullptr)
@@ -63,14 +84,4 @@ GameData::~GameData()
 void GameData::toggleDebug()
 {
     this->debugMode = ++debugMode % 2;
-}
-
-FloorData* GameData::curFloor()
-{
-    return floor;
-}
-
-CampData* GameData::curCamp()
-{
-    return camp;
 }

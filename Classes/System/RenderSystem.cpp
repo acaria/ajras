@@ -13,10 +13,10 @@ void RenderSystem::init()
         {
             case GateMap::CmdType::CHANGE_ROOM:
             {
-                auto focusID = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
+                auto focusID = GameCtrl::data()->getPlayer()->getEntityFocusID();
                 if (eid == focusID)
                 {
-                    auto& lightCfg = GameCtrl::instance()->getLight().currentConfig;
+                    auto& lightCfg = GameCtrl::light()->currentConfig;
                     CmdFactory::at(group, eid).animParamTo("spotlight",
                         {lightCfg.spot.brightness, lightCfg.spot.cutOffRadius},
                         {0, 0},
@@ -38,11 +38,11 @@ void RenderSystem::init()
             case GateMap::CmdType::CHANGE_ROOM:
             case GateMap::CmdType::ENTER_MAP:
             {
-                auto focusID = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
+                auto focusID = GameCtrl::data()->getPlayer()->getEntityFocusID();
                 if (eid == focusID)
                 {
-                    auto& lightCfg = GameCtrl::instance()->getLight().currentConfig;
-                    auto& defaultCfg = GameCtrl::instance()->getLight().defaultConfig;
+                    auto& lightCfg = GameCtrl::light()->currentConfig;
+                    auto& defaultCfg = GameCtrl::light()->defaultConfig;
                     CmdFactory::at(group, eid).animParamTo("spotlight",
                         {lightCfg.spot.brightness, lightCfg.spot.cutOffRadius},
                         {defaultCfg.spot.brightness, defaultCfg.spot.cutOffRadius},
@@ -82,8 +82,8 @@ void RenderSystem::tick(double dt)
 
 void RenderSystem::animate(double dt, double tickPercent)
 {
-    auto& lightCfg = GameCtrl::instance()->getLight().currentConfig;
-    auto focusID = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
+    auto& lightCfg = GameCtrl::light()->currentConfig;
+    auto focusID = GameCtrl::data()->getPlayer()->getEntityFocusID();
     
     for(auto eid : context->ecs->system<cp::Render>())
     {

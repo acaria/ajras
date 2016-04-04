@@ -29,8 +29,8 @@ public:
     void goToMission();
     
     //accessors
-    GameData&       getData();
-    LightManager&   getLight();
+    static GameData*        data();
+    static LightManager*    light();
     TickCtrl    tick;
 
     //trace && debug
@@ -56,7 +56,7 @@ public:
 protected:
     SceneManager    scene;
     ShaderManager   shaders;
-    LightManager    light;
+    LightManager    lightManager;
 
 private:
     template<typename ... Args>

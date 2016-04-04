@@ -119,7 +119,7 @@ nState AIHelper::execTargetMood(unsigned eid, float sight,
 nState AIHelper::execTargetPlayer(unsigned eid,
     const std::vector<std::string>& params, Properties& properties)
 {
-    auto focusID = GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID();
+    auto focusID = GameCtrl::data()->getPlayer()->getEntityFocusID();
     system->context->ecs->add<cp::Target>(eid) = focusID;
     return nState::SUCCESS;
 }

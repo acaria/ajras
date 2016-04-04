@@ -14,17 +14,21 @@ public:
     void save();
     void reset();
     
-    FloorData*  curFloor();
-    CampData*   curCamp();
-    
+    //accessors
+    FloorData*  getFloor();
+    CampData*   getCamp();
+    PlayerData* getPlayer();
     
     int debugMode = 0;
     void toggleDebug();
     
-    PROPERTY_READ(PlayerData*, playerData, PlayerData);
-    
 private:
+    bool playerAvailable = false;
+    bool floorAvailable = false;
+    bool campAvailable = false;
+
 //dynamics
+    PlayerData* player = nullptr;
     FloorData*  floor = nullptr;
     CampData*   camp = nullptr;
 };

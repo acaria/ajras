@@ -64,9 +64,9 @@ void GameCtrl::goToMainMenu()
 void GameCtrl::goToCamp(std::string startKey)
 {
     this->gameData.loadCamp();
-    this->gameData.getPlayerData()->startCampKey = startKey;
+    this->gameData.getPlayer()->startCampKey = startKey;
     
-    for(auto ss : this->gameData.curCamp()->getSpriteSheets())
+    for(auto ss : this->gameData.getCamp()->getSpriteSheets())
         CocosHelper::addSpriteSheet("ss-" + ss + ".plist", def::antialias);
     
     this->scene.go2Camp();
@@ -76,9 +76,9 @@ void GameCtrl::goToMission()
 {
     this->gameData.loadMission();
     
-    for(auto ss : this->gameData.curFloor()->getSpriteSheets())
+    for(auto ss : this->gameData.getFloor()->getSpriteSheets())
         CocosHelper::addSpriteSheet("ss-" + ss + ".plist", def::antialias);
-    for(auto tex : this->gameData.curFloor()->getTextures())
+    for(auto tex : this->gameData.getFloor()->getTextures())
         CocosHelper::addTexture(tex, def::antialias);
     CocosHelper::addSpriteSheet("ss-gui_mission.plist", def::antialias);
     
@@ -103,12 +103,12 @@ void GameCtrl::onAnimate(double dt, double tickPercent)
         mediator->onAnimate(dt, tickPercent);
 }
 
-GameData& GameCtrl::getData()
+GameData* GameCtrl::data()
 {
-    return this->gameData;
+    return &GameCtrl::instance()->gameData;
 }
 
-LightManager& GameCtrl::getLight()
+LightManager* GameCtrl::light()
 {
-    return this->light;
+    return &GameCtrl::instance()->lightManager;
 }

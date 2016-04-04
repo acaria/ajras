@@ -3,13 +3,13 @@
 
 void MissionMediator::onAddView(MissionScene &scene)
 {
-    auto floorData = GameCtrl::instance()->getData().curFloor();
-    auto playerData = GameCtrl::instance()->getData().getPlayerData();
+    auto floorData = GameCtrl::data()->getFloor();
+    auto playerData = GameCtrl::data()->getPlayer();
     
     scene.setBgColor(floorData->getBgColor());
     
     //init light
-    GameCtrl::instance()->getLight().init(floorData->getLightConfig());
+    GameCtrl::light()->init(floorData->getLightConfig());
     
     this->systemCtrl.load(scene.getCam(), scene.getFrame(), playerData, floorData);
     
@@ -48,10 +48,11 @@ void MissionMediator::onAddView(MissionScene &scene)
 
 void MissionMediator::registerDispatcher(MissionScene& scene)
 {
+    auto floorData = GameCtrl::data()->getFloor();
+    auto playerData = GameCtrl::data()->getPlayer();
+    
     this->systemRegs.clear();
     auto& dispatcher = this->systemCtrl.getDispatcher();
-    auto floorData = GameCtrl::instance()->getData().curFloor();
-    auto playerData = GameCtrl::instance()->getData().getPlayerData();
     
     //interface events
     this->systemRegs.push_back(scene.interface->getStick()->onTrigger.registerObserver(
@@ -130,7 +131,7 @@ void MissionMediator::registerDispatcher(MissionScene& scene)
     
     this->systemRegs.push_back(dispatcher.onGateTriggered.registerObserver(
         [this](unsigned prevRoomIndex, unsigned eid, GateMap  gate) {
-            if (eid != GameCtrl::instance()->getData().getPlayerData()->getEntityFocusID())
+            if (eid != GameCtrl::data()->getPlayer()->getEntityFocusID())
                 return;
             switch(gate.cmd)
             {

@@ -26,7 +26,7 @@ void SpriteLight::setCustomUniforms(cc::GLProgramState *gls,
     cc::Vec2 framePos = frame->getRect().origin;
     cc::Size texSize = frame->getTexture()->getContentSize();
     
-    auto& light = GameCtrl::instance()->getLight().currentConfig;
+    auto& light = GameCtrl::light()->currentConfig;
     auto& spot = light.spot;
     
     cc::Vec2 lightPos = {spot.pos.x - frameBounds.origin.x,

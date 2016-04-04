@@ -22,7 +22,7 @@ public:
         auto kListener = cc::EventListenerKeyboard::create();
         kListener->onKeyReleased = [this](KeyCode code, cocos2d::Event *event) {
             if (code == KeyCode::KEY_GRAVE)
-                GameCtrl::instance()->getData().toggleDebug();
+                GameCtrl::data()->toggleDebug();
         };
         scene.getEventDispatcher()->addEventListenerWithSceneGraphPriority(kListener, &scene);
         

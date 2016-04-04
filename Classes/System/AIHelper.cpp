@@ -68,16 +68,17 @@ nState AIHelper::execAnim(unsigned eid,
     if (!ecs::has<cp::Render>(eid))
         return nState::FAILURE;
     
-    if (!lib::hasKey(properties, "result"))
+    auto& cpRender = ecs::get<cp::Render>(eid);
+    assert(params.size() > 0); // params=[keyName, repeat]
+    std::string keyName = params[0];
+    
+    if (!lib::hasKey(properties, "result") || keyName != cpRender.curAnimKey)
     {
-        auto& cpRender = ecs::get<cp::Render>(eid);
-        
         if (cpRender.busy)
             return nState::FAILURE;
         
         addProperty(properties, "result").set<nState>(nState::RUNNING);
-        assert(params.size() > 0); // params=[keyName, repeat]
-        std::string keyName = params[0];
+        
         int repeat = -1;
         if (params.size() > 1)
             repeat = std::stoi(params[1]);
@@ -85,6 +86,7 @@ nState AIHelper::execAnim(unsigned eid,
             properties["result"].set<nState>(cancel ? nState::FAILURE : nState::SUCCESS);
         });
     }
+    
     return properties["result"].get<nState>() ? nState::SUCCESS : nState::RUNNING;
 }
 

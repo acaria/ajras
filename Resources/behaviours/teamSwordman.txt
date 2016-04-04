@@ -1,7 +1,7 @@
 selector
     sequence "attack"
         action target mood opponent
-        sequence "trigger weapon on"
+        sequence "trigger weapon and attack"
             action anim hostile_trigger_on 1
             action movecategory hostile
             until time 2.0

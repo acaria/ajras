@@ -83,19 +83,32 @@ void CmdFactory::goTo(std::list<cc::Vec2> waypoints, float nearDistance)
             
         ecs::get<cp::Debug>(eid).wayPoints = waypoints;
 
-        auto target = waypoints.front();
         auto& cpPosition = ecs::get<cp::Position>(eid);
         auto& cpPhy = ecs::get<cp::Physics>(eid);
         auto bounds = SysHelper::getBounds(cpPosition, cpPhy);
-        cc::Vec2 dir = target - cc::Vec2(bounds.getMidX(), bounds.getMidY());
-        //hack for decelerations
-        ecs::get<cp::Input>(eid).direction = dir.getNormalized() * MIN(1.0, dir.length() / 5);
+
+        auto currentPos = cc::Vec2(bounds.getMidX(), bounds.getMidY());
+        auto nextPos = currentPos + cpPhy.getResultForce() * dt;
+        auto targetPos = waypoints.front();
+        cc::Vec2 dir = targetPos - currentPos;
+        float length = dir.length();
         
-        if (dir.length() < nearDistance)
+        cc::Rect zone = cc::Rect(fmin(currentPos.x, nextPos.x), fmin(currentPos.y, nextPos.y),
+                                 fabs(currentPos.x - nextPos.x), fabs(currentPos.y - nextPos.y));
+        
+        if (length < nearDistance || zone.containsPoint(targetPos))
         {
             waypoints.pop_front();
             ecs::get<cp::Debug>(eid).wayPoints = waypoints;
         }
+        else
+        {
+            if (waypoints.size() > 1)
+                ecs::get<cp::Input>(eid).direction = dir.getNormalized();
+            else
+                ecs::get<cp::Input>(eid).direction = dir.getNormalized() * MIN(1.0, length / 16);
+        }
+        
         return State::inProgress;
     }, onSuccess, onFailure);
 }

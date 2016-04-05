@@ -54,7 +54,26 @@ std::list<cc::Vec2> NavigationInfo::getWaypoints(const std::set<unsigned>& eids,
     if (result == nullptr)
         return std::list<cc::Point>();
     
-    return result.Value;
+    //remove useless steps
+    auto waypoints = result.Value;
+    for(auto it = waypoints.begin(); it != waypoints.end();)
+    {
+        auto it2 = std::next(it, 1);
+        if (it2 == waypoints.end())
+            break;
+        auto it3 = std::next(it, 2);
+        if (it2 == waypoints.end())
+            break;
+        
+        if ((((*it).x == (*it2).x && (*it2).x == (*it3).x)) ||
+            (((*it).y == (*it2).y && (*it2).y == (*it3).y)))
+            waypoints.erase(it2);
+        else
+            it++;
+    }
+    //---
+    
+    return waypoints;
 }
 
 void NavigationInfo::debugWaypoints(const std::set<unsigned>& eids,

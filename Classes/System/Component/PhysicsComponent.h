@@ -29,7 +29,6 @@ struct PhysicsComponent
         float       curSpeed;
         float       maxSpeed;
         float       inertiaFactor;
-        float       decSpeed;
         cc::Vec2    direction;
         float       duration;
     };

@@ -269,6 +269,7 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid, con
             this->switchRoom(prevRoomIndex, nextRoomIndex, animPos.second,
                     [this, nextRoomIndex, prevRoomIndex, gate, eid](){
                 float delay = 0;
+                float transitDelay = 0;
                 for(auto eid2 : transitInfo.teamReadyIds)
                 {
                     CmdFactory::at(nextRoomIndex, eid2,
@@ -280,7 +281,7 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid, con
                                 def::anim::showEntityFromGateDuration,
                                     [this, nextRoomIndex, eid2, gate](){
                             this->transitInfo.teamReadyIds.remove(eid2);
-                            if (this->transitInfo.teamReadyIds.size() > 0)
+                            if (this->transitInfo.teamReadyIds.size() > 1)
                             {
                                 auto cpTeam = ecs::get<cp::Team>(eid2);
                                 auto dir = this->transitInfo.deployTeamUnit(gate,
@@ -289,6 +290,7 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid, con
                             }
                         });
                     }).delay(delay);
+                    transitDelay += def::anim::showEntityFromGateDuration + 0.01;
                     delay += def::anim::teamReadyEntityDelay;
                 }
                 
@@ -309,7 +311,7 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid, con
                 
                 CmdFactory::at(context.ecs, playerData->getEntityFocusID(), [this, nextRoomIndex](){
                     this->dispatcher.onSystemReady(nextRoomIndex);
-                }).delay((def::anim::teamReadyEntityDelay * transitInfo.teamReadyIds.size()));
+                }).delay(transitDelay);
             });
         });
     }
@@ -598,7 +600,7 @@ void FloorSystemCtrl::loadEntities()
                 this->showEntityFromGate(roomIndex, playerEntity.entityID, enterGate,
                         def::anim::showEntityFromGateDuration,
                         [this, enterGate, roomIndex, playerEntity, count](){
-                    if (playerData->entities.size() > 0)
+                    if (playerData->entities.size() > 1)
                     {
                         auto dir = this->transitInfo.deployTeamUnit(enterGate,
                             playerEntity.team.formation, playerEntity.team.position);

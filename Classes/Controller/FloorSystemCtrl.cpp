@@ -526,7 +526,7 @@ void FloorSystemCtrl::loadLevel()
         
         auto roomSystemCtrl = new RoomSystemCtrl(roomIndex, layeredNode, roomData, dispatcher);
         
-        roomSystemCtrl->hideObjects(0);
+        //roomSystemCtrl->hideObjects(0);
         
         this->roomViews[roomIndex] = layeredNode;
         this->roomSystems[roomIndex] = roomSystemCtrl;

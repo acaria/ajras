@@ -44,6 +44,7 @@ struct RenderComponent
     std::string             curAnimKey;
     double                  elapsedTime;
     bool                    busy = false;
+    bool                    displayed = true;
 
     //output
     SpriteEx* sprite;

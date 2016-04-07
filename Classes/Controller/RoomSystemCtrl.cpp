@@ -151,27 +151,62 @@ void RoomSystemCtrl::loadZoneObject(const std::string &zoneType, const cc::Rect 
 
 void RoomSystemCtrl::hideObjects(float duration)
 {
-    for(auto eid : ecsGroup.join<cp::Render, cp::Position>())
+    for(auto eid : ecsGroup.system<cp::Render>())
     {
+        auto& cpRender = ecs::get<cp::Render>(eid);
+     
+        if (!cpRender.displayed)
+            continue;
+        cpRender.displayed = false;
+
         if (duration == 0)
-            ecs::get<cp::Render>(eid).sprite->setOpacity(0);
+            cpRender.sprite->setOpacity(0);
         else
-        {
-            ecs::get<cp::Render>(eid).sprite->runAction(cc::FadeOut::create(duration));
-        }
+            cpRender.sprite->runAction(cc::FadeOut::create(duration));
+    }
+    
+    for(auto eid : ecsGroup.system<cp::Light>())
+    {
+        auto& cpLight = ecs::get<cp::Light>(eid);
+        cpLight.halo->stopAllActions();
+        if (duration == 0)
+            cpLight.halo->setOpacity(0);
+        else
+            cpLight.halo->runAction(cc::FadeOut::create(duration));
     }
 }
 
 void RoomSystemCtrl::showObjects(float duration)
 {
-    for(auto eid : ecsGroup.join<cp::Render, cp::Position>())
+    for(auto eid : ecsGroup.system<cp::Render>())
     {
-        ecs::get<cp::Render>(eid).sprite->stopAllActions();
+        auto& cpRender = ecs::get<cp::Render>(eid);
+        
+        if (cpRender.displayed)
+            continue;
+        cpRender.displayed = true;
+        
+        cpRender.sprite->stopAllActions();
         if (duration == 0)
-            ecs::get<cp::Render>(eid).sprite->setOpacity(255);
+            cpRender.sprite->setOpacity(255);
+        else
+            cpRender.sprite->runAction(cc::FadeIn::create(duration));
+    }
+    
+    for(auto eid : ecsGroup.system<cp::Light>())
+    {
+        auto& cpLight = ecs::get<cp::Light>(eid);
+        if (duration == 0)
+        {
+            cpLight.halo->setOpacity(cpLight.defaultOpacity.first);
+            cpLight.halo->runAction(cpLight.createFlickerAction());
+        }
         else
         {
-            ecs::get<cp::Render>(eid).sprite->runAction(cc::FadeIn::create(duration));
+            cpLight.halo->runAction(cc::Sequence::create(
+                cc::FadeTo::create(duration, cpLight.defaultOpacity.first),
+                cpLight.createFlickerAction(),
+                NULL));
         }
     }
 }

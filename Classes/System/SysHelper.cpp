@@ -254,6 +254,7 @@ unsigned SysHelper::createEntity(LayeredContainer* parent,
     cpRender.sprite->setPosition(pos);
     cpRender.sprite->setOpacity(0);
     cpRender.sprite->setCascadeOpacityEnabled(true);
+    cpRender.displayed = false;
     
     cpPhy.setProfile(profile);
     
@@ -318,11 +319,12 @@ unsigned SysHelper::createEntity(LayeredContainer* parent,
                 auto lightType = profile->interaction->actionParams.Value;
                 auto& cpLight = ecs::add<cp::Light>(eid, group);
                 cpLight.defaultColor = GameCtrl::light()->defaultConfig.objects[lightType].color;
+                cpLight.defaultOpacity = GameCtrl::light()->defaultConfig.objects[lightType].opacity;
                 cpLight.defaultSize = GameCtrl::light()->defaultConfig.objects[lightType].size;
 
                 cpLight.halo = cc::Sprite::createWithSpriteFrameName("grad_circle.png");
                 cpLight.halo->setPosition({cpPhy.shape.getMidX() + pos.x, cpPhy.shape.getMidY() + pos.y});
-                cpLight.halo->setOpacity(160);
+                cpLight.halo->setOpacity(cpLight.defaultOpacity.first);
                 cpLight.halo->setBlendFunc({GL_SRC_ALPHA, GL_ONE});
                 cpLight.halo->setScale(0,0);
                 cpLight.halo->setColor(cpLight.defaultColor.first);

@@ -1,7 +1,6 @@
 #include "InteractSystem.h"
 #include "ModelProvider.h"
 #include "IMapData.h"
-#include "CsActionInterval.h"
 
 void InteractSystem::tick(double dt)
 {
@@ -149,38 +148,7 @@ void InteractSystem::triggerAction(unsigned eid, InteractComponent& interact)
             if (interact.activated)
             {
                 sprite->stopAllActions();
-                cc::Vec2 scaleTarget1 = {
-                    cpLight.defaultSize.first.width / sprite->getContentSize().width,
-                    cpLight.defaultSize.first.height / sprite->getContentSize().height,
-                };
-                cc::Vec2 scaleTarget2 = {
-                    cpLight.defaultSize.second.width / sprite->getContentSize().width,
-                    cpLight.defaultSize.second.height / sprite->getContentSize().height,
-                };
-                auto step1 = cc::Spawn::create(
-                    cc::ActionFloat::create(
-                        def::anim::toggleLightDuration,
-                        sprite->getScaleX(),
-                        scaleTarget1.x,
-                        [sprite](float v){ sprite->setScaleX(v); }),
-                    cc::ActionFloat::create(
-                        def::anim::toggleLightDuration,
-                        sprite->getScaleY(),
-                        scaleTarget1.y,
-                        [sprite](float v){ sprite->setScaleY(v); }),
-                    NULL);
-                
-                auto step2 = cc::CallFunc::create(
-                        [sprite, cpLight, scaleTarget1, scaleTarget2](){
-                    sprite->runAction(cc::RepeatForever::create(Flicker::create(
-                        1, 0.1,
-                        {(float)cpLight.defaultOpacity.first, (float)cpLight.defaultOpacity.second},
-                        {scaleTarget1.x, scaleTarget2.x},
-                        {scaleTarget1.y, scaleTarget2.y},
-                        cpLight.defaultColor.first, cpLight.defaultColor.second)));
-                });
-                
-                sprite->runAction(cc::Sequence::create(step1, step2, NULL));
+                sprite->runAction(cpLight.createFlickerAction());
             }
             else //disabled
             {

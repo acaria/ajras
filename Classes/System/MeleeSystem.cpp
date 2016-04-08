@@ -205,9 +205,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     this->setEntityAvailability(oid, false);
     
     //exclude attacker from systems
-    context->ecs->del<cp::Position>(eid);
-    dispatcher->onFakeAgentRectAdded(context->ecs->getID(), eid, bounds1);
-    dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
+    cpRender.manualPositionMode = true;
     
     //attacker: estocade anim
     auto prepareAnim = cc::Sequence::create(
@@ -221,9 +219,7 @@ void MeleeSystem::processDirMelee(unsigned eid, unsigned oid, Dir atkDir)
     auto attackAnim = cc::CallFunc::create([&cpMelee, eid, this, &cpRender, atkDir](){
         auto animName = cpMelee.animKey.Value + ProfileData::getTagName(atkDir);
         cpRender.setAnimation(animName, 1, [&cpRender, eid, this](bool canceled){
-            dispatcher->onFakeAgentRectRemoved(context->ecs->getID(), eid);
-            context->ecs->add<cp::Position>(eid).set(cpRender.sprite->getPosition());
-            dispatcher->onEntityPositionChanged(context->ecs->getID(), eid);
+            cpRender.manualPositionMode = false;
             setEntityAvailability(eid, true);
         });
     });

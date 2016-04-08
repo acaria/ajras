@@ -133,11 +133,12 @@ void FloorSystemCtrl::regroupTeam(unsigned eid, unsigned nextRoomIndex, const Ga
     unsigned teamID = ecs::get<cp::Team>(eid).index;
     
     transitInfo.processed = false;
+    transitInfo.teamCount = 0;
     transitInfo.teamReadyIds.clear();
     transitInfo.teamLeftIds.clear();
     
     auto launcher = [onReady, this, eid, gate, teamID](){
-        
+        transitInfo.teamCount++;
         transitInfo.teamReadyIds.push_back(eid);
         for(auto eid2 : ecsGroup.join<cp::Physics, cp::Team, cp::Position>())
         {
@@ -153,6 +154,7 @@ void FloorSystemCtrl::regroupTeam(unsigned eid, unsigned nextRoomIndex, const Ga
                 cpPhy.category);
             
             auto onFinished = [onReady, this, eid2]() {
+                transitInfo.teamCount++;
                 transitInfo.teamReadyIds.push_back(eid2);
                 transitInfo.teamLeftIds.remove(eid2);
                 
@@ -281,7 +283,7 @@ void FloorSystemCtrl::changeEntityRoom(unsigned prevRoomIndex, unsigned eid, con
                                 def::anim::showEntityFromGateDuration,
                                     [this, nextRoomIndex, eid2, gate](){
                             this->transitInfo.teamReadyIds.remove(eid2);
-                            if (this->transitInfo.teamReadyIds.size() > 1)
+                            if (this->transitInfo.teamCount > 1)
                             {
                                 auto cpTeam = ecs::get<cp::Team>(eid2);
                                 auto dir = this->transitInfo.deployTeamUnit(gate,
@@ -600,7 +602,7 @@ void FloorSystemCtrl::loadEntities()
                 this->showEntityFromGate(roomIndex, playerEntity.entityID, enterGate,
                         def::anim::showEntityFromGateDuration,
                         [this, enterGate, roomIndex, playerEntity, count](){
-                    if (playerData->entities.size() > 1)
+                    if (playerData->entities.size() > 0)
                     {
                         auto dir = this->transitInfo.deployTeamUnit(enterGate,
                             playerEntity.team.formation, playerEntity.team.position);

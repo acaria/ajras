@@ -43,6 +43,9 @@ struct RenderComponent
     
     std::string             curAnimKey;
     double                  elapsedTime;
+    
+    //flags
+    bool                    manualPositionMode = false;
     bool                    busy = false;
     bool                    displayed = true;
 

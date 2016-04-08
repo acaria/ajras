@@ -8,6 +8,7 @@ struct TransitInfo
     bool processed = false;
     std::list<unsigned>         teamLeftIds;
     std::list<unsigned>         teamReadyIds;
+    int teamCount;
     std::map<unsigned, GateMap> processing;
     
     cc::Vec2 deployTeamUnit(const GateMap& gate,

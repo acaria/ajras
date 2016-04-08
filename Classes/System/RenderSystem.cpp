@@ -89,7 +89,7 @@ void RenderSystem::animate(double dt, double tickPercent)
     {
         auto &cpRender = ecs::get<cp::Render>(eid);
         
-        if (ecs::has<cp::Position>(eid))
+        if (!cpRender.manualPositionMode && ecs::has<cp::Position>(eid))
         {
             auto &cpPos = ecs::get<cp::Position>(eid);
         
@@ -99,6 +99,7 @@ void RenderSystem::animate(double dt, double tickPercent)
             cpRender.sprite->setPosition(pos);
         }
         
+        //spot light
         if (eid == focusID && ecs::has<cp::Physics>(eid))
         {
             auto& shape = ecs::get<cp::Physics>(eid).shape;

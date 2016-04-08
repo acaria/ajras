@@ -22,7 +22,7 @@
 				<key>torch</key>
 				<dict>
 					<key>opacity</key>
-					<string>120|180</string>
+					<string>140|180</string>
 					<key>color</key>
 					<string>255,50,0|255,80,0</string>
 					<key>size</key>
